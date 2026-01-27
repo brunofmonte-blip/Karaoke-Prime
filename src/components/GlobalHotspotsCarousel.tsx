@@ -11,15 +11,15 @@ import { cn } from "@/lib/utils";
 interface Hotspot {
   city: string;
   country: string;
-  image: string; // Placeholder for image path
+  image: string; // Unsplash URL
 }
 
 const hotspots: Hotspot[] = [
-  { city: "New York", country: "USA", image: "/placeholder.svg" },
-  { city: "Rio de Janeiro", country: "Brazil", image: "/placeholder.svg" },
-  { city: "Tokyo", country: "Japan", image: "/placeholder.svg" },
-  { city: "London", country: "UK", image: "/placeholder.svg" },
-  { city: "Seoul", country: "South Korea", image: "/placeholder.svg" },
+  { city: "New York", country: "USA", image: "https://images.unsplash.com/photo-1534430480872-3498388e7856?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { city: "Rio de Janeiro", country: "Brazil", image: "https://images.unsplash.com/photo-1516306580123-e6e68b6ac59e?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { city: "Tokyo", country: "Japan", image: "https://images.unsplash.com/photo-1540959733332-eab4de39d625?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { city: "London", country: "UK", image: "https://images.unsplash.com/photo-1505761671935-60b3a7427be3?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { city: "Seoul", country: "South Korea", image: "https://images.unsplash.com/photo-1580973309277-82919029607c?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
 ];
 
 const GlobalHotspotsCarousel = () => {
@@ -51,10 +51,10 @@ const GlobalHotspotsCarousel = () => {
                     {/* Image Placeholder */}
                     <div 
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-105"
-                      // Correcting image path and ensuring it uses the stage background if placeholder fails
-                      style={{ backgroundImage: `url(${hotspot.image === '/placeholder.svg' ? '/stage-background.jpg' : hotspot.image})` }}
+                      // Using Unsplash URL directly
+                      style={{ backgroundImage: `url(${hotspot.image})` }}
                     >
-                      <img src={hotspot.image} alt={`${hotspot.city} stage`} className="w-full h-full object-cover opacity-20" />
+                      {/* Removed redundant img tag */}
                     </div>
                     
                     {/* Text Overlay */}

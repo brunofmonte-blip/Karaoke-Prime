@@ -1,22 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { Mic, Zap, GraduationCap, Shield, Rocket } from "lucide-react";
+import { Award, Zap, GraduationCap, Star, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import AmazonSmileLogo from "@/components/AmazonSmileLogo";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
-  <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center overflow-hidden bg-black">
+  <div className="relative h-[50vh] md:h-[65vh] flex items-center justify-center overflow-hidden bg-black">
     {/* Immersive Concert Stage Background - High Contrast */}
     <div 
       className="absolute inset-0 bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
       style={{ 
         backgroundPosition: 'center 30%',
-        // Combining the required gradients and image path
+        // Combining the required gradients and stable Unsplash image URL
         backgroundImage: `
           radial-gradient(circle at center, transparent 20%, rgba(5,5,5,0.9) 80%),
           linear-gradient(to bottom, rgba(5,5,5,0.2), #050505), 
-          url('/stage-background.jpg')
+          url('https://images.unsplash.com/photo-1514525253161-7a46d1974281?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
         `
       }}
     ></div>
@@ -31,7 +31,7 @@ const HeroSection = () => (
       <div className="flex flex-col items-center justify-center mb-4">
         {/* Logo & Branding: Prime Gold Arrow and Neon Text */}
         <div className="drop-shadow-[0_0_15px_#00A8E1]">
-          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-white neon-blue-glow">
+          <h1 className="text-7xl md:text-9xl font-extrabold tracking-tighter text-white neon-blue-glow">
             Karaoke 
             <span className="text-accent neon-gold-glow ml-4 relative inline-block">
               Prime
@@ -42,47 +42,19 @@ const HeroSection = () => (
         </div>
       </div>
       
-      <p className="text-xl md:text-3xl text-muted-foreground mb-8 font-light italic mt-4">
-        Your stage. Your legacy.
+      <p className="text-lg md:text-xl text-muted-foreground mb-8 font-light italic mt-4">
+        Your stage. Your Spotlight.
       </p>
-
-      <div className="flex justify-center space-x-4">
-        <Button 
-          size="lg" 
-          className={cn(
-            "bg-primary text-primary-foreground hover:bg-primary/90",
-            "shadow-lg shadow-primary/50 transition-all duration-300 transform hover:scale-[1.02] rounded-xl"
-          )}
-        >
-          Start Your Duel <Mic className="ml-2 h-5 w-5" />
-        </Button>
-        <Button 
-          size="lg" 
-          variant="outline" 
-          className={cn(
-            "border-accent text-accent hover:bg-accent/10",
-            "rounded-xl transition-all duration-300 transform hover:scale-[1.02]"
-          )}
-        >
-          Explore Academy <Mic className="ml-2 h-5 w-5" />
-        </Button>
-      </div>
       
-      {/* Last Duel Winner Display */}
-      <div className="mt-12 text-sm text-muted-foreground/80">
-        <p className="inline-flex items-center bg-secondary/50 p-2 rounded-full backdrop-blur-sm border border-border/50">
-          <Zap className="h-4 w-4 text-accent mr-2" />
-          Last Duel Winner: <span className="text-accent font-semibold ml-1">VocalLegend99</span> from Tokyo
-        </p>
-      </div>
+      {/* Removed buttons and winner display to match the reference image's clean hero */}
     </div>
   </div>
 );
 
 const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, description: string, icon: React.ElementType }) => (
-  <div className={cn(
+  <div className className={cn(
     "p-6 rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-500",
-    "bg-background/30 hover:bg-background/50", // Semi-transparent Obsidian background
+    "bg-card/10 hover:bg-card/20", // Adjusted transparency for better glass effect
     "shadow-xl border-neon-glow", // Neon Blue border glow
     "cursor-pointer hover:scale-[1.03]"
   )}
@@ -106,13 +78,13 @@ const Index = () => {
       <div className="container mx-auto py-16 px-4 md:px-6">
         
         {/* The 5 Elite Pillars Section */}
-        <h2 className="text-4xl font-bold text-center mb-12 text-primary neon-blue-glow">The Elite Pillars of Prime</h2>
+        <h2 className="text-4xl font-bold text-center mb-12 text-primary neon-blue-glow">Global Playlists</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <ElitePillarCard 
-            title="Basic: Hybrid Mode" 
+            title="Basic (Battle/Social)" 
             description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
-            icon={Mic} 
+            icon={Award} // Changed from Mic to Award
           />
           <ElitePillarCard 
             title="Academy (Conservatory)" 
@@ -122,12 +94,12 @@ const Index = () => {
           <ElitePillarCard 
             title="Amazon Next Talent" 
             description="10-level gamified auditions, progressing from local to global online stages." 
-            icon={Rocket} 
+            icon={Star} // Changed from Rocket to Star
           />
           <ElitePillarCard 
             title="Amazon Backstage" 
             description="Premium UI locked behind social verification and a Pro-Vocal test." 
-            icon={Shield} 
+            icon={Lock} // Changed from Shield to Lock
           />
           <ElitePillarCard 
             title="Next Success" 
@@ -143,7 +115,7 @@ const Index = () => {
 
         {/* Global Ranking & Discovery Section */}
         <div className="mt-20">
-          <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Global Prime Rankings</h2>
+          <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
           <div className="bg-card/70 p-8 rounded-2xl border border-border/50 backdrop-blur-md">
             <p className="text-center text-muted-foreground">
               [Placeholder for Geo-Targeted Ranking Tables]
