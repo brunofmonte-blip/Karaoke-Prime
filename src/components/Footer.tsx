@@ -42,6 +42,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-primary neon-blue-glow">Vocal Note Evolution (Pitch Accuracy 0-100)</h3>
             <ResponsiveContainer width="100%" height="80%">
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                {/* Hiding X and Y axes for a minimalist, transparent look */}
                 <XAxis dataKey="name" hide />
                 <YAxis domain={[0, 100]} hide />
                 <Tooltip 

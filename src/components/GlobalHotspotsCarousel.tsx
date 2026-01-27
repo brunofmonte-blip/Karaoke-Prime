@@ -45,7 +45,7 @@ const GlobalHotspotsCarousel = () => {
                   "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-xl border-neon-glow"
                 )}
                 style={{
-                  backdropFilter: 'blur(16px)',
+                  backdropFilter: 'blur(20px)', // Updated to 20px
                   border: '1px solid rgba(0, 168, 225, 0.5)'
                 }}>
                   <CardContent className="flex flex-col aspect-square items-center justify-end p-0 relative">

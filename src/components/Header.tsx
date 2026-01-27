@@ -39,8 +39,8 @@ const Header = () => {
         <nav className="hidden md:flex items-center space-x-6">
           <NavLink to="/academy">Academy</NavLink>
           <NavLink to="/talent">Next Talent</NavLink>
-          <NavLink to="/ranking">Ranking</NavLink>
           <NavLink to="/backstage">Backstage</NavLink>
+          <NavLink to="/success">Amazon Success</NavLink>
         </nav>
 
         {/* User/Auth Actions */}
