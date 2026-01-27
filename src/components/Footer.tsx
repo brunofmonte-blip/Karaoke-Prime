@@ -17,7 +17,7 @@ const Footer = () => {
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
           
-          {/* Vocal Note Evolution Chart - Now transparent and axis-less */}
+          {/* Vocal Note Evolution Chart - Transparent and axis-less */}
           <div className="lg:col-span-2 h-48 w-full">
             <h3 className="text-lg font-semibold mb-2 text-primary neon-blue-glow">Vocal Note Evolution (Last Session)</h3>
             <ResponsiveContainer width="100%" height="100%">
@@ -32,7 +32,7 @@ const Footer = () => {
                 />
                 {/* Neon Blue Line for Pitch */}
                 <Line type="monotone" dataKey="pitch" stroke="hsl(var(--primary))" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }} />
-                {/* Prime Gold Line for secondary metric (Breath) */}
+                {/* Prime Gold Line for secondary metric (Breath) - Kept for visual interest */}
                 <Line type="monotone" dataKey="breath" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} opacity={0.6} activeDot={{ r: 4, fill: 'hsl(var(--accent))', stroke: 'hsl(var(--accent))', strokeWidth: 1 }} />
               </LineChart>
             </ResponsiveContainer>

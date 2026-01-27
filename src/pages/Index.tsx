@@ -15,7 +15,7 @@ const HeroSection = () => (
         // New background image and black vignette radial gradient
         backgroundImage: `
           radial-gradient(circle, transparent 20%, #050505 100%),
-          url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070&auto=format&fit=crop')
+          url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2070&auto=format&fit=crop')
         `
       }}
     ></div>
@@ -35,8 +35,8 @@ const HeroSection = () => (
             Karaoke 
             <span id="prime-text" className="text-accent neon-gold-glow ml-4 relative inline-block">
               Prime
-              {/* Amazon Smile Arrow positioned 2px below 'Prime' and 120px wide */}
-              <AmazonSmileLogo className="absolute -bottom-[2px] left-1/2 transform -translate-x-1/2 h-4 w-[120px]" />
+              {/* Amazon Smile Arrow positioned 4px below 'Prime' and 120px wide */}
+              <AmazonSmileLogo className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 h-4 w-[120px]" />
             </span>
           </h1>
         </div>
@@ -57,8 +57,8 @@ const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, de
     "cursor-pointer hover:scale-[1.03]"
   )}
   style={{
-    // Strict glassmorphism styles with increased blur
-    backdropFilter: 'blur(24px)',
+    // Strict glassmorphism styles with blur(20px)
+    backdropFilter: 'blur(20px)',
     border: '1px solid rgba(0, 168, 225, 0.3)' 
   }}
   >
@@ -75,8 +75,8 @@ const Index = () => {
 
       <div className="container mx-auto px-0 md:px-6">
         
-        {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-7xl z-30" style={{ bottom: '-50px' }}>
+        {/* The 5 Elite Pillars Section - FLOATING OVERLAP (bottom: -60px) */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-7xl z-30" style={{ bottom: '-60px' }}>
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
           {/* Horizontal Scrolling Container */}
@@ -110,7 +110,7 @@ const Index = () => {
         </div>
         
         {/* Content below the Hero, needs top padding to account for the floating pillars */}
-        <div className="pt-24 md:pt-32"> 
+        <div className="pt-28 md:pt-36"> {/* Increased padding to clear the -60px floating pillars */}
           {/* Global Hotspots Carousel */}
           <div className="py-16 px-4 md:px-0">
             <GlobalHotspotsCarousel />
