@@ -6,16 +6,16 @@ import AmazonSmileLogo from "@/components/AmazonSmileLogo";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
-  <div className="relative min-h-[70vh] flex items-end justify-center overflow-hidden bg-black pb-16">
+  <div className="relative h-[85vh] flex items-end justify-center overflow-hidden bg-black">
     {/* Immersive Concert Stage Background - High Contrast */}
     <div 
       className="absolute inset-0 bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
       style={{ 
         backgroundPosition: 'center 30%',
-        // Radial gradient for focus
+        // New background image and black vignette radial gradient
         backgroundImage: `
-          radial-gradient(circle at center, transparent 10%, #050505 90%),
-          url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80')
+          radial-gradient(circle, transparent 20%, #050505 100%),
+          url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070&auto=format&fit=crop')
         `
       }}
     ></div>
@@ -27,7 +27,7 @@ const HeroSection = () => (
     </div>
 
     {/* Logo positioned in the lower third */}
-    <div className="relative z-20 text-center p-4 mb-12">
+    <div className="relative z-20 text-center p-4 mb-[15vh]"> {/* Adjusted margin to place logo in lower third */}
       <div className="flex flex-col items-center justify-center">
         {/* Logo & Branding: Prime Gold Arrow and Neon Text */}
         <div className="drop-shadow-[0_0_15px_#00A8E1]">
@@ -35,8 +35,8 @@ const HeroSection = () => (
             Karaoke 
             <span id="prime-text" className="text-accent neon-gold-glow ml-4 relative inline-block">
               Prime
-              {/* Amazon Smile Arrow positioned under Prime, 80% width, 4px below */}
-              <AmazonSmileLogo className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 h-4 w-[80%]" />
+              {/* Amazon Smile Arrow positioned 2px below 'Prime' and 120px wide */}
+              <AmazonSmileLogo className="absolute -bottom-[2px] left-1/2 transform -translate-x-1/2 h-4 w-[120px]" />
             </span>
           </h1>
         </div>
@@ -57,8 +57,8 @@ const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, de
     "cursor-pointer hover:scale-[1.03]"
   )}
   style={{
-    // Strict glassmorphism styles
-    backdropFilter: 'blur(20px)',
+    // Strict glassmorphism styles with increased blur
+    backdropFilter: 'blur(24px)',
     border: '1px solid rgba(0, 168, 225, 0.3)' 
   }}
   >
@@ -70,17 +70,17 @@ const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, de
 
 const Index = () => {
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <HeroSection />
 
       <div className="container mx-auto px-0 md:px-6">
         
-        {/* The 5 Elite Pillars Section - Overlapping the Hero */}
-        <div className="relative -mt-20 z-30 mb-16 px-4 md:px-0">
+        {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-7xl z-30" style={{ bottom: '-50px' }}>
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
           {/* Horizontal Scrolling Container */}
-          <div className="flex overflow-x-auto space-x-4 pb-4 md:justify-center md:overflow-x-hidden">
+          <div className="flex overflow-x-auto space-x-4 pb-4 px-4 md:px-0 md:justify-center md:overflow-x-hidden">
             <ElitePillarCard 
               title="Basic (Battle/Social)" 
               description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
@@ -109,18 +109,21 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Global Hotspots Carousel */}
-        <div className="py-16 px-4 md:px-0">
-          <GlobalHotspotsCarousel />
-        </div>
+        {/* Content below the Hero, needs top padding to account for the floating pillars */}
+        <div className="pt-24 md:pt-32"> 
+          {/* Global Hotspots Carousel */}
+          <div className="py-16 px-4 md:px-0">
+            <GlobalHotspotsCarousel />
+          </div>
 
-        {/* Global Ranking & Discovery Section */}
-        <div className="mt-12 pb-16 px-4 md:px-0">
-          <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
-          <div className="bg-card/70 p-8 rounded-2xl border border-border/50 backdrop-blur-md">
-            <p className="text-center text-muted-foreground">
-              [Placeholder for Geo-Targeted Ranking Tables]
-            </p>
+          {/* Global Ranking & Discovery Section */}
+          <div className="mt-12 pb-16 px-4 md:px-0">
+            <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
+            <div className="bg-card/70 p-8 rounded-2xl border border-border/50 backdrop-blur-md">
+              <p className="text-center text-muted-foreground">
+                [Placeholder for Geo-Targeted Ranking Tables]
+              </p>
+            </div>
           </div>
         </div>
         

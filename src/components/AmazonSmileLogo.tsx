@@ -9,11 +9,11 @@ interface AmazonSmileLogoProps {
 const AmazonSmileLogo: React.FC<AmazonSmileLogoProps> = ({ className }) => {
   return (
     <svg
-      className={cn("h-3 w-12 text-accent fill-current", className)}
+      className={cn("h-3 w-[120px] text-accent fill-current", className)}
       viewBox="0 0 100 30"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      style={{ filter: 'drop-shadow(0 0 12px #FF9900)' }}
+      style={{ filter: 'drop-shadow(0 0 15px #FF9900)' }}
     >
       {/* Curved line */}
       <path 

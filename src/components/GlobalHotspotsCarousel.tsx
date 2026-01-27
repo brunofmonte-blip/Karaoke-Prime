@@ -17,9 +17,9 @@ interface Hotspot {
 }
 
 const hotspots: Hotspot[] = [
-  { city: "New York", country: "USA", image: "https://images.unsplash.com/photo-1534430480872-3498388e7856?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-  { city: "Rio de Janeiro", country: "Brazil", image: "https://images.unsplash.com/photo-1516306580123-e6e68b6ac59e?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
-  { city: "Tokyo", country: "Japan", image: "https://images.unsplash.com/photo-1540959733332-eab4de39d625?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
+  { city: "New York", country: "USA", image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=500" },
+  { city: "Rio de Janeiro", country: "Brazil", image: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?q=80&w=500" },
+  { city: "Tokyo", country: "Japan", image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=500" },
   { city: "London", country: "UK", image: "https://images.unsplash.com/photo-1505761671935-60b3a7427be3?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
   { city: "Seoul", country: "South Korea", image: "https://images.unsplash.com/photo-1580973309277-82919029607c?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
 ];
