@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button"; // <-- Added missing import
 import { MessageSquare, Heart, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
