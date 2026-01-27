@@ -69,7 +69,7 @@ const GlobalHotspotsCarousel = () => {
                         className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl transition-all duration-300 shadow-lg shadow-primary/30"
                       >
                         <PlayCircle className="h-4 w-4 mr-2" />
-                        Play Sing
+                        Participar
                       </Button>
                     </div>
                   </CardContent>

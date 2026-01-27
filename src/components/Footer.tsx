@@ -1,5 +1,7 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { MadeWithDyad } from "@/components/made-with-dyad";
+import UserProfileCard from './UserProfileCard';
+import { cn } from '@/lib/utils';
 
 const chartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -12,19 +14,35 @@ const chartData = [
 ];
 
 const Footer = () => {
+  // Placeholder data for the profile card
+  const userData = {
+    userName: "VocalPro_88",
+    bestNote: 98,
+    academyLevel: 7,
+    rankingOnline: 12,
+    rankingOffline: 5,
+  };
+
   return (
     <footer className="w-full bg-background border-t border-border/40 p-6">
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+        
+        {/* Main Content Grid: Chart (2/3) and Profile (1/3) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-8">
           
-          {/* Vocal Note Evolution Chart - Fixed Height Container */}
-          <div className="lg:col-span-2 h-48 w-full">
-            <h3 className="text-lg font-semibold mb-2 text-primary neon-blue-glow">Vocal Note Evolution (Pitch Accuracy 0-100)</h3>
-            <ResponsiveContainer width="100%" height="100%">
+          {/* Vocal Note Evolution Chart */}
+          <div className={cn(
+            "lg:col-span-2 h-64 w-full p-4 rounded-2xl border-2 border-primary/50 backdrop-blur-md",
+            "bg-card/10 shadow-xl border-neon-glow"
+          )}
+          style={{
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(0, 168, 225, 0.3)' 
+          }}>
+            <h3 className="text-lg font-semibold mb-4 text-primary neon-blue-glow">Vocal Note Evolution (Pitch Accuracy 0-100)</h3>
+            <ResponsiveContainer width="100%" height="80%">
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                {/* XAxis represents Time/Notes (hidden) */}
                 <XAxis dataKey="name" hide />
-                {/* YAxis represents Pitch Accuracy (0-100) (hidden, but domain set for logic) */}
                 <YAxis domain={[0, 100]} hide />
                 <Tooltip 
                   contentStyle={{ 
@@ -42,19 +60,30 @@ const Footer = () => {
                   strokeWidth={3} 
                   dot={false} 
                   activeDot={{ r: 6, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }} 
-                  style={{ filter: 'drop-shadow(0 0 5px hsl(var(--primary)/0.8))' }} // Soft glow style
+                  style={{ filter: 'drop-shadow(0 0 5px hsl(var(--primary)/0.8))' }}
                 />
-                {/* Prime Gold Line for secondary metric (Breath) */}
-                <Line type="monotone" dataKey="breath" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} opacity={0.6} activeDot={{ r: 4, fill: 'hsl(var(--accent))', stroke: 'hsl(var(--accent))', strokeWidth: 1 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Footer Links and Branding */}
-          <div className="text-right space-y-2">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} Karaoke Prime. All rights reserved.
-            </p>
+          {/* User Profile Card */}
+          <div className="lg:col-span-1">
+            <UserProfileCard 
+              userName={userData.userName}
+              bestNote={userData.bestNote}
+              academyLevel={userData.academyLevel}
+              rankingOnline={userData.rankingOnline}
+              rankingOffline={userData.rankingOffline}
+            />
+          </div>
+        </div>
+        
+        {/* Footer Links and Branding (Moved to bottom center/right) */}
+        <div className="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-border/40">
+          <p className="text-sm text-muted-foreground order-2 md:order-1 mt-4 md:mt-0">
+            © {new Date().getFullYear()} Karaoke Prime. All rights reserved.
+          </p>
+          <div className="order-1 md:order-2">
             <MadeWithDyad />
           </div>
         </div>

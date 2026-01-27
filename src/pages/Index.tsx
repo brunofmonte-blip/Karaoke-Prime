@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Award, Zap, GraduationCap, Star, Lock } from "lucide-react";
+import { Award, Zap, GraduationCap, Star, Lock, Music, Trophy, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import AmazonSmileLogo from "@/components/AmazonSmileLogo";
@@ -8,16 +8,15 @@ import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
-  <div className="relative h-[85vh] flex items-end justify-center overflow-hidden bg-black">
+  <div className="relative h-[85vh] flex flex-col items-center justify-end overflow-hidden bg-black">
     {/* Immersive Concert Stage Background - High Contrast */}
     <div 
-      className="absolute inset-0 bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
+      className="absolute inset-0 bg-cover bg-center opacity-40 scale-110 transition-transform duration-1000"
       style={{ 
         backgroundPosition: 'center 30%',
-        // Corrected background image URL
         backgroundImage: `
-          radial-gradient(circle at center, transparent 10%, #050505 90%),
-          url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070&auto=format&fit=crop')
+          radial-gradient(circle, transparent 20%, rgba(5,5,5,0.9) 80%),
+          url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2070&auto=format&fit=crop')
         `
       }}
     ></div>
@@ -29,41 +28,66 @@ const HeroSection = () => (
     </div>
 
     {/* Logo positioned in the lower third */}
-    <div className="relative z-20 text-center p-4 mb-[15vh]"> {/* Adjusted margin to place logo in lower third */}
+    <div className="relative z-20 text-center p-4 mb-[15vh] flex flex-col items-center"> 
       <div className="flex flex-col items-center justify-center">
-        {/* Logo & Branding: Prime Gold Arrow and Neon Text */}
+        {/* Main Logo: Karaoke Prime (NO SMILE ARROW HERE) */}
         <div className="drop-shadow-[0_0_15px_#00A8E1]">
           <h1 className="text-7xl md:text-9xl font-extrabold tracking-tighter text-white neon-blue-glow">
             Karaoke 
             <span id="prime-text" className="text-accent neon-gold-glow ml-4 relative inline-block">
               Prime
-              {/* Amazon Smile Arrow positioned 4px below 'Prime' and 120px wide */}
-              <AmazonSmileLogo className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 h-4 w-[120px]" />
             </span>
           </h1>
         </div>
       </div>
       
-      <p className="text-lg md:text-xl text-muted-foreground font-light italic mt-8 tracking-wider">
+      <p className="text-lg md:text-xl text-muted-foreground font-light italic mt-8 tracking-wider mb-8">
         Your Stage. Your Spotlight.
       </p>
+
+      {/* Call-to-Action Buttons */}
+      <div className="flex space-x-4">
+        <Button 
+          size="lg"
+          className={cn(
+            "bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-lg font-semibold",
+            "shadow-2xl shadow-primary/50 transition-all duration-300 hover:scale-[1.05] border-2 border-primary"
+          )}
+        >
+          See live show
+        </Button>
+        <Button 
+          size="lg"
+          variant="outline"
+          className={cn(
+            "border-accent text-accent hover:bg-accent/10 rounded-full px-8 py-6 text-lg font-semibold",
+            "shadow-2xl shadow-accent/30 transition-all duration-300 hover:scale-[1.05] border-2"
+          )}
+        >
+          Explore Prime
+        </Button>
+      </div>
     </div>
   </div>
 );
 
 const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, description: string, icon: React.ElementType }) => (
   <div className={cn(
-    "p-6 rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-500 flex-shrink-0 w-[280px]", // Fixed width for horizontal scroll
+    "p-6 rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-500 flex-shrink-0 w-[280px] relative", // Added relative for flag positioning
     "bg-card/10 hover:bg-card/20", // Subtle glass effect
     "shadow-xl border-neon-glow", // Neon Blue border glow
     "cursor-pointer hover:scale-[1.03]"
   )}
   style={{
-    // Strict glassmorphism styles with blur(20px)
     backdropFilter: 'blur(20px)',
     border: '1px solid rgba(0, 168, 225, 0.3)' 
   }}
   >
+    {/* Small Flag Icon */}
+    <div className="absolute top-3 right-3 p-1 bg-black/50 rounded-full backdrop-blur-sm">
+      <Flag className="h-4 w-4 text-accent neon-gold-glow" />
+    </div>
+    
     <Icon className="h-8 w-8 mb-4 text-primary icon-neon-glow" />
     <h3 className="text-xl font-bold mb-2 text-foreground">{title}</h3>
     <p className="text-sm text-muted-foreground">{description}</p>
@@ -78,7 +102,6 @@ const Index = () => {
       <div className="container mx-auto px-0 md:px-6 relative z-30">
         
         {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
-        {/* Using negative margin to pull the pillars up 80px below the tagline. Added z-50 for layering. */}
         <div className="w-full max-w-7xl mx-auto -mt-20 md:-mt-24 relative z-50"> 
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
@@ -87,7 +110,7 @@ const Index = () => {
             <ElitePillarCard 
               title="Basic (Battle/Social)" 
               description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
-              icon={Award} 
+              icon={Music} // Changed icon to Music
             />
             <ElitePillarCard 
               title="Academy (Conservatory)" 
@@ -105,9 +128,9 @@ const Index = () => {
               icon={Lock} 
             />
             <ElitePillarCard 
-              title="Next Success" 
-              description="Generative AI portal for creating original lyrics and melodies (Suno-style)." 
-              icon={Zap} 
+              title="Ranking Online" // Updated title
+              description="Global ranking system based on performance, engagement, and academy level." 
+              icon={Trophy} // Changed icon to Trophy
             />
           </div>
         </div>
