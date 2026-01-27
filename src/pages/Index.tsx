@@ -3,6 +3,8 @@ import { Award, Zap, GraduationCap, Star, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import AmazonSmileLogo from "@/components/AmazonSmileLogo";
+import RecentlyAdded from "@/components/RecentlyAdded";
+import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
@@ -15,7 +17,7 @@ const HeroSection = () => (
         // New background image and black vignette radial gradient
         backgroundImage: `
           radial-gradient(circle, transparent 20%, #050505 100%),
-          url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2070&auto=format&fit=crop')
+          url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070&auto=format&fit=crop')
         `
       }}
     ></div>
@@ -76,6 +78,7 @@ const Index = () => {
       <div className="container mx-auto px-0 md:px-6">
         
         {/* The 5 Elite Pillars Section - FLOATING OVERLAP (bottom: -60px) */}
+        {/* This container is absolutely positioned relative to the Hero, acting as the floating bridge */}
         <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-7xl z-30" style={{ bottom: '-60px' }}>
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
@@ -111,10 +114,17 @@ const Index = () => {
         
         {/* Content below the Hero, needs top padding to account for the floating pillars */}
         <div className="pt-28 md:pt-36"> {/* Increased padding to clear the -60px floating pillars */}
+          
           {/* Global Hotspots Carousel */}
           <div className="py-16 px-4 md:px-0">
             <GlobalHotspotsCarousel />
           </div>
+
+          {/* Recently Added Section */}
+          <RecentlyAdded />
+
+          {/* Trend Topics (Video Feed) Section */}
+          <TrendTopicsFeed />
 
           {/* Global Ranking & Discovery Section */}
           <div className="mt-12 pb-16 px-4 md:px-0">
