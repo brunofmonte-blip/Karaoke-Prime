@@ -13,6 +13,7 @@ const AmazonSmileLogo: React.FC<AmazonSmileLogoProps> = ({ className }) => {
       viewBox="0 0 100 30"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      style={{ filter: 'drop-shadow(0 0 8px #FF9900)' }}
     >
       {/* Curved line */}
       <path 

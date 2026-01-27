@@ -12,8 +12,12 @@ const HeroSection = () => (
       className="absolute inset-0 bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
       style={{ 
         backgroundPosition: 'center 30%',
-        // Corrected path and manual CSS overlay: linear-gradient(to bottom, rgba(5,5,5,0.2), #050505)
-        backgroundImage: `linear-gradient(to bottom, rgba(5,5,5,0.2), #050505), url('/stage-background.jpg')`
+        // Combining the required gradients and image path
+        backgroundImage: `
+          radial-gradient(circle at center, transparent 20%, rgba(5,5,5,0.9) 80%),
+          linear-gradient(to bottom, rgba(5,5,5,0.2), #050505), 
+          url('/stage-background.jpg')
+        `
       }}
     ></div>
     

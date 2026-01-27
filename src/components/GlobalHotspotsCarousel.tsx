@@ -15,11 +15,11 @@ interface Hotspot {
 }
 
 const hotspots: Hotspot[] = [
-  { city: "New York", country: "USA", image: "/public/placeholder.svg" },
-  { city: "Rio de Janeiro", country: "Brazil", image: "/public/placeholder.svg" },
-  { city: "Tokyo", country: "Japan", image: "/public/placeholder.svg" },
-  { city: "London", country: "UK", image: "/public/placeholder.svg" },
-  { city: "Seoul", country: "South Korea", image: "/public/placeholder.svg" },
+  { city: "New York", country: "USA", image: "/placeholder.svg" },
+  { city: "Rio de Janeiro", country: "Brazil", image: "/placeholder.svg" },
+  { city: "Tokyo", country: "Japan", image: "/placeholder.svg" },
+  { city: "London", country: "UK", image: "/placeholder.svg" },
+  { city: "Seoul", country: "South Korea", image: "/placeholder.svg" },
 ];
 
 const GlobalHotspotsCarousel = () => {
@@ -52,7 +52,7 @@ const GlobalHotspotsCarousel = () => {
                     <div 
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-105"
                       // Correcting image path and ensuring it uses the stage background if placeholder fails
-                      style={{ backgroundImage: `url(${hotspot.image === '/public/placeholder.svg' ? '/stage-background.jpg' : hotspot.image})` }}
+                      style={{ backgroundImage: `url(${hotspot.image === '/placeholder.svg' ? '/stage-background.jpg' : hotspot.image})` }}
                     >
                       <img src={hotspot.image} alt={`${hotspot.city} stage`} className="w-full h-full object-cover opacity-20" />
                     </div>
