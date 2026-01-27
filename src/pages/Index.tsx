@@ -14,9 +14,9 @@ const HeroSection = () => (
       className="absolute inset-0 bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
       style={{ 
         backgroundPosition: 'center 30%',
-        // New background image and black vignette radial gradient
+        // Corrected background image URL
         backgroundImage: `
-          radial-gradient(circle, transparent 20%, #050505 100%),
+          radial-gradient(circle at center, transparent 10%, #050505 90%),
           url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070&auto=format&fit=crop')
         `
       }}
@@ -75,11 +75,11 @@ const Index = () => {
     <div className="w-full relative">
       <HeroSection />
 
-      <div className="container mx-auto px-0 md:px-6">
+      <div className="container mx-auto px-0 md:px-6 relative z-30">
         
-        {/* The 5 Elite Pillars Section - FLOATING OVERLAP (bottom: -60px) */}
-        {/* This container is absolutely positioned relative to the Hero, acting as the floating bridge */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-7xl z-30" style={{ bottom: '-60px' }}>
+        {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
+        {/* Using negative margin to pull the pillars up 80px below the tagline (which is roughly 15vh + 80px from the bottom of the Hero) */}
+        <div className="w-full max-w-7xl mx-auto -mt-20 md:-mt-24"> 
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
           {/* Horizontal Scrolling Container */}
@@ -112,8 +112,8 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Content below the Hero, needs top padding to account for the floating pillars */}
-        <div className="pt-28 md:pt-36"> {/* Increased padding to clear the -60px floating pillars */}
+        {/* Content below the Hero, starting immediately after the pillars */}
+        <div className="pt-16 md:pt-24"> 
           
           {/* Global Hotspots Carousel */}
           <div className="py-16 px-4 md:px-0">
