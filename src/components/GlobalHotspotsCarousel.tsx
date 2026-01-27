@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -7,6 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
+import { Flag, PlayCircle } from "lucide-react";
 
 interface Hotspot {
   city: string;
@@ -43,24 +45,32 @@ const GlobalHotspotsCarousel = () => {
                   "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-xl border-neon-glow"
                 )}
                 style={{
-                  // Applying explicit glassmorphism styles
                   backdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(0, 168, 225, 0.5)' // Using the primary color (Neon Blue) in RGBA
+                  border: '1px solid rgba(0, 168, 225, 0.5)'
                 }}>
                   <CardContent className="flex flex-col aspect-square items-center justify-end p-0 relative">
                     {/* Image Placeholder */}
                     <div 
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-105"
-                      // Using Unsplash URL directly
                       style={{ backgroundImage: `url(${hotspot.image})` }}
                     >
-                      {/* Removed redundant img tag */}
+                      {/* Flag Icon */}
+                      <div className="absolute top-3 right-3 p-1 bg-black/50 rounded-full backdrop-blur-sm">
+                        <Flag className="h-4 w-4 text-accent neon-gold-glow" />
+                      </div>
                     </div>
                     
-                    {/* Text Overlay */}
+                    {/* Text Overlay and Button */}
                     <div className="relative z-10 w-full p-4 bg-gradient-to-t from-black/90 to-transparent">
                       <p className="text-lg font-bold text-white leading-none neon-blue-glow">{hotspot.city}</p>
-                      <p className="text-sm text-accent font-medium neon-gold-glow">{hotspot.country}</p>
+                      <p className="text-sm text-accent font-medium neon-gold-glow mb-2">{hotspot.country}</p>
+                      <Button 
+                        variant="default" 
+                        className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl transition-all duration-300 shadow-lg shadow-primary/30"
+                      >
+                        <PlayCircle className="h-4 w-4 mr-2" />
+                        Play Sing
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>

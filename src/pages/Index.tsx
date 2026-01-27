@@ -12,10 +12,9 @@ const HeroSection = () => (
       className="absolute inset-0 bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
       style={{ 
         backgroundPosition: 'center 30%',
-        // New Unsplash URL and 'melting' gradient applied
+        // Radial gradient for focus
         backgroundImage: `
-          linear-gradient(to top, #050505 10%, transparent 50%),
-          radial-gradient(circle at center, transparent 20%, rgba(5,5,5,0.9) 80%),
+          radial-gradient(circle at center, transparent 10%, #050505 90%),
           url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80')
         `
       }}
@@ -43,8 +42,8 @@ const HeroSection = () => (
         </div>
       </div>
       
-      <p className="text-lg md:text-xl text-muted-foreground font-light italic mt-8">
-        Your stage. Your Spotlight.
+      <p className="text-lg md:text-xl text-muted-foreground font-light italic mt-8 tracking-wider">
+        Your Stage. Your Spotlight.
       </p>
     </div>
   </div>
@@ -52,15 +51,15 @@ const HeroSection = () => (
 
 const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, description: string, icon: React.ElementType }) => (
   <div className={cn(
-    "p-6 rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-500 flex-shrink-0 w-full md:w-auto",
+    "p-6 rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-500 flex-shrink-0 w-[280px]", // Fixed width for horizontal scroll
     "bg-card/10 hover:bg-card/20", // Subtle glass effect
     "shadow-xl border-neon-glow", // Neon Blue border glow
     "cursor-pointer hover:scale-[1.03]"
   )}
   style={{
-    // Applying explicit glassmorphism styles
-    backdropFilter: 'blur(16px)',
-    border: '1px solid rgba(0, 168, 225, 0.5)' // Using the primary color (Neon Blue) in RGBA
+    // Strict glassmorphism styles
+    backdropFilter: 'blur(20px)',
+    border: '1px solid rgba(0, 168, 225, 0.3)' 
   }}
   >
     <Icon className="h-8 w-8 mb-4 text-primary icon-neon-glow" />
@@ -74,13 +73,14 @@ const Index = () => {
     <div className="w-full">
       <HeroSection />
 
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-0 md:px-6">
         
         {/* The 5 Elite Pillars Section - Overlapping the Hero */}
-        <div className="relative -mt-24 z-30 mb-16">
+        <div className="relative -mt-20 z-30 mb-16 px-4 md:px-0">
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
-          <div className="flex flex-col lg:flex-row justify-center items-stretch gap-4">
+          {/* Horizontal Scrolling Container */}
+          <div className="flex overflow-x-auto space-x-4 pb-4 md:justify-center md:overflow-x-hidden">
             <ElitePillarCard 
               title="Basic (Battle/Social)" 
               description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
@@ -110,12 +110,12 @@ const Index = () => {
         </div>
         
         {/* Global Hotspots Carousel */}
-        <div className="py-16">
+        <div className="py-16 px-4 md:px-0">
           <GlobalHotspotsCarousel />
         </div>
 
         {/* Global Ranking & Discovery Section */}
-        <div className="mt-12 pb-16">
+        <div className="mt-12 pb-16 px-4 md:px-0">
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
           <div className="bg-card/70 p-8 rounded-2xl border border-border/50 backdrop-blur-md">
             <p className="text-center text-muted-foreground">
