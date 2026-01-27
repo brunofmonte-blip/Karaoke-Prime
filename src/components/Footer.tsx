@@ -13,18 +13,16 @@ const chartData = [
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-card border-t border-border/40 mt-12 p-6">
+    <footer className="w-full bg-background border-t border-border/40 p-6">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
           
-          {/* Vocal Note Evolution Chart */}
+          {/* Vocal Note Evolution Chart - Now transparent and axis-less */}
           <div className="lg:col-span-2 h-48 w-full">
             <h3 className="text-lg font-semibold mb-2 text-primary neon-blue-glow">Vocal Note Evolution (Last Session)</h3>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                {/* Removed CartesianGrid for cleaner look */}
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" axisLine={false} tickLine={false} />
-                <YAxis stroke="hsl(var(--muted-foreground))" axisLine={false} tickLine={false} />
+                {/* XAxis and YAxis removed for transparent overlay effect */}
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--card))', 

@@ -6,17 +6,17 @@ import AmazonSmileLogo from "@/components/AmazonSmileLogo";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
-  <div className="relative h-[50vh] md:h-[65vh] flex items-center justify-center overflow-hidden bg-black">
+  <div className="relative min-h-[70vh] flex items-end justify-center overflow-hidden bg-black pb-16">
     {/* Immersive Concert Stage Background - High Contrast */}
     <div 
       className="absolute inset-0 bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
       style={{ 
         backgroundPosition: 'center 30%',
-        // Combining the required gradients and stable Unsplash image URL
+        // New Unsplash URL and 'melting' gradient applied
         backgroundImage: `
+          linear-gradient(to top, #050505 10%, transparent 50%),
           radial-gradient(circle at center, transparent 20%, rgba(5,5,5,0.9) 80%),
-          linear-gradient(to bottom, rgba(5,5,5,0.2), #050505), 
-          url('https://images.unsplash.com/photo-1514525253161-7a46d1974281?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')
+          url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80')
         `
       }}
     ></div>
@@ -27,39 +27,38 @@ const HeroSection = () => (
       <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-primary/40 rounded-full filter blur-[180px] opacity-50 animate-pulse z-0"></div>
     </div>
 
-    <div className="relative z-20 text-center p-4">
-      <div className="flex flex-col items-center justify-center mb-4">
+    {/* Logo positioned in the lower third */}
+    <div className="relative z-20 text-center p-4 mb-12">
+      <div className="flex flex-col items-center justify-center">
         {/* Logo & Branding: Prime Gold Arrow and Neon Text */}
         <div className="drop-shadow-[0_0_15px_#00A8E1]">
           <h1 className="text-7xl md:text-9xl font-extrabold tracking-tighter text-white neon-blue-glow">
             Karaoke 
-            <span className="text-accent neon-gold-glow ml-4 relative inline-block">
+            <span id="prime-text" className="text-accent neon-gold-glow ml-4 relative inline-block">
               Prime
-              {/* Amazon Smile Arrow positioned under Prime */}
-              <AmazonSmileLogo className="absolute -bottom-4 left-0 h-4 w-full" />
+              {/* Amazon Smile Arrow positioned under Prime, 80% width, 4px below */}
+              <AmazonSmileLogo className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 h-4 w-[80%]" />
             </span>
           </h1>
         </div>
       </div>
       
-      <p className="text-lg md:text-xl text-muted-foreground mb-8 font-light italic mt-4">
+      <p className="text-lg md:text-xl text-muted-foreground font-light italic mt-8">
         Your stage. Your Spotlight.
       </p>
-      
-      {/* Removed buttons and winner display to match the reference image's clean hero */}
     </div>
   </div>
 );
 
 const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, description: string, icon: React.ElementType }) => (
-  <div className className={cn(
-    "p-6 rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-500",
-    "bg-card/10 hover:bg-card/20", // Adjusted transparency for better glass effect
+  <div className={cn(
+    "p-6 rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-500 flex-shrink-0 w-full md:w-auto",
+    "bg-card/10 hover:bg-card/20", // Subtle glass effect
     "shadow-xl border-neon-glow", // Neon Blue border glow
     "cursor-pointer hover:scale-[1.03]"
   )}
   style={{
-    // Applying explicit glassmorphism styles as requested
+    // Applying explicit glassmorphism styles
     backdropFilter: 'blur(16px)',
     border: '1px solid rgba(0, 168, 225, 0.5)' // Using the primary color (Neon Blue) in RGBA
   }}
@@ -75,46 +74,48 @@ const Index = () => {
     <div className="w-full">
       <HeroSection />
 
-      <div className="container mx-auto py-16 px-4 md:px-6">
+      <div className="container mx-auto px-4 md:px-6">
         
-        {/* The 5 Elite Pillars Section */}
-        <h2 className="text-4xl font-bold text-center mb-12 text-primary neon-blue-glow">Global Playlists</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          <ElitePillarCard 
-            title="Basic (Battle/Social)" 
-            description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
-            icon={Award} // Changed from Mic to Award
-          />
-          <ElitePillarCard 
-            title="Academy (Conservatory)" 
-            description="10-level curriculum with AI Vocal Diagnostic for pitch and breath analysis." 
-            icon={GraduationCap} 
-          />
-          <ElitePillarCard 
-            title="Amazon Next Talent" 
-            description="10-level gamified auditions, progressing from local to global online stages." 
-            icon={Star} // Changed from Rocket to Star
-          />
-          <ElitePillarCard 
-            title="Amazon Backstage" 
-            description="Premium UI locked behind social verification and a Pro-Vocal test." 
-            icon={Lock} // Changed from Shield to Lock
-          />
-          <ElitePillarCard 
-            title="Next Success" 
-            description="Generative AI portal for creating original lyrics and melodies (Suno-style)." 
-            icon={Zap} 
-          />
+        {/* The 5 Elite Pillars Section - Overlapping the Hero */}
+        <div className="relative -mt-24 z-30 mb-16">
+          <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
+          
+          <div className="flex flex-col lg:flex-row justify-center items-stretch gap-4">
+            <ElitePillarCard 
+              title="Basic (Battle/Social)" 
+              description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
+              icon={Award} 
+            />
+            <ElitePillarCard 
+              title="Academy (Conservatory)" 
+              description="10-level curriculum with AI Vocal Diagnostic for pitch and breath analysis." 
+              icon={GraduationCap} 
+            />
+            <ElitePillarCard 
+              title="Amazon Next Talent" 
+              description="10-level gamified auditions, progressing from local to global online stages." 
+              icon={Star} 
+            />
+            <ElitePillarCard 
+              title="Amazon Backstage" 
+              description="Premium UI locked behind social verification and a Pro-Vocal test." 
+              icon={Lock} 
+            />
+            <ElitePillarCard 
+              title="Next Success" 
+              description="Generative AI portal for creating original lyrics and melodies (Suno-style)." 
+              icon={Zap} 
+            />
+          </div>
         </div>
         
-        {/* Global Hotspots Carousel (Ensuring it's immediately below the pillars) */}
-        <div className="mt-16">
+        {/* Global Hotspots Carousel */}
+        <div className="py-16">
           <GlobalHotspotsCarousel />
         </div>
 
         {/* Global Ranking & Discovery Section */}
-        <div className="mt-20">
+        <div className="mt-12 pb-16">
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
           <div className="bg-card/70 p-8 rounded-2xl border border-border/50 backdrop-blur-md">
             <p className="text-center text-muted-foreground">
