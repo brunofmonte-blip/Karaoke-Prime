@@ -78,8 +78,8 @@ const Index = () => {
       <div className="container mx-auto px-0 md:px-6 relative z-30">
         
         {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
-        {/* Using negative margin to pull the pillars up 80px below the tagline (which is roughly 15vh + 80px from the bottom of the Hero) */}
-        <div className="w-full max-w-7xl mx-auto -mt-20 md:-mt-24"> 
+        {/* Using negative margin to pull the pillars up 80px below the tagline. Added z-50 for layering. */}
+        <div className="w-full max-w-7xl mx-auto -mt-20 md:-mt-24 relative z-50"> 
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
           {/* Horizontal Scrolling Container */}

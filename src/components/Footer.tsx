@@ -17,22 +17,34 @@ const Footer = () => {
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
           
-          {/* Vocal Note Evolution Chart - Transparent and axis-less */}
+          {/* Vocal Note Evolution Chart - Fixed Height Container */}
           <div className="lg:col-span-2 h-48 w-full">
-            <h3 className="text-lg font-semibold mb-2 text-primary neon-blue-glow">Vocal Note Evolution (Last Session)</h3>
+            <h3 className="text-lg font-semibold mb-2 text-primary neon-blue-glow">Vocal Note Evolution (Pitch Accuracy 0-100)</h3>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                {/* XAxis and YAxis removed for transparent overlay effect */}
+                {/* XAxis represents Time/Notes (hidden) */}
+                <XAxis dataKey="name" hide />
+                {/* YAxis represents Pitch Accuracy (0-100) (hidden, but domain set for logic) */}
+                <YAxis domain={[0, 100]} hide />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--card))', 
                     border: '1px solid hsl(var(--border))', 
                     borderRadius: '0.5rem' 
                   }}
+                  formatter={(value, name) => [`${value}%`, name === 'pitch' ? 'Pitch Accuracy' : 'Breath Control']}
                 />
                 {/* Neon Blue Line for Pitch */}
-                <Line type="monotone" dataKey="pitch" stroke="hsl(var(--primary))" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }} />
-                {/* Prime Gold Line for secondary metric (Breath) - Kept for visual interest */}
+                <Line 
+                  type="monotone" 
+                  dataKey="pitch" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={3} 
+                  dot={false} 
+                  activeDot={{ r: 6, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }} 
+                  style={{ filter: 'drop-shadow(0 0 5px hsl(var(--primary)/0.8))' }} // Soft glow style
+                />
+                {/* Prime Gold Line for secondary metric (Breath) */}
                 <Line type="monotone" dataKey="breath" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} opacity={0.6} activeDot={{ r: 4, fill: 'hsl(var(--accent))', stroke: 'hsl(var(--accent))', strokeWidth: 1 }} />
               </LineChart>
             </ResponsiveContainer>
