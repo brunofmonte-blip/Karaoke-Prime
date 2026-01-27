@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { MadeWithDyad } from "@/components/made-with-dyad";
 
 const chartData = [
@@ -19,12 +19,12 @@ const Footer = () => {
           
           {/* Vocal Note Evolution Chart */}
           <div className="lg:col-span-2 h-48 w-full">
-            <h3 className="text-lg font-semibold mb-2 text-primary">Vocal Note Evolution (Last Session)</h3>
+            <h3 className="text-lg font-semibold mb-2 text-primary neon-blue-glow">Vocal Note Evolution (Last Session)</h3>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
+                {/* Removed CartesianGrid for cleaner look */}
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" axisLine={false} tickLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" axisLine={false} tickLine={false} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--card))', 
@@ -32,10 +32,10 @@ const Footer = () => {
                     borderRadius: '0.5rem' 
                   }}
                 />
-                {/* Neon Blue Line */}
-                <Line type="monotone" dataKey="pitch" stroke="hsl(var(--primary))" strokeWidth={3} dot={false} />
+                {/* Neon Blue Line for Pitch */}
+                <Line type="monotone" dataKey="pitch" stroke="hsl(var(--primary))" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }} />
                 {/* Prime Gold Line for secondary metric (Breath) */}
-                <Line type="monotone" dataKey="breath" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} opacity={0.6} />
+                <Line type="monotone" dataKey="breath" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} opacity={0.6} activeDot={{ r: 4, fill: 'hsl(var(--accent))', stroke: 'hsl(var(--accent))', strokeWidth: 1 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

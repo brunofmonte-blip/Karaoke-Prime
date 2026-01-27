@@ -25,7 +25,7 @@ const hotspots: Hotspot[] = [
 const GlobalHotspotsCarousel = () => {
   return (
     <div className="py-8">
-      <h2 className="text-3xl font-bold text-center mb-8 text-primary">
+      <h2 className="text-3xl font-bold text-center mb-8 text-primary neon-blue-glow">
         Global Karaoke Hotspots
       </h2>
       <Carousel
@@ -39,22 +39,23 @@ const GlobalHotspotsCarousel = () => {
             <CarouselItem key={index} className="pl-4 basis-3/4 md:basis-1/3 lg:basis-1/4">
               <div className="p-1">
                 <Card className={cn(
-                  "rounded-2xl overflow-hidden border-border/50 transition-all duration-300",
-                  "bg-card/50 backdrop-blur-lg hover:border-primary hover:shadow-primary/50 shadow-xl"
+                  "rounded-2xl overflow-hidden border-2 border-primary/50 transition-all duration-300",
+                  "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-xl border-neon-glow"
                 )}>
                   <CardContent className="flex flex-col aspect-square items-center justify-end p-0 relative">
                     {/* Image Placeholder */}
                     <div 
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-105"
+                      // Using a generic placeholder image path
                       style={{ backgroundImage: `url(${hotspot.image})` }}
                     >
                       <img src={hotspot.image} alt={`${hotspot.city} stage`} className="w-full h-full object-cover opacity-20" />
                     </div>
                     
                     {/* Text Overlay */}
-                    <div className="relative z-10 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
-                      <p className="text-lg font-bold text-white leading-none">{hotspot.city}</p>
-                      <p className="text-sm text-accent font-medium">{hotspot.country}</p>
+                    <div className="relative z-10 w-full p-4 bg-gradient-to-t from-black/90 to-transparent">
+                      <p className="text-lg font-bold text-white leading-none neon-blue-glow">{hotspot.city}</p>
+                      <p className="text-sm text-accent font-medium neon-gold-glow">{hotspot.country}</p>
                     </div>
                   </CardContent>
                 </Card>
