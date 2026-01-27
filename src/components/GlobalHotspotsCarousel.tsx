@@ -41,13 +41,18 @@ const GlobalHotspotsCarousel = () => {
                 <Card className={cn(
                   "rounded-2xl overflow-hidden border-2 border-primary/50 transition-all duration-300",
                   "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-xl border-neon-glow"
-                )}>
+                )}
+                style={{
+                  // Applying explicit glassmorphism styles
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(0, 168, 225, 0.5)' // Using the primary color (Neon Blue) in RGBA
+                }}>
                   <CardContent className="flex flex-col aspect-square items-center justify-end p-0 relative">
                     {/* Image Placeholder */}
                     <div 
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-105"
-                      // Using a generic placeholder image path
-                      style={{ backgroundImage: `url(${hotspot.image})` }}
+                      // Correcting image path and ensuring it uses the stage background if placeholder fails
+                      style={{ backgroundImage: `url(${hotspot.image === '/public/placeholder.svg' ? '/stage-background.jpg' : hotspot.image})` }}
                     >
                       <img src={hotspot.image} alt={`${hotspot.city} stage`} className="w-full h-full object-cover opacity-20" />
                     </div>

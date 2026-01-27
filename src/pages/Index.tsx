@@ -1,40 +1,44 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Mic, Zap, GraduationCap, Shield, Rocket } from "lucide-react";
+import { Mic, Zap, GraduationCap, Shield, Rocket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
+import AmazonSmileLogo from "@/components/AmazonSmileLogo";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
   <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center overflow-hidden bg-black">
     {/* Immersive Concert Stage Background - High Contrast */}
     <div 
-      className="absolute inset-0 bg-[url('/public/stage-background.jpg')] bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
-      style={{ backgroundPosition: 'center 30%' }}
+      className="absolute inset-0 bg-cover bg-center opacity-30 scale-110 transition-transform duration-1000"
+      style={{ 
+        backgroundPosition: 'center 30%',
+        // Corrected path and manual CSS overlay: linear-gradient(to bottom, rgba(5,5,5,0.2), #050505)
+        backgroundImage: `linear-gradient(to bottom, rgba(5,5,5,0.2), #050505), url('/stage-background.jpg')`
+      }}
     ></div>
     
     {/* Golden Volumetric Lighting Effect (Converging Spotlights) */}
     <div className="absolute inset-0 z-10 pointer-events-none">
-      {/* Top-down gradient fade */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-background/90"></div>
-      
-      {/* Converging Golden Spotlights */}
-      <div className="absolute top-0 left-1/4 w-1/2 h-full bg-accent/30 opacity-50 filter blur-[150px] transform skew-x-[-15deg] origin-top-left"></div>
-      <div className="absolute top-0 right-1/4 w-1/2 h-full bg-accent/30 opacity-50 filter blur-[150px] transform skew-x-[15deg] origin-top-right"></div>
-      
       {/* Central Neon Blue Glow */}
       <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-primary/40 rounded-full filter blur-[180px] opacity-50 animate-pulse z-0"></div>
     </div>
 
     <div className="relative z-20 text-center p-4">
-      <div className="flex items-center justify-center mb-4">
+      <div className="flex flex-col items-center justify-center mb-4">
         {/* Logo & Branding: Prime Gold Arrow and Neon Text */}
-        <ArrowRight className="h-12 w-12 text-accent fill-accent mr-2 rotate-90 drop-shadow-[0_0_10px_rgba(255,153,0,0.8)]" />
-        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-white neon-blue-glow">
-          Karaoke <span className="text-accent neon-gold-glow">Prime</span>
-        </h1>
+        <div className="drop-shadow-[0_0_15px_#00A8E1]">
+          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-white neon-blue-glow">
+            Karaoke 
+            <span className="text-accent neon-gold-glow ml-4 relative inline-block">
+              Prime
+              {/* Amazon Smile Arrow positioned under Prime */}
+              <AmazonSmileLogo className="absolute -bottom-4 left-0 h-4 w-full" />
+            </span>
+          </h1>
+        </div>
       </div>
       
-      <p className="text-xl md:text-3xl text-muted-foreground mb-8 font-light italic">
+      <p className="text-xl md:text-3xl text-muted-foreground mb-8 font-light italic mt-4">
         Your stage. Your legacy.
       </p>
 
@@ -56,7 +60,7 @@ const HeroSection = () => (
             "rounded-xl transition-all duration-300 transform hover:scale-[1.02]"
           )}
         >
-          Explore Academy <ArrowRight className="ml-2 h-5 w-5" />
+          Explore Academy <Mic className="ml-2 h-5 w-5" />
         </Button>
       </div>
       
@@ -77,7 +81,13 @@ const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, de
     "bg-background/30 hover:bg-background/50", // Semi-transparent Obsidian background
     "shadow-xl border-neon-glow", // Neon Blue border glow
     "cursor-pointer hover:scale-[1.03]"
-  )}>
+  )}
+  style={{
+    // Applying explicit glassmorphism styles as requested
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(0, 168, 225, 0.5)' // Using the primary color (Neon Blue) in RGBA
+  }}
+  >
     <Icon className="h-8 w-8 mb-4 text-primary icon-neon-glow" />
     <h3 className="text-xl font-bold mb-2 text-foreground">{title}</h3>
     <p className="text-sm text-muted-foreground">{description}</p>
