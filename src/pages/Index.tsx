@@ -15,7 +15,7 @@ const HeroSection = () => (
     {/* Vignette Overlay */}
     <div className="absolute inset-0 hero-vignette" />
     
-    {/* Content */}
+    {/* Content: Centered vertically and horizontally */}
     <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
       
       {/* Logo: Karaoke Prime (Amazon Music Style) */}
@@ -33,10 +33,10 @@ const HeroSection = () => (
         <AmazonSmileLogo className="h-4 w-[150px] text-accent fill-current" />
       </div>
       
-      {/* Tagline: Your Stage. Your Spotlight. */}
-      <p className="mt-4 text-xl text-white/90 mb-12">Your Stage. Your Spotlight.</p>
+      {/* Tagline: Your Stage. Your Spotlight. (mb-10 provides 40px spacing before buttons) */}
+      <p className="mt-4 text-xl text-white/90 mb-10">Your Stage. Your Spotlight.</p>
 
-      {/* CTA Buttons - Re-inserted with cyan glowing borders */}
+      {/* CTA Buttons - Positioned 40px below tagline */}
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
         <Button 
           variant="default" 
@@ -65,7 +65,7 @@ const HeroSection = () => (
 
 const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, description: string, icon: React.ElementType }) => (
   <div className={cn(
-    "p-6 rounded-2xl transition-all duration-500 flex-shrink-0 w-[280px] relative", 
+    "p-6 rounded-2xl transition-all duration-500 flex-shrink-0 w-[280px] lg:w-1/5 relative", // Adjusted width for symmetry on desktop
     "glass-pillar", // Using the new class
     "shadow-xl border-neon-glow", 
     "cursor-pointer hover:scale-[1.03]"
@@ -90,9 +90,9 @@ const Index = () => {
       <div className="relative">
         <HeroSection />
 
-        {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
-        {/* Positioned absolutely at the bottom of the Hero section, bridging the stage and lower content */}
-        <div className="absolute bottom-[-50px] left-0 right-0 z-50 w-full max-w-7xl mx-auto"> 
+        {/* The 5 Elite Pillars Section - FLOATING OVERLAP (The Bridge) */}
+        {/* bottom: -60px as requested */}
+        <div className="absolute bottom-[-60px] left-0 right-0 z-50 w-full max-w-7xl mx-auto"> 
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
           {/* Horizontal Scrolling Container */}
@@ -127,8 +127,8 @@ const Index = () => {
       </div>
 
       {/* Content below the Hero, starting after the overlap area. 
-          We add padding top to account for the 50px overlap + some spacing. */}
-      <div className="container mx-auto px-0 md:px-6 relative z-30 pt-[100px] md:pt-[100px]"> 
+          Padding top adjusted to pt-[140px] (60px overlap + 80px spacing) */}
+      <div className="container mx-auto px-0 md:px-6 relative z-30 pt-[140px] md:pt-[140px]"> 
         
         {/* Global Hotspots Carousel */}
         <div className="py-16 px-4 md:px-0">
