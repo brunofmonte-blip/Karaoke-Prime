@@ -1,11 +1,10 @@
 import { GraduationCap, Star, Lock, Music, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
-import AmazonSmileLogo from "@/components/AmazonSmileLogo";
 import RecentlyAdded from "@/components/RecentlyAdded";
 import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 import HeroCtaButton from "@/components/HeroCtaButton";
-import FlagIcon from "@/components/FlagIcon";
+import FlagIcon from "@/components/FlagIcon"; // Keeping import for now, but removing usage
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
@@ -19,26 +18,10 @@ const HeroSection = () => (
     {/* Content: Centered vertically and horizontally */}
     <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
       
-      {/* Logo Composition: "karaoke Prime" */}
-      <div className="drop-shadow-[0_0_15px_rgba(0,168,225,0.7)]">
-        <h1 className="text-7xl md:text-9xl font-extrabold tracking-tighter text-white">
-          karaoke 
-          <span className="text-primary ml-4 relative inline-block font-black">
-            Prime
-          </span>
-        </h1>
-      </div>
+      {/* Logo and Tagline removed as requested */}
       
-      {/* Amazon Smile Arrow (Gold) - positioned 4px under 'Prime' */}
-      <div className="amazon-gold-glow mt-[-10px]">
-        <AmazonSmileLogo className="h-4 w-[150px] text-accent fill-current" />
-      </div>
-      
-      {/* Tagline: Your Stage. Your Spotlight. (mb-10 provides 40px spacing before buttons) */}
-      <p className="mt-4 text-xl text-white/90 mb-10">Your Stage. Your Spotlight.</p>
-
-      {/* CTA Buttons - Transparent background, cyan glowing border */}
-      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+      {/* CTA Buttons - Centered in the remaining space */}
+      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 mt-auto mb-auto">
         <HeroCtaButton>
           See live show
         </HeroCtaButton>
@@ -54,30 +37,27 @@ interface ElitePillarProps {
   title: string;
   description: string;
   icon: React.ElementType;
-  flagCode: 'IT' | 'PL' | 'FR' | 'US' | 'RU';
+  // flagCode: 'IT' | 'PL' | 'FR' | 'US' | 'RU'; // Removed flagCode prop
 }
 
-const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon, flagCode }) => (
+const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon }) => (
   <div className={cn(
-    "p-6 rounded-2xl transition-all duration-500 flex-shrink-0 w-[280px] lg:w-1/5 relative", 
+    "p-4 rounded-2xl transition-all duration-500 flex-shrink-0 w-[200px] lg:w-[200px] relative", // Adjusted width
     "bg-card/10 backdrop-blur-md", // Dark glass background
     "border-2 border-primary/70 shadow-xl", // Thick cyan border
     "cursor-pointer hover:scale-[1.03] hover:shadow-primary/70",
     "neon-blue-border-glow" // Using the new class for border glow
   )}
   >
-    {/* Flag Icon */}
-    <div className="absolute top-3 right-3">
-      <FlagIcon countryCode={flagCode} />
-    </div>
+    {/* Flag Icon removed as requested */}
     
     {/* Icon Container */}
-    <div className="h-12 w-12 mb-4 flex items-center justify-center rounded-full border-2 border-primary/50 bg-primary/10">
-      <Icon className="h-6 w-6 text-primary icon-neon-glow" />
+    <div className="h-10 w-10 mb-3 flex items-center justify-center rounded-full border-2 border-primary/50 bg-primary/10">
+      <Icon className="h-5 w-5 text-primary icon-neon-glow" />
     </div>
     
-    <h3 className="text-xl font-bold mb-1 text-foreground">{title}</h3>
-    <p className="text-sm text-muted-foreground">{description}</p>
+    <h3 className="text-lg font-bold mb-1 text-foreground">{title}</h3>
+    <p className="text-xs text-muted-foreground">{description}</p>
   </div>
 );
 
@@ -100,31 +80,26 @@ const Index = () => {
               title="Basic" 
               description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
               icon={Music} 
-              flagCode="IT"
             />
             <ElitePillarCard 
               title="Academy" 
               description="10-level curriculum with AI Vocal Diagnostic for pitch and breath analysis." 
               icon={GraduationCap} 
-              flagCode="PL"
             />
             <ElitePillarCard 
               title="Next Talent" 
               description="10-level gamified auditions, progressing from local to global online stages." 
               icon={Star} 
-              flagCode="FR"
             />
             <ElitePillarCard 
               title="Backstage" 
               description="Premium UI locked behind social verification and a Pro-Vocal test." 
               icon={Lock} 
-              flagCode="US"
             />
             <ElitePillarCard 
               title="Amazon Success" 
               description="Global ranking system based on performance, engagement, and academy level." 
               icon={Trophy} 
-              flagCode="RU"
             />
           </div>
         </div>
