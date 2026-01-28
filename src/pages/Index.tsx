@@ -8,50 +8,36 @@ import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
-  <div className="relative h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-black">
-    {/* Immersive Concert Stage Background - Professional, Empty Stage */}
-    <div 
-      className="absolute inset-0 bg-cover bg-center opacity-40 scale-110 transition-transform duration-1000"
-      style={{ 
-        // New professional stage image
-        backgroundImage: `url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070&auto=format&fit=crop')`
-      }}
-    >
-      {/* Gradient Overlay: linear-gradient(to top, #050505 10%, transparent 80%) */}
-      <div className="absolute inset-0" style={{
-        backgroundImage: `linear-gradient(to top, hsl(var(--background)) 10%, transparent 80%)`
-      }}></div>
-    </div>
+  <section 
+    className="relative h-[85vh] w-full bg-cover bg-center" 
+    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2070&auto=format&fit=crop')" }}
+  >
+    {/* Vignette Overlay */}
+    <div className="absolute inset-0 hero-vignette" />
     
-    {/* Volumetric Lighting Effect */}
-    <div className="absolute inset-0 z-10 pointer-events-none">
-      {/* Central Neon Blue Glow */}
-      <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-primary/40 rounded-full filter blur-[180px] opacity-50 animate-pulse z-0"></div>
-    </div>
-
-    {/* Logo and CTA positioned in the center/lower half */}
-    <div className="relative z-20 text-center p-4 flex flex-col items-center"> 
-      <div className="flex flex-col items-center justify-center">
-        {/* Main Logo: Karaoke Prime (Amazon Music Style) */}
-        <div className="drop-shadow-[0_0_15px_#00A8E1]">
-          <h1 className="text-7xl md:text-9xl font-extrabold tracking-tighter text-foreground neon-blue-glow">
-            Karaoke 
-            <span id="prime-text" className="text-primary neon-blue-glow ml-4 relative inline-block font-black">
-              Prime
-              {/* Amazon Smile Arrow positioned under Prime */}
-              <AmazonSmileLogo className="absolute -bottom-4 left-0 h-4 w-full" />
-            </span>
-          </h1>
-        </div>
+    {/* Content */}
+    <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
+      
+      {/* Logo: Karaoke Prime (Amazon Music Style) */}
+      <div className="drop-shadow-[0_0_15px_rgba(0,168,225,0.7)]">
+        <h1 className="text-7xl md:text-9xl font-extrabold tracking-tighter text-foreground">
+          Karaoke 
+          <span className="text-white ml-4 relative inline-block font-black">
+            Prime
+          </span>
+        </h1>
+      </div>
+      
+      {/* Amazon Smile Arrow */}
+      <div className="amazon-gold-glow mt-[-10px]">
+        <AmazonSmileLogo className="h-4 w-[150px] text-accent fill-current" />
       </div>
       
       {/* Tagline: Your Stage. Your Spotlight. */}
-      <p id="hero-tagline" className="text-lg md:text-xl text-muted-foreground font-light tracking-wider mt-8 mb-16">
-        Your Stage. Your Spotlight.
-      </p>
+      <p className="mt-4 text-xl text-white/90">Your Stage. Your Spotlight.</p>
 
       {/* Call-to-Action Buttons: Basic and Explore Prime (Neon Cyan Border, Glassmorphism) */}
-      <div className="flex space-x-4">
+      <div className="flex space-x-4 mt-16">
         <Button 
           size="lg"
           className={cn(
@@ -83,20 +69,16 @@ const HeroSection = () => (
         </Button>
       </div>
     </div>
-  </div>
+  </section>
 );
 
 const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, description: string, icon: React.ElementType }) => (
   <div className={cn(
-    "p-6 rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-500 flex-shrink-0 w-[280px] relative", 
-    "bg-card/10 hover:bg-card/20", 
+    "p-6 rounded-2xl transition-all duration-500 flex-shrink-0 w-[280px] relative", 
+    "glass-pillar", // Using the new class
     "shadow-xl border-neon-glow", 
     "cursor-pointer hover:scale-[1.03]"
   )}
-  style={{
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(0, 168, 225, 0.3)' 
-  }}
   >
     {/* Small Flag Icon */}
     <div className="absolute top-3 right-3 p-1 bg-black/50 rounded-full backdrop-blur-sm">
