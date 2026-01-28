@@ -121,16 +121,17 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Motivational Tagline */}
+        {/* Motivational Tagline (Updated to match image reference) */}
         <div className="text-center py-10">
           <h2 className={cn(
             "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
-            "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" // Updated styling to match "Karaoke"
+            "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
           )}>
             SING. EVOLVE. CONQUER THE 
             <span className="relative inline-block ml-1">
               WORLD.
-              <AmazonSmileLogo className="absolute -bottom-2 left-0 h-3 w-full" />
+              {/* Adjusted positioning to match the reference image */}
+              <AmazonSmileLogo className="absolute -bottom-4 right-[-10px] h-4 w-[150px]" />
             </span>
           </h2>
         </div>
