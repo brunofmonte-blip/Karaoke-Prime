@@ -10,7 +10,7 @@ import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 const HeroSection = () => (
   <section 
     className="relative h-[85vh] w-full bg-cover bg-center" 
-    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2070&auto=format&fit=crop')" }}
+    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070&auto=format&fit=crop')" }}
   >
     {/* Vignette Overlay */}
     <div className="absolute inset-0 hero-vignette" />
@@ -36,38 +36,7 @@ const HeroSection = () => (
       {/* Tagline: Your Stage. Your Spotlight. */}
       <p className="mt-4 text-xl text-white/90">Your Stage. Your Spotlight.</p>
 
-      {/* Call-to-Action Buttons: Basic and Explore Prime (Neon Cyan Border, Glassmorphism) */}
-      <div className="flex space-x-4 mt-16">
-        <Button 
-          size="lg"
-          className={cn(
-            "bg-card/20 text-primary hover:bg-card/30 rounded-full px-8 py-6 text-lg font-semibold",
-            "shadow-2xl shadow-primary/50 transition-all duration-300 hover:scale-[1.05] border-2 border-primary",
-            "backdrop-blur-md"
-          )}
-          style={{
-            backdropFilter: 'blur(20px)',
-            border: '2px solid hsl(var(--primary))'
-          }}
-        >
-          Basic
-        </Button>
-        <Button 
-          size="lg"
-          variant="outline"
-          className={cn(
-            "bg-card/20 border-primary text-primary hover:bg-card/30 rounded-full px-8 py-6 text-lg font-semibold",
-            "shadow-2xl shadow-primary/30 transition-all duration-300 hover:scale-[1.05] border-2",
-            "backdrop-blur-md"
-          )}
-          style={{
-            backdropFilter: 'blur(20px)',
-            border: '2px solid hsl(var(--primary))'
-          }}
-        >
-          Explore Prime
-        </Button>
-      </div>
+      {/* Removed CTA Buttons to match strict structure */}
     </div>
   </section>
 );
@@ -99,8 +68,8 @@ const Index = () => {
       <div className="container mx-auto px-0 md:px-6 relative z-30">
         
         {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
-        {/* Using -mt-32 to pull the pillars up significantly over the Hero section */}
-        <div className="w-full max-w-7xl mx-auto -mt-32 relative z-50"> 
+        {/* Adjusted negative margin to achieve the visual overlap required */}
+        <div className="w-full max-w-7xl mx-auto -mt-40 relative z-50"> 
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
           {/* Horizontal Scrolling Container */}

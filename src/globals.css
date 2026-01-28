@@ -121,7 +121,7 @@
 
 /* New custom classes requested by user */
 .hero-vignette {
-  background: radial-gradient(circle, transparent 20%, rgba(5,5,5,0.9) 100%);
+  background: radial-gradient(circle, transparent 20%, rgba(5,5,5,1) 100%);
 }
 .amazon-gold-glow {
   filter: drop-shadow(0 0 12px #FF9900);
