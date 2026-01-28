@@ -5,7 +5,7 @@ import { MessageSquare, Heart, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const trendItems = [
-  { id: 1, user: "VocalPro_88", caption: "Hitting that high note! 🎤 #KaraokeChallenge", likes: 1.2, comments: 345, video: "https://images.unsplash.com/photo-1514525253161-7a46d1919806?q=80&w=500&auto=format&fit=crop" },
+  { id: 1, user: "VocalPro_88", caption: "Hitting that high note! 🎤 #KaraokeChallenge", likes: 1.2, comments: 345, video: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=1000" },
   { id: 2, user: "PrimeTalent_UK", caption: "Audition round 3 success! Wish me luck! ✨", likes: 980, comments: 120, video: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500&auto=format&fit=crop" },
   { id: 3, user: "AcademyGrad", caption: "My AI diagnostic score improved by 15%! Thanks, Prime!", likes: 2.5, comments: 500, video: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=500&auto=format&fit=crop" },
 ];

@@ -4,8 +4,8 @@ import { PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const recentItems = [
-  { title: "Pop Anthem 2024", artist: "Anya Sharma", image: "https://images.unsplash.com/photo-1529626465619-b7fa4299a557?q=80&w=500&auto=format&fit=crop" },
-  { title: "Midnight Jazz", artist: "Marcus King", image: "https://images.unsplash.com/photo-1506794778202-dfa5599898e8?q=80&w=500&auto=format&fit=crop" },
+  { title: "Pop Anthem 2024", artist: "Anya Sharma", image: "https://images.unsplash.com/photo-1514525253361-bee8a4874a73?q=80&w=500" },
+  { title: "Midnight Jazz", artist: "Marcus King", image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=500" },
   { title: "Rock Ballad", artist: "Chloe Lee", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=500&auto=format&fit=crop" },
   { title: "Electro Beat", artist: "DJ Zedd", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=500&auto=format&fit=crop" },
 ];
