@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Award, Zap, GraduationCap, Star, Lock, Music, Trophy, Flag } from "lucide-react";
+import { GraduationCap, Star, Lock, Music, Trophy, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import AmazonSmileLogo from "@/components/AmazonSmileLogo";
@@ -8,19 +8,20 @@ import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
-  <div className="relative h-[85vh] flex flex-col items-center justify-end overflow-hidden bg-black">
-    {/* Immersive Concert Stage Background - High Contrast */}
+  <div className="relative h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-black">
+    {/* Immersive Concert Stage Background - Professional, Empty Stage */}
     <div 
       className="absolute inset-0 bg-cover bg-center opacity-40 scale-110 transition-transform duration-1000"
       style={{ 
-        // Using a suitable stage image and radial gradient for depth
-        backgroundPosition: 'center 30%',
-        backgroundImage: `
-          radial-gradient(circle, transparent 20%, rgba(5,5,5,0.9) 80%),
-          url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2070&auto=format&fit=crop')
-        `
+        // New professional stage image
+        backgroundImage: `url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070&auto=format&fit=crop')`
       }}
-    ></div>
+    >
+      {/* Gradient Overlay: linear-gradient(to top, #050505 10%, transparent 80%) */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: `linear-gradient(to top, hsl(var(--background)) 10%, transparent 80%)`
+      }}></div>
+    </div>
     
     {/* Volumetric Lighting Effect */}
     <div className="absolute inset-0 z-10 pointer-events-none">
@@ -28,14 +29,14 @@ const HeroSection = () => (
       <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-primary/40 rounded-full filter blur-[180px] opacity-50 animate-pulse z-0"></div>
     </div>
 
-    {/* Logo positioned in the lower third */}
-    <div className="relative z-20 text-center p-4 mb-[15vh] flex flex-col items-center"> 
+    {/* Logo and CTA positioned in the center/lower half */}
+    <div className="relative z-20 text-center p-4 flex flex-col items-center"> 
       <div className="flex flex-col items-center justify-center">
-        {/* Main Logo: Karaoke Prime with Smile Arrow (EXACT CLONE REQUIREMENT) */}
+        {/* Main Logo: Karaoke Prime (Amazon Music Style) */}
         <div className="drop-shadow-[0_0_15px_#00A8E1]">
-          <h1 className="text-7xl md:text-9xl font-extrabold tracking-tighter text-white neon-blue-glow">
+          <h1 className="text-7xl md:text-9xl font-extrabold tracking-tighter text-foreground neon-blue-glow">
             Karaoke 
-            <span id="prime-text" className="text-accent neon-gold-glow ml-4 relative inline-block">
+            <span id="prime-text" className="text-primary neon-blue-glow ml-4 relative inline-block font-black">
               Prime
               {/* Amazon Smile Arrow positioned under Prime */}
               <AmazonSmileLogo className="absolute -bottom-4 left-0 h-4 w-full" />
@@ -44,7 +45,8 @@ const HeroSection = () => (
         </div>
       </div>
       
-      <p className="text-lg md:text-xl text-muted-foreground font-light italic mt-8 tracking-wider mb-12">
+      {/* Tagline: Your Stage. Your Spotlight. */}
+      <p id="hero-tagline" className="text-lg md:text-xl text-muted-foreground font-light tracking-wider mt-8 mb-16">
         Your Stage. Your Spotlight.
       </p>
 
@@ -92,7 +94,7 @@ const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, de
     "cursor-pointer hover:scale-[1.03]"
   )}
   style={{
-    backdropFilter: 'blur(20px)', // CRITICAL: Ensure blur(20px) is explicit
+    backdropFilter: 'blur(20px)',
     border: '1px solid rgba(0, 168, 225, 0.3)' 
   }}
   >
@@ -115,7 +117,8 @@ const Index = () => {
       <div className="container mx-auto px-0 md:px-6 relative z-30">
         
         {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
-        <div className="w-full max-w-7xl mx-auto -mt-20 md:-mt-24 relative z-50"> 
+        {/* Using -mt-32 to pull the pillars up significantly over the Hero section */}
+        <div className="w-full max-w-7xl mx-auto -mt-32 relative z-50"> 
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
           {/* Horizontal Scrolling Container */}

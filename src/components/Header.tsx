@@ -14,15 +14,15 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Logo: Karaoke Prime with Amazon Smile/Gold Accent */}
+        {/* Logo: Karaoke Prime (Amazon Music Style) */}
         <Link to="/" className="flex items-center space-x-2">
           <div className="flex flex-col items-start">
-            <div className="flex items-center drop-shadow-[0_0_15px_#00A8E1]">
-              <span className="text-xl font-extrabold tracking-wider text-primary neon-blue-glow">
+            <div className="flex items-center">
+              <span className="text-xl font-extrabold tracking-wider text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
                 Karaoke 
               </span>
               <div className="relative ml-1">
-                <span className="text-xl font-extrabold tracking-wider text-accent neon-gold-glow">
+                <span className="text-xl font-black tracking-wider text-primary neon-blue-glow">
                   Prime
                 </span>
                 {/* Amazon Smile Arrow positioned under Prime */}
