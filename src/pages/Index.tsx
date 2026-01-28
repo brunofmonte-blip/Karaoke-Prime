@@ -5,6 +5,7 @@ import RecentlyAdded from "@/components/RecentlyAdded";
 import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 import HeroCtaButton from "@/components/HeroCtaButton";
 import FlagIcon from "@/components/FlagIcon"; // Keeping import for now, but removing usage
+import RankingTables from "@/components/RankingTables";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
@@ -117,11 +118,7 @@ const Index = () => {
         {/* Global Ranking & Discovery Section */}
         <div className="mt-12 pb-16 px-4 md:px-0">
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
-          <div className="bg-card/70 p-8 rounded-2xl border border-border/50 backdrop-blur-md">
-            <p className="text-center text-muted-foreground">
-              [Placeholder for Geo-Targeted Ranking Tables]
-            </p>
-          </div>
+          <RankingTables />
         </div>
       </div>
     </div>
