@@ -9,7 +9,7 @@ import FlagIcon from "@/components/FlagIcon"; // Keeping import for now, but rem
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
   <section 
-    className="relative h-[85vh] w-full bg-cover bg-center flex flex-col justify-end" // Use flex-col and justify-end
+    className="relative h-[85vh] w-full bg-cover bg-center flex flex-col justify-end" 
     style={{ backgroundImage: "url('/stage-background-new.png')" }}
   >
     {/* Vignette Overlay */}
@@ -18,18 +18,11 @@ const HeroSection = () => (
     {/* Content: Centered vertically in the middle section */}
     <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
       
-      {/* CTA Buttons - Positioned in the middle area */}
-      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 mb-auto mt-auto">
-        <HeroCtaButton>
-          See live show
-        </HeroCtaButton>
-        <HeroCtaButton>
-          Explore Prime
-        </HeroCtaButton>
-      </div>
+      {/* CTA Buttons removed as requested */}
+      
     </div>
     
-    {/* Spacer to push content up, ensuring the buttons are not too low */}
+    {/* Spacer to push content up, ensuring the pillars are positioned correctly */}
     <div className="h-[10vh] md:h-[15vh] relative z-10"></div>
   </section>
 );
