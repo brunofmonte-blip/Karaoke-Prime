@@ -125,11 +125,11 @@ const Footer = () => {
         <div className="text-center py-10">
           <h2 className={cn(
             "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
-            "text-primary neon-blue-glow"
+            "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" // Updated styling to match "Karaoke"
           )}>
-            SING. EVOLVE. 
-            <span className="relative inline-block ml-4">
-              CONQUER THE WORLD.
+            SING. EVOLVE. CONQUER THE 
+            <span className="relative inline-block ml-1">
+              WORLD.
               <AmazonSmileLogo className="absolute -bottom-2 left-0 h-3 w-full" />
             </span>
           </h2>
