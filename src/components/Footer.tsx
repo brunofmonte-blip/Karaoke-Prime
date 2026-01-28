@@ -121,17 +121,15 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Motivational Tagline (Updated to match image reference) */}
+        {/* Motivational Tagline */}
         <div className="text-center py-10">
           <h2 className={cn(
             "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
             "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
           )}>
             SING. EVOLVE. CONQUER THE 
-            <span className="relative inline-block ml-4">
+            <span className="relative inline-block ml-4 text-primary neon-blue-glow">
               WORLD.
-              {/* Adjusted positioning and size for the solid logo */}
-              <AmazonSmileLogo className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 h-8 w-[120px]" />
             </span>
           </h2>
         </div>
