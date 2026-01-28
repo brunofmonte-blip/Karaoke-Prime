@@ -131,7 +131,7 @@ const Footer = () => {
             <span className="relative inline-block ml-4">
               WORLD.
               {/* Adjusted positioning and size for the solid logo */}
-              <AmazonSmileLogo className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 h-6 w-[100px]" />
+              <AmazonSmileLogo className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 h-8 w-[120px]" />
             </span>
           </h2>
         </div>
