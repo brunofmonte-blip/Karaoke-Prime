@@ -43,9 +43,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
   return (
     <Card className={cn(
-      "rounded-2xl border-2 border-primary/50 backdrop-blur-md transition-all duration-300 w-full",
-      "bg-card/10 shadow-xl",
-      "glass-pillar" // Using the custom glassmorphism class for consistency
+      "rounded-2xl transition-all duration-300 w-full shadow-xl",
+      "glass-pillar" // Ensures 1px neon blue border and backdrop blur
     )}>
       <CardContent className="p-6 space-y-4">
         

@@ -47,16 +47,16 @@ const Footer = () => {
     <footer className="w-full bg-background border-t border-border/40 p-6">
       <div className="container mx-auto">
         
-        {/* Main Content Grid: Chart (2/3) and Profile (1/3) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-8">
+        {/* Main Content Grid: Chart (2/3) and Profile (1/3) - items-stretch for symmetry */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8">
           
           {/* Vocal Note Evolution Chart */}
           <div className={cn(
-            "lg:col-span-2 h-64 w-full p-4 rounded-2xl border-2 border-primary/50 backdrop-blur-md",
-            "bg-card/10 shadow-xl",
-            "glass-pillar" // Using the custom glassmorphism class
+            "lg:col-span-2 w-full p-4 rounded-2xl shadow-xl",
+            "glass-pillar" // Ensures 1px neon blue border and backdrop blur
           )}>
             <h3 className="text-lg font-semibold mb-4 text-primary neon-blue-glow">Vocal Note Evolution (Pitch Accuracy 0-100)</h3>
+            {/* ResponsiveContainer will take the height of the parent container, achieving symmetry */}
             <ResponsiveContainer width="100%" height="80%">
               <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                 
@@ -120,6 +120,16 @@ const Footer = () => {
           </div>
         </div>
         
+        {/* Motivational Tagline */}
+        <div className="text-center py-10">
+          <h2 className={cn(
+            "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
+            "text-primary neon-blue-glow"
+          )}>
+            Cante. Evolua. Conquiste o Mundo.
+          </h2>
+        </div>
+
         {/* Footer Links and Branding (Moved to bottom center/right) */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-border/40">
           <p className="text-sm text-muted-foreground order-2 md:order-1 mt-4 md:mt-0">
