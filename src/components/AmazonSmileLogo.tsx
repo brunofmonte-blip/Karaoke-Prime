@@ -14,17 +14,9 @@ const AmazonSmileLogo: React.FC<AmazonSmileLogoProps> = ({ className }) => {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      {/* Shallow upward curve (Smile) */}
+      {/* Solid, filled smile/arrow shape */}
       <path 
-        d="M 5 20 C 30 5, 70 5, 95 20" 
-        stroke="currentColor" 
-        strokeWidth="4" 
-        fill="none"
-        strokeLinecap="round"
-      />
-      {/* Arrowhead at the end (pointing right) */}
-      <path 
-        d="M 95 20 L 85 15 L 85 25 Z" 
+        d="M 0 15 C 25 0, 75 0, 100 15 L 90 20 C 70 8, 30 8, 10 20 Z" 
         fill="currentColor"
       />
     </svg>

@@ -128,10 +128,10 @@ const Footer = () => {
             "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
           )}>
             SING. EVOLVE. CONQUER THE 
-            <span className="relative inline-block ml-1">
+            <span className="relative inline-block ml-4">
               WORLD.
-              {/* Adjusted positioning to match the reference image */}
-              <AmazonSmileLogo className="absolute -bottom-4 left-0 h-4 w-[150px]" />
+              {/* Adjusted positioning and size for the solid logo */}
+              <AmazonSmileLogo className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 h-6 w-[100px]" />
             </span>
           </h2>
         </div>
