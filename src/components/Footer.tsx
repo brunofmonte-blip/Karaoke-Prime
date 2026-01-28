@@ -2,6 +2,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import UserProfileCard from './UserProfileCard';
 import { cn } from '@/lib/utils';
+import AmazonSmileLogo from './AmazonSmileLogo';
 
 const chartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -126,7 +127,11 @@ const Footer = () => {
             "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
             "text-primary neon-blue-glow"
           )}>
-            Cante. Evolua. Conquiste o Mundo.
+            SING. EVOLVE. 
+            <span className="relative inline-block ml-4">
+              CONQUER THE WORLD.
+              <AmazonSmileLogo className="absolute -bottom-2 left-0 h-3 w-full" />
+            </span>
           </h2>
         </div>
 
