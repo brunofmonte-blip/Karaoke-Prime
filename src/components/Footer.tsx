@@ -131,7 +131,7 @@ const Footer = () => {
             <span className="relative inline-block ml-1">
               WORLD.
               {/* Adjusted positioning to match the reference image */}
-              <AmazonSmileLogo className="absolute -bottom-4 right-[-10px] h-4 w-[150px]" />
+              <AmazonSmileLogo className="absolute -bottom-4 left-0 h-4 w-[150px]" />
             </span>
           </h2>
         </div>
