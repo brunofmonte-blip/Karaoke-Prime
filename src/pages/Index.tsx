@@ -34,9 +34,31 @@ const HeroSection = () => (
       </div>
       
       {/* Tagline: Your Stage. Your Spotlight. */}
-      <p className="mt-4 text-xl text-white/90">Your Stage. Your Spotlight.</p>
+      <p className="mt-4 text-xl text-white/90 mb-12">Your Stage. Your Spotlight.</p>
 
-      {/* Removed CTA Buttons to match strict structure */}
+      {/* CTA Buttons - Re-inserted with cyan glowing borders */}
+      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+        <Button 
+          variant="default" 
+          size="lg"
+          className={cn(
+            "bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-lg font-semibold",
+            "shadow-lg shadow-primary/50 transition-all duration-300 border-2 border-primary/70 hover:border-primary"
+          )}
+        >
+          See live show
+        </Button>
+        <Button 
+          variant="outline" 
+          size="lg"
+          className={cn(
+            "border-accent text-accent hover:bg-accent/10 rounded-full px-8 py-6 text-lg font-semibold",
+            "shadow-lg shadow-accent/50 transition-all duration-300 border-2 hover:border-accent/80"
+          )}
+        >
+          Explore Prime
+        </Button>
+      </div>
     </div>
   </section>
 );
@@ -63,13 +85,14 @@ const ElitePillarCard = ({ title, description, icon: Icon }: { title: string, de
 const Index = () => {
   return (
     <div className="w-full relative">
-      <HeroSection />
+      
+      {/* Hero Section Container (Relative for absolute positioning of pillars) */}
+      <div className="relative">
+        <HeroSection />
 
-      <div className="container mx-auto px-0 md:px-6 relative z-30">
-        
         {/* The 5 Elite Pillars Section - FLOATING OVERLAP */}
-        {/* Adjusted negative margin to achieve the visual overlap required */}
-        <div className="w-full max-w-7xl mx-auto -mt-40 relative z-50"> 
+        {/* Positioned absolutely at the bottom of the Hero section, bridging the stage and lower content */}
+        <div className="absolute bottom-[-50px] left-0 right-0 z-50 w-full max-w-7xl mx-auto"> 
           <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow sr-only">The Elite Pillars of Prime</h2>
           
           {/* Horizontal Scrolling Container */}
@@ -101,32 +124,32 @@ const Index = () => {
             />
           </div>
         </div>
+      </div>
+
+      {/* Content below the Hero, starting after the overlap area. 
+          We add padding top to account for the 50px overlap + some spacing. */}
+      <div className="container mx-auto px-0 md:px-6 relative z-30 pt-[100px] md:pt-[100px]"> 
         
-        {/* Content below the Hero, starting immediately after the pillars */}
-        <div className="pt-16 md:pt-24"> 
-          
-          {/* Global Hotspots Carousel */}
-          <div className="py-16 px-4 md:px-0">
-            <GlobalHotspotsCarousel />
-          </div>
+        {/* Global Hotspots Carousel */}
+        <div className="py-16 px-4 md:px-0">
+          <GlobalHotspotsCarousel />
+        </div>
 
-          {/* Recently Added Section */}
-          <RecentlyAdded />
+        {/* Recently Added Section */}
+        <RecentlyAdded />
 
-          {/* Trend Topics (Video Feed) Section */}
-          <TrendTopicsFeed />
+        {/* Trend Topics (Video Feed) Section */}
+        <TrendTopicsFeed />
 
-          {/* Global Ranking & Discovery Section */}
-          <div className="mt-12 pb-16 px-4 md:px-0">
-            <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
-            <div className="bg-card/70 p-8 rounded-2xl border border-border/50 backdrop-blur-md">
-              <p className="text-center text-muted-foreground">
-                [Placeholder for Geo-Targeted Ranking Tables]
-              </p>
-            </div>
+        {/* Global Ranking & Discovery Section */}
+        <div className="mt-12 pb-16 px-4 md:px-0">
+          <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
+          <div className="bg-card/70 p-8 rounded-2xl border border-border/50 backdrop-blur-md">
+            <p className="text-center text-muted-foreground">
+              [Placeholder for Geo-Targeted Ranking Tables]
+            </p>
           </div>
         </div>
-        
       </div>
     </div>
   );
