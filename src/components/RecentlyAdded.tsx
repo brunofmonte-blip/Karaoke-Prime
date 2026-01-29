@@ -4,10 +4,10 @@ import { PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const recentItems = [
-  { title: "Pop Anthem 2024", artist: "Anya Sharma", image: "https://images.unsplash.com/photo-1514525253161-7a46d191d54a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8c3RhZ2V8ZW58MHx8fHwxNzIwNDQ1NjY1fDA&ixlib=rb-4.0.3&q=80&w=500" }, // Stage lights
-  { title: "Midnight Jazz", artist: "Marcus King", image: "https://images.unsplash.com/photo-1505236858219-8359eb29e3a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8NHx8amF6eiUyMGNsdWJ8ZW58MHx8fHwxNzIwNDQ1NjY1fDA&ixlib=rb-4.0.3&q=80&w=500" }, // Jazz club
-  { title: "Rock Ballad", artist: "Chloe Lee", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Nnx8bWljcm9waG9uZXxlbnwwfHx8fDE3MjA0NDU2NjV8MA&ixlib=rb-4.0.3&q=80&w=500" }, // Studio microphone
-  { title: "Electro Beat", artist: "DJ Zedd", image: "https://images.unsplash.com/photo-1517638262440-04522821272e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MTB8fGRqJTIwYm9hcmR8ZW58MHx8fHwxNzIwNDQ1NjY1fDA&ixlib=rb-4.0.3&q=80&w=500" }, // DJ mixing board
+  { title: "Pop Anthem 2024", artist: "Anya Sharma", image: "https://picsum.photos/id/1040/500/500" }, // Stable placeholder 1
+  { title: "Midnight Jazz", artist: "Marcus King", image: "https://picsum.photos/id/1041/500/500" }, // Stable placeholder 2
+  { title: "Rock Ballad", artist: "Chloe Lee", image: "https://picsum.photos/id/1042/500/500" }, // Stable placeholder 3
+  { title: "Electro Beat", artist: "DJ Zedd", image: "https://picsum.photos/id/1043/500/500" }, // Stable placeholder 4
 ];
 
 const RecentlyAdded: React.FC = () => {
