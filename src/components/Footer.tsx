@@ -1,9 +1,9 @@
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from 'recharts';
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import UserProfileCard from './UserProfileCard';
 import { cn } from '@/lib/utils';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
+import VocalEvolutionChart from './VocalEvolutionChart'; // Import new component
 
 const chartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -14,26 +14,6 @@ const chartData = [
   { name: 'Note 6', pitch: 88, breath: 95 },
   { name: 'Note 7', pitch: 95, breath: 98 },
 ];
-
-// Custom Dot component to highlight peak performance
-const CustomDot = (props: any) => {
-  const { cx, cy, payload, dataKey } = props;
-  
-  // Find the maximum pitch value
-  const maxPitch = Math.max(...chartData.map(d => d.pitch));
-  
-  if (dataKey === 'pitch' && payload.pitch === maxPitch) {
-    return (
-      <svg x={cx - 10} y={cy - 10} width={20} height={20} fill="none" viewBox="0 0 20 20">
-        <circle cx="10" cy="10" r="8" fill="hsl(var(--accent))" style={{ filter: 'drop-shadow(0 0 5px hsl(var(--accent)/0.9))' }} />
-        <text x="10" y="10" dy={4} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">
-          P
-        </text>
-      </svg>
-    );
-  }
-  return null;
-};
 
 const Footer = () => {
   const { user } = useAuth();
@@ -63,64 +43,14 @@ const Footer = () => {
       <div className="container mx-auto">
         
         {/* Main Content Grid: Chart (2/3) and Profile (1/3) - items-stretch for symmetry */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8 h-[300px]"> {/* Added fixed height for chart container */}
           
           {/* Vocal Note Evolution Chart */}
-          <div className={cn(
-            "lg:col-span-2 w-full p-4 rounded-2xl shadow-xl",
-            "glass-pillar" // Ensures 1px neon blue border and backdrop blur
-          )}>
-            <h3 className="text-lg font-semibold mb-4 text-primary neon-blue-glow">Vocal Note Evolution (Pitch Accuracy 0-100)</h3>
-            {/* ResponsiveContainer will take the height of the parent container, achieving symmetry */}
-            <ResponsiveContainer width="100%" height="80%">
-              <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                
-                {/* Soft Neon Grid */}
-                <CartesianGrid 
-                  stroke="hsl(var(--primary)/0.2)" 
-                  strokeDasharray="3 3" 
-                />
-                
-                {/* Hiding X and Y axes for a minimalist, transparent look */}
-                <XAxis dataKey="name" hide />
-                <YAxis domain={[0, 100]} hide />
-                
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))', 
-                    borderRadius: '0.5rem' 
-                  }}
-                  formatter={(value, name) => [`${value}%`, name === 'pitch' ? 'Pitch Accuracy' : 'Breath Control']}
-                />
-                
-                {/* Semi-transparent Cyan Fill (Area) */}
-                <defs>
-                  <linearGradient id="colorPitch" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.0}/>
-                  </linearGradient>
-                </defs>
-                <Area 
-                  type="monotone" 
-                  dataKey="pitch" 
-                  stroke="hsl(var(--primary))" 
-                  fill="url(#colorPitch)" 
-                  strokeWidth={3} 
-                />
-
-                {/* Neon Blue Line for Pitch */}
-                <Line 
-                  type="monotone" 
-                  dataKey="pitch" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={3} 
-                  dot={<CustomDot dataKey="pitch" />} // Use CustomDot for peak marker
-                  activeDot={{ r: 6, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }} 
-                  style={{ filter: 'drop-shadow(0 0 5px hsl(var(--primary)/0.8))' }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="lg:col-span-2 w-full h-full">
+            <VocalEvolutionChart 
+              title="Vocal Note Evolution (Pitch Accuracy 0-100)" 
+              data={chartData} 
+            />
           </div>
 
           {/* User Profile Card */}

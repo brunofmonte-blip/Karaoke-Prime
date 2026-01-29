@@ -12,6 +12,7 @@ import LoginModal from "./components/LoginModal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Academy from "./pages/Academy";
 import Backstage from "./pages/Backstage";
+import BasicPillarSandbox from "./pages/BasicPillarSandbox"; // Import new page
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,8 @@ const App = () => (
             <Layout>
               <Routes>
                 <Route path="/" element={<Index />} />
+                {/* Core Pillars */}
+                <Route path="/basic" element={<BasicPillarSandbox />} />
                 {/* Protected Routes */}
                 <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
                 <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />

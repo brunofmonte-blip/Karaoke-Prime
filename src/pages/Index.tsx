@@ -6,6 +6,7 @@ import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 import HeroCtaButton from "@/components/HeroCtaButton";
 import FlagIcon from "@/components/FlagIcon"; // Keeping import for now, but removing usage
 import RankingTables from "@/components/RankingTables";
+import { Link } from "react-router-dom"; // Import Link
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
@@ -32,28 +33,28 @@ interface ElitePillarProps {
   title: string;
   description: string;
   icon: React.ElementType;
-  // flagCode: 'IT' | 'PL' | 'FR' | 'US' | 'RU'; // Removed flagCode prop
+  to: string; // Added 'to' prop for navigation
 }
 
-const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon }) => (
-  <div className={cn(
-    "p-4 rounded-2xl transition-all duration-500 flex-shrink-0 w-[200px] lg:w-[200px] relative", // Adjusted width
-    "bg-card/10 backdrop-blur-md", // Dark glass background
-    "border-2 border-primary/70 shadow-xl", // Thick cyan border
-    "cursor-pointer hover:scale-[1.03] hover:shadow-primary/70",
-    "neon-blue-border-glow" // Using the new class for border glow
-  )}
-  >
-    {/* Flag Icon removed as requested */}
-    
-    {/* Icon Container */}
-    <div className="h-10 w-10 mb-3 flex items-center justify-center rounded-full border-2 border-primary/50 bg-primary/10">
-      <Icon className="h-5 w-5 text-primary icon-neon-glow" />
+const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon, to }) => (
+  <Link to={to} className="block">
+    <div className={cn(
+      "p-4 rounded-2xl transition-all duration-500 flex-shrink-0 w-[200px] lg:w-[200px] relative", // Adjusted width
+      "bg-card/10 backdrop-blur-md", // Dark glass background
+      "border-2 border-primary/70 shadow-xl", // Thick cyan border
+      "cursor-pointer hover:scale-[1.03] hover:shadow-primary/70",
+      "neon-blue-border-glow" // Using the new class for border glow
+    )}
+    >
+      {/* Icon Container */}
+      <div className="h-10 w-10 mb-3 flex items-center justify-center rounded-full border-2 border-primary/50 bg-primary/10">
+        <Icon className="h-5 w-5 text-primary icon-neon-glow" />
+      </div>
+      
+      <h3 className="text-lg font-bold mb-1 text-foreground">{title}</h3>
+      <p className="text-xs text-muted-foreground">{description}</p>
     </div>
-    
-    <h3 className="text-lg font-bold mb-1 text-foreground">{title}</h3>
-    <p className="text-xs text-muted-foreground">{description}</p>
-  </div>
+  </Link>
 );
 
 const Index = () => {
@@ -75,26 +76,31 @@ const Index = () => {
               title="Basic" 
               description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
               icon={Music} 
+              to="/basic" // Link to the new sandbox
             />
             <ElitePillarCard 
               title="Academy" 
               description="10-level curriculum with AI Vocal Diagnostic for pitch and breath analysis." 
               icon={GraduationCap} 
+              to="/academy"
             />
             <ElitePillarCard 
               title="Next Talent" 
               description="10-level gamified auditions, progressing from local to global online stages." 
               icon={Star} 
+              to="/talent" // Placeholder route
             />
             <ElitePillarCard 
               title="Backstage" 
               description="Premium UI locked behind social verification and a Pro-Vocal test." 
               icon={Lock} 
+              to="/backstage"
             />
             <ElitePillarCard 
               title="Amazon Success" 
               description="Global ranking system based on performance, engagement, and academy level." 
               icon={Trophy} 
+              to="/success" // Placeholder route
             />
           </div>
         </div>
