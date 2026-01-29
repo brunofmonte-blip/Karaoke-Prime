@@ -6,7 +6,7 @@ import { Trophy, Zap, GraduationCap, Award, Star, Mic2 } from 'lucide-react';
 
 interface UserProfileCardProps {
   userName: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   bestNote: number;
   academyLevel: number;
   rankingOnline: number;
@@ -61,7 +61,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
               }}
             >
               <Avatar className="h-full w-full">
-                <AvatarImage src={avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=500&auto=format&fit=crop"} alt={userName} />
+                <AvatarImage src={avatarUrl || undefined} alt={userName} />
                 <AvatarFallback className="bg-primary text-primary-foreground">{userName.slice(0, 2)}</AvatarFallback>
               </Avatar>
             </div>
@@ -75,7 +75,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
         {/* Stats */}
         <div className="space-y-2">
-          {statItem("Melhor Nota", `${bestNote}%`, Zap)}
+          {statItem("Melhor Nota", `${bestNote.toFixed(1)}%`, Zap)}
           {statItem("Nível Academy", academyLevel, GraduationCap)}
           {statItem("Ranking Online", rankingOnline, Trophy)}
           {statItem("Ranking Offline", rankingOffline, Trophy)}

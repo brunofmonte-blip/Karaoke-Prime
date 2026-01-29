@@ -2,6 +2,8 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import UserProfileCard from './UserProfileCard';
 import { cn } from '@/lib/utils';
+import { useUserProfile } from '@/hooks/use-user-profile';
+import { useAuth } from '@/integrations/supabase/auth';
 
 const chartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -34,14 +36,27 @@ const CustomDot = (props: any) => {
 };
 
 const Footer = () => {
-  // Placeholder data for the profile card
-  const userData = {
-    userName: "VocalPro_88",
-    bestNote: 98,
-    academyLevel: 7,
-    rankingOnline: 12,
-    rankingOffline: 5,
+  const { user } = useAuth();
+  const { data: profile, isLoading: isProfileLoading } = useUserProfile();
+
+  // Default placeholder data if not logged in or loading
+  const defaultUserData = {
+    userName: "Guest Singer",
+    bestNote: 0,
+    academyLevel: 0,
+    rankingOnline: 9999,
+    rankingOffline: 9999,
+    avatarUrl: undefined,
   };
+
+  const userData = user && profile ? {
+    userName: profile.username || user.email?.split('@')[0] || "Vocalist",
+    bestNote: profile.best_note,
+    academyLevel: profile.academy_level,
+    rankingOnline: profile.ranking_position, // Using ranking_position for online ranking placeholder
+    rankingOffline: 9999, // Placeholder for offline ranking
+    avatarUrl: profile.avatar_url || user.user_metadata.avatar_url,
+  } : defaultUserData;
 
   return (
     <footer className="w-full bg-background border-t border-border/40 p-6">
@@ -110,13 +125,20 @@ const Footer = () => {
 
           {/* User Profile Card */}
           <div className="lg:col-span-1">
-            <UserProfileCard 
-              userName={userData.userName}
-              bestNote={userData.bestNote}
-              academyLevel={userData.academyLevel}
-              rankingOnline={userData.rankingOnline}
-              rankingOffline={userData.rankingOffline}
-            />
+            {isProfileLoading && user ? (
+              <div className="h-full flex items-center justify-center glass-pillar rounded-2xl p-6">
+                <p className="text-muted-foreground">Loading profile data...</p>
+              </div>
+            ) : (
+              <UserProfileCard 
+                userName={userData.userName}
+                bestNote={userData.bestNote}
+                academyLevel={userData.academyLevel}
+                rankingOnline={userData.rankingOnline}
+                rankingOffline={userData.rankingOffline}
+                avatarUrl={userData.avatarUrl}
+              />
+            )}
           </div>
         </div>
         

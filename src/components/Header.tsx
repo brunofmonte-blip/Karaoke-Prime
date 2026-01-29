@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
-import { Mic2 } from "lucide-react";
+import { Mic2, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/integrations/supabase/auth";
+import { useLoginModal } from "@/hooks/use-login-modal";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const NavLink = ({ to, children }: { to: string, children: React.ReactNode }) => (
   <Link to={to} className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground hover:neon-blue-glow">
@@ -10,6 +14,18 @@ const NavLink = ({ to, children }: { to: string, children: React.ReactNode }) =>
 );
 
 const Header = () => {
+  const { user } = useAuth();
+  const { openModal } = useLoginModal();
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Failed to sign out.", { description: error.message });
+    } else {
+      toast.success("Successfully signed out. See you soon!", { duration: 3000 });
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
@@ -24,7 +40,6 @@ const Header = () => {
                 <span className="text-xl font-black tracking-wider text-primary neon-blue-glow">
                   Prime
                 </span>
-                {/* Amazon Smile Arrow positioned under Prime was removed */}
               </div>
             </div>
             <span className="text-xs text-muted-foreground ml-1 mt-1">
@@ -43,12 +58,35 @@ const Header = () => {
 
         {/* User/Auth Actions */}
         <div className="flex items-center space-x-4">
-          <Button variant="outline" className={cn(
-            "border-primary text-primary hover:bg-primary/10",
-            "rounded-full px-4 py-2 transition-all duration-300 border-2 hover:border-primary/80"
-          )}>
-            Sign In
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="icon" className="text-accent hover:bg-accent/10 rounded-full">
+                <User className="h-5 w-5 amazon-gold-glow" />
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleSignOut}
+                className={cn(
+                  "border-destructive text-destructive hover:bg-destructive/10",
+                  "rounded-full px-4 py-2 transition-all duration-300 border-2 hover:border-destructive/80"
+                )}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Button 
+              variant="outline" 
+              onClick={openModal}
+              className={cn(
+                "border-primary text-primary hover:bg-primary/10",
+                "rounded-full px-4 py-2 transition-all duration-300 border-2 hover:border-primary/80"
+              )}
+            >
+              Sign In
+            </Button>
+          )}
         </div>
       </div>
     </header>
