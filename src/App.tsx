@@ -6,13 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
-import { AuthProvider, useAuth } from "./integrations/supabase/auth";
+import { AuthProvider } from "./integrations/supabase/auth";
 import { LoginModalProvider, useLoginModal } from "./hooks/use-login-modal";
 import LoginModal from "./components/LoginModal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Academy from "./pages/Academy";
 import Backstage from "./pages/Backstage";
-import BasicPillarSandbox from "./pages/BasicPillarSandbox"; // Import new page
+import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox"; // Import new provider
+import VocalSandboxOverlay from "./components/VocalSandboxOverlay"; // Import new overlay
 
 const queryClient = new QueryClient();
 
@@ -29,21 +30,22 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <LoginModalProvider>
-          <BrowserRouter>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                {/* Core Pillars */}
-                <Route path="/basic" element={<BasicPillarSandbox />} />
-                {/* Protected Routes */}
-                <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
-                <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Layout>
-            <LoginModalWrapper />
-          </BrowserRouter>
+          <VocalSandboxProvider> {/* Wrap with Vocal Sandbox Provider */}
+            <BrowserRouter>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  {/* Protected Routes */}
+                  <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
+                  <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Layout>
+              <LoginModalWrapper />
+              <VocalSandboxOverlay /> {/* Render the overlay globally */}
+            </BrowserRouter>
+          </VocalSandboxProvider>
         </LoginModalProvider>
       </AuthProvider>
     </TooltipProvider>

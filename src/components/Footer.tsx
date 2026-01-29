@@ -3,9 +3,11 @@ import UserProfileCard from './UserProfileCard';
 import { cn } from '@/lib/utils';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
-import VocalEvolutionChart from './VocalEvolutionChart'; // Import new component
+import VocalEvolutionChart from './VocalEvolutionChart';
+import { useVocalSandbox } from '@/hooks/use-vocal-sandbox'; // Import new hook
+import { ChevronRight } from 'lucide-react'; // Import icon for the smile arrow
 
-const chartData = [
+const staticChartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
   { name: 'Note 2', pitch: 70, breath: 75 },
   { name: 'Note 3', pitch: 85, breath: 90 },
@@ -18,6 +20,11 @@ const chartData = [
 const Footer = () => {
   const { user } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
+  const { isAnalyzing, pitchHistory } = useVocalSandbox(); // Get sandbox state
+
+  // Determine which data to show in the chart
+  const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : staticChartData;
+  const chartTitle = isAnalyzing ? "Live Pitch Tracking" : "Vocal Note Evolution (Pitch Accuracy 0-100)";
 
   // Default placeholder data if not logged in or loading
   const defaultUserData = {
@@ -48,7 +55,7 @@ const Footer = () => {
           {/* Vocal Note Evolution Chart */}
           <div className="lg:col-span-2 w-full h-full">
             <VocalEvolutionChart 
-              title="Vocal Note Evolution (Pitch Accuracy 0-100)" 
+              title={chartTitle} 
               data={chartData} 
             />
           </div>
@@ -81,6 +88,8 @@ const Footer = () => {
             SING. EVOLVE. CONQUER THE 
             <span className="relative inline-block ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
               WORLD.
+              {/* Amazon Smile Arrow Placeholder */}
+              <ChevronRight className="inline h-8 w-8 ml-2 text-accent amazon-gold-glow absolute -bottom-2 right-[-40px] rotate-45" />
             </span>
           </h2>
         </div>

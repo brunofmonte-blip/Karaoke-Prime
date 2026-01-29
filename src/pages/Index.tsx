@@ -7,6 +7,7 @@ import HeroCtaButton from "@/components/HeroCtaButton";
 import FlagIcon from "@/components/FlagIcon"; // Keeping import for now, but removing usage
 import RankingTables from "@/components/RankingTables";
 import { Link } from "react-router-dom"; // Import Link
+import { useVocalSandbox } from "@/hooks/use-vocal-sandbox"; // Import useVocalSandbox
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
@@ -33,11 +34,12 @@ interface ElitePillarProps {
   title: string;
   description: string;
   icon: React.ElementType;
-  to: string; // Added 'to' prop for navigation
+  to?: string; // Made optional for the Basic pillar
+  onClick?: () => void;
 }
 
-const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon, to }) => (
-  <Link to={to} className="block">
+const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon, to, onClick }) => {
+  const content = (
     <div className={cn(
       "p-4 rounded-2xl transition-all duration-500 flex-shrink-0 w-[200px] lg:w-[200px] relative", // Adjusted width
       "bg-card/10 backdrop-blur-md", // Dark glass background
@@ -54,10 +56,18 @@ const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon:
       <h3 className="text-lg font-bold mb-1 text-foreground">{title}</h3>
       <p className="text-xs text-muted-foreground">{description}</p>
     </div>
-  </Link>
-);
+  );
+
+  if (to) {
+    return <Link to={to} className="block">{content}</Link>;
+  }
+  
+  return <div onClick={onClick} className="block">{content}</div>;
+};
 
 const Index = () => {
+  const { openOverlay } = useVocalSandbox();
+
   return (
     <div className="w-full relative">
       
@@ -76,7 +86,7 @@ const Index = () => {
               title="Basic" 
               description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
               icon={Music} 
-              to="/basic" // Link to the new sandbox
+              onClick={openOverlay} // Use onClick to open the overlay
             />
             <ElitePillarCard 
               title="Academy" 
