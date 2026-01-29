@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { Mic2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import AmazonSmileLogo from "./AmazonSmileLogo";
 
 const NavLink = ({ to, children }: { to: string, children: React.ReactNode }) => (
   <Link to={to} className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground hover:neon-blue-glow">
@@ -25,8 +24,7 @@ const Header = () => {
                 <span className="text-xl font-black tracking-wider text-primary neon-blue-glow">
                   Prime
                 </span>
-                {/* Amazon Smile Arrow positioned under Prime */}
-                <AmazonSmileLogo className="absolute -bottom-2 left-0 h-3 w-full" />
+                {/* Amazon Smile Arrow positioned under Prime was removed */}
               </div>
             </div>
             <span className="text-xs text-muted-foreground ml-1 mt-1">
