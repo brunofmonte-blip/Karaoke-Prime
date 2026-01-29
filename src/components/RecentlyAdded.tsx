@@ -4,10 +4,10 @@ import { PlayCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const recentItems = [
-  { title: "Pop Anthem 2024", artist: "Anya Sharma", image: "https://images.unsplash.com/photo-1514525253161-7a46d191d54a?q=80&w=500&auto=format&fit=crop" }, // Vibrant stage (Existing, working)
-  { title: "Midnight Jazz", artist: "Marcus King", image: "https://images.unsplash.com/photo-1505236858219-8359eb29e3a9?q=80&w=500&auto=format&fit=crop" }, // Moody jazz club (Existing, working)
-  { title: "Rock Ballad", artist: "Chloe Lee", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500&auto=format&fit=crop" }, // Microphone close-up (Existing, working)
-  { title: "Electro Beat", artist: "DJ Zedd", image: "https://images.unsplash.com/photo-1517638262440-04522821272e?q=80&w=500&auto=format&fit=crop" }, // Neon abstract (Existing, working)
+  { title: "Pop Anthem 2024", artist: "Anya Sharma", image: "https://images.unsplash.com/photo-1514525253161-7a46d191d54a?q=80&w=500&auto=format&fit=crop" }, // Stage lights
+  { title: "Midnight Jazz", artist: "Marcus King", image: "https://images.unsplash.com/photo-1505236858219-8359eb29e3a9?q=80&w=500&auto=format&fit=crop" }, // Jazz club
+  { title: "Rock Ballad", artist: "Chloe Lee", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500&auto=format&fit=crop" }, // Studio microphone
+  { title: "Electro Beat", artist: "DJ Zedd", image: "https://images.unsplash.com/photo-1517638262440-04522821272e?q=80&w=500&auto=format&fit=crop" }, // DJ mixing board
 ];
 
 const RecentlyAdded: React.FC = () => {
