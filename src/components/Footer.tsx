@@ -2,7 +2,6 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import UserProfileCard from './UserProfileCard';
 import { cn } from '@/lib/utils';
-import AmazonSmileLogo from './AmazonSmileLogo';
 
 const chartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -128,7 +127,7 @@ const Footer = () => {
             "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
           )}>
             SING. EVOLVE. CONQUER THE 
-            <span className="relative inline-block ml-4 text-primary neon-blue-glow">
+            <span className="relative inline-block ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
               WORLD.
             </span>
           </h2>
