@@ -30,11 +30,12 @@ const PerformanceSummaryModal: React.FC = () => {
   }, [sessionSummary]);
 
   const performanceInsight: PerformanceInsight = useMemo(() => {
-    if (!sessionSummary || !currentSong) return { accuracyScore: 0, improvementTips: [] };
+    if (!sessionSummary || !currentSong) return { accuracyScore: 0, maxStability: 0, improvementTips: [] };
     return runScoringEngine(pitchHistory, currentSong);
   }, [sessionSummary, pitchHistory, currentSong]);
 
   const finalScore = performanceInsight.accuracyScore;
+  const maxStability = performanceInsight.maxStability;
 
   // Determine recommended lesson (simple logic: recommend the next level's focus)
   const recommendedLesson: Lesson | undefined = useMemo(() => {
@@ -107,8 +108,8 @@ const PerformanceSummaryModal: React.FC = () => {
             </div>
             <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
               <Mic className="h-5 w-5 text-primary mx-auto mb-1" />
-              <p className="text-xs text-muted-foreground">Current Academy Level</p>
-              <p className="font-semibold text-foreground">{currentLevel}</p>
+              <p className="text-xs text-muted-foreground">Max Stability</p>
+              <p className="font-semibold text-foreground">{maxStability.toFixed(1)}%</p>
             </div>
           </div>
 

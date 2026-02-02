@@ -1,63 +1,104 @@
 import { PublicDomainSong } from '@/data/public-domain-library';
-import { VocalSandboxContextType } from '@/hooks/use-vocal-sandbox';
 
 interface ChartDataItem {
   name: string;
-  pitch: number;
+  pitch: number; // 0-100 visualization scale
+  frequency: number; // Raw frequency in Hz
   breath: number;
 }
 
 export interface PerformanceInsight {
   accuracyScore: number; // 0-100
+  maxStability: number; // 0-100
   improvementTips: string[];
 }
 
+// Helper function to convert frequency (Hz) to MIDI note number
+const freqToMidi = (frequency: number): number => {
+  if (frequency <= 0) return 0;
+  // Standard MIDI formula: M = 69 + 12 * log2(f / 440)
+  return 69 + 12 * Math.log2(frequency / 440);
+};
+
 /**
  * Mock Scoring Engine: Simulates comparing user pitch history against a reference melody.
- * Since we don't have real-time frequency data or a complex Web Audio setup,
- * this function uses the simplified 0-100 pitch scale for calculation and generates mock tips.
  */
 export const runScoringEngine = (
   pitchHistory: ChartDataItem[], 
   song: PublicDomainSong
 ): PerformanceInsight => {
   if (pitchHistory.length === 0) {
-    return { accuracyScore: 0, improvementTips: ["No vocal data recorded. Try singing louder!"] };
+    return { accuracyScore: 0, maxStability: 0, improvementTips: ["No vocal data recorded. Try singing louder!"] };
   }
 
-  // 1. Calculate Accuracy Score (Mock: Average of recorded pitch data)
-  const totalPitch = pitchHistory.reduce((sum, item) => sum + item.pitch, 0);
-  const averagePitch = totalPitch / pitchHistory.length;
+  let totalScore = 0;
+  let totalPoints = 0;
+  let highNoteSharpCount = 0;
+  let lowNoteFlatCount = 0;
   
-  // Simulate a slight penalty/bonus based on the song's complexity (mock reference melody length)
-  const complexityFactor = song.referenceMelody.length > 18 ? 0.95 : 1.0;
-  let accuracyScore = Math.min(100, averagePitch * complexityFactor);
+  // 1. Calculate Average Reference Pitch (Hz) for simplified comparison
+  const totalRefFreq = song.referenceMelody.reduce((sum, item) => sum + item.frequency, 0);
+  const averageRefFreq = totalRefFreq / song.referenceMelody.length;
+  const averageRefMidi = freqToMidi(averageRefFreq);
 
-  // 2. Generate Improvement Tips (Mock based on score range)
-  const tips: string[] = [];
-  
-  if (accuracyScore < 65) {
-    tips.push("Fundamental pitch stability is low. Focus on Academy Lesson 2: Pitch Calibration I.");
-  } else if (accuracyScore < 80) {
-    tips.push("Good start! Work on sustaining notes longer. Try Academy Lesson 1: Steady Breath.");
-  } else if (accuracyScore < 90) {
-    tips.push("Excellent performance! To reach Pro-Vocal status, focus on micro-pitch adjustments (Academy Lesson 5).");
-  } else {
-    tips.push("Vocal Master! Your pitch accuracy is outstanding. Consider applying for Next Talent auditions.");
+  // 2. Compare User History against Average Reference Pitch
+  for (const userPoint of pitchHistory) {
+    if (userPoint.frequency > 0) {
+      const userMidi = freqToMidi(userPoint.frequency);
+      const diff = Math.abs(userMidi - averageRefMidi);
+      
+      let pointScore = 0;
+      if (diff < 0.2) {
+        pointScore = 100; // Perfect match
+      } else if (diff < 1.0) {
+        pointScore = 70; // Close (less than a semitone off)
+      } else if (diff < 2.0) {
+        pointScore = 50; // Semi-tone off
+      } else {
+        pointScore = 0; // Wrong note
+      }
+      
+      totalScore += pointScore;
+      totalPoints++;
+
+      // Mock diagnostic tracking (1.5 semitones off)
+      if (userMidi > averageRefMidi + 1.5) highNoteSharpCount++;
+      if (userMidi < averageRefMidi - 1.5) lowNoteFlatCount++;
+    }
   }
 
-  // Mock tip based on simulated pitch variance (if variance was high)
+  const accuracyScore = totalPoints > 0 ? (totalScore / totalPoints) : 0;
+
+  // 3. Calculate Max Stability (Inverse of pitch variance in the 0-100 scale)
   const pitchValues = pitchHistory.map(p => p.pitch);
   const maxPitch = Math.max(...pitchValues);
   const minPitch = Math.min(...pitchValues);
   const variance = maxPitch - minPitch;
+  const maxStabilityScore = Math.max(0, 100 - variance); 
 
-  if (variance > 40) {
-    tips.push("High pitch variance detected. Try to hold the long notes steady.");
+  // 4. Generate Improvement Tips
+  const tips: string[] = [];
+  
+  if (accuracyScore < 60) {
+    tips.push("Fundamental pitch stability is low. Focus on Academy Lesson 2: Pitch Calibration I.");
+  } else if (accuracyScore < 80) {
+    tips.push("Good start! Work on sustaining notes longer. Try Academy Lesson 1: Steady Breath.");
+  } else if (accuracyScore < 90) {
+    tips.push("Excellent performance! Focus on micro-pitch adjustments (Academy Lesson 5) for higher scores.");
+  } else {
+    tips.push("Vocal Master! Your pitch accuracy is outstanding. Consider applying for Next Talent auditions.");
+  }
+
+  if (highNoteSharpCount / pitchHistory.length > 0.15) {
+    tips.push("Your high notes were consistently sharp. Try relaxing your jaw and throat.");
+  }
+  if (lowNoteFlatCount / pitchHistory.length > 0.15) {
+    tips.push("Your low notes were consistently flat. Ensure you are supporting your breath from the diaphragm.");
   }
 
   return {
     accuracyScore: accuracyScore,
+    maxStability: maxStabilityScore,
     improvementTips: tips,
   };
 };

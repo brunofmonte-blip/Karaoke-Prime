@@ -6,7 +6,8 @@ import { mockDownloadSong } from '@/utils/offline-storage';
 
 interface ChartDataItem {
   name: string;
-  pitch: number;
+  pitch: number; // 0-100 visualization scale
+  frequency: number; // New: Raw frequency in Hz
   breath: number;
 }
 
@@ -24,7 +25,7 @@ interface VocalSandboxContextType {
   isAnalyzing: boolean;
   startAnalysis: () => void;
   stopAnalysis: () => void;
-  pitchData: number;
+  pitchData: number; // 0-100 visualization scale
   pitchHistory: ChartDataItem[];
   ghostTrace: ChartDataItem[];
   currentSongTitle: string;
@@ -68,7 +69,16 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const currentSongArtist = currentSong?.artist || "Karaoke Prime";
   const currentLyrics = currentSong?.lyrics.map(l => l.text).join(' ') || "Start your vocal journey by selecting a song from the library.";
 
-  const { isAnalyzing, startAnalysis: startAudio, stopAnalysis: stopAudio, pitchData } = useAudioAnalyzer();
+  const { 
+    isAnalyzing, 
+    startAnalysis: startAudio, 
+    stopAnalysis: stopAudio, 
+    pitchDataHz, 
+    pitchDataVisualization, 
+  } = useAudioAnalyzer();
+  
+  // Expose the visualization pitch data
+  const pitchData = pitchDataVisualization;
 
   const loadSong = (songId: string) => {
     const song = publicDomainLibrary.find(s => s.id === songId);
@@ -153,6 +163,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     // Calculate summary upon stopping
     if (pitchHistory.length > 0 && sessionStartTimeRef.current && currentSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
+      // The final score calculation is now handled by the scoring engine in the modal, 
+      // but we need a placeholder score for the summary object.
       const totalPitch = pitchHistory.reduce((sum, item) => sum + item.pitch, 0);
       const finalScore = totalPitch / pitchHistory.length;
       
@@ -167,11 +179,12 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   // Effect to update pitch history and run diagnostics in real-time
   useEffect(() => {
-    if (isAnalyzing && pitchData !== undefined) {
+    if (isAnalyzing && pitchDataVisualization !== undefined) {
       historyCounter.current += 1;
       const newPoint: ChartDataItem = {
         name: `T${historyCounter.current}`,
-        pitch: pitchData,
+        pitch: pitchDataVisualization, // Use visualization for chart
+        frequency: pitchDataHz, // Store raw frequency for scoring
         breath: 50, // Placeholder for breath data
       };
       
@@ -218,7 +231,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         return newHistory;
       });
     }
-  }, [pitchData, isAnalyzing, recentAchievements]);
+  }, [pitchDataVisualization, pitchDataHz, isAnalyzing, recentAchievements]);
+
 
   useEffect(() => {
     // If the overlay opens without a song, load the default one.

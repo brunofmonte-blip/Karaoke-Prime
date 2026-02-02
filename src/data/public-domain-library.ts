@@ -154,4 +154,17 @@ export const publicDomainLibrary: PublicDomainSong[] = [
     ],
     referenceMelody: generateMockMelody(16),
   },
+  {
+    id: "pd-11",
+    title: "Cai Cai Balão (Traditional)",
+    artist: "Traditional Brazilian Folk",
+    audioUrl: "/audio/cai-cai-balao.mp3",
+    lyrics: [
+      { time: 0.0, text: "Cai, cai, balão, cai, cai, balão," },
+      { time: 3.0, text: "Aqui na minha mão." },
+      { time: 6.0, text: "Não cai não, não cai não, não cai não," },
+      { time: 9.0, text: "Cai na rua do sabão." },
+    ],
+    referenceMelody: generateMockMelody(12),
+  },
 ];

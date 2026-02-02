@@ -5,7 +5,8 @@ interface AudioAnalyzerResult {
   isAnalyzing: boolean;
   startAnalysis: () => void;
   stopAnalysis: () => void;
-  pitchData: number; // Simplified pitch value (0-100 scale for visualization)
+  pitchDataHz: number; // New: Raw detected frequency in Hz
+  pitchDataVisualization: number; // Existing: 0-100 scale for UI
 }
 
 const FFT_SIZE = 2048;
@@ -24,7 +25,8 @@ const frequencyToVisualizationScale = (frequency: number): number => {
 
 export const useAudioAnalyzer = (): AudioAnalyzerResult => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [pitchData, setPitchData] = useState(0);
+  const [pitchDataHz, setPitchDataHz] = useState(0); // New state for Hz
+  const [pitchDataVisualization, setPitchDataVisualization] = useState(0); // Existing state for visualization
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -58,7 +60,9 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     }
     
     const visualizationPitch = frequencyToVisualizationScale(frequency);
-    setPitchData(visualizationPitch);
+    
+    setPitchDataHz(frequency); // Update raw frequency
+    setPitchDataVisualization(visualizationPitch); // Update visualization pitch
 
     animationFrameRef.current = requestAnimationFrame(analyze);
   }, []);
@@ -107,7 +111,8 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
       audioContextRef.current.close();
     }
     setIsAnalyzing(false);
-    setPitchData(0);
+    setPitchDataHz(0);
+    setPitchDataVisualization(0);
     toast.info("Analysis stopped.", { duration: 2000 });
   };
 
@@ -121,6 +126,7 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     isAnalyzing,
     startAnalysis,
     stopAnalysis,
-    pitchData,
+    pitchDataHz,
+    pitchDataVisualization,
   };
 };
