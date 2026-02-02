@@ -7,9 +7,9 @@ import { validateContentSafety } from '@/utils/content-safety';
 import { useAuth } from '@/integrations/supabase/auth';
 
 const trendItems = [
-  { id: 1, user: "VocalPro_88", caption: "Hitting that high note! 🎤 #KaraokeChallenge (Rock)", likes: 1.2, comments: 345, video: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=1000", genre: "Rock" },
-  { id: 2, user: "PrimeTalent_UK", caption: "Audition round 3 success! Wish me luck! ✨ (Flagged)", likes: 980, comments: 120, video: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500&auto=format&fit=crop", genre: "Pop" },
-  { id: 3, user: "AcademyGrad", caption: "My AI diagnostic score improved by 15%! Thanks, Prime! (Pop)", likes: 2.5, comments: 500, video: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=500&auto=format&fit=crop", genre: "Pop" },
+  { id: 1, user: "VocalPro_88", caption: "Hitting that high note! 🎤 #KaraokeChallenge (Rock)", likes: 1.2, comments: 345, video: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000", genre: "Rock" },
+  { id: 2, user: "PrimeTalent_UK", caption: "Audition round 3 success! Wish me luck! ✨ (Flagged)", likes: 980, comments: 120, video: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500&auto=format&fit=crop", genre: "Pop" }, // This item will be flagged by validateContentSafety(2)
+  { id: 3, user: "AcademyGrad", caption: "My AI diagnostic score improved by 15%! Thanks, Prime! (Pop)", likes: 2.5, comments: 500, video: "https://images.unsplash.com/photo-1519732773401-d92c7293764c?q=80&w=500&auto=format&fit=crop", genre: "Pop" },
   { id: 4, user: "JazzMaster", caption: "Smooth notes tonight. 🎷 (Jazz)", likes: 0.8, comments: 50, video: "https://images.unsplash.com/photo-1501084817091-ec513ea013b6?q=80&w=500&auto=format&fit=crop", genre: "Jazz" },
 ];
 

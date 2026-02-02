@@ -18,8 +18,6 @@ const Tagline: React.FC = () => (
       SING. EVOLVE. CONQUER THE 
       <span className="relative inline-block ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
         WORLD.
-        {/* Amazon Smile Arrow Placeholder */}
-        <ChevronRight className="inline h-8 w-8 ml-2 text-accent amazon-gold-glow absolute -bottom-2 right-[-40px] rotate-45" />
       </span>
     </h2>
   </div>

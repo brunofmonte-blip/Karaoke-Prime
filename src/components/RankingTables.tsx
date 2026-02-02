@@ -19,6 +19,16 @@ const localRankingsMock: RankingItem[] = [
   { userId: 'mock-l2', userName: "BaritoneBob", song: "Fly Me to the Moon", score: 92.9, avatar_url: "https://images.unsplash.com/photo-1542909168-82c72e8906da?q=80&w=500&auto=format&fit=crop" },
 ];
 
+// Mock data for Global Rankings fallback
+const globalRankingsFallback: RankingItem[] = [
+  { userId: 'mock-g1', userName: "VocalPro_88", song: "The High Note", score: 98.5, avatar_url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=500" },
+  { userId: 'mock-g2', userName: "SingStar_JP", song: "Tokyo Drift Anthem", score: 97.1, avatar_url: "https://images.unsplash.com/photo-1519732773401-d92c7293764c?q=80&w=500" },
+  { userId: 'mock-g3', userName: "OperaQueen", song: "Nessun Dorma", score: 96.9, avatar_url: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500" },
+  { userId: 'mock-g4', userName: "BeatBoxer", song: "Rhythm Nation", score: 95.5, avatar_url: "https://images.unsplash.com/photo-1501084817091-ec513ea013b6?q=80&w=500" },
+  { userId: 'mock-g5', userName: "AcousticSoul", song: "Hallelujah", score: 94.9, avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=500" },
+];
+
+
 interface RankingListProps {
   title: string;
   data: RankingItem[];
@@ -104,8 +114,13 @@ const RankingList: React.FC<RankingListProps> = ({ title, data, colorClass, isGl
 const RankingTables: React.FC = () => {
   const { data: globalRankings, isLoading: isGlobalLoading } = useGlobalRankings();
   
+  // Use fallback if real data is empty or null
+  const effectiveGlobalRankings = (globalRankings && globalRankings.length > 0) 
+    ? globalRankings 
+    : globalRankingsFallback;
+
   // Filter global rankings to top 5 for display
-  const topGlobalRankings = globalRankings.slice(0, 5);
+  const topGlobalRankings = effectiveGlobalRankings.slice(0, 5);
 
   if (isGlobalLoading) {
     return (
