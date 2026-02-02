@@ -18,6 +18,8 @@ import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider, usePrimeSubscription } from "./hooks/use-prime-subscription";
 import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
 import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
+import { DuelProvider } from "./hooks/use-duel-engine";
+import DuelSummaryModal from "./components/DuelSummaryModal";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,11 @@ const PerformanceSummaryModalWrapper = () => {
   return <PerformanceSummaryModal />;
 }
 
+// Helper component to render the duel summary modal
+const DuelSummaryModalWrapper = () => {
+  return <DuelSummaryModal />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -47,25 +54,28 @@ const App = () => (
       <AuthProvider>
         <LoginModalProvider>
           <PrimeSubscriptionProvider>
-            <VocalSandboxProvider>
-              <BrowserRouter>
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/library" element={<Library />} /> {/* New Library Route */}
-                    {/* Protected Routes */}
-                    <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
-                    <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Layout>
-                <LoginModalWrapper />
-                <VocalSandboxOverlay />
-                <PrimeSubscriptionModalWrapper />
-                <PerformanceSummaryModalWrapper />
-              </BrowserRouter>
-            </VocalSandboxProvider>
+            <DuelProvider>
+              <VocalSandboxProvider>
+                <BrowserRouter>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/library" element={<Library />} /> {/* New Library Route */}
+                      {/* Protected Routes */}
+                      <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
+                      <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Layout>
+                  <LoginModalWrapper />
+                  <VocalSandboxOverlay />
+                  <PrimeSubscriptionModalWrapper />
+                  <PerformanceSummaryModalWrapper />
+                  <DuelSummaryModalWrapper />
+                </BrowserRouter>
+              </VocalSandboxProvider>
+            </DuelProvider>
           </PrimeSubscriptionProvider>
         </LoginModalProvider>
       </AuthProvider>

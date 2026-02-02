@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import LyricPlayer from './LyricPlayer';
+import { useDuel } from '@/hooks/use-duel-engine';
 
 const MIN_SESSION_DURATION_POINTS = 10; // Minimum pitch history points required for a valid session
 
@@ -25,8 +26,11 @@ const VocalSandboxOverlay: React.FC = () => {
     currentSongArtist,
     currentSong,
     currentTime,
-    sessionSummary, 
+    sessionSummary,
+    isDuelMode,
   } = useVocalSandbox();
+  
+  const { currentTurn } = useDuel();
   
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -83,6 +87,10 @@ const VocalSandboxOverlay: React.FC = () => {
       </div>
     );
   }
+  
+  const overlayTitle = isDuelMode 
+    ? `Duel Mode: Turn ${currentTurn} (${currentTurn === 1 ? (user?.email?.split('@')[0] || 'You') : 'Opponent'})`
+    : 'Live Vocal Sandbox';
 
   return (
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
@@ -90,7 +98,7 @@ const VocalSandboxOverlay: React.FC = () => {
       {/* Header and Close Button */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl md:text-4xl font-bold text-primary neon-blue-glow">
-          Live Vocal Sandbox
+          {overlayTitle}
         </h1>
         <Button 
           variant="ghost" 
@@ -120,7 +128,7 @@ const VocalSandboxOverlay: React.FC = () => {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/30"
                 >
                   <Mic className="h-5 w-5 mr-2" />
-                  {isAnalyzing ? 'Singing...' : 'Start Singing'}
+                  {isAnalyzing ? 'Singing...' : (isDuelMode && currentTurn === 2 ? 'Start Opponent Turn' : 'Start Singing')}
                 </Button>
                 <Button 
                   onClick={stopAnalysis} 
@@ -158,7 +166,7 @@ const VocalSandboxOverlay: React.FC = () => {
               </p>
               {!isAnalyzing && pitchHistory.length > 0 && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Session ended. Score saved to profile.
+                  {isDuelMode ? `Turn ${currentTurn === 1 ? 2 : 1} score recorded.` : 'Session ended. Score saved to profile.'}
                 </p>
               )}
             </div>

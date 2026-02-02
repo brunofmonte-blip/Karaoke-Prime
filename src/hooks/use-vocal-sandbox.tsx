@@ -3,8 +3,10 @@ import { useAudioAnalyzer } from './use-audio-analyzer';
 import { toast } from 'sonner';
 import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
 import { mockDownloadSong } from '@/utils/offline-storage';
+import { useDuel } from './use-duel-engine';
+import { runScoringEngine } from '@/utils/scoring-engine';
 
-interface ChartDataItem {
+export interface ChartDataItem {
   name: string;
   pitch: number; // 0-100 visualization scale
   frequency: number; // New: Raw frequency in Hz
@@ -39,6 +41,7 @@ interface VocalSandboxContextType {
   loadSong: (songId: string) => void;
   currentSong: PublicDomainSong | null;
   currentTime: number;
+  isDuelMode: boolean;
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
@@ -65,10 +68,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const stabilityToastRef = useRef<string | number | null>(null);
   const audioTimerRef = useRef<number>();
 
-  const currentSongTitle = currentSong?.title || "Select a Song";
-  const currentSongArtist = currentSong?.artist || "Karaoke Prime";
-  const currentLyrics = currentSong?.lyrics.map(l => l.text).join(' ') || "Start your vocal journey by selecting a song from the library.";
-
   const { 
     isAnalyzing, 
     startAnalysis: startAudio, 
@@ -77,6 +76,25 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     pitchDataVisualization, 
   } = useAudioAnalyzer();
   
+  // Duel integration
+  const { 
+    isDuelActive, 
+    currentTurn, 
+    duelSong, 
+    user1History, 
+    recordTurn,
+    clearDuel,
+  } = useDuel();
+  
+  // Determine if we are in duel mode
+  const isDuelMode = isDuelActive;
+  
+  // Determine the current song based on duel mode or single mode
+  const effectiveSong = isDuelMode ? duelSong : currentSong;
+  const currentSongTitle = effectiveSong?.title || "Select a Song";
+  const currentSongArtist = effectiveSong?.artist || "Karaoke Prime";
+  const currentLyrics = effectiveSong?.lyrics.map(l => l.text).join(' ') || "Start your vocal journey by selecting a song from the library.";
+
   // Expose the visualization pitch data
   const pitchData = pitchDataVisualization;
 
@@ -91,7 +109,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   };
 
   const openOverlay = () => {
-    if (!currentSong) {
+    if (!effectiveSong) {
       // Default to the first song if none is selected
       loadSong(publicDomainLibrary[0].id);
     }
@@ -100,22 +118,31 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   
   const closeOverlay = () => {
     stopAnalysis();
+    clearDuel(); // Clear duel state if closing overlay
     setIsOverlayOpen(false);
   };
   
   const clearSessionSummary = () => setSessionSummary(null);
 
   const startAnalysis = async () => {
-    if (!currentSong) {
+    if (!effectiveSong) {
       toast.error("Please select a song first.");
       return;
     }
     
     // 1. Offline Caching (Simulated)
-    await mockDownloadSong(currentSong); 
+    await mockDownloadSong(effectiveSong); 
 
     // 2. Reset states
-    setGhostTrace(pitchHistory); 
+    if (!isDuelMode) {
+      setGhostTrace(pitchHistory); 
+    } else if (currentTurn === 2) {
+      // If it's turn 2, User 1's history is the ghost trace/opponent trace
+      setGhostTrace(user1History);
+    } else {
+      setGhostTrace([]); // Clear ghost trace for User 1's turn
+    }
+    
     setPitchHistory([]);
     setRecentAchievements([]);
     setSessionSummary(null);
@@ -127,9 +154,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     startAudio();
     
     // 4. Start Audio Playback Simulation
-    // Mock duration based on the last lyric timestamp + 5 seconds buffer
-    const lastLyricTime = currentSong.lyrics.length > 0 
-      ? currentSong.lyrics[currentSong.lyrics.length - 1].time 
+    const lastLyricTime = effectiveSong.lyrics.length > 0 
+      ? effectiveSong.lyrics[effectiveSong.lyrics.length - 1].time 
       : 10;
     const songDuration = lastLyricTime + 5; 
     
@@ -160,19 +186,25 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       audioTimerRef.current = undefined;
     }
     
-    // Calculate summary upon stopping
-    if (pitchHistory.length > 0 && sessionStartTimeRef.current && currentSong) {
+    // --- Duel Mode Handling ---
+    if (isDuelMode) {
+      recordTurn(pitchHistory);
+      return;
+    }
+    
+    // --- Single Player Mode Handling ---
+    if (pitchHistory.length > 0 && sessionStartTimeRef.current && effectiveSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
-      // The final score calculation is now handled by the scoring engine in the modal, 
-      // but we need a placeholder score for the summary object.
-      const totalPitch = pitchHistory.reduce((sum, item) => sum + item.pitch, 0);
-      const finalScore = totalPitch / pitchHistory.length;
+      
+      // Calculate score using the scoring engine for single player summary
+      const insight = runScoringEngine(pitchHistory, effectiveSong);
+      const finalScore = insight.accuracyScore;
       
       setSessionSummary({
         finalScore: finalScore,
         pitchAccuracy: finalScore, 
         durationSeconds: durationSeconds,
-        songId: currentSong.id, // Save song ID
+        songId: effectiveSong.id, 
       });
     }
   };
@@ -235,11 +267,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
 
   useEffect(() => {
-    // If the overlay opens without a song, load the default one.
-    if (isOverlayOpen && !currentSong) {
+    // If the overlay opens without a song, load the default one, unless a duel is active.
+    if (isOverlayOpen && !effectiveSong) {
       loadSong(publicDomainLibrary[0].id);
     }
-  }, [isOverlayOpen, currentSong]);
+  }, [isOverlayOpen, effectiveSong]);
 
 
   return (
@@ -263,8 +295,9 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         sessionSummary,
         clearSessionSummary,
         loadSong,
-        currentSong,
+        currentSong: effectiveSong, // Use effective song
         currentTime,
+        isDuelMode,
       }}
     >
       {children}

@@ -12,7 +12,7 @@ interface VocalEvolutionChartProps {
   data: ChartDataItem[];
   title: string;
   height?: number | string;
-  ghostTrace?: ChartDataItem[]; // New prop for previous session data
+  opponentTrace?: ChartDataItem[]; // Renamed ghostTrace to opponentTrace for clarity
 }
 
 // Custom Dot component to highlight peak performance
@@ -35,7 +35,7 @@ const CustomDot = (props: any) => {
   return null;
 };
 
-const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, height = "100%", ghostTrace }) => {
+const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, height = "100%", opponentTrace }) => {
   return (
     <div className={cn(
       "w-full p-4 rounded-2xl shadow-xl h-full",
@@ -59,7 +59,7 @@ const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, 
               border: '1px solid hsl(var(--border))', 
               borderRadius: '0.5rem' 
             }}
-            formatter={(value, name) => [`${value}%`, name === 'pitch' ? 'Pitch Accuracy' : name === 'ghost' ? 'Previous Session' : 'Breath Control']}
+            formatter={(value, name) => [`${value}%`, name === 'pitch' ? 'Your Pitch' : name === 'opponent' ? 'Opponent Pitch' : 'Breath Control']}
           />
           
           <defs>
@@ -67,28 +67,28 @@ const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, 
               <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
               <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.0}/>
             </linearGradient>
-            {/* Ghost Trace Gradient (Subtle) */}
-            <linearGradient id="colorGhost" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.05}/>
+            {/* Opponent Trace Gradient (Gold/Accent) */}
+            <linearGradient id="colorOpponent" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.15}/>
               <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0.0}/>
             </linearGradient>
           </defs>
           
-          {/* Ghost Trace Area (Previous Session) */}
-          {ghostTrace && ghostTrace.length > 0 && (
+          {/* Opponent Trace Area (User 1's score if User 2 is singing, or previous session) */}
+          {opponentTrace && opponentTrace.length > 0 && (
             <Area 
               type="monotone" 
               dataKey="pitch" 
-              data={ghostTrace}
-              name="ghost"
-              stroke="hsl(var(--accent)/0.5)" 
-              fill="url(#colorGhost)" 
-              strokeWidth={1} 
+              data={opponentTrace}
+              name="opponent"
+              stroke="hsl(var(--accent)/0.8)" 
+              fill="url(#colorOpponent)" 
+              strokeWidth={2} 
               dot={false}
             />
           )}
 
-          {/* Current Session Area */}
+          {/* Current Session Area (User 1 or User 2) */}
           <Area 
             type="monotone" 
             dataKey="pitch" 

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, CheckCircle, Loader2, PlayCircle } from 'lucide-react';
+import { Download, CheckCircle, Loader2, PlayCircle, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PublicDomainSong } from '@/data/public-domain-library';
 import { useOfflineDownload } from '@/hooks/use-offline-download';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+import { useDuel } from '@/hooks/use-duel-engine';
 
 interface SongCardProps {
   song: PublicDomainSong;
@@ -13,11 +14,17 @@ interface SongCardProps {
 
 const SongCard: React.FC<SongCardProps> = ({ song }) => {
   const { isDownloaded, isDownloading, toggleDownload } = useOfflineDownload(song);
-  const { openOverlay, loadSong } = useVocalSandbox(); // Get loadSong
+  const { openOverlay, loadSong } = useVocalSandbox(); 
+  const { startLocalDuel } = useDuel();
 
   const handlePlay = () => {
     loadSong(song.id); // Load the specific song
     openOverlay(); 
+  };
+  
+  const handleDuel = () => {
+    startLocalDuel(song);
+    openOverlay();
   };
 
   return (
@@ -41,12 +48,21 @@ const SongCard: React.FC<SongCardProps> = ({ song }) => {
           </Button>
           
           <Button 
+            onClick={handleDuel}
+            variant="outline"
+            className="w-full rounded-lg border-primary/50 text-primary hover:bg-primary/10"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Start Duel
+          </Button>
+          
+          <Button 
             onClick={toggleDownload}
             disabled={isDownloading}
             variant="outline"
             className={cn(
               "w-full rounded-lg transition-colors",
-              isDownloaded ? "border-green-500 text-green-500 hover:bg-green-500/10" : "border-primary/50 text-primary hover:bg-primary/10"
+              isDownloaded ? "border-green-500 text-green-500 hover:bg-green-500/10" : "border-border/50 text-muted-foreground hover:bg-secondary/10"
             )}
           >
             {isDownloading ? (

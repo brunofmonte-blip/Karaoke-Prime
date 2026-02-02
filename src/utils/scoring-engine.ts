@@ -1,11 +1,5 @@
 import { PublicDomainSong } from '@/data/public-domain-library';
-
-interface ChartDataItem {
-  name: string;
-  pitch: number; // 0-100 visualization scale
-  frequency: number; // Raw frequency in Hz
-  breath: number;
-}
+import { ChartDataItem } from '@/hooks/use-vocal-sandbox';
 
 export interface PerformanceInsight {
   accuracyScore: number; // 0-100

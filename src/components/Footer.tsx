@@ -62,7 +62,7 @@ const Footer = () => {
             <VocalEvolutionChart 
               title={chartTitle} 
               data={chartData} 
-              ghostTrace={isAnalyzing ? ghostTrace : undefined} // Only show ghost trace when analyzing
+              opponentTrace={isAnalyzing ? ghostTrace : undefined} // Pass ghostTrace as opponentTrace
             />
           </div>
 
