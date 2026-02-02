@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, Zap, GraduationCap, Award, Star, Mic2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface UserProfileCardProps {
   userName: string;
@@ -21,6 +22,21 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   rankingOnline,
   rankingOffline,
 }) => {
+  // Use ref to track previous bestNote to detect updates
+  const prevBestNoteRef = useRef(bestNote);
+
+  useEffect(() => {
+    // Check if bestNote has increased and crossed the 90% threshold
+    if (bestNote > 90 && bestNote > prevBestNoteRef.current) {
+      toast.success(`Level Up! New Best Note: ${bestNote.toFixed(1)}%`, {
+        description: "You've unlocked a new level of vocal mastery!",
+        duration: 5000,
+      });
+    }
+    // Update ref for the next render
+    prevBestNoteRef.current = bestNote;
+  }, [bestNote]);
+
   // Calculate progress (assuming max level is 10 for a simple visual)
   const maxLevel = 10;
   const progressValue = (academyLevel / maxLevel) * 100;

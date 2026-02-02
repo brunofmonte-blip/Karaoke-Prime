@@ -4,21 +4,30 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Heart, Share2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { validateContentSafety } from '@/utils/content-safety';
+import { useAuth } from '@/integrations/supabase/auth';
 
 const trendItems = [
-  { id: 1, user: "VocalPro_88", caption: "Hitting that high note! 🎤 #KaraokeChallenge", likes: 1.2, comments: 345, video: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=1000" },
-  { id: 2, user: "PrimeTalent_UK", caption: "Audition round 3 success! Wish me luck! ✨", likes: 980, comments: 120, video: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500&auto=format&fit=crop" },
-  { id: 3, user: "AcademyGrad", caption: "My AI diagnostic score improved by 15%! Thanks, Prime!", likes: 2.5, comments: 500, video: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=500&auto=format&fit=crop" },
+  { id: 1, user: "VocalPro_88", caption: "Hitting that high note! 🎤 #KaraokeChallenge (Rock)", likes: 1.2, comments: 345, video: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=1000", genre: "Rock" },
+  { id: 2, user: "PrimeTalent_UK", caption: "Audition round 3 success! Wish me luck! ✨ (Flagged)", likes: 980, comments: 120, video: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500&auto=format&fit=crop", genre: "Pop" },
+  { id: 3, user: "AcademyGrad", caption: "My AI diagnostic score improved by 15%! Thanks, Prime! (Pop)", likes: 2.5, comments: 500, video: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=500&auto=format&fit=crop", genre: "Pop" },
+  { id: 4, user: "JazzMaster", caption: "Smooth notes tonight. 🎷 (Jazz)", likes: 0.8, comments: 50, video: "https://images.unsplash.com/photo-1501084817091-ec513ea013b6?q=80&w=500&auto=format&fit=crop", genre: "Jazz" },
 ];
 
 const TrendTopicsFeed: React.FC = () => {
+  const { user } = useAuth();
+  
+  // Mock filtering logic: If logged in, prioritize 'Rock' content (simulating user preference)
+  const filteredItems = user 
+    ? trendItems.filter(item => item.genre === "Rock" || item.id !== 1) // Keep Rock and all non-flagged items
+    : trendItems; // Show all if logged out
+
   return (
     <div className="py-8">
       <h2 className="text-3xl font-bold text-left mb-6 text-accent neon-gold-glow px-4 md:px-0">
-        Trend Topics (Video Feed)
+        {user ? "Personalized Trend Topics" : "Trend Topics (Video Feed)"}
       </h2>
       <div className="space-y-6 px-4 md:px-0">
-        {trendItems.map((item) => {
+        {filteredItems.map((item) => {
           const safetyCheck = validateContentSafety(item.id);
           const isSafe = safetyCheck.isSafe;
 
