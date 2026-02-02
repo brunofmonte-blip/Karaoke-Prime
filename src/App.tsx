@@ -12,10 +12,11 @@ import LoginModal from "./components/LoginModal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Academy from "./pages/Academy";
 import Backstage from "./pages/Backstage";
-import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
+import { VocalSandboxProvider, useVocalSandbox } from "./hooks/use-vocal-sandbox";
 import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
-import { PrimeSubscriptionProvider, usePrimeSubscription } from "./hooks/use-prime-subscription"; // Import Prime Subscription
-import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal"; // Import Prime Subscription Modal
+import { PrimeSubscriptionProvider, usePrimeSubscription } from "./hooks/use-prime-subscription";
+import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
+import PerformanceSummaryModal from "./components/PerformanceSummaryModal"; // Import new modal
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,12 @@ const PrimeSubscriptionModalWrapper = () => {
   return <PrimeSubscriptionModal />;
 }
 
+// Helper component to render the performance summary modal
+const PerformanceSummaryModalWrapper = () => {
+  // The modal manages its own open state based on sessionSummary in useVocalSandbox
+  return <PerformanceSummaryModal />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -38,7 +45,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <LoginModalProvider>
-          <PrimeSubscriptionProvider> {/* New Provider */}
+          <PrimeSubscriptionProvider>
             <VocalSandboxProvider>
               <BrowserRouter>
                 <Layout>
@@ -53,7 +60,8 @@ const App = () => (
                 </Layout>
                 <LoginModalWrapper />
                 <VocalSandboxOverlay />
-                <PrimeSubscriptionModalWrapper /> {/* New Modal */}
+                <PrimeSubscriptionModalWrapper />
+                <PerformanceSummaryModalWrapper /> {/* New Modal */}
               </BrowserRouter>
             </VocalSandboxProvider>
           </PrimeSubscriptionProvider>

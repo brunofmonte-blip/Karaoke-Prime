@@ -23,7 +23,8 @@ const Footer = () => {
     isAnalyzing, 
     pitchHistory, 
     isPitchDeviating, 
-    recentAchievements 
+    recentAchievements,
+    ghostTrace, // Get ghost trace
   } = useVocalSandbox(); // Get sandbox state and diagnostics
 
   // Determine which data to show in the chart
@@ -61,6 +62,7 @@ const Footer = () => {
             <VocalEvolutionChart 
               title={chartTitle} 
               data={chartData} 
+              ghostTrace={isAnalyzing ? ghostTrace : undefined} // Only show ghost trace when analyzing
             />
           </div>
 

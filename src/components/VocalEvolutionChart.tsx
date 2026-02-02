@@ -12,6 +12,7 @@ interface VocalEvolutionChartProps {
   data: ChartDataItem[];
   title: string;
   height?: number | string;
+  ghostTrace?: ChartDataItem[]; // New prop for previous session data
 }
 
 // Custom Dot component to highlight peak performance
@@ -34,7 +35,7 @@ const CustomDot = (props: any) => {
   return null;
 };
 
-const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, height = "100%" }) => {
+const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, height = "100%", ghostTrace }) => {
   return (
     <div className={cn(
       "w-full p-4 rounded-2xl shadow-xl h-full",
@@ -58,7 +59,7 @@ const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, 
               border: '1px solid hsl(var(--border))', 
               borderRadius: '0.5rem' 
             }}
-            formatter={(value, name) => [`${value}%`, name === 'pitch' ? 'Pitch Accuracy' : 'Breath Control']}
+            formatter={(value, name) => [`${value}%`, name === 'pitch' ? 'Pitch Accuracy' : name === 'ghost' ? 'Previous Session' : 'Breath Control']}
           />
           
           <defs>
@@ -66,7 +67,28 @@ const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, 
               <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
               <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.0}/>
             </linearGradient>
+            {/* Ghost Trace Gradient (Subtle) */}
+            <linearGradient id="colorGhost" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.05}/>
+              <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0.0}/>
+            </linearGradient>
           </defs>
+          
+          {/* Ghost Trace Area (Previous Session) */}
+          {ghostTrace && ghostTrace.length > 0 && (
+            <Area 
+              type="monotone" 
+              dataKey="pitch" 
+              data={ghostTrace}
+              name="ghost"
+              stroke="hsl(var(--accent)/0.5)" 
+              fill="url(#colorGhost)" 
+              strokeWidth={1} 
+              dot={false}
+            />
+          )}
+
+          {/* Current Session Area */}
           <Area 
             type="monotone" 
             dataKey="pitch" 

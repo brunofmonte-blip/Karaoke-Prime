@@ -23,67 +23,52 @@ const VocalSandboxOverlay: React.FC = () => {
     currentSongTitle,
     currentSongArtist,
     currentLyrics,
+    sessionSummary, // Get session summary
   } = useVocalSandbox();
   
   const { user } = useAuth();
   const queryClient = useQueryClient(); // Initialize query client
   const sessionStartTimeRef = useRef<number | null>(null);
 
-  // Start time tracking when analysis begins
-  useEffect(() => {
-    if (isAnalyzing) {
-      sessionStartTimeRef.current = Date.now();
-    } else {
-      sessionStartTimeRef.current = null;
-    }
-  }, [isAnalyzing]);
-
-  // Calculate final score when analysis stops
+  // Calculate final score when analysis stops (used for display before summary modal opens)
   const finalScore = useMemo(() => {
     if (pitchHistory.length === 0) return 0;
     const totalPitch = pitchHistory.reduce((sum, item) => sum + item.pitch, 0);
     return totalPitch / pitchHistory.length;
   }, [pitchHistory]);
 
-  // Handle session end and data persistence
+  // Handle session end and data persistence (Only update best_note if sessionSummary is set)
   useEffect(() => {
-    if (!isAnalyzing && pitchHistory.length > 0) {
-      // Analysis just stopped and we have data
-      handleScorePersistence(finalScore);
-    }
-  }, [isAnalyzing]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (sessionSummary && user) {
+      // --- Anti-Cheat/Validation Layer Mock ---
+      if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
+        toast.error("Score submission failed: Session too short.", { 
+          description: "A minimum duration is required to prevent score manipulation.",
+          duration: 5000 
+        });
+        return;
+      }
+      // ----------------------------------------
+      
+      const handleScorePersistence = async (score: number) => {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ best_note: score })
+          .eq('id', user.id);
 
-  const handleScorePersistence = async (score: number) => {
-    if (!user) {
-      toast.warning("Sign in to save your best note!", { duration: 3000 });
-      return;
+        if (error) {
+          console.error("[VocalSandboxOverlay] Error updating best_note:", error);
+          toast.error("Failed to save score.", { description: error.message });
+        } else {
+          // Invalidate relevant queries to trigger UI updates (Profile Card, Rankings)
+          queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+          queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
+        }
+      };
+      
+      handleScorePersistence(sessionSummary.finalScore);
     }
-
-    // --- Anti-Cheat/Validation Layer Mock ---
-    if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
-      toast.error("Score submission failed: Session too short.", { 
-        description: "A minimum duration is required to prevent score manipulation.",
-        duration: 5000 
-      });
-      return;
-    }
-    // ----------------------------------------
-
-    const { error } = await supabase
-      .from('profiles')
-      .update({ best_note: score })
-      .eq('id', user.id);
-
-    if (error) {
-      console.error("[VocalSandboxOverlay] Error updating best_note:", error);
-      toast.error("Failed to save score.", { description: error.message });
-    } else {
-      toast.success(`New Best Note recorded: ${score.toFixed(1)}%`, { duration: 4000 });
-      // Invalidate relevant queries to trigger UI updates (Profile Card, Rankings)
-      queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-      queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
-    }
-  };
+  }, [sessionSummary, user, pitchHistory.length, queryClient]);
 
   if (!isOverlayOpen) {
     return null;

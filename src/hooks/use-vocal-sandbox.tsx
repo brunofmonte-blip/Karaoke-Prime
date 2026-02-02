@@ -8,6 +8,12 @@ interface ChartDataItem {
   breath: number;
 }
 
+interface SessionSummary {
+  finalScore: number;
+  pitchAccuracy: number;
+  durationSeconds: number;
+}
+
 interface VocalSandboxContextType {
   isOverlayOpen: boolean;
   openOverlay: () => void;
@@ -17,13 +23,15 @@ interface VocalSandboxContextType {
   stopAnalysis: () => void;
   pitchData: number;
   pitchHistory: ChartDataItem[];
+  ghostTrace: ChartDataItem[]; // New: Previous session data for comparison
   currentSongTitle: string;
   currentSongArtist: string;
   currentLyrics: string;
-  // New diagnostic states
   isPitchStable: boolean;
   isPitchDeviating: boolean;
   recentAchievements: string[];
+  sessionSummary: SessionSummary | null; // New: Summary data after session stops
+  clearSessionSummary: () => void;
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
@@ -36,11 +44,14 @@ const DEVIATION_THRESHOLD = 10; // Max deviation allowed for "not deviating"
 export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [pitchHistory, setPitchHistory] = useState<ChartDataItem[]>([]);
+  const [ghostTrace, setGhostTrace] = useState<ChartDataItem[]>([]);
   const [isPitchStable, setIsPitchStable] = useState(false);
   const [isPitchDeviating, setIsPitchDeviating] = useState(false);
   const [recentAchievements, setRecentAchievements] = useState<string[]>([]);
+  const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null);
   
   const historyCounter = useRef(0);
+  const sessionStartTimeRef = useRef<number | null>(null);
   const stabilityToastRef = useRef<string | number | null>(null);
   
   // Placeholder song data (using the first song from the library)
@@ -55,11 +66,16 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     stopAudio();
     setIsOverlayOpen(false);
   };
+  
+  const clearSessionSummary = () => setSessionSummary(null);
 
   const startAnalysis = () => {
+    setGhostTrace(pitchHistory); // Save current history as ghost trace
     setPitchHistory([]);
     setRecentAchievements([]);
+    setSessionSummary(null);
     historyCounter.current = 0;
+    sessionStartTimeRef.current = Date.now();
     startAudio();
   };
 
@@ -68,6 +84,19 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (stabilityToastRef.current) {
       toast.dismiss(stabilityToastRef.current);
       stabilityToastRef.current = null;
+    }
+    
+    // Calculate summary upon stopping
+    if (pitchHistory.length > 0 && sessionStartTimeRef.current) {
+      const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
+      const totalPitch = pitchHistory.reduce((sum, item) => sum + item.pitch, 0);
+      const finalScore = totalPitch / pitchHistory.length;
+      
+      setSessionSummary({
+        finalScore: finalScore,
+        pitchAccuracy: finalScore, // Using finalScore as pitch accuracy for simplicity
+        durationSeconds: durationSeconds,
+      });
     }
   };
 
@@ -138,12 +167,15 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         stopAnalysis, 
         pitchData, 
         pitchHistory,
+        ghostTrace,
         currentSongTitle,
         currentSongArtist,
         currentLyrics,
         isPitchStable,
         isPitchDeviating,
         recentAchievements,
+        sessionSummary,
+        clearSessionSummary,
       }}
     >
       {children}
