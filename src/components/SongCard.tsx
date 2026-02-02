@@ -13,10 +13,10 @@ interface SongCardProps {
 
 const SongCard: React.FC<SongCardProps> = ({ song }) => {
   const { isDownloaded, isDownloading, toggleDownload } = useOfflineDownload(song);
-  const { openOverlay } = useVocalSandbox(); // Assuming we need to pass the song to the sandbox later
+  const { openOverlay, loadSong } = useVocalSandbox(); // Get loadSong
 
   const handlePlay = () => {
-    // In a real app, this would load the specific song into the sandbox
+    loadSong(song.id); // Load the specific song
     openOverlay(); 
   };
 

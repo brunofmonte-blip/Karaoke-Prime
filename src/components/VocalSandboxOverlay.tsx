@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/integrations/supabase/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query'; // Import useQueryClient
+import { useQueryClient } from '@tanstack/react-query';
+import LyricPlayer from './LyricPlayer';
 
 const MIN_SESSION_DURATION_POINTS = 10; // Minimum pitch history points required for a valid session
 
@@ -22,12 +23,13 @@ const VocalSandboxOverlay: React.FC = () => {
     pitchHistory,
     currentSongTitle,
     currentSongArtist,
-    currentLyrics,
-    sessionSummary, // Get session summary
+    currentSong,
+    currentTime,
+    sessionSummary, 
   } = useVocalSandbox();
   
   const { user } = useAuth();
-  const queryClient = useQueryClient(); // Initialize query client
+  const queryClient = useQueryClient();
   const sessionStartTimeRef = useRef<number | null>(null);
 
   // Calculate final score when analysis stops (used for display before summary modal opens)
@@ -73,6 +75,14 @@ const VocalSandboxOverlay: React.FC = () => {
   if (!isOverlayOpen) {
     return null;
   }
+  
+  if (!currentSong) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex items-center justify-center">
+        <p className="text-primary neon-blue-glow">Loading song data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
@@ -110,7 +120,7 @@ const VocalSandboxOverlay: React.FC = () => {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/30"
                 >
                   <Mic className="h-5 w-5 mr-2" />
-                  Start Singing
+                  {isAnalyzing ? 'Singing...' : 'Start Singing'}
                 </Button>
                 <Button 
                   onClick={stopAnalysis} 
@@ -160,10 +170,8 @@ const VocalSandboxOverlay: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-primary">Live Lyrics</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xl font-medium text-foreground/80 italic">
-              {currentLyrics}
-            </p>
+          <CardContent className="py-6">
+            <LyricPlayer lyrics={currentSong.lyrics} currentTime={currentTime} />
           </CardContent>
         </Card>
       </div>

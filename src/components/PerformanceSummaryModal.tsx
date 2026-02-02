@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine'; // Import scoring engine
+import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 
 const PerformanceSummaryModal: React.FC = () => {
@@ -22,11 +22,15 @@ const PerformanceSummaryModal: React.FC = () => {
   const isOpen = !!sessionSummary;
   const currentLevel = profile?.academy_level ?? 0;
 
-  // Mock: Use the first song in the library for scoring reference
-  const currentSong = publicDomainLibrary[0]; 
+  // Retrieve the song used for the session
+  const currentSong = useMemo(() => {
+    if (!sessionSummary) return null;
+    // Find the specific song, or default to the first one if not found (safety fallback)
+    return publicDomainLibrary.find(s => s.id === sessionSummary.songId) || publicDomainLibrary[0];
+  }, [sessionSummary]);
 
   const performanceInsight: PerformanceInsight = useMemo(() => {
-    if (!sessionSummary) return { accuracyScore: 0, improvementTips: [] };
+    if (!sessionSummary || !currentSong) return { accuracyScore: 0, improvementTips: [] };
     return runScoringEngine(pitchHistory, currentSong);
   }, [sessionSummary, pitchHistory, currentSong]);
 

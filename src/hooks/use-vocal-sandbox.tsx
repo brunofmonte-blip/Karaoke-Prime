@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
 import { useAudioAnalyzer } from './use-audio-analyzer';
 import { toast } from 'sonner';
+import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
+import { mockDownloadSong } from '@/utils/offline-storage';
 
 interface ChartDataItem {
   name: string;
@@ -12,6 +14,7 @@ interface SessionSummary {
   finalScore: number;
   pitchAccuracy: number;
   durationSeconds: number;
+  songId: string; // Added song ID
 }
 
 interface VocalSandboxContextType {
@@ -23,23 +26,26 @@ interface VocalSandboxContextType {
   stopAnalysis: () => void;
   pitchData: number;
   pitchHistory: ChartDataItem[];
-  ghostTrace: ChartDataItem[]; // New: Previous session data for comparison
+  ghostTrace: ChartDataItem[];
   currentSongTitle: string;
   currentSongArtist: string;
   currentLyrics: string;
   isPitchStable: boolean;
   isPitchDeviating: boolean;
   recentAchievements: string[];
-  sessionSummary: SessionSummary | null; // New: Summary data after session stops
+  sessionSummary: SessionSummary | null;
   clearSessionSummary: () => void;
+  loadSong: (songId: string) => void;
+  currentSong: PublicDomainSong | null;
+  currentTime: number;
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
 
 const MAX_HISTORY = 50; 
-const STABILITY_WINDOW = 10; // Check stability over the last 10 points
-const STABILITY_THRESHOLD = 5; // Max variance allowed for "stable"
-const DEVIATION_THRESHOLD = 10; // Max deviation allowed for "not deviating"
+const STABILITY_WINDOW = 10;
+const STABILITY_THRESHOLD = 5;
+const DEVIATION_THRESHOLD = 10;
 
 export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
@@ -49,34 +55,86 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [isPitchDeviating, setIsPitchDeviating] = useState(false);
   const [recentAchievements, setRecentAchievements] = useState<string[]>([]);
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null);
+  const [currentSongId, setCurrentSongId] = useState<string | null>(null);
+  const [currentSong, setCurrentSong] = useState<PublicDomainSong | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
   const stabilityToastRef = useRef<string | number | null>(null);
-  
-  // Placeholder song data (using the first song from the library)
-  const currentSongTitle = "Ode to Joy (Instrumental)";
-  const currentSongArtist = "Ludwig van Beethoven";
-  const currentLyrics = "Freude, schöner Götterfunken, Tochter aus Elysium...";
+  const audioTimerRef = useRef<number>();
+
+  const currentSongTitle = currentSong?.title || "Select a Song";
+  const currentSongArtist = currentSong?.artist || "Karaoke Prime";
+  const currentLyrics = currentSong?.lyrics.map(l => l.text).join(' ') || "Start your vocal journey by selecting a song from the library.";
 
   const { isAnalyzing, startAnalysis: startAudio, stopAnalysis: stopAudio, pitchData } = useAudioAnalyzer();
 
-  const openOverlay = () => setIsOverlayOpen(true);
+  const loadSong = (songId: string) => {
+    const song = publicDomainLibrary.find(s => s.id === songId);
+    if (song) {
+      setCurrentSong(song);
+      setCurrentSongId(songId);
+    } else {
+      toast.error("Song not found.");
+    }
+  };
+
+  const openOverlay = () => {
+    if (!currentSong) {
+      // Default to the first song if none is selected
+      loadSong(publicDomainLibrary[0].id);
+    }
+    setIsOverlayOpen(true);
+  };
+  
   const closeOverlay = () => {
-    stopAudio();
+    stopAnalysis();
     setIsOverlayOpen(false);
   };
   
   const clearSessionSummary = () => setSessionSummary(null);
 
-  const startAnalysis = () => {
-    setGhostTrace(pitchHistory); // Save current history as ghost trace
+  const startAnalysis = async () => {
+    if (!currentSong) {
+      toast.error("Please select a song first.");
+      return;
+    }
+    
+    // 1. Offline Caching (Simulated)
+    await mockDownloadSong(currentSong); 
+
+    // 2. Reset states
+    setGhostTrace(pitchHistory); 
     setPitchHistory([]);
     setRecentAchievements([]);
     setSessionSummary(null);
     historyCounter.current = 0;
     sessionStartTimeRef.current = Date.now();
+    setCurrentTime(0);
+
+    // 3. Start Audio Analysis
     startAudio();
+    
+    // 4. Start Audio Playback Simulation
+    // Mock duration based on the last lyric timestamp + 5 seconds buffer
+    const lastLyricTime = currentSong.lyrics.length > 0 
+      ? currentSong.lyrics[currentSong.lyrics.length - 1].time 
+      : 10;
+    const songDuration = lastLyricTime + 5; 
+    
+    const tick = () => {
+      setCurrentTime(prevTime => {
+        const newTime = prevTime + 0.1; // Increment by 100ms
+        if (newTime >= songDuration) {
+          stopAnalysis();
+          return songDuration;
+        }
+        audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
+        return newTime;
+      });
+    };
+    audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
   };
 
   const stopAnalysis = () => {
@@ -86,16 +144,23 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       stabilityToastRef.current = null;
     }
     
+    // Stop audio simulation
+    if (audioTimerRef.current) {
+      clearTimeout(audioTimerRef.current);
+      audioTimerRef.current = undefined;
+    }
+    
     // Calculate summary upon stopping
-    if (pitchHistory.length > 0 && sessionStartTimeRef.current) {
+    if (pitchHistory.length > 0 && sessionStartTimeRef.current && currentSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
       const totalPitch = pitchHistory.reduce((sum, item) => sum + item.pitch, 0);
       const finalScore = totalPitch / pitchHistory.length;
       
       setSessionSummary({
         finalScore: finalScore,
-        pitchAccuracy: finalScore, // Using finalScore as pitch accuracy for simplicity
+        pitchAccuracy: finalScore, 
         durationSeconds: durationSeconds,
+        songId: currentSong.id, // Save song ID
       });
     }
   };
@@ -155,6 +220,13 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   }, [pitchData, isAnalyzing, recentAchievements]);
 
+  useEffect(() => {
+    // If the overlay opens without a song, load the default one.
+    if (isOverlayOpen && !currentSong) {
+      loadSong(publicDomainLibrary[0].id);
+    }
+  }, [isOverlayOpen, currentSong]);
+
 
   return (
     <VocalSandboxContext.Provider 
@@ -176,6 +248,9 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         recentAchievements,
         sessionSummary,
         clearSessionSummary,
+        loadSong,
+        currentSong,
+        currentTime,
       }}
     >
       {children}
