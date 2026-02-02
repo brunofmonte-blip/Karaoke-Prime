@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, StopCircle, Music, X, ChevronRight } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
@@ -7,6 +7,9 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/integrations/supabase/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query'; // Import useQueryClient
+
+const MIN_SESSION_DURATION_POINTS = 10; // Minimum pitch history points required for a valid session
 
 const VocalSandboxOverlay: React.FC = () => {
   const { 
@@ -23,6 +26,17 @@ const VocalSandboxOverlay: React.FC = () => {
   } = useVocalSandbox();
   
   const { user } = useAuth();
+  const queryClient = useQueryClient(); // Initialize query client
+  const sessionStartTimeRef = useRef<number | null>(null);
+
+  // Start time tracking when analysis begins
+  useEffect(() => {
+    if (isAnalyzing) {
+      sessionStartTimeRef.current = Date.now();
+    } else {
+      sessionStartTimeRef.current = null;
+    }
+  }, [isAnalyzing]);
 
   // Calculate final score when analysis stops
   const finalScore = useMemo(() => {
@@ -45,10 +59,16 @@ const VocalSandboxOverlay: React.FC = () => {
       return;
     }
 
-    // Only update if the new score is better than the current best_note (or if it's the first score)
-    // We need to fetch the current best_note first, but for simplicity in this MVP, we'll just update.
-    // A more robust solution would compare the score against the existing profile data.
-    
+    // --- Anti-Cheat/Validation Layer Mock ---
+    if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
+      toast.error("Score submission failed: Session too short.", { 
+        description: "A minimum duration is required to prevent score manipulation.",
+        duration: 5000 
+      });
+      return;
+    }
+    // ----------------------------------------
+
     const { error } = await supabase
       .from('profiles')
       .update({ best_note: score })
@@ -59,6 +79,9 @@ const VocalSandboxOverlay: React.FC = () => {
       toast.error("Failed to save score.", { description: error.message });
     } else {
       toast.success(`New Best Note recorded: ${score.toFixed(1)}%`, { duration: 4000 });
+      // Invalidate relevant queries to trigger UI updates (Profile Card, Rankings)
+      queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
     }
   };
 
