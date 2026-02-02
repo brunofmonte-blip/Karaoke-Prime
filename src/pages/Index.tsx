@@ -8,6 +8,8 @@ import FlagIcon from "@/components/FlagIcon"; // Keeping import for now, but rem
 import RankingTables from "@/components/RankingTables";
 import { Link } from "react-router-dom"; // Import Link
 import { useVocalSandbox } from "@/hooks/use-vocal-sandbox"; // Import useVocalSandbox
+import { useRateLimiter } from "@/hooks/use-rate-limiter"; // Import useRateLimiter
+import { toast } from "sonner";
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
@@ -36,16 +38,27 @@ interface ElitePillarProps {
   icon: React.ElementType;
   to?: string; // Made optional for the Basic pillar
   onClick?: () => void;
+  isRateLimited?: boolean;
 }
 
-const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon, to, onClick }) => {
+const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon, to, onClick, isRateLimited = false }) => {
+  
+  const handleClick = () => {
+    if (isRateLimited) {
+      toast.warning("Please wait a moment before trying again (Anti-Bot Check).", { duration: 1500 });
+      return;
+    }
+    onClick?.();
+  };
+
   const content = (
     <div className={cn(
       "p-4 rounded-2xl transition-all duration-500 flex-shrink-0 w-[200px] lg:w-[200px] relative", // Adjusted width
       "bg-card/10 backdrop-blur-md", // Dark glass background
       "border-2 border-primary/70 shadow-xl", // Thick cyan border
       "cursor-pointer hover:scale-[1.03] hover:shadow-primary/70",
-      "neon-blue-border-glow" // Using the new class for border glow
+      "neon-blue-border-glow", // Using the new class for border glow
+      isRateLimited && "opacity-50 cursor-not-allowed"
     )}
     >
       {/* Icon Container */}
@@ -62,11 +75,16 @@ const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon:
     return <Link to={to} className="block">{content}</Link>;
   }
   
-  return <div onClick={onClick} className="block">{content}</div>;
+  return <div onClick={handleClick} className="block">{content}</div>;
 };
 
 const Index = () => {
   const { openOverlay } = useVocalSandbox();
+  const { trigger, isRateLimited } = useRateLimiter(1500); // 1.5 second limit
+
+  const handleBasicPillarClick = () => {
+    trigger(openOverlay);
+  };
 
   return (
     <div className="w-full relative">
@@ -86,7 +104,8 @@ const Index = () => {
               title="Basic" 
               description="Traditional Karaoke with original MVs and the Online/Offline Battle system." 
               icon={Music} 
-              onClick={openOverlay} // Use onClick to open the overlay
+              onClick={handleBasicPillarClick} // Use rate-limited handler
+              isRateLimited={isRateLimited}
             />
             <ElitePillarCard 
               title="Academy" 
