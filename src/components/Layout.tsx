@@ -15,9 +15,9 @@ const Tagline: React.FC = () => (
       "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
       "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
     )}>
-      SING. EVOLVE. CONQUER THE 
+      CANTE. EVOLUA. CONQUISTAR O 
       <span className="relative inline-block ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-        WORLD.
+        MUNDO.
       </span>
     </h2>
   </div>

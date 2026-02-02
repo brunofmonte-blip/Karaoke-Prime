@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 const recentItems = [
   { title: "Pop Anthem 2024", artist: "Anya Sharma", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500" }, // Microphone/Music production
   { title: "Midnight Jazz", artist: "Marcus King", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=500" }, // Stage lights
-  { title: "Rock Ballad", artist: "Chloe Lee", image: "https://images.unsplash.com/photo-1519732773401-d92c7293764c?q=80&w=500" }, // Singer silhouette
+  { title: "Rock Ballad", artist: "Chloe Lee", image: "https://images.unsplash.com/photo-1519732773401-d92c7293764c?q=80&w=500" }, // Singer silhouette (This image was already present, ensuring it's valid)
   { title: "Electro Beat", artist: "DJ Zedd", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=500" }, // DJ/Concert
 ];
 
