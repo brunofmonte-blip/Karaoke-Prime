@@ -2,8 +2,9 @@ import { PublicDomainSong } from '@/data/public-domain-library';
 import { ChartDataItem } from '@/hooks/use-vocal-sandbox';
 
 export interface PerformanceInsight {
-  accuracyScore: number; // 0-100
-  maxStability: number; // 0-100
+  pitchAccuracy: number; // 0-100
+  rhythmPrecision: number; // 0-100
+  vocalStability: number; // 0-100
   improvementTips: string[];
 }
 
@@ -22,7 +23,7 @@ export const runScoringEngine = (
   song: PublicDomainSong
 ): PerformanceInsight => {
   if (pitchHistory.length === 0) {
-    return { accuracyScore: 0, maxStability: 0, improvementTips: ["No vocal data recorded. Try singing louder!"] };
+    return { pitchAccuracy: 0, rhythmPrecision: 0, vocalStability: 0, improvementTips: ["No vocal data recorded. Try singing louder!"] };
   }
 
   let totalScore = 0;
@@ -61,23 +62,26 @@ export const runScoringEngine = (
     }
   }
 
-  const accuracyScore = totalPoints > 0 ? (totalScore / totalPoints) : 0;
+  const pitchAccuracy = totalPoints > 0 ? (totalScore / totalPoints) : 0;
 
-  // 3. Calculate Max Stability (Inverse of pitch variance in the 0-100 scale)
+  // 3. Calculate Vocal Stability (Inverse of pitch variance in the 0-100 scale)
   const pitchValues = pitchHistory.map(p => p.pitch);
   const maxPitch = Math.max(...pitchValues);
   const minPitch = Math.min(...pitchValues);
   const variance = maxPitch - minPitch;
-  const maxStabilityScore = Math.max(0, 100 - variance); 
+  const vocalStability = Math.max(0, 100 - variance); 
+  
+  // 4. Mock Rhythm Precision (Randomized based on overall pitch accuracy)
+  const rhythmPrecision = Math.min(100, pitchAccuracy + (Math.random() * 10 - 5)); // +/- 5 points from pitch
 
-  // 4. Generate Improvement Tips
+  // 5. Generate Improvement Tips
   const tips: string[] = [];
   
-  if (accuracyScore < 60) {
+  if (pitchAccuracy < 60) {
     tips.push("Fundamental pitch stability is low. Focus on Academy Lesson 2: Pitch Calibration I.");
-  } else if (accuracyScore < 80) {
+  } else if (pitchAccuracy < 80) {
     tips.push("Good start! Work on sustaining notes longer. Try Academy Lesson 1: Steady Breath.");
-  } else if (accuracyScore < 90) {
+  } else if (pitchAccuracy < 90) {
     tips.push("Excellent performance! Focus on micro-pitch adjustments (Academy Lesson 5) for higher scores.");
   } else {
     tips.push("Vocal Master! Your pitch accuracy is outstanding. Consider applying for Next Talent auditions.");
@@ -89,10 +93,19 @@ export const runScoringEngine = (
   if (lowNoteFlatCount / pitchHistory.length > 0.15) {
     tips.push("Your low notes were consistently flat. Ensure you are supporting your breath from the diaphragm.");
   }
+  
+  if (rhythmPrecision < 70) {
+    tips.push("Rhythm needs work. Pay close attention to the instrumental track timing.");
+  }
+  
+  if (vocalStability < 75) {
+    tips.push("Vocal stability is low. Practice holding long tones without wavering.");
+  }
 
   return {
-    accuracyScore: accuracyScore,
-    maxStability: maxStabilityScore,
+    pitchAccuracy: pitchAccuracy,
+    rhythmPrecision: rhythmPrecision,
+    vocalStability: vocalStability,
     improvementTips: tips,
   };
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Trophy, Frown, ChevronRight, Mic2 } from 'lucide-react';
+import { Trophy, Frown, ChevronRight, Mic2, Target, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDuel } from '@/hooks/use-duel-engine';
 import { useAuth } from '@/integrations/supabase/auth';
@@ -16,8 +16,7 @@ const DuelSummaryModal: React.FC = () => {
 
   if (!isOpen || !duelSong) return null;
 
-  const userFeedback = getDuelFeedback(user.id);
-  const isWinner = userFeedback.winner;
+  const { winner: isWinner, feedback, userMetrics, opponentMetrics } = getDuelFeedback(user.id);
   
   // Determine scores safely
   const userScore = duelSummary.user1Id === user.id ? duelSummary.user1Score : duelSummary.user2Score;
@@ -26,6 +25,24 @@ const DuelSummaryModal: React.FC = () => {
   const handleClose = () => {
     clearDuel();
     navigate('/library'); // Go back to library after duel
+  };
+
+  const MetricDisplay: React.FC<{ label: string, userValue: number, opponentValue: number }> = ({ label, userValue, opponentValue }) => {
+    const isUserBetter = userValue > opponentValue;
+    const Icon = label === 'Rhythm' ? Target : Zap;
+    
+    return (
+      <div className="flex justify-between items-center text-sm p-2 rounded-lg bg-card/50 border border-border/50">
+        <div className="flex items-center text-muted-foreground">
+          <Icon className="h-4 w-4 mr-2 text-primary" />
+          {label}
+        </div>
+        <div className="flex space-x-4 font-semibold">
+          <span className={cn(isUserBetter ? 'text-primary' : 'text-muted-foreground')}>{userValue.toFixed(1)}%</span>
+          <span className={cn(!isUserBetter ? 'text-accent' : 'text-muted-foreground')}>{opponentValue.toFixed(1)}%</span>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -53,15 +70,37 @@ const DuelSummaryModal: React.FC = () => {
         
         <div className="space-y-4 py-4">
           {/* Score Comparison */}
-          <div className="grid grid-cols-2 gap-4 text-center">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="p-4 rounded-xl border border-border/50 bg-card/50">
+              <p className="text-xs text-muted-foreground">Metric</p>
+            </div>
             <div className="p-4 rounded-xl border border-primary/50 bg-primary/10">
-              <p className="text-xs text-muted-foreground">Your Score</p>
-              <p className="text-4xl font-extrabold text-primary mt-1">{userScore.toFixed(1)}%</p>
+              <p className="text-xs text-muted-foreground">You</p>
+              <p className="text-xl font-extrabold text-primary mt-1">{userScore.toFixed(1)}%</p>
             </div>
             <div className="p-4 rounded-xl border border-accent/50 bg-accent/10">
-              <p className="text-xs text-muted-foreground">Opponent Score</p>
-              <p className="text-4xl font-extrabold text-accent mt-1">{opponentScore.toFixed(1)}%</p>
+              <p className="text-xs text-muted-foreground">Opponent</p>
+              <p className="text-xl font-extrabold text-accent mt-1">{opponentScore.toFixed(1)}%</p>
             </div>
+          </div>
+          
+          {/* Detailed Metrics Comparison */}
+          <div className="space-y-2">
+            <MetricDisplay 
+              label="Pitch Accuracy" 
+              userValue={userMetrics.pitchAccuracy} 
+              opponentValue={opponentMetrics.pitchAccuracy} 
+            />
+            <MetricDisplay 
+              label="Rhythm" 
+              userValue={userMetrics.rhythmPrecision} 
+              opponentValue={opponentMetrics.rhythmPrecision} 
+            />
+            <MetricDisplay 
+              label="Stability" 
+              userValue={userMetrics.vocalStability} 
+              opponentValue={opponentMetrics.vocalStability} 
+            />
           </div>
 
           {/* Feedback */}
@@ -69,7 +108,7 @@ const DuelSummaryModal: React.FC = () => {
             <h4 className="text-lg font-bold text-foreground flex items-center mb-2">
               <Mic2 className="h-5 w-5 mr-2 text-primary" /> Vocal Insight
             </h4>
-            <p className="text-sm text-muted-foreground">{userFeedback.feedback}</p>
+            <p className="text-sm text-muted-foreground">{feedback}</p>
           </div>
         </div>
 

@@ -1,10 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from 'react';
 import { useAudioAnalyzer } from './use-audio-analyzer';
 import { toast } from 'sonner';
 import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
 import { mockDownloadSong } from '@/utils/offline-storage';
 import { useDuel } from './use-duel-engine';
 import { runScoringEngine } from '@/utils/scoring-engine';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/integrations/supabase/auth';
 
 export interface ChartDataItem {
   name: string;
@@ -14,10 +16,12 @@ export interface ChartDataItem {
 }
 
 interface SessionSummary {
-  finalScore: number;
   pitchAccuracy: number;
+  rhythmPrecision: number;
+  vocalStability: number;
   durationSeconds: number;
-  songId: string; // Added song ID
+  songId: string; 
+  improvementTips: string[];
 }
 
 interface VocalSandboxContextType {
@@ -42,6 +46,8 @@ interface VocalSandboxContextType {
   currentSong: PublicDomainSong | null;
   currentTime: number;
   isDuelMode: boolean;
+  latencyOffsetMs: number; // New: Latency compensation
+  calibrateLatency: () => void; // New: Calibration function
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
@@ -51,7 +57,11 @@ const STABILITY_WINDOW = 10;
 const STABILITY_THRESHOLD = 5;
 const DEVIATION_THRESHOLD = 10;
 
+// Mock Latency Calibration (Simulate finding a 150ms offset)
+const MOCK_LATENCY_MS = 150;
+
 export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [pitchHistory, setPitchHistory] = useState<ChartDataItem[]>([]);
   const [ghostTrace, setGhostTrace] = useState<ChartDataItem[]>([]);
@@ -62,6 +72,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [currentSongId, setCurrentSongId] = useState<string | null>(null);
   const [currentSong, setCurrentSong] = useState<PublicDomainSong | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [latencyOffsetMs, setLatencyOffsetMs] = useState(MOCK_LATENCY_MS); // Default mock offset
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
@@ -107,6 +118,17 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       toast.error("Song not found.");
     }
   };
+
+  const calibrateLatency = useCallback(() => {
+    toast.loading("Calibrating audio latency...", { id: 'latency-cal' });
+    // Mock calibration process
+    setTimeout(() => {
+      const newLatency = Math.floor(Math.random() * 100) + 100; // 100ms to 200ms
+      setLatencyOffsetMs(newLatency);
+      toast.dismiss('latency-cal');
+      toast.success(`Latency calibrated to ${newLatency}ms.`, { duration: 3000 });
+    }, 1500);
+  }, []);
 
   const openOverlay = () => {
     if (!effectiveSong) {
@@ -161,7 +183,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     
     const tick = () => {
       setCurrentTime(prevTime => {
-        const newTime = prevTime + 0.1; // Increment by 100ms
+        // Apply latency offset (convert ms to seconds)
+        const offsetSeconds = latencyOffsetMs / 1000;
+        const newTime = prevTime + 0.1 + offsetSeconds; // Increment by 100ms + offset
+        
         if (newTime >= songDuration) {
           stopAnalysis();
           return songDuration;
@@ -198,16 +223,65 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       // Calculate score using the scoring engine for single player summary
       const insight = runScoringEngine(pitchHistory, effectiveSong);
-      const finalScore = insight.accuracyScore;
       
       setSessionSummary({
-        finalScore: finalScore,
-        pitchAccuracy: finalScore, 
+        pitchAccuracy: insight.pitchAccuracy,
+        rhythmPrecision: insight.rhythmPrecision,
+        vocalStability: insight.vocalStability,
         durationSeconds: durationSeconds,
         songId: effectiveSong.id, 
+        improvementTips: insight.improvementTips,
       });
     }
   };
+
+  // Effect to handle score persistence for single player mode
+  useEffect(() => {
+    if (sessionSummary && user && !isDuelMode) {
+      // --- Anti-Cheat/Validation Layer Mock ---
+      if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
+        toast.error("Score submission failed: Session too short.", { 
+          description: "A minimum duration is required to prevent score manipulation.",
+          duration: 5000 
+        });
+        return;
+      }
+      // ----------------------------------------
+      
+      const handleScorePersistence = async () => {
+        // 1. Update best_note (using pitch accuracy as the primary score)
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ best_note: sessionSummary.pitchAccuracy })
+          .eq('id', user.id);
+
+        if (profileError) {
+          console.error("[VocalSandboxOverlay] Error updating best_note:", profileError);
+          toast.error("Failed to save profile score.", { description: profileError.message });
+        }
+        
+        // 2. Insert detailed performance log
+        const { error: logError } = await supabase
+          .from('performance_logs')
+          .insert({
+            user_id: user.id,
+            song_id: sessionSummary.songId,
+            pitch_accuracy: sessionSummary.pitchAccuracy,
+            rhythm_precision: sessionSummary.rhythmPrecision,
+            vocal_stability: sessionSummary.vocalStability,
+            duration_seconds: sessionSummary.durationSeconds,
+          });
+
+        if (logError) {
+          console.error("[VocalSandboxOverlay] Error inserting performance log:", logError);
+          toast.error("Failed to save detailed performance log.", { description: logError.message });
+        }
+      };
+      
+      handleScorePersistence();
+    }
+  }, [sessionSummary, user, isDuelMode, pitchHistory.length]);
+
 
   // Effect to update pitch history and run diagnostics in real-time
   useEffect(() => {
@@ -298,6 +372,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         currentSong: effectiveSong, // Use effective song
         currentTime,
         isDuelMode,
+        latencyOffsetMs,
+        calibrateLatency,
       }}
     >
       {children}

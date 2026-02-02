@@ -3,7 +3,7 @@ import { useAuth } from '@/integrations/supabase/auth';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { OfflineDuelResult, mockSaveOfflineDuel, mockGetUnsyncedDuels, mockMarkDuelAsSynced } from '@/utils/offline-storage';
-import { runScoringEngine } from '@/utils/scoring-engine';
+import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine';
 import { PublicDomainSong } from '@/data/public-domain-library';
 import { ChartDataItem } from './use-vocal-sandbox';
 
@@ -21,7 +21,7 @@ interface DuelContextType {
   recordTurn: (history: ChartDataItem[]) => void;
   syncOfflineDuels: () => Promise<void>;
   clearDuel: () => void;
-  getDuelFeedback: (userId: string) => { winner: boolean, feedback: string };
+  getDuelFeedback: (userId: string) => { winner: boolean, feedback: string, userMetrics: PerformanceInsight, opponentMetrics: PerformanceInsight };
 }
 
 const DuelContext = createContext<DuelContextType | undefined>(undefined);
@@ -95,9 +95,15 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const duelResult: Omit<OfflineDuelResult, 'id' | 'synced'> = {
         songId: duelSong.id,
         user1Id: user.id,
-        user1Score: user1Insight.accuracyScore,
+        user1Score: user1Insight.pitchAccuracy,
+        user1PitchAccuracy: user1Insight.pitchAccuracy,
+        user1RhythmPrecision: user1Insight.rhythmPrecision,
+        user1VocalStability: user1Insight.vocalStability,
         user2Id: MOCK_USER_2_ID, // Mock opponent
-        user2Score: user2Insight.accuracyScore,
+        user2Score: user2Insight.pitchAccuracy,
+        user2PitchAccuracy: user2Insight.pitchAccuracy,
+        user2RhythmPrecision: user2Insight.rhythmPrecision,
+        user2VocalStability: user2Insight.vocalStability,
         timestamp: Date.now(),
       };
       
@@ -114,7 +120,10 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [isDuelActive, currentTurn, duelSong, user, user1History, syncOfflineDuels]);
   
   const getDuelFeedback = useCallback((userId: string) => {
-    if (!duelSummary || !duelSong) return { winner: false, feedback: "No duel data available." };
+    if (!duelSummary || !duelSong) {
+      const emptyInsight: PerformanceInsight = { pitchAccuracy: 0, rhythmPrecision: 0, vocalStability: 0, improvementTips: [] };
+      return { winner: false, feedback: "No duel data available.", userMetrics: emptyInsight, opponentMetrics: emptyInsight };
+    }
 
     const isUser1 = userId === duelSummary.user1Id;
     const userScore = isUser1 ? duelSummary.user1Score : duelSummary.user2Score;
@@ -122,20 +131,26 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     const winner = userScore >= opponentScore;
     
+    // Re-run scoring engine on histories to get detailed insights for feedback
+    const userInsight = runScoringEngine(isUser1 ? user1History : user2History, duelSong);
+    const opponentInsight = runScoringEngine(isUser1 ? user2History : user1History, duelSong);
+    
+    let feedback: string;
+    
     if (winner) {
-      return { winner: true, feedback: `Congratulations! You won by ${Math.abs(userScore - opponentScore).toFixed(1)} points.` };
+      feedback = `Congratulations! You won by ${Math.abs(userScore - opponentScore).toFixed(1)} points.`;
     } else {
-      // Determine which history belongs to the opponent
-      const opponentHistory = isUser1 ? user2History : user1History;
-      
-      // Re-run scoring engine on opponent's history to get detailed tips
-      const opponentInsight = runScoringEngine(opponentHistory, duelSong);
-      
-      // Pick a random improvement tip from the opponent's insight
-      const tip = opponentInsight.improvementTips[Math.floor(Math.random() * opponentInsight.improvementTips.length)];
-      
-      return { winner: false, feedback: `You lost by ${Math.abs(userScore - opponentScore).toFixed(1)} points. Opponent's tip: "${tip}"` };
+      // Pick a random improvement tip from the user's own insight (since they lost)
+      const tip = userInsight.improvementTips[Math.floor(Math.random() * userInsight.improvementTips.length)];
+      feedback = `You lost by ${Math.abs(userScore - opponentScore).toFixed(1)} points. Improvement Observation: "${tip}"`;
     }
+    
+    return { 
+      winner, 
+      feedback, 
+      userMetrics: userInsight, 
+      opponentMetrics: opponentInsight 
+    };
   }, [duelSummary, duelSong, user1History, user2History]);
 
 

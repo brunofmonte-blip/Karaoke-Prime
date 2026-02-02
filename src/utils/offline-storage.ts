@@ -10,8 +10,14 @@ export interface OfflineDuelResult {
   songId: string;
   user1Id: string;
   user1Score: number;
+  user1PitchAccuracy: number; // New
+  user1RhythmPrecision: number; // New
+  user1VocalStability: number; // New
   user2Id: string;
   user2Score: number;
+  user2PitchAccuracy: number; // New
+  user2RhythmPrecision: number; // New
+  user2VocalStability: number; // New
   timestamp: number;
   synced: boolean;
 }
