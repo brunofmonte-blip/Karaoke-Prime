@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useUserProfile } from '@/hooks/use-user-profile';
 import PillarLockedOverlay from '@/components/PillarLockedOverlay';
 import { useAuth } from '@/integrations/supabase/auth';
+import { usePrimeSubscription } from '@/hooks/use-prime-subscription'; // Import Prime Subscription Hook
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
@@ -101,8 +102,10 @@ const Index = () => {
   const { trigger, isRateLimited } = useRateLimiter(1500);
   const { data: profile } = useUserProfile();
   const { user } = useAuth();
+  const { openModal: openPrimeModal } = usePrimeSubscription();
   
   const currentLevel = profile?.academy_level ?? 0;
+  const isPrime = profile?.is_prime ?? false;
   const [lockedPillar, setLockedPillar] = useState<{ title: string, requiredLevel: number } | null>(null);
 
   const handleBasicPillarClick = () => {
@@ -118,6 +121,21 @@ const Index = () => {
       setLockedPillar({ title, requiredLevel });
     } else {
       // If unlocked, navigate (handled by the Link component or direct navigation if needed)
+    }
+  };
+  
+  const handleSuccessPillarClick = () => {
+    if (!user) {
+      toast.warning("Please sign in to access Prime features.", { duration: 3000 });
+      return;
+    }
+    if (!isPrime) {
+      openPrimeModal();
+    } else {
+      // If already Prime, navigate to the success page
+      // Since we don't have a dedicated /success page yet, we'll just show a success toast.
+      toast.info("Welcome back, Prime Member! Navigating to Amazon Success...", { duration: 3000 });
+      // In a real app: navigate('/success');
     }
   };
 
@@ -176,8 +194,10 @@ const Index = () => {
             <ElitePillarCard 
               title="Amazon Success" 
               description="Global ranking system based on performance, engagement, and academy level." 
-              icon={Trophy} 
-              to="/success"
+              icon={isPrime ? Trophy : Lock} 
+              onClick={handleSuccessPillarClick}
+              isLocked={!isPrime} // Locked if not Prime
+              onLockClick={handleSuccessPillarClick} // Click opens modal if locked
             />
           </div>
         </div>

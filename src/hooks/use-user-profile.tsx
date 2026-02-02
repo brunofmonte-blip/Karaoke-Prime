@@ -9,6 +9,7 @@ export interface UserProfile {
   academy_level: number;
   best_note: number;
   ranking_position: number;
+  is_prime: boolean; // Added is_prime status
 }
 
 const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
