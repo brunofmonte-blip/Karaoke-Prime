@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trophy, Zap, GraduationCap, Award, Star, Mic2 } from 'lucide-react';
+import { Trophy, Zap, GraduationCap, Award, Star, Mic2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface UserProfileCardProps {
@@ -12,7 +12,17 @@ interface UserProfileCardProps {
   academyLevel: number;
   rankingOnline: number;
   rankingOffline: number;
+  // New diagnostic props
+  isAnalyzing?: boolean;
+  isPitchDeviating?: boolean;
+  recentAchievements?: string[];
 }
+
+const achievementIcons: Record<string, { icon: React.ElementType, color: string }> = {
+  "Golden Mic": { icon: Mic2, color: "text-yellow-500" },
+  "Perfect Pitch": { icon: Star, color: "text-primary" },
+  "Vocal Master": { icon: Award, color: "text-red-500" },
+};
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userName,
@@ -21,6 +31,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   academyLevel,
   rankingOnline,
   rankingOffline,
+  isAnalyzing = false,
+  isPitchDeviating = false,
+  recentAchievements = [],
 }) => {
   // Use ref to track previous bestNote to detect updates
   const prevBestNoteRef = useRef(bestNote);
@@ -51,11 +64,14 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     </div>
   );
 
-  const achievements = [
-    { icon: Award, color: "text-yellow-400" },
-    { icon: Star, color: "text-primary" },
-    { icon: Mic2, color: "text-red-500" },
-  ];
+  // Default achievements for display if none are active
+  const displayedAchievements = recentAchievements.length > 0 
+    ? recentAchievements.map(key => achievementIcons[key] || { icon: Award, color: "text-gray-500" })
+    : [
+        { icon: Award, color: "text-yellow-400" },
+        { icon: Star, color: "text-primary" },
+        { icon: Mic2, color: "text-red-500" },
+      ];
 
   return (
     <Card className={cn(
@@ -89,6 +105,14 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           </div>
         </div>
 
+        {/* Real-time Diagnostic Tip */}
+        {isAnalyzing && isPitchDeviating && (
+          <div className="flex items-center p-3 rounded-lg bg-destructive/20 border border-destructive/50 text-destructive text-sm font-medium animate-pulse">
+            <AlertCircle className="h-4 w-4 mr-2" />
+            Adjusting Pitch... (Deviation > 10%)
+          </div>
+        )}
+
         {/* Stats */}
         <div className="space-y-2">
           {statItem("Melhor Nota", `${bestNote.toFixed(1)}%`, Zap)}
@@ -101,7 +125,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         <div className="pt-2 border-t border-border/50">
           <h5 className="text-sm font-semibold mb-2 text-muted-foreground">Recent Achievements</h5>
           <div className="flex space-x-3">
-            {achievements.map((ach, index) => {
+            {displayedAchievements.map((ach, index) => {
               const Icon = ach.icon;
               return (
                 <div key={index} className={cn(

@@ -19,7 +19,12 @@ const staticChartData = [
 const Footer = () => {
   const { user } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
-  const { isAnalyzing, pitchHistory } = useVocalSandbox(); // Get sandbox state
+  const { 
+    isAnalyzing, 
+    pitchHistory, 
+    isPitchDeviating, 
+    recentAchievements 
+  } = useVocalSandbox(); // Get sandbox state and diagnostics
 
   // Determine which data to show in the chart
   const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : staticChartData;
@@ -73,6 +78,10 @@ const Footer = () => {
                 rankingOnline={userData.rankingOnline}
                 rankingOffline={userData.rankingOffline}
                 avatarUrl={userData.avatarUrl}
+                // Pass diagnostic state
+                isAnalyzing={isAnalyzing}
+                isPitchDeviating={isPitchDeviating}
+                recentAchievements={recentAchievements}
               />
             )}
           </div>
