@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, Zap, GraduationCap, Award, Star, Mic2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Fix sync: ensuring a commit is generated
 interface UserProfileCardProps {
   userName: string;
   avatarUrl?: string | null;
@@ -24,7 +25,7 @@ const achievementIcons: Record<string, { icon: React.ElementType, color: string 
   "Vocal Master": { icon: Award, color: "text-red-500" },
 };
 
-// Helper component for the diagnostic tip
+// Helper component for the diagnostic tip (Verified: No stray colon)
 const DiagnosticTip: React.FC = () => (
   <div className="flex items-center p-3 rounded-lg bg-destructive/20 border border-destructive/50 text-destructive text-sm font-medium animate-pulse">
     <AlertCircle className="h-4 w-4 mr-2" />
