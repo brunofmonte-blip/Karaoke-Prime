@@ -24,6 +24,14 @@ const achievementIcons: Record<string, { icon: React.ElementType, color: string 
   "Vocal Master": { icon: Award, color: "text-red-500" },
 };
 
+// Helper component for the diagnostic tip
+const DiagnosticTip: React.FC = () => (
+  <div className="flex items-center p-3 rounded-lg bg-destructive/20 border border-destructive/50 text-destructive text-sm font-medium animate-pulse">
+    <AlertCircle className="h-4 w-4 mr-2" />
+    Adjusting Pitch... (Deviation > 10%)
+  </div>
+);
+
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userName,
   avatarUrl,
@@ -106,12 +114,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         </div>
 
         {/* Real-time Diagnostic Tip */}
-        {isAnalyzing && isPitchDeviating && (
-          <div className="flex items-center p-3 rounded-lg bg-destructive/20 border border-destructive/50 text-destructive text-sm font-medium animate-pulse">
-            <AlertCircle className="h-4 w-4 mr-2" />
-            Adjusting Pitch... (Deviation > 10%)
-          </div>
-        )}
+        {isAnalyzing && isPitchDeviating && <DiagnosticTip />}
 
         {/* Stats */}
         <div className="space-y-2">
