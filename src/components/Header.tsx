@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mic2, LogOut, User } from "lucide-react";
+import { Mic2, LogOut, User, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/integrations/supabase/auth";
@@ -58,6 +58,12 @@ const Header = () => {
 
         {/* User/Auth Actions */}
         <div className="flex items-center space-x-4">
+          {/* Data Security Badge */}
+          <div className="hidden sm:flex items-center text-xs text-green-400 font-medium space-x-1 px-2 py-1 rounded-full bg-green-900/30 border border-green-700/50">
+            <ShieldCheck className="h-3 w-3" />
+            <span>Security Verified</span>
+          </div>
+          
           {user ? (
             <>
               <Button variant="ghost" size="icon" className="text-accent hover:bg-accent/10 rounded-full">

@@ -5,7 +5,6 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
 import VocalEvolutionChart from './VocalEvolutionChart';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox'; // Import new hook
-import { ChevronRight } from 'lucide-react'; // Import icon for the smile arrow
 
 const staticChartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -79,22 +78,7 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Motivational Tagline */}
-        <div className="text-center py-10">
-          <h2 className={cn(
-            "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
-            "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
-          )}>
-            SING. EVOLVE. CONQUER THE 
-            <span className="relative inline-block ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-              WORLD.
-              {/* Amazon Smile Arrow Placeholder */}
-              <ChevronRight className="inline h-8 w-8 ml-2 text-accent amazon-gold-glow absolute -bottom-2 right-[-40px] rotate-45" />
-            </span>
-          </h2>
-        </div>
-
-        {/* Footer Links and Branding (Moved to bottom center/right) */}
+        {/* Footer Links and Branding */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-border/40">
           <p className="text-sm text-muted-foreground order-2 md:order-1 mt-4 md:mt-0">
             © {new Date().getFullYear()} Karaoke Prime. All rights reserved.
