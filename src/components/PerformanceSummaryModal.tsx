@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, TrendingUp, Mic, ChevronRight, BookOpen } from 'lucide-react';
+import { CheckCircle, TrendingUp, Mic, ChevronRight, BookOpen, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useUserProfile } from '@/hooks/use-user-profile';
@@ -10,16 +10,27 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine'; // Import scoring engine
+import { publicDomainLibrary } from '@/data/public-domain-library';
 
 const PerformanceSummaryModal: React.FC = () => {
-  const { sessionSummary, clearSessionSummary } = useVocalSandbox();
+  const { sessionSummary, pitchHistory, clearSessionSummary } = useVocalSandbox();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   
   const isOpen = !!sessionSummary;
   const currentLevel = profile?.academy_level ?? 0;
-  const finalScore = sessionSummary?.finalScore ?? 0;
+
+  // Mock: Use the first song in the library for scoring reference
+  const currentSong = publicDomainLibrary[0]; 
+
+  const performanceInsight: PerformanceInsight = useMemo(() => {
+    if (!sessionSummary) return { accuracyScore: 0, improvementTips: [] };
+    return runScoringEngine(pitchHistory, currentSong);
+  }, [sessionSummary, pitchHistory, currentSong]);
+
+  const finalScore = performanceInsight.accuracyScore;
 
   // Determine recommended lesson (simple logic: recommend the next level's focus)
   const recommendedLesson: Lesson | undefined = useMemo(() => {
@@ -95,6 +106,21 @@ const PerformanceSummaryModal: React.FC = () => {
               <p className="text-xs text-muted-foreground">Current Academy Level</p>
               <p className="font-semibold text-foreground">{currentLevel}</p>
             </div>
+          </div>
+
+          {/* Improvement Tips */}
+          <div className="p-4 bg-accent/10 border border-accent/50 rounded-xl">
+            <h4 className="text-lg font-bold text-accent flex items-center mb-2">
+              <Lightbulb className="h-5 w-5 mr-2 amazon-gold-glow" /> Performance Insights
+            </h4>
+            <ul className="space-y-1">
+              {performanceInsight.improvementTips.map((tip, index) => (
+                <li key={index} className="text-sm text-foreground flex items-start">
+                  <ChevronRight className="h-4 w-4 mr-2 flex-shrink-0 text-accent mt-0.5" />
+                  {tip}
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Recommended Lesson */}

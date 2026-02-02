@@ -12,11 +12,12 @@ import LoginModal from "./components/LoginModal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Academy from "./pages/Academy";
 import Backstage from "./pages/Backstage";
-import { VocalSandboxProvider, useVocalSandbox } from "./hooks/use-vocal-sandbox";
+import Library from "./pages/Library"; // Import Library page
+import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
 import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider, usePrimeSubscription } from "./hooks/use-prime-subscription";
 import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
-import PerformanceSummaryModal from "./components/PerformanceSummaryModal"; // Import new modal
+import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
                 <Layout>
                   <Routes>
                     <Route path="/" element={<Index />} />
+                    <Route path="/library" element={<Library />} /> {/* New Library Route */}
                     {/* Protected Routes */}
                     <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
                     <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
@@ -61,7 +63,7 @@ const App = () => (
                 <LoginModalWrapper />
                 <VocalSandboxOverlay />
                 <PrimeSubscriptionModalWrapper />
-                <PerformanceSummaryModalWrapper /> {/* New Modal */}
+                <PerformanceSummaryModalWrapper />
               </BrowserRouter>
             </VocalSandboxProvider>
           </PrimeSubscriptionProvider>
