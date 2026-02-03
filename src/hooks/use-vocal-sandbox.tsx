@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from 'react';
 import { useAudioAnalyzer } from './use-audio-analyzer';
 import { toast } from 'sonner';
-import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
+import { publicDomainLibrary, PublicDomainSong, getDifficultyMultiplier } from '@/data/public-domain-library';
 import { mockDownloadSong, mockSaveOfflineLog, mockGetUnsyncedLogs, mockMarkLogAsSynced } from '@/utils/offline-storage';
 import { useDuel } from './use-duel-engine';
 import { runScoringEngine } from '@/utils/scoring-engine';
@@ -339,7 +339,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   // Effect to handle score persistence for single player mode (ONLINE ONLY)
   useEffect(() => {
-    if (sessionSummary && user && !isDuelMode && isOnline) {
+    if (sessionSummary && user && !isDuelMode && isOnline && effectiveSong) {
       // CRITICAL: Ensure profile is available for XP calculation
       if (!profile) return; 
       
@@ -354,8 +354,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       // ----------------------------------------
       
       const handleScorePersistence = async () => {
-        // Calculate XP gain (XP = duration * score% * 5)
-        const xpGained = Math.floor(sessionSummary.durationSeconds * (sessionSummary.pitchAccuracy / 100) * 5);
+        const difficultyMultiplier = getDifficultyMultiplier(effectiveSong.difficulty);
+        
+        // Calculate XP gain (XP = duration * score% * 5 * difficulty_multiplier)
+        const xpGained = Math.floor(sessionSummary.durationSeconds * (sessionSummary.pitchAccuracy / 100) * 5 * difficultyMultiplier);
         const newXp = (profile.xp || 0) + xpGained;
         
         // 1. Update best_note AND XP
@@ -400,7 +402,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       handleScorePersistence();
     }
-  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length, profile, queryClient]); // Added profile to dependencies
+  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length, profile, queryClient, effectiveSong]); // Added effectiveSong to dependencies
 
   // Initial sync attempt on load (or when user logs in)
   useEffect(() => {

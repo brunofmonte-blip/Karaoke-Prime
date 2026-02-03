@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, CheckCircle, Loader2, PlayCircle, Users } from 'lucide-react';
+import { Download, CheckCircle, Loader2, PlayCircle, Users, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PublicDomainSong } from '@/data/public-domain-library';
 import { useOfflineDownload } from '@/hooks/use-offline-download';
@@ -11,6 +11,12 @@ import { useDuel } from '@/hooks/use-duel-engine';
 interface SongCardProps {
   song: PublicDomainSong;
 }
+
+const difficultyColors: Record<PublicDomainSong['difficulty'], string> = {
+  Easy: 'bg-green-600/20 text-green-400 border-green-600/50',
+  Medium: 'bg-yellow-600/20 text-yellow-400 border-yellow-600/50',
+  Hard: 'bg-red-600/20 text-red-400 border-red-600/50',
+};
 
 const SongCard: React.FC<SongCardProps> = ({ song }) => {
   const { isDownloaded, isDownloading, toggleDownload } = useOfflineDownload(song);
@@ -32,10 +38,23 @@ const SongCard: React.FC<SongCardProps> = ({ song }) => {
       "rounded-xl overflow-hidden border-2 border-border/50 transition-all duration-300",
       "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-lg"
     )}>
+      <div 
+        className="h-32 bg-cover bg-center relative group"
+        style={{ backgroundImage: `url(${song.imageUrl})` }}
+      >
+        {/* Difficulty Badge */}
+        <div className={cn(
+          "absolute top-2 right-2 text-xs font-semibold px-2 py-1 rounded-full border",
+          difficultyColors[song.difficulty]
+        )}>
+          {song.difficulty}
+        </div>
+      </div>
+      
       <CardContent className="p-4 flex flex-col justify-between h-full">
         <div>
           <h3 className="text-lg font-bold text-primary truncate">{song.title}</h3>
-          <p className="text-sm text-muted-foreground mb-3">{song.artist}</p>
+          <p className="text-sm text-muted-foreground mb-3 truncate">{song.artist}</p>
         </div>
         
         <div className="space-y-2">

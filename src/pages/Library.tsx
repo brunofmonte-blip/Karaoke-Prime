@@ -1,20 +1,43 @@
 import React, { useState, useMemo } from 'react';
-import { publicDomainLibrary } from '@/data/public-domain-library';
+import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
 import SongCard from '@/components/SongCard';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import SongCategoryRow from '@/components/SongCategoryRow';
+
+// Define the order of genres
+const GENRE_ORDER: PublicDomainSong['genre'][] = [
+  'Pop Anthems',
+  'Rock Classics',
+  'Folk/Traditional',
+  'Vocal Exercises',
+];
 
 const Library: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredSongs = useMemo(() => {
-    if (!searchTerm) return publicDomainLibrary;
     const lowerCaseSearch = searchTerm.toLowerCase();
-    return publicDomainLibrary.filter(song => 
+    
+    // 1. Filter by search term (title, artist, or genre)
+    const filteredBySearch = publicDomainLibrary.filter(song => 
       song.title.toLowerCase().includes(lowerCaseSearch) ||
-      song.artist.toLowerCase().includes(lowerCaseSearch)
+      song.artist.toLowerCase().includes(lowerCaseSearch) ||
+      song.genre.toLowerCase().includes(lowerCaseSearch)
     );
+
+    // 2. Group filtered songs by genre
+    const groupedSongs = filteredBySearch.reduce((acc, song) => {
+      const genre = song.genre;
+      if (!acc[genre]) {
+        acc[genre] = [];
+      }
+      acc[genre].push(song);
+      return acc;
+    }, {} as Record<PublicDomainSong['genre'], PublicDomainSong[]>);
+
+    return groupedSongs;
   }, [searchTerm]);
 
   return (
@@ -31,7 +54,7 @@ const Library: React.FC = () => {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search by title or artist..."
+          placeholder="Search by title, artist, or genre..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className={cn(
@@ -41,14 +64,21 @@ const Library: React.FC = () => {
         />
       </div>
 
-      {/* Song Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-        {filteredSongs.map(song => (
-          <SongCard key={song.id} song={song} />
-        ))}
+      {/* Song Categories */}
+      <div className="space-y-8">
+        {GENRE_ORDER.map(genre => {
+          const songs = filteredSongs[genre] || [];
+          return (
+            <SongCategoryRow 
+              key={genre} 
+              title={genre} 
+              songs={songs} 
+            />
+          );
+        })}
       </div>
 
-      {filteredSongs.length === 0 && (
+      {Object.keys(filteredSongs).length === 0 && (
         <div className="text-center p-10 text-muted-foreground">
           No songs found matching "{searchTerm}".
         </div>

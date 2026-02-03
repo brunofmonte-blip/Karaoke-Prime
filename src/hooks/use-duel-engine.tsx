@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { OfflineDuelResult, mockSaveOfflineDuel, mockGetUnsyncedDuels, mockMarkDuelAsSynced } from '@/utils/offline-storage';
 import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine';
-import { PublicDomainSong } from '@/data/public-domain-library';
+import { PublicDomainSong, publicDomainLibrary, getDifficultyMultiplier } from '@/data/public-domain-library';
 import { ChartDataItem } from './use-vocal-sandbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserProfile, UserProfile } from './use-user-profile'; // Import UserProfile hook and type
@@ -76,15 +76,19 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await new Promise(resolve => setTimeout(resolve, 1500)); 
 
     for (const duel of unsyncedDuels) {
+      const song = publicDomainLibrary.find(s => s.id === duel.songId);
+      if (!song) continue; // Skip if song not found
+
       // 1. Determine Winner and XP
       const isUser1 = duel.user1Id === user.id;
       const userScore = isUser1 ? duel.user1Score : duel.user2Score;
       const opponentScore = isUser1 ? duel.user2Score : duel.user1Score;
       const isWinner = userScore >= opponentScore;
       
+      const difficultyMultiplier = getDifficultyMultiplier(song.difficulty);
       const XP_BONUS = 50; // Bonus for winning a duel
-      // Base XP calculation: 10 XP per 100% score
-      const baseXP = Math.floor(userScore / 100 * 10); 
+      // Base XP calculation: 10 XP per 100% score * difficulty multiplier
+      const baseXP = Math.floor(userScore / 100 * 10 * difficultyMultiplier); 
       const xpGained = baseXP + (isWinner ? XP_BONUS : 0);
       const newXp = (profile.xp || 0) + xpGained;
 
