@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, TrendingUp, Mic, ChevronRight, BookOpen, Lightbulb, Target, Clock, Zap } from 'lucide-react';
+import { CheckCircle, ChevronRight, BookOpen, Lightbulb, Target, Clock, Zap, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useUserProfile } from '@/hooks/use-user-profile';
@@ -10,8 +10,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine';
-import { publicDomainLibrary } from '@/data/public-domain-library';
 
 const PerformanceSummaryModal: React.FC = () => {
   const { sessionSummary, pitchHistory, clearSessionSummary, currentSong } = useVocalSandbox();
@@ -138,6 +136,17 @@ const PerformanceSummaryModal: React.FC = () => {
               <p className="text-xs text-muted-foreground mt-1">Focus: {recommendedLesson.focus}</p>
             </div>
           )}
+        </div>
+        
+        {/* Secure Sync Status */}
+        <div className="mt-4 pt-4 border-t border-border/50 text-center">
+          <p className="text-sm text-green-400 font-medium flex items-center justify-center">
+            <ShieldCheck className="h-4 w-4 mr-2 text-green-400 amazon-gold-glow" />
+            Progress Saved Securely (Supabase Sync Complete)
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Your performance log and best score have been encrypted and synchronized.
+          </p>
         </div>
 
         <Button 

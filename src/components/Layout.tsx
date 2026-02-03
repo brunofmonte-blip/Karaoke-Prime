@@ -3,7 +3,6 @@ import Header from './Header';
 import Footer from './Footer';
 import BottomNavigationBar from './BottomNavigationBar';
 import { cn } from '@/lib/utils';
-import { ChevronRight } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
