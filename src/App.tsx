@@ -18,9 +18,10 @@ import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider, usePrimeSubscription } from "./hooks/use-prime-subscription";
 import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
 import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
-import { DuelProvider } from "./hooks/use-duel-engine";
+import { DuelProvider, useDuel } from "./hooks/use-duel-engine";
 import DuelSummaryModal from "./components/DuelSummaryModal";
 import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
+import { ReactNode } from "react";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,36 @@ const BadgeUnlockedModalWrapper = () => {
   return <BadgeUnlockedModal />;
 }
 
+// Component that consumes DuelContext and provides props to VocalSandboxProvider
+const VocalDuelBridge: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { 
+    recordTurn, 
+    clearDuel, 
+    isDuelActive, 
+    currentTurn, 
+    duelSong, 
+    user1History 
+  } = useDuel();
+
+  return (
+    <VocalSandboxProvider
+      recordTurn={recordTurn}
+      clearDuel={clearDuel}
+      isDuelActive={isDuelActive}
+      currentTurn={currentTurn}
+      duelSong={duelSong}
+      user1History={user1History}
+    >
+      {children}
+      {/* Modals that rely on VocalSandbox context */}
+      <VocalSandboxOverlay />
+      <PerformanceSummaryModalWrapper />
+      <BadgeUnlockedModalWrapper />
+    </VocalSandboxProvider>
+  );
+};
+
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -59,9 +90,10 @@ const App = () => (
       <AuthProvider>
         <LoginModalProvider>
           <PrimeSubscriptionProvider>
-            {/* CRITICAL HIERARCHY: VocalSandboxProvider must wrap DuelProvider */}
-            <VocalSandboxProvider>
-              <DuelProvider>
+            {/* 1. DuelProvider is the parent of the bridge component */}
+            <DuelProvider>
+              {/* 2. VocalDuelBridge consumes DuelContext and provides VocalSandboxContext */}
+              <VocalDuelBridge>
                 <BrowserRouter>
                   <Layout>
                     <Routes>
@@ -74,16 +106,13 @@ const App = () => (
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
-                  {/* Modals and Overlays must be inside BrowserRouter but outside Layout */}
+                  {/* Modals that rely on Auth/Login/Prime/Duel context */}
                   <LoginModalWrapper />
-                  <VocalSandboxOverlay />
                   <PrimeSubscriptionModalWrapper />
-                  <PerformanceSummaryModalWrapper />
                   <DuelSummaryModalWrapper />
-                  <BadgeUnlockedModalWrapper />
                 </BrowserRouter>
-              </DuelProvider>
-            </VocalSandboxProvider>
+              </VocalDuelBridge>
+            </DuelProvider>
           </PrimeSubscriptionProvider>
         </LoginModalProvider>
       </AuthProvider>

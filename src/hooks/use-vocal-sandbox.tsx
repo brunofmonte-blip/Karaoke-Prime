@@ -3,7 +3,7 @@ import { useAudioAnalyzer } from './use-audio-analyzer';
 import { toast } from 'sonner';
 import { publicDomainLibrary, PublicDomainSong, getDifficultyMultiplier } from '@/data/public-domain-library';
 import { mockDownloadSong, mockSaveOfflineLog, mockGetUnsyncedLogs, mockMarkLogAsSynced } from '@/utils/offline-storage';
-import { useDuel } from './use-duel-engine';
+// REMOVED: import { useDuel } from './use-duel-engine';
 import { runScoringEngine } from '@/utils/scoring-engine';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/integrations/supabase/auth';
@@ -72,7 +72,27 @@ const XP_PER_LEVEL_1 = 100;
 
 const MOCK_LATENCY_MS = 150;
 
-export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+// NEW PROPS INTERFACE
+interface VocalSandboxProviderProps {
+  children: ReactNode;
+  // Props passed from DuelProvider consumer in App.tsx
+  recordTurn: (history: ChartDataItem[]) => void;
+  clearDuel: () => void;
+  isDuelActive: boolean;
+  currentTurn: 1 | 2 | null;
+  duelSong: PublicDomainSong | null;
+  user1History: ChartDataItem[];
+}
+
+export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({ 
+  children,
+  recordTurn,
+  clearDuel,
+  isDuelActive,
+  currentTurn,
+  duelSong,
+  user1History,
+}) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: profile } = useUserProfile();
@@ -90,7 +110,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [latencyOffsetMs, setLatencyOffsetMs] = useState(MOCK_LATENCY_MS);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isOnline, setIsOnline] = useState(true);
-  const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); // New state for badges
+  const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); 
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
@@ -108,15 +128,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setSensitivity, 
   } = useAudioAnalyzer();
   
-  const { 
-    isDuelActive, 
-    currentTurn, 
-    duelSong, 
-    user1History, 
-    recordTurn,
-    clearDuel,
-  } = useDuel();
-  
+  // Duel state is now passed via props
   const isDuelMode = isDuelActive;
   
   const effectiveSong = isDuelMode ? duelSong : currentSong;
@@ -204,12 +216,12 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   
   const closeOverlay = () => {
     stopAnalysis();
-    clearDuel();
+    clearDuel(); // Use prop
     setIsOverlayOpen(false);
   };
   
   const clearSessionSummary = () => setSessionSummary(null);
-  const clearUnlockedBadges = () => setUnlockedBadges([]); // New clear function
+  const clearUnlockedBadges = () => setUnlockedBadges([]); 
 
   const startAnalysis = async () => {
     if (!effectiveSong || isAnalyzing || countdown !== null) {
@@ -221,7 +233,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setPitchHistory([]);
     setRecentAchievements([]);
     setSessionSummary(null);
-    setUnlockedBadges([]); // Clear badges before new session
+    setUnlockedBadges([]); 
     historyCounter.current = 0;
     sessionStartTimeRef.current = null; 
     setCurrentTime(0);
@@ -289,7 +301,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setCountdown(null);
     
     if (isDuelMode) {
-      recordTurn(pitchHistory);
+      recordTurn(pitchHistory); // Use prop
       return;
     }
     
@@ -398,7 +410,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       handleScorePersistenceAndBadges();
     }
-  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length, profile, queryClient, effectiveSong]);
+  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length, profile, queryClient, effectiveSong, recordTurn]);
 
   // Initial sync attempt on load (or when user logs in)
   useEffect(() => {
@@ -521,8 +533,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         setSensitivity,
         isOnline,
         syncOfflineLogs,
-        unlockedBadges, // Export new state
-        clearUnlockedBadges, // Export new function
+        unlockedBadges, 
+        clearUnlockedBadges, 
       }}
     >
       {children}
