@@ -60,8 +60,9 @@ const App = () => (
       <AuthProvider>
         <LoginModalProvider>
           <PrimeSubscriptionProvider>
-            <DuelProvider>
-              <VocalSandboxProvider>
+            {/* CORRECTED ORDER: VocalSandboxProvider must wrap DuelProvider */}
+            <VocalSandboxProvider>
+              <DuelProvider>
                 <BrowserRouter>
                   <Layout>
                     <Routes>
@@ -81,8 +82,8 @@ const App = () => (
                   <DuelSummaryModalWrapper />
                   <BadgeUnlockedModalWrapper /> {/* New Modal */}
                 </BrowserRouter>
-              </VocalSandboxProvider>
-            </DuelProvider>
+              </DuelProvider>
+            </VocalSandboxProvider>
           </PrimeSubscriptionProvider>
         </LoginModalProvider>
       </AuthProvider>
