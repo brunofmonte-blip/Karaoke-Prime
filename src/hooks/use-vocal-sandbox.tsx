@@ -8,7 +8,9 @@ import { runScoringEngine } from '@/utils/scoring-engine';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/integrations/supabase/auth';
 import { useQueryClient } from '@tanstack/react-query';
-import { useUserProfile } from './use-user-profile'; // <-- CRITICAL FIX: Import useUserProfile
+import { useUserProfile } from './use-user-profile';
+import { checkAndUnlockBadges } from '@/utils/badge-logic'; // Import badge logic
+import { BadgeId } from '@/data/badges'; // Import BadgeId type
 
 export interface ChartDataItem {
   name: string;
@@ -55,6 +57,8 @@ interface VocalSandboxContextType {
   setSensitivity: (value: number) => void; // New
   isOnline: boolean; // New: Mock online status
   syncOfflineLogs: () => Promise<void>; // New: Sync function
+  unlockedBadges: BadgeId[]; // New: State for newly unlocked badges
+  clearUnlockedBadges: () => void; // New: Clear function for modal
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
@@ -64,15 +68,14 @@ const MIN_SESSION_DURATION_POINTS = 10;
 const STABILITY_WINDOW = 10;
 const STABILITY_THRESHOLD = 5;
 const DEVIATION_THRESHOLD = 10;
-const XP_PER_LEVEL_1 = 100; // Mock XP required for Level 1 notification
+const XP_PER_LEVEL_1 = 100; 
 
-// Mock Latency Calibration (Simulate finding a 150ms offset)
 const MOCK_LATENCY_MS = 150;
 
 export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { data: profile } = useUserProfile(); // <-- CRITICAL FIX: Fetch profile data
+  const { data: profile } = useUserProfile();
   
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [pitchHistory, setPitchHistory] = useState<ChartDataItem[]>([]);
@@ -84,9 +87,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [currentSongId, setCurrentSongId] = useState<string | null>(null);
   const [currentSong, setCurrentSong] = useState<PublicDomainSong | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
-  const [latencyOffsetMs, setLatencyOffsetMs] = useState(MOCK_LATENCY_MS); // Default mock offset
+  const [latencyOffsetMs, setLatencyOffsetMs] = useState(MOCK_LATENCY_MS);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [isOnline, setIsOnline] = useState(true); // Mock online status
+  const [isOnline, setIsOnline] = useState(true);
+  const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); // New state for badges
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
@@ -104,7 +108,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setSensitivity, 
   } = useAudioAnalyzer();
   
-  // Duel integration
   const { 
     isDuelActive, 
     currentTurn, 
@@ -114,16 +117,13 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     clearDuel,
   } = useDuel();
   
-  // Determine if we are in duel mode
   const isDuelMode = isDuelActive;
   
-  // Determine the current song based on duel mode or single mode
   const effectiveSong = isDuelMode ? duelSong : currentSong;
   const currentSongTitle = effectiveSong?.title || "Select a Song";
   const currentSongArtist = effectiveSong?.artist || "Karaoke Prime";
   const currentLyrics = effectiveSong?.lyrics.map(l => l.text).join(' ') || "Start your vocal journey by selecting a song from the library.";
 
-  // Expose the visualization pitch data
   const pitchData = pitchDataVisualization;
 
   const loadSong = (songId: string) => {
@@ -138,9 +138,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   const calibrateLatency = useCallback(() => {
     toast.loading("Calibrating audio latency...", { id: 'latency-cal' });
-    // Mock calibration process
     setTimeout(() => {
-      const newLatency = Math.floor(Math.random() * 100) + 100; // 100ms to 200ms
+      const newLatency = Math.floor(Math.random() * 100) + 100;
       setLatencyOffsetMs(newLatency);
       toast.dismiss('latency-cal');
       toast.success(`Latency calibrated to ${newLatency}ms.`, { duration: 3000 });
@@ -151,7 +150,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     const unsyncedLogs = mockGetUnsyncedLogs();
     if (unsyncedLogs.length === 0) return;
     
-    // CRITICAL FIX: Safety check for user/profile before attempting DB operations
     if (!user || !profile) {
         console.warn("[VocalSandbox] Cannot sync offline logs: User or profile data missing.");
         return;
@@ -187,10 +185,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           .eq('id', log.userId);
       }
       
-      // Note: XP update is handled in the main sessionSummary effect for immediate feedback
-      // We assume offline logs already contain the necessary XP calculation or it's handled server-side.
-      // For now, we only sync the performance log and best_note.
-
       mockMarkLogAsSynced(log.id);
     }
 
@@ -198,12 +192,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     toast.success(`${unsyncedLogs.length} performance logs synchronized successfully!`);
     queryClient.invalidateQueries({ queryKey: ['userProfile'] });
     queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
-  }, [queryClient, profile, user]); // CRITICAL FIX: Added profile and user to dependencies
+  }, [queryClient, profile, user]);
 
 
   const openOverlay = () => {
     if (!effectiveSong) {
-      // Default to the first song if none is selected
       loadSong(publicDomainLibrary[0].id);
     }
     setIsOverlayOpen(true);
@@ -211,24 +204,24 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   
   const closeOverlay = () => {
     stopAnalysis();
-    clearDuel(); // Clear duel state if closing overlay
+    clearDuel();
     setIsOverlayOpen(false);
   };
   
   const clearSessionSummary = () => setSessionSummary(null);
+  const clearUnlockedBadges = () => setUnlockedBadges([]); // New clear function
 
   const startAnalysis = async () => {
     if (!effectiveSong || isAnalyzing || countdown !== null) {
       return;
     }
     
-    // 1. Offline Caching (Simulated)
     await mockDownloadSong(effectiveSong); 
 
-    // 2. Reset states
     setPitchHistory([]);
     setRecentAchievements([]);
     setSessionSummary(null);
+    setUnlockedBadges([]); // Clear badges before new session
     historyCounter.current = 0;
     sessionStartTimeRef.current = null; 
     setCurrentTime(0);
@@ -241,7 +234,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       setGhostTrace([]); 
     }
 
-    // 3. Start Countdown
     setCountdown(3);
     
     const lastLyricTime = effectiveSong.lyrics.length > 0 
@@ -254,7 +246,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         if (prev === 1) {
           clearInterval(countdownIntervalRef.current);
           
-          // 4. Start Audio Analysis and Playback after countdown
           startAudio();
           sessionStartTimeRef.current = Date.now();
           
@@ -273,7 +264,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           };
           audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
           
-          return null; // End countdown
+          return null;
         }
         return (prev || 0) - 1;
       });
@@ -287,7 +278,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       stabilityToastRef.current = null;
     }
     
-    // Stop audio simulation and countdown
     if (audioTimerRef.current) {
       clearTimeout(audioTimerRef.current);
       audioTimerRef.current = undefined;
@@ -298,13 +288,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
     setCountdown(null);
     
-    // --- Duel Mode Handling ---
     if (isDuelMode) {
       recordTurn(pitchHistory);
       return;
     }
     
-    // --- Single Player Mode Handling ---
     if (pitchHistory.length > 0 && sessionStartTimeRef.current && effectiveSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
       
@@ -322,7 +310,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       setSessionSummary(summary);
       
       if (!isOnline && user) {
-        // Offline: Save to local storage
         mockSaveOfflineLog({
           userId: user.id,
           songId: summary.songId,
@@ -337,13 +324,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  // Effect to handle score persistence for single player mode (ONLINE ONLY)
+  // Effect to handle score persistence and BADGE CHECKING for single player mode (ONLINE ONLY)
   useEffect(() => {
-    if (sessionSummary && user && !isDuelMode && isOnline && effectiveSong) {
-      // CRITICAL: Ensure profile is available for XP calculation
-      if (!profile) return; 
+    if (sessionSummary && user && !isDuelMode && isOnline && effectiveSong && profile) {
       
-      // --- Anti-Cheat/Validation Layer Mock ---
       if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
         toast.error("Score submission failed: Session too short.", { 
           description: "A minimum duration is required to prevent score manipulation.",
@@ -351,21 +335,34 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
         return;
       }
-      // ----------------------------------------
       
-      const handleScorePersistence = async () => {
+      const handleScorePersistenceAndBadges = async () => {
         const difficultyMultiplier = getDifficultyMultiplier(effectiveSong.difficulty);
         
-        // Calculate XP gain (XP = duration * score% * 5 * difficulty_multiplier)
+        // Calculate XP gain
         const xpGained = Math.floor(sessionSummary.durationSeconds * (sessionSummary.pitchAccuracy / 100) * 5 * difficultyMultiplier);
         const newXp = (profile.xp || 0) + xpGained;
         
-        // 1. Update best_note AND XP
+        // --- 1. Check for Badges ---
+        const newlyEarnedBadges = await checkAndUnlockBadges(
+          user.id, 
+          profile, 
+          effectiveSong, 
+          sessionSummary.pitchAccuracy, 
+          false // Not a duel win
+        );
+        
+        if (newlyEarnedBadges.length > 0) {
+          setUnlockedBadges(newlyEarnedBadges);
+        }
+        // ---------------------------
+        
+        // 2. Update best_note AND XP
         const { error: profileError } = await supabase
           .from('profiles')
           .update({ 
             best_note: sessionSummary.pitchAccuracy,
-            xp: newXp, // Update XP
+            xp: newXp,
           })
           .eq('id', user.id);
 
@@ -374,7 +371,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           toast.error("Failed to save profile score/XP.", { description: profileError.message });
         }
         
-        // 2. Insert detailed performance log
+        // 3. Insert detailed performance log
         const { error: logError } = await supabase
           .from('performance_logs')
           .insert({
@@ -391,7 +388,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           toast.error("Failed to save detailed performance log.", { description: logError.message });
         }
         
-        // 3. Check for Level 1 Milestone Notification
         if (profile.academy_level === 0 && newXp >= XP_PER_LEVEL_1) {
              toast.info("You're getting better! Academy Level 1 is waiting for you.", { duration: 5000 });
         }
@@ -400,9 +396,9 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
       };
       
-      handleScorePersistence();
+      handleScorePersistenceAndBadges();
     }
-  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length, profile, queryClient, effectiveSong]); // Added effectiveSong to dependencies
+  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length, profile, queryClient, effectiveSong]);
 
   // Initial sync attempt on load (or when user logs in)
   useEffect(() => {
@@ -426,7 +422,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
-    // Initial check (mocking a stable connection)
     setIsOnline(true); 
 
     return () => {
@@ -442,20 +437,18 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       historyCounter.current += 1;
       const newPoint: ChartDataItem = {
         name: `T${historyCounter.current}`,
-        pitch: pitchDataVisualization, // Use visualization for chart
-        frequency: pitchDataHz, // Store raw frequency for scoring
-        breath: 50, // Placeholder for breath data
+        pitch: pitchDataVisualization,
+        frequency: pitchDataHz,
+        breath: 50,
       };
       
       setPitchHistory(prevHistory => {
         const newHistory = [...prevHistory, newPoint];
         
-        // Keep history size limited
         if (newHistory.length > MAX_HISTORY) {
           newHistory.shift();
         }
         
-        // --- Real-time Diagnostic Logic (Client-side) ---
         if (newHistory.length >= STABILITY_WINDOW) {
           const recentPitches = newHistory.slice(-STABILITY_WINDOW).map(p => p.pitch);
           const maxPitch = Math.max(...recentPitches);
@@ -468,16 +461,14 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           setIsPitchStable(stable);
           setIsPitchDeviating(deviating);
 
-          // Achievement check: Golden Mic (Mock: 30 consecutive stable points)
           if (stable && newHistory.length >= 30 && !recentAchievements.includes("Golden Mic")) {
             setRecentAchievements(prev => [...prev, "Golden Mic"]);
             toast.success("Achievement Unlocked: Golden Mic!", { duration: 5000 });
           }
 
-          // Stability Toast Feedback
           if (stable && !stabilityToastRef.current) {
             stabilityToastRef.current = toast.success("Great Stability!", { 
-              duration: 1000000, // Keep open until stopped
+              duration: 1000000,
               description: "You are holding your pitch perfectly.",
             });
           } else if (!stable && stabilityToastRef.current) {
@@ -485,7 +476,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
             stabilityToastRef.current = null;
           }
         }
-        // -------------------------------------------------
         
         return newHistory;
       });
@@ -494,7 +484,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
 
   useEffect(() => {
-    // If the overlay opens without a song, load the default one, unless a duel is active.
     if (isOverlayOpen && !effectiveSong) {
       loadSong(publicDomainLibrary[0].id);
     }
@@ -522,7 +511,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         sessionSummary,
         clearSessionSummary,
         loadSong,
-        currentSong: effectiveSong, // Use effective song
+        currentSong: effectiveSong,
         currentTime,
         isDuelMode,
         latencyOffsetMs,
@@ -532,6 +521,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         setSensitivity,
         isOnline,
         syncOfflineLogs,
+        unlockedBadges, // Export new state
+        clearUnlockedBadges, // Export new function
       }}
     >
       {children}

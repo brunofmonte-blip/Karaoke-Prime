@@ -11,6 +11,7 @@ export interface UserProfile {
   ranking_position: number;
   is_prime: boolean; // Added is_prime status
   xp: number; // Added XP
+  badges: string[]; // New: Array of earned badge IDs
 }
 
 const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
@@ -22,6 +23,11 @@ const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => 
 
   if (error && error.code !== 'PGRST116') { // PGRST116 means 'No rows found'
     throw new Error(error.message);
+  }
+
+  // Ensure badges is an array, even if null/undefined from DB
+  if (data && !data.badges) {
+    data.badges = [];
   }
 
   return data as UserProfile | null;

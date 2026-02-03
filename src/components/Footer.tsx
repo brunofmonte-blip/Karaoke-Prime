@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
 import VocalEvolutionChart from './VocalEvolutionChart';
-import { useVocalSandbox } from '@/hooks/use-vocal-sandbox'; // Import new hook
+import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 
 const staticChartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -24,14 +24,12 @@ const Footer = () => {
     pitchHistory, 
     isPitchDeviating, 
     recentAchievements,
-    ghostTrace, // Get ghost trace
-  } = useVocalSandbox(); // Get sandbox state and diagnostics
+    ghostTrace,
+  } = useVocalSandbox();
 
-  // Determine which data to show in the chart
   const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : staticChartData;
   const chartTitle = isAnalyzing ? "Live Pitch Tracking" : "Vocal Note Evolution (Pitch Accuracy 0-100)";
 
-  // Default placeholder data if not logged in or loading
   const defaultUserData = {
     userName: "Guest Singer",
     bestNote: 0,
@@ -39,15 +37,17 @@ const Footer = () => {
     rankingOnline: 9999,
     rankingOffline: 9999,
     avatarUrl: undefined,
+    earnedBadgeIds: [], // Default empty array
   };
 
   const userData = user && profile ? {
     userName: profile.username || user.email?.split('@')[0] || "Vocalist",
     bestNote: profile.best_note,
     academyLevel: profile.academy_level,
-    rankingOnline: profile.ranking_position, // Using ranking_position for online ranking placeholder
-    rankingOffline: 9999, // Placeholder for offline ranking
+    rankingOnline: profile.ranking_position,
+    rankingOffline: 9999,
     avatarUrl: profile.avatar_url || user.user_metadata.avatar_url,
+    earnedBadgeIds: profile.badges, // Pass earned badges
   } : defaultUserData;
 
   return (
@@ -55,14 +55,14 @@ const Footer = () => {
       <div className="container mx-auto">
         
         {/* Main Content Grid: Chart (2/3) and Profile (1/3) - items-stretch for symmetry */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8 h-[300px]"> {/* Added fixed height for chart container */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8 h-[300px]">
           
           {/* Vocal Note Evolution Chart */}
           <div className="lg:col-span-2 w-full h-full">
             <VocalEvolutionChart 
               title={chartTitle} 
               data={chartData} 
-              opponentTrace={isAnalyzing ? ghostTrace : undefined} // Pass ghostTrace as opponentTrace
+              opponentTrace={isAnalyzing ? ghostTrace : undefined}
             />
           </div>
 
@@ -80,10 +80,10 @@ const Footer = () => {
                 rankingOnline={userData.rankingOnline}
                 rankingOffline={userData.rankingOffline}
                 avatarUrl={userData.avatarUrl}
-                // Pass diagnostic state
                 isAnalyzing={isAnalyzing}
                 isPitchDeviating={isPitchDeviating}
                 recentAchievements={recentAchievements}
+                earnedBadgeIds={userData.earnedBadgeIds} {/* Pass the new prop */}
               />
             )}
           </div>

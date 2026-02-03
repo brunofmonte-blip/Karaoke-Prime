@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy, Zap, GraduationCap, Award, Star, Mic2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { allBadges, BadgeId } from '@/data/badges'; // Import badge definitions
 
 interface UserProfileCardProps {
   userName: string;
@@ -12,10 +13,10 @@ interface UserProfileCardProps {
   academyLevel: number;
   rankingOnline: number;
   rankingOffline: number;
-  // New diagnostic props
   isAnalyzing?: boolean;
   isPitchDeviating?: boolean;
   recentAchievements?: string[];
+  earnedBadgeIds?: BadgeId[]; // New prop for earned badges
 }
 
 const achievementIcons: Record<string, { icon: React.ElementType, color: string }> = {
@@ -23,9 +24,6 @@ const achievementIcons: Record<string, { icon: React.ElementType, color: string 
   "Perfect Pitch": { icon: Star, color: "text-primary" },
   "Vocal Master": { icon: Award, color: "text-red-500" },
 };
-
-// Helper component for the diagnostic tip - RESET TO NULL TO PREVENT CRASH
-const DiagnosticTip: React.FC = () => null;
 
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   userName,
@@ -37,23 +35,20 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   isAnalyzing = false,
   isPitchDeviating = false,
   recentAchievements = [],
+  earnedBadgeIds = [], // Default to empty array
 }) => {
-  // Use ref to track previous bestNote to detect updates
   const prevBestNoteRef = useRef(bestNote);
 
   useEffect(() => {
-    // Check if bestNote has increased and crossed the 90% threshold
     if (bestNote > 90 && bestNote > prevBestNoteRef.current) {
       toast.success(`Level Up! New Best Note: ${bestNote.toFixed(1)}%`, {
         description: "You've unlocked a new level of vocal mastery!",
         duration: 5000,
       });
     }
-    // Update ref for the next render
     prevBestNoteRef.current = bestNote;
   }, [bestNote]);
 
-  // Calculate progress (assuming max level is 10 for a simple visual)
   const maxLevel = 10;
   const progressValue = (academyLevel / maxLevel) * 100;
 
@@ -67,19 +62,23 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     </div>
   );
 
-  // Default achievements for display if none are active
-  const displayedAchievements = recentAchievements.length > 0 
-    ? recentAchievements.map(key => achievementIcons[key] || { icon: Award, color: "text-gray-500" })
+  // Combine recent achievements (from sandbox) and earned badges (from profile)
+  const displayedBadges = earnedBadgeIds.map(id => allBadges.find(b => b.id === id)).filter((b): b is Badge => !!b);
+  
+  // Fallback/Placeholder for visual consistency if no badges are earned yet
+  const visualAchievements = displayedBadges.length > 0 
+    ? displayedBadges.slice(0, 3).map(badge => ({ icon: badge.icon, color: badge.color }))
     : [
         { icon: Award, color: "text-yellow-400" },
         { icon: Star, color: "text-primary" },
         { icon: Mic2, color: "text-red-500" },
       ];
 
+
   return (
     <Card className={cn(
       "rounded-2xl transition-all duration-300 w-full shadow-xl",
-      "glass-pillar" // Ensures 1px neon blue border and backdrop blur
+      "glass-pillar"
     )}>
       <CardContent className="p-6 space-y-4">
         
@@ -90,9 +89,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
             <div 
               className="absolute inset-0 rounded-full border-4 border-border/50"
               style={{
-                // This is a visual trick for a progress ring using conic gradient
                 background: `conic-gradient(hsl(var(--primary)) ${progressValue}%, hsl(var(--border)/0.5) ${progressValue}%)`,
-                padding: '4px', // Inner padding to make the ring visible
+                padding: '4px',
               }}
             >
               <Avatar className="h-full w-full">
@@ -108,9 +106,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           </div>
         </div>
 
-        {/* Real-time Diagnostic Tip - REMOVED FOR STABILITY */}
-        {/* {isAnalyzing && isPitchDeviating && <DiagnosticTip />} */}
-
         {/* Stats */}
         <div className="space-y-2">
           {statItem("Melhor Nota", `${bestNote.toFixed(1)}%`, Zap)}
@@ -119,11 +114,11 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
           {statItem("Ranking Offline", rankingOffline, Trophy)}
         </div>
 
-        {/* Recent Achievements */}
+        {/* Recent Achievements / Badges */}
         <div className="pt-2 border-t border-border/50">
-          <h5 className="text-sm font-semibold mb-2 text-muted-foreground">Recent Achievements</h5>
+          <h5 className="text-sm font-semibold mb-2 text-muted-foreground">Badges Earned ({displayedBadges.length})</h5>
           <div className="flex space-x-3">
-            {displayedAchievements.map((ach, index) => {
+            {visualAchievements.map((ach, index) => {
               const Icon = ach.icon;
               return (
                 <div key={index} className={cn(

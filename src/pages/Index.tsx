@@ -13,7 +13,8 @@ import { toast } from "sonner";
 import { useUserProfile } from '@/hooks/use-user-profile';
 import PillarLockedOverlay from '@/components/PillarLockedOverlay';
 import { useAuth } from '@/integrations/supabase/auth';
-import { usePrimeSubscription } from '@/hooks/use-prime-subscription'; // Import Prime Subscription Hook
+import { usePrimeSubscription } from '@/hooks/use-prime-subscription';
+import AchievementsSection from '@/components/AchievementsSection'; // Import new component
 
 // Placeholder for the cinematic stage background
 const HeroSection = () => (
@@ -132,10 +133,7 @@ const Index = () => {
     if (!isPrime) {
       openPrimeModal();
     } else {
-      // If already Prime, navigate to the success page
-      // Since we don't have a dedicated /success page yet, we'll just show a success toast.
       toast.info("Welcome back, Prime Member! Navigating to Amazon Success...", { duration: 3000 });
-      // In a real app: navigate('/success');
     }
   };
 
@@ -196,8 +194,8 @@ const Index = () => {
               description="Global ranking system based on performance, engagement, and academy level." 
               icon={isPrime ? Trophy : Lock} 
               onClick={handleSuccessPillarClick}
-              isLocked={!isPrime} // Locked if not Prime
-              onLockClick={handleSuccessPillarClick} // Click opens modal if locked
+              isLocked={!isPrime}
+              onLockClick={handleSuccessPillarClick}
             />
           </div>
         </div>
@@ -206,6 +204,11 @@ const Index = () => {
       {/* Content below the Hero, starting after the overlap area. */}
       <div className="container mx-auto px-0 md:px-6 relative z-30 pt-[140px] md:pt-[140px]"> 
         
+        {/* Achievements Section (New) */}
+        <div className="py-16 px-4 md:px-0">
+          <AchievementsSection />
+        </div>
+
         {/* Global Karaoke Hotspots */}
         <div className="py-16 px-4 md:px-0">
           <GlobalHotspotsCarousel />

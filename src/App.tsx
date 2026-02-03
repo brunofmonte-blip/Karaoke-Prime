@@ -12,14 +12,15 @@ import LoginModal from "./components/LoginModal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Academy from "./pages/Academy";
 import Backstage from "./pages/Backstage";
-import Library from "./pages/Library"; // Import Library page
-import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
+import Library from "./pages/Library";
+import { VocalSandboxProvider, useVocalSandbox } from "./hooks/use-vocal-sandbox";
 import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider, usePrimeSubscription } from "./hooks/use-prime-subscription";
 import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
 import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
 import { DuelProvider } from "./hooks/use-duel-engine";
 import DuelSummaryModal from "./components/DuelSummaryModal";
+import BadgeUnlockedModal from "./components/BadgeUnlockedModal"; // Import new modal
 
 const queryClient = new QueryClient();
 
@@ -37,13 +38,18 @@ const PrimeSubscriptionModalWrapper = () => {
 
 // Helper component to render the performance summary modal
 const PerformanceSummaryModalWrapper = () => {
-  // The modal manages its own open state based on sessionSummary in useVocalSandbox
   return <PerformanceSummaryModal />;
 }
 
 // Helper component to render the duel summary modal
 const DuelSummaryModalWrapper = () => {
   return <DuelSummaryModal />;
+}
+
+// Helper component to render the badge modal
+const BadgeUnlockedModalWrapper = () => {
+  // The modal manages its own open state based on unlockedBadges in useVocalSandbox
+  return <BadgeUnlockedModal />;
 }
 
 const App = () => (
@@ -60,7 +66,7 @@ const App = () => (
                   <Layout>
                     <Routes>
                       <Route path="/" element={<Index />} />
-                      <Route path="/library" element={<Library />} /> {/* New Library Route */}
+                      <Route path="/library" element={<Library />} />
                       {/* Protected Routes */}
                       <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
                       <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
@@ -73,6 +79,7 @@ const App = () => (
                   <PrimeSubscriptionModalWrapper />
                   <PerformanceSummaryModalWrapper />
                   <DuelSummaryModalWrapper />
+                  <BadgeUnlockedModalWrapper /> {/* New Modal */}
                 </BrowserRouter>
               </VocalSandboxProvider>
             </DuelProvider>
