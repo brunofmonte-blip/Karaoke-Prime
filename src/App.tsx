@@ -20,7 +20,7 @@ import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
 import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
 import { DuelProvider } from "./hooks/use-duel-engine";
 import DuelSummaryModal from "./components/DuelSummaryModal";
-import BadgeUnlockedModal from "./components/BadgeUnlockedModal"; // Import new modal
+import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +48,6 @@ const DuelSummaryModalWrapper = () => {
 
 // Helper component to render the badge modal
 const BadgeUnlockedModalWrapper = () => {
-  // The modal manages its own open state based on unlockedBadges in useVocalSandbox
   return <BadgeUnlockedModal />;
 }
 
@@ -60,7 +59,7 @@ const App = () => (
       <AuthProvider>
         <LoginModalProvider>
           <PrimeSubscriptionProvider>
-            {/* CORRECTED ORDER: VocalSandboxProvider must wrap DuelProvider */}
+            {/* CRITICAL HIERARCHY: VocalSandboxProvider must wrap DuelProvider */}
             <VocalSandboxProvider>
               <DuelProvider>
                 <BrowserRouter>
@@ -75,12 +74,13 @@ const App = () => (
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
+                  {/* Modals and Overlays must be inside BrowserRouter but outside Layout */}
                   <LoginModalWrapper />
                   <VocalSandboxOverlay />
                   <PrimeSubscriptionModalWrapper />
                   <PerformanceSummaryModalWrapper />
                   <DuelSummaryModalWrapper />
-                  <BadgeUnlockedModalWrapper /> {/* New Modal */}
+                  <BadgeUnlockedModalWrapper />
                 </BrowserRouter>
               </DuelProvider>
             </VocalSandboxProvider>
