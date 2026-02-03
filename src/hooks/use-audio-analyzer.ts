@@ -7,12 +7,17 @@ interface AudioAnalyzerResult {
   stopAnalysis: () => void;
   pitchDataHz: number; // New: Raw detected frequency in Hz
   pitchDataVisualization: number; // Existing: 0-100 scale for UI
+  sensitivity: number; // New: Current sensitivity setting (0-255)
+  setSensitivity: (value: number) => void; // New: Setter for sensitivity
 }
 
 const FFT_SIZE = 2048;
 const SAMPLE_RATE = 44100;
 const MIN_FREQ = 80; // Approx E2
 const MAX_FREQ = 1000; // Approx C6
+
+// Default threshold for pitch detection (volume level 0-255)
+const DEFAULT_SENSITIVITY_THRESHOLD = 100; 
 
 // Function to convert frequency (Hz) to a 0-100 visualization scale
 const frequencyToVisualizationScale = (frequency: number): number => {
@@ -27,6 +32,7 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [pitchDataHz, setPitchDataHz] = useState(0); // New state for Hz
   const [pitchDataVisualization, setPitchDataVisualization] = useState(0); // Existing state for visualization
+  const [sensitivity, setSensitivity] = useState(DEFAULT_SENSITIVITY_THRESHOLD); // New state for sensitivity
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -54,7 +60,8 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     }
 
     let frequency = 0;
-    if (maxIndex > 0 && maxVolume > 100) { // Threshold volume to ignore silence
+    // Use sensitivity threshold here
+    if (maxIndex > 0 && maxVolume > sensitivity) { 
       // Calculate frequency based on bin index
       frequency = (maxIndex * SAMPLE_RATE) / FFT_SIZE;
     }
@@ -65,7 +72,7 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     setPitchDataVisualization(visualizationPitch); // Update visualization pitch
 
     animationFrameRef.current = requestAnimationFrame(analyze);
-  }, []);
+  }, [sensitivity]); // Added sensitivity as dependency
 
   const startAnalysis = async () => {
     if (isAnalyzing) return;
@@ -128,5 +135,7 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     stopAnalysis,
     pitchDataHz,
     pitchDataVisualization,
+    sensitivity,
+    setSensitivity,
   };
 };

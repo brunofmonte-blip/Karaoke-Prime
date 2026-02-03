@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 // Mock storage key
 const OFFLINE_SONGS_KEY = 'karaoke_offline_songs';
 const OFFLINE_DUELS_KEY = 'karaoke_offline_duels';
+const OFFLINE_PERFORMANCE_LOGS_KEY = 'karaoke_offline_performance_logs';
 
 export interface OfflineDuelResult {
   id: string;
@@ -22,7 +23,19 @@ export interface OfflineDuelResult {
   synced: boolean;
 }
 
-// Helper to simulate IndexedDB/LocalForage interaction
+export interface OfflinePerformanceLog {
+  id: string;
+  userId: string;
+  songId: string;
+  pitchAccuracy: number;
+  rhythmPrecision: number;
+  vocalStability: number;
+  durationSeconds: number;
+  timestamp: number;
+  synced: boolean;
+}
+
+// Helper to simulate IndexedDB/LocalForage interaction for songs
 const getOfflineSongs = (): PublicDomainSong[] => {
   if (typeof window === 'undefined') return [];
   try {
@@ -43,6 +56,7 @@ const setOfflineSongs = (songs: PublicDomainSong[]) => {
   }
 };
 
+// Helper functions for Duels
 const getOfflineDuels = (): OfflineDuelResult[] => {
   if (typeof window === 'undefined') return [];
   try {
@@ -62,6 +76,28 @@ const setOfflineDuels = (duels: OfflineDuelResult[]) => {
     console.error("[OfflineStorage] Error writing duel storage:", e);
   }
 };
+
+// Helper functions for Single Player Logs
+const getOfflineLogs = (): OfflinePerformanceLog[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = localStorage.getItem(OFFLINE_PERFORMANCE_LOGS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error("[OfflineStorage] Error reading log storage:", e);
+    return [];
+  }
+};
+
+const setOfflineLogs = (logs: OfflinePerformanceLog[]) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(OFFLINE_PERFORMANCE_LOGS_KEY, JSON.stringify(logs));
+  } catch (e) {
+    console.error("[OfflineStorage] Error writing log storage:", e);
+  }
+};
+
 
 export const mockDownloadSong = async (song: PublicDomainSong): Promise<boolean> => {
   toast.loading(`Downloading ${song.title} for offline use...`, { id: `download-${song.id}` });
@@ -126,4 +162,27 @@ export const mockMarkDuelAsSynced = (duelId: string) => {
     d.id === duelId ? { ...d, synced: true } : d
   );
   setOfflineDuels(updatedDuels);
+};
+
+export const mockSaveOfflineLog = (log: Omit<OfflinePerformanceLog, 'id' | 'synced'>): OfflinePerformanceLog => {
+  const newLog: OfflinePerformanceLog = {
+    ...log,
+    id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+    synced: false,
+  };
+  const currentLogs = getOfflineLogs();
+  setOfflineLogs([...currentLogs, newLog]);
+  return newLog;
+};
+
+export const mockGetUnsyncedLogs = (): OfflinePerformanceLog[] => {
+  return getOfflineLogs().filter(d => !d.synced);
+};
+
+export const mockMarkLogAsSynced = (logId: string) => {
+  const currentLogs = getOfflineLogs();
+  const updatedLogs = currentLogs.map(d => 
+    d.id === logId ? { ...d, synced: true } : d
+  );
+  setOfflineLogs(updatedLogs);
 };

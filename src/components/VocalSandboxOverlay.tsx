@@ -1,17 +1,13 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, StopCircle, Music, X, ChevronRight } from 'lucide-react';
+import { Mic, StopCircle, Music, X, ShieldCheck, Loader2 } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/integrations/supabase/auth';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
 import LyricPlayer from './LyricPlayer';
 import { useDuel } from '@/hooks/use-duel-engine';
-
-const MIN_SESSION_DURATION_POINTS = 10; // Minimum pitch history points required for a valid session
+import { Slider } from '@/components/ui/slider';
 
 const VocalSandboxOverlay: React.FC = () => {
   const { 
@@ -28,12 +24,15 @@ const VocalSandboxOverlay: React.FC = () => {
     currentTime,
     sessionSummary,
     isDuelMode,
+    countdown, // New
+    sensitivity, // New
+    setSensitivity, // New
+    isOnline, // New
   } = useVocalSandbox();
   
   const { currentTurn } = useDuel();
   
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const sessionStartTimeRef = useRef<number | null>(null);
 
   // Calculate final score when analysis stops (used for display before summary modal opens)
@@ -43,39 +42,6 @@ const VocalSandboxOverlay: React.FC = () => {
     return totalPitch / pitchHistory.length;
   }, [pitchHistory]);
 
-  // Handle session end and data persistence (Only update best_note if sessionSummary is set)
-  useEffect(() => {
-    if (sessionSummary && user) {
-      // --- Anti-Cheat/Validation Layer Mock ---
-      if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
-        toast.error("Score submission failed: Session too short.", { 
-          description: "A minimum duration is required to prevent score manipulation.",
-          duration: 5000 
-        });
-        return;
-      }
-      // ----------------------------------------
-      
-      const handleScorePersistence = async (score: number) => {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ best_note: score })
-          .eq('id', user.id);
-
-        if (error) {
-          console.error("[VocalSandboxOverlay] Error updating best_note:", error);
-          toast.error("Failed to save score.", { description: error.message });
-        } else {
-          // Invalidate relevant queries to trigger UI updates (Profile Card, Rankings)
-          queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-          queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
-        }
-      };
-      
-      handleScorePersistence(sessionSummary.finalScore);
-    }
-  }, [sessionSummary, user, pitchHistory.length, queryClient]);
-
   if (!isOverlayOpen) {
     return null;
   }
@@ -84,6 +50,22 @@ const VocalSandboxOverlay: React.FC = () => {
     return (
       <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex items-center justify-center">
         <p className="text-primary neon-blue-glow">Loading song data...</p>
+      </div>
+    );
+  }
+  
+  // If countdown is active, show the large countdown screen
+  if (countdown !== null) {
+    return (
+      <div className="fixed inset-0 z-[101] bg-background/95 backdrop-blur-xl flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-8xl font-extrabold text-primary neon-blue-glow animate-pulse">
+            {countdown === 0 ? 'GO!' : countdown}
+          </p>
+          <p className="text-xl text-muted-foreground mt-4">
+            Get ready to sing "{currentSongTitle}"
+          </p>
+        </div>
       </div>
     );
   }
@@ -139,6 +121,34 @@ const VocalSandboxOverlay: React.FC = () => {
                   <StopCircle className="h-5 w-5 mr-2" />
                   Stop Analysis
                 </Button>
+              </div>
+
+              {/* Microphone Sensitivity Control */}
+              <div className="pt-4 border-t border-border/50">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Microphone Sensitivity</h3>
+                <Slider
+                  defaultValue={[sensitivity]}
+                  max={200}
+                  step={10}
+                  onValueChange={(value) => setSensitivity(value[0])}
+                  className="w-full"
+                  disabled={isAnalyzing}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Current Threshold: {sensitivity} (Lower = More Sensitive)
+                </p>
+              </div>
+              
+              {/* Online Status Indicator */}
+              <div className="pt-4 border-t border-border/50">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Sync Status</h3>
+                <p className={cn(
+                  "text-sm font-medium flex items-center",
+                  isOnline ? "text-green-400" : "text-destructive"
+                )}>
+                  <ShieldCheck className="h-4 w-4 mr-2" />
+                  {isOnline ? "Online & Syncing" : "Offline (Local Save Active)"}
+                </p>
               </div>
 
               <div className="pt-4 border-t border-border/50">

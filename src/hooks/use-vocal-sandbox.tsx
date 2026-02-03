@@ -2,11 +2,12 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, useRe
 import { useAudioAnalyzer } from './use-audio-analyzer';
 import { toast } from 'sonner';
 import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
-import { mockDownloadSong } from '@/utils/offline-storage';
+import { mockDownloadSong, mockSaveOfflineLog, mockGetUnsyncedLogs, mockMarkLogAsSynced } from '@/utils/offline-storage';
 import { useDuel } from './use-duel-engine';
 import { runScoringEngine } from '@/utils/scoring-engine';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/integrations/supabase/auth';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface ChartDataItem {
   name: string;
@@ -48,11 +49,17 @@ interface VocalSandboxContextType {
   isDuelMode: boolean;
   latencyOffsetMs: number; // New: Latency compensation
   calibrateLatency: () => void; // New: Calibration function
+  countdown: number | null; // New: 3, 2, 1, or null
+  sensitivity: number; // New
+  setSensitivity: (value: number) => void; // New
+  isOnline: boolean; // New: Mock online status
+  syncOfflineLogs: () => Promise<void>; // New: Sync function
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
 
 const MAX_HISTORY = 50; 
+const MIN_SESSION_DURATION_POINTS = 10;
 const STABILITY_WINDOW = 10;
 const STABILITY_THRESHOLD = 5;
 const DEVIATION_THRESHOLD = 10;
@@ -62,6 +69,8 @@ const MOCK_LATENCY_MS = 150;
 
 export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+  
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [pitchHistory, setPitchHistory] = useState<ChartDataItem[]>([]);
   const [ghostTrace, setGhostTrace] = useState<ChartDataItem[]>([]);
@@ -73,11 +82,14 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [currentSong, setCurrentSong] = useState<PublicDomainSong | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [latencyOffsetMs, setLatencyOffsetMs] = useState(MOCK_LATENCY_MS); // Default mock offset
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isOnline, setIsOnline] = useState(true); // Mock online status
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
   const stabilityToastRef = useRef<string | number | null>(null);
   const audioTimerRef = useRef<number>();
+  const countdownIntervalRef = useRef<number>();
 
   const { 
     isAnalyzing, 
@@ -85,6 +97,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     stopAnalysis: stopAudio, 
     pitchDataHz, 
     pitchDataVisualization, 
+    sensitivity, 
+    setSensitivity, 
   } = useAudioAnalyzer();
   
   // Duel integration
@@ -129,6 +143,51 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       toast.success(`Latency calibrated to ${newLatency}ms.`, { duration: 3000 });
     }, 1500);
   }, []);
+  
+  const syncOfflineLogs = useCallback(async () => {
+    const unsyncedLogs = mockGetUnsyncedLogs();
+    if (unsyncedLogs.length === 0) return;
+
+    toast.loading(`Syncing ${unsyncedLogs.length} offline performance logs...`, { id: 'log-sync' });
+
+    for (const log of unsyncedLogs) {
+      // 1. Insert detailed performance log to Supabase
+      const { error: logError } = await supabase
+        .from('performance_logs')
+        .insert({
+          user_id: log.userId,
+          song_id: log.songId,
+          pitch_accuracy: log.pitchAccuracy,
+          rhythm_precision: log.rhythmPrecision,
+          vocal_stability: log.vocalStability,
+          duration_seconds: log.durationSeconds,
+        });
+
+      if (logError) {
+        console.error("[VocalSandbox] Error syncing log:", logError);
+        toast.dismiss('log-sync');
+        toast.error("Failed to sync some logs. Retrying later.");
+        return;
+      }
+      
+      // 2. Update best_note (only if the synced score is better than current best_note)
+      // Note: This is a simplified client-side update. A robust solution uses a DB function.
+      if (log.pitchAccuracy > (profile?.best_note || 0)) {
+         await supabase
+          .from('profiles')
+          .update({ best_note: log.pitchAccuracy })
+          .eq('id', log.userId);
+      }
+
+      mockMarkLogAsSynced(log.id);
+    }
+
+    toast.dismiss('log-sync');
+    toast.success(`${unsyncedLogs.length} performance logs synchronized successfully!`);
+    queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+    queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
+  }, [queryClient, profile?.best_note]);
+
 
   const openOverlay = () => {
     if (!effectiveSong) {
@@ -147,8 +206,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const clearSessionSummary = () => setSessionSummary(null);
 
   const startAnalysis = async () => {
-    if (!effectiveSong) {
-      toast.error("Please select a song first.");
+    if (!effectiveSong || isAnalyzing || countdown !== null) {
       return;
     }
     
@@ -156,46 +214,58 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     await mockDownloadSong(effectiveSong); 
 
     // 2. Reset states
-    if (!isDuelMode) {
-      setGhostTrace(pitchHistory); 
-    } else if (currentTurn === 2) {
-      // If it's turn 2, User 1's history is the ghost trace/opponent trace
-      setGhostTrace(user1History);
-    } else {
-      setGhostTrace([]); // Clear ghost trace for User 1's turn
-    }
-    
     setPitchHistory([]);
     setRecentAchievements([]);
     setSessionSummary(null);
     historyCounter.current = 0;
-    sessionStartTimeRef.current = Date.now();
+    sessionStartTimeRef.current = null; 
     setCurrentTime(0);
-
-    // 3. Start Audio Analysis
-    startAudio();
     
-    // 4. Start Audio Playback Simulation
+    if (!isDuelMode) {
+      setGhostTrace(pitchHistory); 
+    } else if (currentTurn === 2) {
+      setGhostTrace(user1History);
+    } else {
+      setGhostTrace([]); 
+    }
+
+    // 3. Start Countdown
+    setCountdown(3);
+    
     const lastLyricTime = effectiveSong.lyrics.length > 0 
       ? effectiveSong.lyrics[effectiveSong.lyrics.length - 1].time 
       : 10;
     const songDuration = lastLyricTime + 5; 
     
-    const tick = () => {
-      setCurrentTime(prevTime => {
-        // Apply latency offset (convert ms to seconds)
-        const offsetSeconds = latencyOffsetMs / 1000;
-        const newTime = prevTime + 0.1 + offsetSeconds; // Increment by 100ms + offset
-        
-        if (newTime >= songDuration) {
-          stopAnalysis();
-          return songDuration;
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev === 1) {
+          clearInterval(countdownIntervalRef.current);
+          
+          // 4. Start Audio Analysis and Playback after countdown
+          startAudio();
+          sessionStartTimeRef.current = Date.now();
+          
+          const tick = () => {
+            setCurrentTime(prevTime => {
+              const offsetSeconds = latencyOffsetMs / 1000;
+              const newTime = prevTime + 0.1 + offsetSeconds; 
+              
+              if (newTime >= songDuration) {
+                stopAnalysis();
+                return songDuration;
+              }
+              audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
+              return newTime;
+            });
+          };
+          audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
+          
+          return null; // End countdown
         }
-        audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
-        return newTime;
+        return (prev || 0) - 1;
       });
-    };
-    audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
+    }, 1000) as unknown as number;
   };
 
   const stopAnalysis = () => {
@@ -205,11 +275,16 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       stabilityToastRef.current = null;
     }
     
-    // Stop audio simulation
+    // Stop audio simulation and countdown
     if (audioTimerRef.current) {
       clearTimeout(audioTimerRef.current);
       audioTimerRef.current = undefined;
     }
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = undefined;
+    }
+    setCountdown(null);
     
     // --- Duel Mode Handling ---
     if (isDuelMode) {
@@ -221,23 +296,38 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (pitchHistory.length > 0 && sessionStartTimeRef.current && effectiveSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
       
-      // Calculate score using the scoring engine for single player summary
       const insight = runScoringEngine(pitchHistory, effectiveSong);
       
-      setSessionSummary({
+      const summary: SessionSummary = {
         pitchAccuracy: insight.pitchAccuracy,
         rhythmPrecision: insight.rhythmPrecision,
         vocalStability: insight.vocalStability,
         durationSeconds: durationSeconds,
         songId: effectiveSong.id, 
         improvementTips: insight.improvementTips,
-      });
+      };
+      
+      setSessionSummary(summary);
+      
+      if (!isOnline && user) {
+        // Offline: Save to local storage
+        mockSaveOfflineLog({
+          userId: user.id,
+          songId: summary.songId,
+          pitchAccuracy: summary.pitchAccuracy,
+          rhythmPrecision: summary.rhythmPrecision,
+          vocalStability: summary.vocalStability,
+          durationSeconds: summary.durationSeconds,
+          timestamp: Date.now(),
+        });
+        toast.warning("Offline score saved! Will sync when connection is restored.", { duration: 5000 });
+      }
     }
   };
 
-  // Effect to handle score persistence for single player mode
+  // Effect to handle score persistence for single player mode (ONLINE ONLY)
   useEffect(() => {
-    if (sessionSummary && user && !isDuelMode) {
+    if (sessionSummary && user && !isDuelMode && isOnline) {
       // --- Anti-Cheat/Validation Layer Mock ---
       if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
         toast.error("Score submission failed: Session too short.", { 
@@ -280,7 +370,38 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       handleScorePersistence();
     }
-  }, [sessionSummary, user, isDuelMode, pitchHistory.length]);
+  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length]);
+
+  // Initial sync attempt on load (or when user logs in)
+  useEffect(() => {
+    if (user) {
+      syncOfflineLogs();
+    }
+  }, [user, syncOfflineLogs]);
+  
+  // Mock online/offline status listener (for demonstration)
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.info("Connection restored. Attempting background sync...", { duration: 3000 });
+      syncOfflineLogs();
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.warning("Connection lost. Scores will be saved offline.", { duration: 5000 });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Initial check (mocking a stable connection)
+    setIsOnline(true); 
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [syncOfflineLogs]);
 
 
   // Effect to update pitch history and run diagnostics in real-time
@@ -374,6 +495,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         isDuelMode,
         latencyOffsetMs,
         calibrateLatency,
+        countdown,
+        sensitivity,
+        setSensitivity,
+        isOnline,
+        syncOfflineLogs,
       }}
     >
       {children}
