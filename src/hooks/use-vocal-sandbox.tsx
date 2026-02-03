@@ -8,6 +8,7 @@ import { runScoringEngine } from '@/utils/scoring-engine';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/integrations/supabase/auth';
 import { useQueryClient } from '@tanstack/react-query';
+import { useUserProfile } from './use-user-profile'; // <-- CRITICAL FIX: Import useUserProfile
 
 export interface ChartDataItem {
   name: string;
@@ -70,6 +71,7 @@ const MOCK_LATENCY_MS = 150;
 export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { data: profile } = useUserProfile(); // <-- CRITICAL FIX: Fetch profile data
   
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [pitchHistory, setPitchHistory] = useState<ChartDataItem[]>([]);
@@ -147,6 +149,12 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const syncOfflineLogs = useCallback(async () => {
     const unsyncedLogs = mockGetUnsyncedLogs();
     if (unsyncedLogs.length === 0) return;
+    
+    // CRITICAL FIX: Safety check for user/profile before attempting DB operations
+    if (!user || !profile) {
+        console.warn("[VocalSandbox] Cannot sync offline logs: User or profile data missing.");
+        return;
+    }
 
     toast.loading(`Syncing ${unsyncedLogs.length} offline performance logs...`, { id: 'log-sync' });
 
@@ -171,8 +179,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       }
       
       // 2. Update best_note (only if the synced score is better than current best_note)
-      // Note: This is a simplified client-side update. A robust solution uses a DB function.
-      if (log.pitchAccuracy > (profile?.best_note || 0)) {
+      if (log.pitchAccuracy > (profile.best_note || 0)) {
          await supabase
           .from('profiles')
           .update({ best_note: log.pitchAccuracy })
@@ -186,7 +193,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     toast.success(`${unsyncedLogs.length} performance logs synchronized successfully!`);
     queryClient.invalidateQueries({ queryKey: ['userProfile'] });
     queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
-  }, [queryClient, profile?.best_note]);
+  }, [queryClient, profile, user]); // CRITICAL FIX: Added profile and user to dependencies
 
 
   const openOverlay = () => {
