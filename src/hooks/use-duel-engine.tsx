@@ -6,6 +6,8 @@ import { OfflineDuelResult, mockSaveOfflineDuel, mockGetUnsyncedDuels, mockMarkD
 import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine';
 import { PublicDomainSong } from '@/data/public-domain-library';
 import { ChartDataItem } from './use-vocal-sandbox';
+import { supabase } from '@/integrations/supabase/client';
+import { useUserProfile, UserProfile } from './use-user-profile'; // Import UserProfile hook and type
 
 // Mock User 2 ID for local duels
 const MOCK_USER_2_ID = "local-opponent-ai"; 
@@ -29,6 +31,7 @@ const DuelContext = createContext<DuelContextType | undefined>(undefined);
 export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { data: profile } = useUserProfile(); // Fetch user profile
   
   const [isDuelActive, setIsDuelActive] = useState(false);
   const [currentTurn, setCurrentTurn] = useState<1 | 2 | null>(null);
@@ -62,21 +65,54 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const unsyncedDuels = mockGetUnsyncedDuels();
     if (unsyncedDuels.length === 0) return;
 
+    if (!user || !profile) {
+        console.warn("[DuelEngine] Cannot sync offline duels: User or profile data missing.");
+        return;
+    }
+
     toast.loading(`Syncing ${unsyncedDuels.length} offline duel results...`, { id: 'duel-sync' });
 
-    // Simulate API call
+    // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500)); 
 
     for (const duel of unsyncedDuels) {
-      // Mock successful insertion
-      // In a real scenario, we would insert into Supabase here.
+      // 1. Determine Winner and XP
+      const isUser1 = duel.user1Id === user.id;
+      const userScore = isUser1 ? duel.user1Score : duel.user2Score;
+      const opponentScore = isUser1 ? duel.user2Score : duel.user1Score;
+      const isWinner = userScore >= opponentScore;
+      
+      const XP_BONUS = 50; // Bonus for winning a duel
+      // Base XP calculation: 10 XP per 100% score
+      const baseXP = Math.floor(userScore / 100 * 10); 
+      const xpGained = baseXP + (isWinner ? XP_BONUS : 0);
+      const newXp = (profile.xp || 0) + xpGained;
+
+      // 2. Update Profile (Best Note and XP)
+      const updates: Partial<UserProfile> = { xp: newXp };
+      if (userScore > (profile.best_note || 0)) {
+          updates.best_note = userScore;
+      }
+      
+      const { error: profileError } = await supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', user.id);
+          
+      if (profileError) {
+          console.error("[DuelEngine] Error updating profile during sync:", profileError);
+          // Continue syncing other duels even if one profile update fails
+      }
+
+      // 3. Mark duel as synced (Mock successful insertion to a 'duels' table)
       mockMarkDuelAsSynced(duel.id);
     }
 
     toast.dismiss('duel-sync');
     toast.success(`${unsyncedDuels.length} duels synchronized successfully!`);
+    queryClient.invalidateQueries({ queryKey: ['userProfile'] }); // Update profile data
     queryClient.invalidateQueries({ queryKey: ['globalRankings'] }); // Ranks might change
-  }, [queryClient]);
+  }, [user, profile, queryClient]);
 
   const recordTurn = useCallback((history: ChartDataItem[]) => {
     if (!isDuelActive || !duelSong || !user) return;
@@ -131,9 +167,14 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     const winner = userScore >= opponentScore;
     
-    // Re-run scoring engine on histories to get detailed insights for feedback
-    const userInsight = runScoringEngine(isUser1 ? user1History : user2History, duelSong);
-    const opponentInsight = runScoringEngine(isUser1 ? user2History : user1History, duelSong);
+    // Since the duel summary is set immediately after recording turn 2, user1History and user2History 
+    // should still hold the data for the current duel.
+    
+    const userHistory = isUser1 ? user1History : user2History;
+    const opponentHistory = isUser1 ? user2History : user1History;
+    
+    const userInsight = runScoringEngine(userHistory, duelSong);
+    const opponentInsight = runScoringEngine(opponentHistory, duelSong);
     
     let feedback: string;
     
@@ -141,7 +182,7 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       feedback = `Congratulations! You won by ${Math.abs(userScore - opponentScore).toFixed(1)} points.`;
     } else {
       // Pick a random improvement tip from the user's own insight (since they lost)
-      const tip = userInsight.improvementTips[Math.floor(Math.random() * userInsight.improvementTips.length)];
+      const tip = userInsight.improvementTips.find(t => t.startsWith("Primary Focus:")) || userInsight.improvementTips[0];
       feedback = `You lost by ${Math.abs(userScore - opponentScore).toFixed(1)} points. Improvement Observation: "${tip}"`;
     }
     

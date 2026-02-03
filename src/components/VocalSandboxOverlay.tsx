@@ -70,8 +70,13 @@ const VocalSandboxOverlay: React.FC = () => {
     );
   }
   
+  const player1Name = user?.email?.split('@')[0] || 'Player 1';
+  const player2Name = 'Local Opponent (AI)';
+  
+  const currentPlayerName = currentTurn === 1 ? player1Name : player2Name;
+  
   const overlayTitle = isDuelMode 
-    ? `Duel Mode: Turn ${currentTurn} (${currentTurn === 1 ? (user?.email?.split('@')[0] || 'You') : 'Opponent'})`
+    ? `Duel Mode: Turn ${currentTurn} (${currentPlayerName})`
     : 'Live Vocal Sandbox';
 
   return (
@@ -110,7 +115,7 @@ const VocalSandboxOverlay: React.FC = () => {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/30"
                 >
                   <Mic className="h-5 w-5 mr-2" />
-                  {isAnalyzing ? 'Singing...' : (isDuelMode && currentTurn === 2 ? 'Start Opponent Turn' : 'Start Singing')}
+                  {isAnalyzing ? 'Singing...' : (isDuelMode && currentTurn === 2 ? `Start ${player2Name}'s Turn` : 'Start Singing')}
                 </Button>
                 <Button 
                   onClick={stopAnalysis} 
@@ -167,7 +172,9 @@ const VocalSandboxOverlay: React.FC = () => {
           {/* Session Summary / Score Display */}
           <Card className={cn("lg:col-span-2 glass-pillar flex items-center justify-center p-6")}>
             <div className="text-center">
-              <p className="text-xl text-muted-foreground mb-2">Current Pitch Accuracy</p>
+              <p className="text-xl text-muted-foreground mb-2">
+                {isDuelMode ? `Current Pitch (${currentPlayerName})` : 'Current Pitch Accuracy'}
+              </p>
               <p className={cn(
                 "text-6xl font-extrabold",
                 isAnalyzing ? "text-primary neon-blue-glow" : "text-accent neon-gold-glow"
@@ -176,7 +183,10 @@ const VocalSandboxOverlay: React.FC = () => {
               </p>
               {!isAnalyzing && pitchHistory.length > 0 && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  {isDuelMode ? `Turn ${currentTurn === 1 ? 2 : 1} score recorded.` : 'Session ended. Score saved to profile.'}
+                  {isDuelMode 
+                    ? (currentTurn === 2 ? `Player 1 score recorded. Waiting for Player 2.` : 'Duel finished. Results saved locally.')
+                    : 'Session ended. Score saved to profile.'
+                  }
                 </p>
               )}
             </div>

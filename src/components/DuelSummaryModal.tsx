@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Trophy, Frown, ChevronRight, Mic2, Target, Zap } from 'lucide-react';
+import { Trophy, Frown, ChevronRight, Mic2, Target, Zap, Crown, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDuel } from '@/hooks/use-duel-engine';
 import { useAuth } from '@/integrations/supabase/auth';
@@ -21,6 +21,11 @@ const DuelSummaryModal: React.FC = () => {
   // Determine scores safely
   const userScore = duelSummary.user1Id === user.id ? duelSummary.user1Score : duelSummary.user2Score;
   const opponentScore = duelSummary.user1Id === user.id ? duelSummary.user2Score : duelSummary.user1Score;
+  
+  // Calculate XP gain for display (must match logic in use-duel-engine)
+  const XP_BONUS = 50; 
+  const baseXP = Math.floor(userScore / 100 * 10); 
+  const xpGained = baseXP + (isWinner ? XP_BONUS : 0);
 
   const handleClose = () => {
     clearDuel();
@@ -53,7 +58,7 @@ const DuelSummaryModal: React.FC = () => {
       )}>
         <DialogHeader className="text-center">
           {isWinner ? (
-            <Trophy className="h-12 w-12 text-accent mx-auto mb-4 amazon-gold-glow" />
+            <Crown className="h-12 w-12 text-accent mx-auto mb-4 amazon-gold-glow" />
           ) : (
             <Frown className="h-12 w-12 text-primary mx-auto mb-4 icon-neon-glow" />
           )}
@@ -82,6 +87,12 @@ const DuelSummaryModal: React.FC = () => {
               <p className="text-xs text-muted-foreground">Opponent</p>
               <p className="text-xl font-extrabold text-accent mt-1">{opponentScore.toFixed(1)}%</p>
             </div>
+          </div>
+          
+          {/* XP Gain */}
+          <div className="flex items-center justify-center mt-3 text-green-400 font-semibold">
+            <TrendingUp className="h-4 w-4 mr-1" />
+            +{xpGained} XP Gained {isWinner && "(Victory Bonus!)"}
           </div>
           
           {/* Detailed Metrics Comparison */}
