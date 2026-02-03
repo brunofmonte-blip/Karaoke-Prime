@@ -16,7 +16,7 @@ const freqToMidi = (frequency: number): number => {
 };
 
 /**
- * Mock Scoring Engine: Simulates comparing user pitch history against a reference melody.
+ * Mock Scoring Engine: Simula comparar o histórico de pitch do usuário com uma melodia de referência.
  */
 export const runScoringEngine = (
   pitchHistory: ChartDataItem[], 
@@ -77,13 +77,27 @@ export const runScoringEngine = (
   // 5. Generate Improvement Tips
   const tips: string[] = [];
   
+  // Determine the lowest metric for primary feedback
+  const metrics = [
+    { name: 'Pitch Accuracy', score: pitchAccuracy, tip: "Keep an eye on the high notes! Relax your throat to reach them more comfortably." },
+    { name: 'Vocal Stability', score: vocalStability, tip: "Focus on your breathing to sustain those long notes until the end." },
+    { name: 'Rhythm Precision', score: rhythmPrecision, tip: "Try following the lyrics' color highlights more closely to stay on beat." },
+  ];
+  
+  // Find the metric with the lowest score (only consider scores below 90 for critical feedback)
+  const lowestMetric = metrics.reduce((min, current) => (current.score < min.score ? current : min), metrics[0]);
+
+  // Add the dynamic tip based on the lowest score
+  if (lowestMetric.score < 90) {
+      tips.push(`Primary Focus: ${lowestMetric.tip}`);
+  }
+
+  // Add general tips
   if (pitchAccuracy < 60) {
     tips.push("Fundamental pitch stability is low. Focus on Academy Lesson 2: Pitch Calibration I.");
   } else if (pitchAccuracy < 80) {
     tips.push("Good start! Work on sustaining notes longer. Try Academy Lesson 1: Steady Breath.");
-  } else if (pitchAccuracy < 90) {
-    tips.push("Excellent performance! Focus on micro-pitch adjustments (Academy Lesson 5) for higher scores.");
-  } else {
+  } else if (pitchAccuracy >= 90) {
     tips.push("Vocal Master! Your pitch accuracy is outstanding. Consider applying for Next Talent auditions.");
   }
 

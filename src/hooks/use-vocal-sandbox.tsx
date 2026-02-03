@@ -64,6 +64,7 @@ const MIN_SESSION_DURATION_POINTS = 10;
 const STABILITY_WINDOW = 10;
 const STABILITY_THRESHOLD = 5;
 const DEVIATION_THRESHOLD = 10;
+const XP_PER_LEVEL_1 = 100; // Mock XP required for Level 1 notification
 
 // Mock Latency Calibration (Simulate finding a 150ms offset)
 const MOCK_LATENCY_MS = 150;
@@ -185,6 +186,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           .update({ best_note: log.pitchAccuracy })
           .eq('id', log.userId);
       }
+      
+      // Note: XP update is handled in the main sessionSummary effect for immediate feedback
+      // We assume offline logs already contain the necessary XP calculation or it's handled server-side.
+      // For now, we only sync the performance log and best_note.
 
       mockMarkLogAsSynced(log.id);
     }
@@ -335,6 +340,9 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   // Effect to handle score persistence for single player mode (ONLINE ONLY)
   useEffect(() => {
     if (sessionSummary && user && !isDuelMode && isOnline) {
+      // CRITICAL: Ensure profile is available for XP calculation
+      if (!profile) return; 
+      
       // --- Anti-Cheat/Validation Layer Mock ---
       if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
         toast.error("Score submission failed: Session too short.", { 
@@ -346,15 +354,22 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       // ----------------------------------------
       
       const handleScorePersistence = async () => {
-        // 1. Update best_note (using pitch accuracy as the primary score)
+        // Calculate XP gain (XP = duration * score% * 5)
+        const xpGained = Math.floor(sessionSummary.durationSeconds * (sessionSummary.pitchAccuracy / 100) * 5);
+        const newXp = (profile.xp || 0) + xpGained;
+        
+        // 1. Update best_note AND XP
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({ best_note: sessionSummary.pitchAccuracy })
+          .update({ 
+            best_note: sessionSummary.pitchAccuracy,
+            xp: newXp, // Update XP
+          })
           .eq('id', user.id);
 
         if (profileError) {
-          console.error("[VocalSandboxOverlay] Error updating best_note:", profileError);
-          toast.error("Failed to save profile score.", { description: profileError.message });
+          console.error("[VocalSandboxOverlay] Error updating best_note/XP:", profileError);
+          toast.error("Failed to save profile score/XP.", { description: profileError.message });
         }
         
         // 2. Insert detailed performance log
@@ -373,11 +388,19 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           console.error("[VocalSandboxOverlay] Error inserting performance log:", logError);
           toast.error("Failed to save detailed performance log.", { description: logError.message });
         }
+        
+        // 3. Check for Level 1 Milestone Notification
+        if (profile.academy_level === 0 && newXp >= XP_PER_LEVEL_1) {
+             toast.info("You're getting better! Academy Level 1 is waiting for you.", { duration: 5000 });
+        }
+        
+        queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+        queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
       };
       
       handleScorePersistence();
     }
-  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length]);
+  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length, profile, queryClient]); // Added profile to dependencies
 
   // Initial sync attempt on load (or when user logs in)
   useEffect(() => {

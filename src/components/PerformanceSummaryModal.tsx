@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ChevronRight, BookOpen, Lightbulb, Target, Clock, Zap, ShieldCheck } from 'lucide-react';
+import { CheckCircle, ChevronRight, BookOpen, Lightbulb, Target, Clock, Zap, ShieldCheck, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useUserProfile } from '@/hooks/use-user-profile';
@@ -11,6 +11,20 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
+const Tagline: React.FC = () => (
+  <div className="text-center py-4">
+    <h2 className={cn(
+      "text-xl md:text-2xl font-extrabold uppercase tracking-widest",
+      "text-foreground drop-shadow-[0_0_5px_rgba(255,255,255,0.2)]"
+    )}>
+      CANTE. EVOLUA. CONQUISTAR O 
+      <span className="relative inline-block ml-2 text-foreground drop-shadow-[0_0_5px_rgba(255,255,255,0.2)]">
+        MUNDO.
+      </span>
+    </h2>
+  </div>
+);
+
 const PerformanceSummaryModal: React.FC = () => {
   const { sessionSummary, pitchHistory, clearSessionSummary, currentSong } = useVocalSandbox();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
@@ -19,12 +33,17 @@ const PerformanceSummaryModal: React.FC = () => {
   
   const isOpen = !!sessionSummary;
   const currentLevel = profile?.academy_level ?? 0;
+  const currentXp = profile?.xp ?? 0;
 
   // Use sessionSummary metrics directly
   const finalScore = sessionSummary?.pitchAccuracy || 0;
   const rhythmPrecision = sessionSummary?.rhythmPrecision || 0;
   const vocalStability = sessionSummary?.vocalStability || 0;
   const improvementTips = sessionSummary?.improvementTips || [];
+  const durationSeconds = sessionSummary?.durationSeconds || 0;
+  
+  // Calculate XP gain for display (must match logic in use-vocal-sandbox)
+  const xpGained = Math.floor(durationSeconds * (finalScore / 100) * 5);
 
   // Determine recommended lesson (simple logic: recommend the next level's focus)
   const recommendedLesson: Lesson | undefined = useMemo(() => {
@@ -34,25 +53,28 @@ const PerformanceSummaryModal: React.FC = () => {
     return undefined;
   }, [currentLevel]);
 
-  // Logic to unlock Level 1 automatically after the first session
+  // Logic to unlock Level 1 automatically after the first session (if level 0)
   useEffect(() => {
     if (isOpen && !isProfileLoading && profile && currentLevel === 0) {
       const unlockLevel1 = async () => {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ academy_level: 1 })
-          .eq('id', profile.id);
+        // Only unlock if they have enough XP (or just finished their first session)
+        if (currentXp > 0) { 
+          const { error } = await supabase
+            .from('profiles')
+            .update({ academy_level: 1 })
+            .eq('id', profile.id);
 
-        if (!error) {
-          toast.success("Academy Unlocked! Level 1: Foundation: Steady Breath is now available.", { duration: 5000 });
-          queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-        } else {
-          console.error("[SummaryModal] Failed to unlock level 1:", error);
+          if (!error) {
+            toast.success("Academy Unlocked! Level 1: Foundation: Steady Breath is now available.", { duration: 5000 });
+            queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+          } else {
+            console.error("[SummaryModal] Failed to unlock level 1:", error);
+          }
         }
       };
       unlockLevel1();
     }
-  }, [isOpen, isProfileLoading, profile, currentLevel, queryClient]);
+  }, [isOpen, isProfileLoading, profile, currentLevel, currentXp, queryClient]);
 
   const handleGoToAcademy = () => {
     clearSessionSummary();
@@ -86,6 +108,12 @@ const PerformanceSummaryModal: React.FC = () => {
             <p className="text-6xl font-extrabold text-accent neon-gold-glow mt-1">
               {finalScore.toFixed(1)}%
             </p>
+            
+            {/* XP Gain */}
+            <div className="flex items-center justify-center mt-3 text-green-400 font-semibold">
+              <TrendingUp className="h-4 w-4 mr-1" />
+              +{xpGained} XP Gained
+            </div>
           </div>
 
           {/* Detailed Metrics */}
@@ -103,7 +131,7 @@ const PerformanceSummaryModal: React.FC = () => {
             <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
               <Clock className="h-5 w-5 text-primary mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">Duration</p>
-              <p className="font-semibold text-foreground">{sessionSummary?.durationSeconds}s</p>
+              <p className="font-semibold text-foreground">{durationSeconds}s</p>
             </div>
           </div>
 
@@ -156,6 +184,9 @@ const PerformanceSummaryModal: React.FC = () => {
           Go to Academy
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
+        
+        {/* Tagline for Branding Consistency */}
+        <Tagline />
       </DialogContent>
     </Dialog>
   );
