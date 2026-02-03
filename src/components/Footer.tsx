@@ -83,7 +83,7 @@ const Footer = () => {
                 isAnalyzing={isAnalyzing}
                 isPitchDeviating={isPitchDeviating}
                 recentAchievements={recentAchievements}
-                earnedBadgeIds={userData.earnedBadgeIds} {/* Pass the new prop */}
+                earnedBadgeIds={userData.earnedBadgeIds}
               />
             )}
           </div>
