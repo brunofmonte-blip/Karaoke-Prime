@@ -22,7 +22,7 @@ interface DuelContextType {
   user2History: ChartDataItem[];
   duelSummary: OfflineDuelResult | null;
   startLocalDuel: (song: PublicDomainSong) => void;
-  recordTurn: (history: ChartDataItem[]) => void;
+  recordTurn: () => void; // Simplified: calls VocalSandbox.stopAnalysis internally
   syncOfflineDuels: () => Promise<void>;
   clearDuel: () => void;
   getDuelFeedback: (userId: string) => { winner: boolean, feedback: string, userMetrics: PerformanceInsight, opponentMetrics: PerformanceInsight };
@@ -34,7 +34,16 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: profile } = useUserProfile();
-  const { setUnlockedBadges } = useVocalSandbox();
+  
+  // Consume VocalSandbox context (safe because VocalSandboxProvider is the parent)
+  const { 
+    startAnalysis, 
+    stopAnalysis, 
+    openOverlay, 
+    closeOverlay, 
+    setUnlockedBadges,
+    clearUnlockedBadges,
+  } = useVocalSandbox();
   
   const [isDuelActive, setIsDuelActive] = useState(false);
   const [currentTurn, setCurrentTurn] = useState<1 | 2 | null>(null);
@@ -50,9 +59,11 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser1History([]);
     setUser2History([]);
     setDuelSummary(null);
-  }, []);
+    clearUnlockedBadges();
+    closeOverlay(); // Close the sandbox overlay when duel is cleared
+  }, [closeOverlay, clearUnlockedBadges]);
 
-  const startLocalDuel = useCallback((song: PublicDomainSong) => {
+  const startLocalDuel = useCallback(async (song: PublicDomainSong) => {
     if (!user) {
       toast.error("Please sign in to start a duel.");
       return;
@@ -61,8 +72,13 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setDuelSong(song);
     setIsDuelActive(true);
     setCurrentTurn(1);
+    
+    // Start the analysis for Player 1 (User)
+    await startAnalysis(song, true, []); 
+    openOverlay();
+    
     toast.info(`Duel started! Player 1 (${user.email?.split('@')[0] || 'You'}) sings first.`, { duration: 4000 });
-  }, [user, clearDuel]);
+  }, [user, clearDuel, startAnalysis, openOverlay]);
 
   const syncOfflineDuels = useCallback(async () => {
     const unsyncedDuels = mockGetUnsyncedDuels();
@@ -117,21 +133,33 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     queryClient.invalidateQueries({ queryKey: ['globalRankings'] });
   }, [user, profile, queryClient]);
 
-  const recordTurn = useCallback((history: ChartDataItem[]) => {
+  const recordTurn = useCallback(() => {
     if (!isDuelActive || !duelSong || !user || !profile) return;
+
+    const result = stopAnalysis();
+    if (!result) return;
+    
+    const history = result.history;
+    const userScore = result.summary.pitchAccuracy;
 
     if (currentTurn === 1) {
       setUser1History(history);
       setCurrentTurn(2);
-      toast.info(`Player 1 score recorded. Player 2 (Local Opponent) turn!`, { duration: 4000 });
+      
+      // Start the analysis for Player 2 (AI Mock)
+      // We use the user's history as the ghost trace for the AI's turn visualization
+      startAnalysis(duelSong, true, history); 
+      
+      toast.info(`Player 1 score recorded (${userScore.toFixed(1)}%). Player 2 (Local Opponent) turn!`, { duration: 4000 });
     } else if (currentTurn === 2) {
       setUser2History(history);
       
-      const user1Insight = runScoringEngine(user1History, duelSong);
+      // Player 2 (AI) score is based on the recorded history
       const user2Insight = runScoringEngine(history, duelSong);
-      
-      const user1Score = user1Insight.pitchAccuracy;
       const user2Score = user2Insight.pitchAccuracy;
+      
+      const user1Insight = runScoringEngine(user1History, duelSong);
+      const user1Score = user1Insight.pitchAccuracy;
       
       const isUser1Winner = user1Score >= user2Score;
       
@@ -158,7 +186,7 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // --- Badge Check for Duel Win ---
       const handleBadgeCheck = async () => {
         if (isUser1Winner) {
-          // Check badges, passing true for isDuelWin
+          // Check badges, passing true for isDuel Win
           const newlyEarnedBadges = await checkAndUnlockBadges(
             user.id, 
             profile, 
@@ -178,7 +206,7 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       toast.success("Duel finished! Results saved locally. Syncing soon.", { duration: 5000 });
     }
-  }, [isDuelActive, currentTurn, duelSong, user, user1History, profile, setUnlockedBadges, syncOfflineDuels]);
+  }, [isDuelActive, currentTurn, duelSong, user, user1History, profile, setUnlockedBadges, syncOfflineDuels, startAnalysis, stopAnalysis]);
   
   const getDuelFeedback = useCallback((userId: string) => {
     if (!duelSummary || !duelSong) {
@@ -192,10 +220,11 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     const winner = userScore >= opponentScore;
     
+    // We need to re-run scoring on the history to get the detailed tips/metrics, 
+    // as the summary only stores the final scores and basic metrics.
     const userHistory = isUser1 ? user1History : user2History;
-    const opponentHistory = isUser1 ? user2History : user1History;
-    
     const userInsight = runScoringEngine(userHistory, duelSong);
+    
     const opponentInsight: PerformanceInsight = {
         pitchAccuracy: isUser1 ? duelSummary.user2PitchAccuracy : duelSummary.user1PitchAccuracy,
         rhythmPrecision: isUser1 ? duelSummary.user2RhythmPrecision : duelSummary.user1RhythmPrecision,

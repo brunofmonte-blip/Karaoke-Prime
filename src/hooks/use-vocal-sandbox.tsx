@@ -3,8 +3,7 @@ import { useAudioAnalyzer } from './use-audio-analyzer';
 import { toast } from 'sonner';
 import { publicDomainLibrary, PublicDomainSong, getDifficultyMultiplier } from '@/data/public-domain-library';
 import { mockDownloadSong, mockSaveOfflineLog, mockGetUnsyncedLogs, mockMarkLogAsSynced } from '@/utils/offline-storage';
-// REMOVED: import { useDuel } from './use-duel-engine';
-import { runScoringEngine } from '@/utils/scoring-engine';
+import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/integrations/supabase/auth';
 import { useQueryClient } from '@tanstack/react-query';
@@ -19,13 +18,9 @@ export interface ChartDataItem {
   breath: number;
 }
 
-interface SessionSummary {
-  pitchAccuracy: number;
-  rhythmPrecision: number;
-  vocalStability: number;
+export interface SessionSummary extends PerformanceInsight {
   durationSeconds: number;
   songId: string; 
-  improvementTips: string[];
 }
 
 interface VocalSandboxContextType {
@@ -33,8 +28,8 @@ interface VocalSandboxContextType {
   openOverlay: () => void;
   closeOverlay: () => void;
   isAnalyzing: boolean;
-  startAnalysis: () => void;
-  stopAnalysis: () => void;
+  startAnalysis: (song: PublicDomainSong, isDuelMode: boolean, ghostTrace?: ChartDataItem[]) => Promise<void>;
+  stopAnalysis: () => { summary: SessionSummary, history: ChartDataItem[] } | null;
   pitchData: number; // 0-100 visualization scale
   pitchHistory: ChartDataItem[];
   ghostTrace: ChartDataItem[];
@@ -49,7 +44,6 @@ interface VocalSandboxContextType {
   loadSong: (songId: string) => void;
   currentSong: PublicDomainSong | null;
   currentTime: number;
-  isDuelMode: boolean;
   latencyOffsetMs: number; // New: Latency compensation
   calibrateLatency: () => void; // New: Calibration function
   countdown: number | null; // New: 3, 2, 1, or null
@@ -72,27 +66,7 @@ const XP_PER_LEVEL_1 = 100;
 
 const MOCK_LATENCY_MS = 150;
 
-// NEW PROPS INTERFACE
-interface VocalSandboxProviderProps {
-  children: ReactNode;
-  // Props passed from DuelProvider consumer in App.tsx
-  recordTurn: (history: ChartDataItem[]) => void;
-  clearDuel: () => void;
-  isDuelActive: boolean;
-  currentTurn: 1 | 2 | null;
-  duelSong: PublicDomainSong | null;
-  user1History: ChartDataItem[];
-}
-
-export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({ 
-  children,
-  recordTurn,
-  clearDuel,
-  isDuelActive,
-  currentTurn,
-  duelSong,
-  user1History,
-}) => {
+export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: profile } = useUserProfile();
@@ -111,6 +85,7 @@ export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); 
+  const [isCurrentDuelMode, setIsCurrentDuelMode] = useState(false); // Internal state for tracking mode
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
@@ -128,10 +103,7 @@ export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({
     setSensitivity, 
   } = useAudioAnalyzer();
   
-  // Duel state is now passed via props
-  const isDuelMode = isDuelActive;
-  
-  const effectiveSong = isDuelMode ? duelSong : currentSong;
+  const effectiveSong = currentSong;
   const currentSongTitle = effectiveSong?.title || "Select a Song";
   const currentSongArtist = effectiveSong?.artist || "Karaoke Prime";
   const currentLyrics = effectiveSong?.lyrics.map(l => l.text).join(' ') || "Start your vocal journey by selecting a song from the library.";
@@ -216,19 +188,21 @@ export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({
   
   const closeOverlay = () => {
     stopAnalysis();
-    clearDuel(); // Use prop
     setIsOverlayOpen(false);
+    setIsCurrentDuelMode(false); // Reset mode on close
   };
   
   const clearSessionSummary = () => setSessionSummary(null);
   const clearUnlockedBadges = () => setUnlockedBadges([]); 
 
-  const startAnalysis = async () => {
-    if (!effectiveSong || isAnalyzing || countdown !== null) {
+  const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, ghostTrace: ChartDataItem[] = []) => {
+    if (isAnalyzing || countdown !== null) {
       return;
     }
     
-    await mockDownloadSong(effectiveSong); 
+    setCurrentSong(song);
+    setIsCurrentDuelMode(isDuelMode);
+    await mockDownloadSong(song); 
 
     setPitchHistory([]);
     setRecentAchievements([]);
@@ -237,19 +211,12 @@ export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({
     historyCounter.current = 0;
     sessionStartTimeRef.current = null; 
     setCurrentTime(0);
-    
-    if (!isDuelMode) {
-      setGhostTrace(pitchHistory); 
-    } else if (currentTurn === 2) {
-      setGhostTrace(user1History);
-    } else {
-      setGhostTrace([]); 
-    }
+    setGhostTrace(ghostTrace); 
 
     setCountdown(3);
     
-    const lastLyricTime = effectiveSong.lyrics.length > 0 
-      ? effectiveSong.lyrics[effectiveSong.lyrics.length - 1].time 
+    const lastLyricTime = song.lyrics.length > 0 
+      ? song.lyrics[song.lyrics.length - 1].time 
       : 10;
     const songDuration = lastLyricTime + 5; 
     
@@ -281,9 +248,9 @@ export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({
         return (prev || 0) - 1;
       });
     }, 1000) as unknown as number;
-  };
+  }, [isAnalyzing, countdown, latencyOffsetMs, startAudio, stopAnalysis]);
 
-  const stopAnalysis = () => {
+  const stopAnalysis = useCallback(() => {
     stopAudio();
     if (stabilityToastRef.current) {
       toast.dismiss(stabilityToastRef.current);
@@ -300,45 +267,29 @@ export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({
     }
     setCountdown(null);
     
-    if (isDuelMode) {
-      recordTurn(pitchHistory); // Use prop
-      return;
-    }
-    
     if (pitchHistory.length > 0 && sessionStartTimeRef.current && effectiveSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
       
       const insight = runScoringEngine(pitchHistory, effectiveSong);
       
       const summary: SessionSummary = {
-        pitchAccuracy: insight.pitchAccuracy,
-        rhythmPrecision: insight.rhythmPrecision,
-        vocalStability: insight.vocalStability,
+        ...insight,
         durationSeconds: durationSeconds,
         songId: effectiveSong.id, 
-        improvementTips: insight.improvementTips,
       };
       
       setSessionSummary(summary);
       
-      if (!isOnline && user) {
-        mockSaveOfflineLog({
-          userId: user.id,
-          songId: summary.songId,
-          pitchAccuracy: summary.pitchAccuracy,
-          rhythmPrecision: summary.rhythmPrecision,
-          vocalStability: summary.vocalStability,
-          durationSeconds: summary.durationSeconds,
-          timestamp: Date.now(),
-        });
-        toast.warning("Offline score saved! Will sync when connection is restored.", { duration: 5000 });
-      }
+      // Return summary and history for external handling (e.g., DuelProvider)
+      return { summary, history: pitchHistory };
     }
-  };
+    
+    return null;
+  }, [stopAudio, pitchHistory, effectiveSong]);
 
   // Effect to handle score persistence and BADGE CHECKING for single player mode (ONLINE ONLY)
   useEffect(() => {
-    if (sessionSummary && user && !isDuelMode && isOnline && effectiveSong && profile) {
+    if (sessionSummary && user && !isCurrentDuelMode && isOnline && effectiveSong && profile) {
       
       if (pitchHistory.length < MIN_SESSION_DURATION_POINTS) {
         toast.error("Score submission failed: Session too short.", { 
@@ -410,7 +361,22 @@ export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({
       
       handleScorePersistenceAndBadges();
     }
-  }, [sessionSummary, user, isDuelMode, isOnline, pitchHistory.length, profile, queryClient, effectiveSong, recordTurn]);
+    
+    // Handle offline save if not duel mode
+    if (sessionSummary && user && !isCurrentDuelMode && !isOnline && effectiveSong) {
+        mockSaveOfflineLog({
+          userId: user.id,
+          songId: sessionSummary.songId,
+          pitchAccuracy: sessionSummary.pitchAccuracy,
+          rhythmPrecision: sessionSummary.rhythmPrecision,
+          vocalStability: sessionSummary.vocalStability,
+          durationSeconds: sessionSummary.durationSeconds,
+          timestamp: Date.now(),
+        });
+        toast.warning("Offline score saved! Will sync when connection is restored.", { duration: 5000 });
+    }
+    
+  }, [sessionSummary, user, isCurrentDuelMode, isOnline, pitchHistory.length, profile, queryClient, effectiveSong]);
 
   // Initial sync attempt on load (or when user logs in)
   useEffect(() => {
@@ -525,7 +491,7 @@ export const VocalSandboxProvider: React.FC<VocalSandboxProviderProps> = ({
         loadSong,
         currentSong: effectiveSong,
         currentTime,
-        isDuelMode,
+        isDuelMode: isCurrentDuelMode,
         latencyOffsetMs,
         calibrateLatency,
         countdown,

@@ -5,6 +5,7 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
 import VocalEvolutionChart from './VocalEvolutionChart';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+import { useDuel } from '@/hooks/use-duel-engine'; // Import useDuel
 
 const staticChartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -17,15 +18,25 @@ const staticChartData = [
 ];
 
 const Footer = () => {
+  // Call all hooks at the top level
   const { user } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
+  const vocalContext = useVocalSandbox();
+  const duelContext = useDuel();
+
+  // Safety check: If either context is undefined (shouldn't happen with correct hierarchy, but prevents crashes)
+  if (!vocalContext || !duelContext) {
+    return null;
+  }
+  
   const { 
     isAnalyzing, 
     pitchHistory, 
     isPitchDeviating, 
     recentAchievements,
     ghostTrace,
-  } = useVocalSandbox();
+    isDuelMode, // Now available via VocalSandbox context
+  } = vocalContext;
 
   const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : staticChartData;
   const chartTitle = isAnalyzing ? "Live Pitch Tracking" : "Vocal Note Evolution (Pitch Accuracy 0-100)";

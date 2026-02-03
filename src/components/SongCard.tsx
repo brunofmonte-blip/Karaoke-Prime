@@ -20,17 +20,18 @@ const difficultyColors: Record<PublicDomainSong['difficulty'], string> = {
 
 const SongCard: React.FC<SongCardProps> = ({ song }) => {
   const { isDownloaded, isDownloading, toggleDownload } = useOfflineDownload(song);
-  const { openOverlay, loadSong } = useVocalSandbox(); 
+  const { openOverlay, loadSong, startAnalysis } = useVocalSandbox(); 
   const { startLocalDuel } = useDuel();
 
   const handlePlay = () => {
-    loadSong(song.id); // Load the specific song
+    // Single player mode: load song and start analysis directly
+    startAnalysis(song, false);
     openOverlay(); 
   };
   
   const handleDuel = () => {
+    // Duel mode: let the Duel engine handle the setup and start analysis
     startLocalDuel(song);
-    openOverlay();
   };
 
   return (

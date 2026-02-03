@@ -14,8 +14,8 @@ const VocalSandboxOverlay: React.FC = () => {
     isOverlayOpen, 
     closeOverlay, 
     isAnalyzing, 
-    startAnalysis, 
-    stopAnalysis, 
+    startAnalysis: startSandboxAnalysis, 
+    stopAnalysis: stopSandboxAnalysis, 
     pitchData, 
     pitchHistory,
     currentSongTitle,
@@ -24,16 +24,20 @@ const VocalSandboxOverlay: React.FC = () => {
     currentTime,
     sessionSummary,
     isDuelMode,
-    countdown, // New
-    sensitivity, // New
-    setSensitivity, // New
-    isOnline, // New
+    countdown,
+    sensitivity,
+    setSensitivity,
+    isOnline,
+    ghostTrace,
   } = useVocalSandbox();
   
-  const { currentTurn } = useDuel();
+  const { isDuelActive, currentTurn, recordTurn, duelSong } = useDuel();
   
   const { user } = useAuth();
-  const sessionStartTimeRef = useRef<number | null>(null);
+
+  // Determine the effective song and mode based on Duel context
+  const effectiveSong = isDuelActive ? duelSong : currentSong;
+  const effectiveIsDuelMode = isDuelActive;
 
   // Calculate final score when analysis stops (used for display before summary modal opens)
   const finalScore = useMemo(() => {
@@ -42,16 +46,8 @@ const VocalSandboxOverlay: React.FC = () => {
     return totalPitch / pitchHistory.length;
   }, [pitchHistory]);
 
-  if (!isOverlayOpen) {
+  if (!isOverlayOpen || !effectiveSong) {
     return null;
-  }
-  
-  if (!currentSong) {
-    return (
-      <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex items-center justify-center">
-        <p className="text-primary neon-blue-glow">Loading song data...</p>
-      </div>
-    );
   }
   
   // If countdown is active, show the large countdown screen
@@ -73,11 +69,27 @@ const VocalSandboxOverlay: React.FC = () => {
   const player1Name = user?.email?.split('@')[0] || 'Player 1';
   const player2Name = 'Local Opponent (AI)';
   
-  const currentPlayerName = currentTurn === 1 ? player1Name : player2Name;
+  const currentPlayerName = effectiveIsDuelMode && currentTurn === 2 ? player2Name : player1Name;
   
-  const overlayTitle = isDuelMode 
+  const overlayTitle = effectiveIsDuelMode 
     ? `Duel Mode: Turn ${currentTurn} (${currentPlayerName})`
     : 'Live Vocal Sandbox';
+
+  const handleStartAnalysis = () => {
+    // Pass duel mode and ghost trace to the agnostic sandbox provider
+    const trace = effectiveIsDuelMode && currentTurn === 2 ? pitchHistory : [];
+    startSandboxAnalysis(effectiveSong, effectiveIsDuelMode, trace);
+  };
+
+  const handleStopAnalysis = () => {
+    const result = stopSandboxAnalysis();
+    
+    if (effectiveIsDuelMode && result) {
+      // If in duel mode, pass control back to the Duel engine
+      recordTurn();
+    }
+    // If not in duel mode, the score persistence is handled internally by useVocalSandbox useEffect
+  };
 
   return (
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
@@ -110,15 +122,15 @@ const VocalSandboxOverlay: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="flex justify-center space-x-4">
                 <Button 
-                  onClick={startAnalysis} 
-                  disabled={isAnalyzing}
+                  onClick={handleStartAnalysis} 
+                  disabled={isAnalyzing || effectiveIsDuelMode && currentTurn === 2 && pitchHistory.length > 0}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/30"
                 >
                   <Mic className="h-5 w-5 mr-2" />
-                  {isAnalyzing ? 'Singing...' : (isDuelMode && currentTurn === 2 ? `Start ${player2Name}'s Turn` : 'Start Singing')}
+                  {isAnalyzing ? 'Singing...' : (effectiveIsDuelMode && currentTurn === 2 ? `Start ${player2Name}'s Turn` : 'Start Singing')}
                 </Button>
                 <Button 
-                  onClick={stopAnalysis} 
+                  onClick={handleStopAnalysis} 
                   disabled={!isAnalyzing}
                   variant="destructive"
                   className="rounded-xl shadow-lg shadow-destructive/30"
@@ -173,7 +185,7 @@ const VocalSandboxOverlay: React.FC = () => {
           <Card className={cn("lg:col-span-2 glass-pillar flex items-center justify-center p-6")}>
             <div className="text-center">
               <p className="text-xl text-muted-foreground mb-2">
-                {isDuelMode ? `Current Pitch (${currentPlayerName})` : 'Current Pitch Accuracy'}
+                {effectiveIsDuelMode ? `Current Pitch (${currentPlayerName})` : 'Current Pitch Accuracy'}
               </p>
               <p className={cn(
                 "text-6xl font-extrabold",
@@ -183,7 +195,7 @@ const VocalSandboxOverlay: React.FC = () => {
               </p>
               {!isAnalyzing && pitchHistory.length > 0 && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  {isDuelMode 
+                  {effectiveIsDuelMode 
                     ? (currentTurn === 2 ? `Player 1 score recorded. Waiting for Player 2.` : 'Duel finished. Results saved locally.')
                     : 'Session ended. Score saved to profile.'
                   }
@@ -199,7 +211,7 @@ const VocalSandboxOverlay: React.FC = () => {
             <CardTitle className="text-primary">Live Lyrics</CardTitle>
           </CardHeader>
           <CardContent className="py-6">
-            <LyricPlayer lyrics={currentSong.lyrics} currentTime={currentTime} />
+            <LyricPlayer lyrics={effectiveSong.lyrics} currentTime={currentTime} />
           </CardContent>
         </Card>
       </div>
