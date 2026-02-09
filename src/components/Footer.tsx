@@ -5,7 +5,7 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
 import VocalEvolutionChart from './VocalEvolutionChart';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
-import { useDuel } from '@/hooks/use-duel-engine'; // Import useDuel
+// import { useDuel } from '@/hooks/use-duel-engine'; // Removed Import
 
 const staticChartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -23,16 +23,16 @@ const Footer = () => {
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   const vocalContext = useVocalSandbox();
   
-  let duelContext;
-  try {
-    duelContext = useDuel();
-  } catch (e) {
-    // Prevent crash if DuelProvider is not ready or context is undefined
-    return null; 
-  }
+  // Removed useDuel context access to bypass error
+  // let duelContext;
+  // try {
+  //   duelContext = useDuel();
+  // } catch (e) {
+  //   return null; 
+  // }
 
-  // Safety check: If either context is undefined (shouldn't happen with correct hierarchy, but prevents crashes)
-  if (!vocalContext || !duelContext) {
+  // Safety check: If vocal context is undefined (shouldn't happen with correct hierarchy)
+  if (!vocalContext) {
     return null;
   }
   
@@ -42,7 +42,6 @@ const Footer = () => {
     isPitchDeviating, 
     recentAchievements,
     ghostTrace,
-    // isDuelMode, // Removed as it's now derived from duelContext.isDuelActive if needed
   } = vocalContext;
 
   const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : staticChartData;

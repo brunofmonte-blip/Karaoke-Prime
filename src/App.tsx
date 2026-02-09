@@ -18,8 +18,8 @@ import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
 import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
 import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
-import { DuelProvider } from "./hooks/use-duel-engine";
-import DuelSummaryModal from "./components/DuelSummaryModal";
+// import { DuelProvider } from "./hooks/use-duel-engine"; // Removed
+// import DuelSummaryModal from "./components/DuelSummaryModal"; // Removed
 import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
 
 const queryClient = new QueryClient();
@@ -38,9 +38,9 @@ const PerformanceSummaryModalWrapper = () => {
   return <PerformanceSummaryModal />;
 }
 
-const DuelSummaryModalWrapper = () => {
-  return <DuelSummaryModal />;
-}
+// const DuelSummaryModalWrapper = () => { // Removed
+//   return <DuelSummaryModal />;
+// }
 
 const BadgeUnlockedModalWrapper = () => {
   return <BadgeUnlockedModal />;
@@ -55,7 +55,7 @@ const App = () => (
         <LoginModalProvider>
           <PrimeSubscriptionProvider>
             <VocalSandboxProvider key="forced-clean-mount-v2">
-              <DuelProvider>
+              {/* <DuelProvider> */}
                 <BrowserRouter>
                   <Layout>
                     <Routes>
@@ -66,12 +66,12 @@ const App = () => (
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
-                  {/* Modals that rely on Auth/Login/Prime/Duel context */}
+                  {/* Modals that rely on Auth/Login/Prime context */}
                   <LoginModalWrapper />
                   <PrimeSubscriptionModalWrapper />
-                  <DuelSummaryModalWrapper />
+                  {/* <DuelSummaryModalWrapper /> */}
                 </BrowserRouter>
-              </DuelProvider>
+              {/* </DuelProvider> */}
               {/* Modals that rely on VocalSandbox context (must be inside VocalSandboxProvider) */}
               <VocalSandboxOverlay />
               <PerformanceSummaryModalWrapper />
