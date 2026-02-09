@@ -71,11 +71,11 @@ const App = () => (
                   <PrimeSubscriptionModalWrapper />
                   <DuelSummaryModalWrapper />
                 </BrowserRouter>
+              </DuelProvider>
               {/* Modals that rely on VocalSandbox context (must be inside VocalSandboxProvider) */}
               <VocalSandboxOverlay />
               <PerformanceSummaryModalWrapper />
               <BadgeUnlockedModalWrapper />
-              </DuelProvider>
             </VocalSandboxProvider>
           </PrimeSubscriptionProvider>
         </LoginModalProvider>
