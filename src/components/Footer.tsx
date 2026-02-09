@@ -22,7 +22,14 @@ const Footer = () => {
   const { user } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   const vocalContext = useVocalSandbox();
-  const duelContext = useDuel();
+  
+  let duelContext;
+  try {
+    duelContext = useDuel();
+  } catch (e) {
+    // Prevent crash if DuelProvider is not ready or context is undefined
+    return null; 
+  }
 
   // Safety check: If either context is undefined (shouldn't happen with correct hierarchy, but prevents crashes)
   if (!vocalContext || !duelContext) {
@@ -35,7 +42,7 @@ const Footer = () => {
     isPitchDeviating, 
     recentAchievements,
     ghostTrace,
-    isDuelMode, // Now available via VocalSandbox context
+    // isDuelMode, // Removed as it's now derived from duelContext.isDuelActive if needed
   } = vocalContext;
 
   const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : staticChartData;
@@ -56,7 +63,7 @@ const Footer = () => {
     bestNote: profile.best_note,
     academyLevel: profile.academy_level,
     rankingOnline: profile.ranking_position,
-    rankingOffline: 9999,
+    rankingOffline: profile.ranking_position, // Using online ranking as mock for offline
     avatarUrl: profile.avatar_url || user.user_metadata.avatar_url,
     earnedBadgeIds: profile.badges, // Pass earned badges
   } : defaultUserData;

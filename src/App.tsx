@@ -1,3 +1,4 @@
+Login -> Prime -> VocalSandbox -> Duel.">
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -58,7 +59,7 @@ const App = () => (
       <AuthProvider>
         <LoginModalProvider>
           <PrimeSubscriptionProvider>
-            {/* STRICT HIERARCHY: VocalSandbox must be the parent of DuelProvider */}
+            {/* VocalSandboxProvider must wrap DuelProvider */}
             <VocalSandboxProvider>
               <DuelProvider>
                 <BrowserRouter>
