@@ -15,7 +15,7 @@ import Backstage from "./pages/Backstage";
 import Library from "./pages/Library";
 import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
 import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
-import { PrimeSubscriptionProvider, usePrimeSubscription } from "./hooks/use-prime-subscription";
+import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
 import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
 import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
 import { DuelProvider } from "./hooks/use-duel-engine";

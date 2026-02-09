@@ -8,8 +8,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/integrations/supabase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from './use-user-profile';
-import { checkAndUnlockBadges } from '@/utils/badge-logic'; // Import badge logic
-import { BadgeId } from '@/data/badges'; // Import BadgeId type
+import { checkAndUnlockBadges } from '@/utils/badge-logic';
+import { BadgeId } from '@/data/badges';
 
 export interface ChartDataItem {
   name: string;
@@ -85,7 +85,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); 
-  const [isCurrentDuelMode, setIsCurrentDuelMode] = useState(false); // Internal state for tracking mode
+  const [isCurrentDuelMode, setIsCurrentDuelMode] = useState(false);
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
@@ -189,11 +189,49 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const closeOverlay = () => {
     stopAnalysis();
     setIsOverlayOpen(false);
-    setIsCurrentDuelMode(false); // Reset mode on close
+    setIsCurrentDuelMode(false);
   };
   
   const clearSessionSummary = () => setSessionSummary(null);
   const clearUnlockedBadges = () => setUnlockedBadges([]); 
+
+  // CRITICAL FIX: Define stopAnalysis first to ensure it's initialized before startAnalysis references it.
+  const stopAnalysis = useCallback(() => {
+    stopAudio();
+    if (stabilityToastRef.current) {
+      toast.dismiss(stabilityToastRef.current);
+      stabilityToastRef.current = null;
+    }
+    
+    if (audioTimerRef.current) {
+      clearTimeout(audioTimerRef.current);
+      audioTimerRef.current = undefined;
+    }
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+      countdownIntervalRef.current = undefined;
+    }
+    setCountdown(null);
+    
+    if (pitchHistory.length > 0 && sessionStartTimeRef.current && effectiveSong) {
+      const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
+      
+      const insight = runScoringEngine(pitchHistory, effectiveSong);
+      
+      const summary: SessionSummary = {
+        ...insight,
+        durationSeconds: durationSeconds,
+        songId: effectiveSong.id, 
+      };
+      
+      setSessionSummary(summary);
+      
+      // Return summary and history for external handling (e.g., DuelProvider)
+      return { summary, history: pitchHistory };
+    }
+    
+    return null;
+  }, [stopAudio, pitchHistory, effectiveSong]);
 
   const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, ghostTrace: ChartDataItem[] = []) => {
     if (isAnalyzing || countdown !== null) {
@@ -249,43 +287,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       });
     }, 1000) as unknown as number;
   }, [isAnalyzing, countdown, latencyOffsetMs, startAudio, stopAnalysis]);
-
-  const stopAnalysis = useCallback(() => {
-    stopAudio();
-    if (stabilityToastRef.current) {
-      toast.dismiss(stabilityToastRef.current);
-      stabilityToastRef.current = null;
-    }
-    
-    if (audioTimerRef.current) {
-      clearTimeout(audioTimerRef.current);
-      audioTimerRef.current = undefined;
-    }
-    if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
-      countdownIntervalRef.current = undefined;
-    }
-    setCountdown(null);
-    
-    if (pitchHistory.length > 0 && sessionStartTimeRef.current && effectiveSong) {
-      const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
-      
-      const insight = runScoringEngine(pitchHistory, effectiveSong);
-      
-      const summary: SessionSummary = {
-        ...insight,
-        durationSeconds: durationSeconds,
-        songId: effectiveSong.id, 
-      };
-      
-      setSessionSummary(summary);
-      
-      // Return summary and history for external handling (e.g., DuelProvider)
-      return { summary, history: pitchHistory };
-    }
-    
-    return null;
-  }, [stopAudio, pitchHistory, effectiveSong]);
 
   // Effect to handle score persistence and BADGE CHECKING for single player mode (ONLINE ONLY)
   useEffect(() => {
