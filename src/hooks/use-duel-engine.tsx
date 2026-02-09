@@ -52,6 +52,9 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user2History, setUser2History] = useState<ChartDataItem[]>([]);
   const [duelSummary, setDuelSummary] = useState<OfflineDuelResult | null>(null);
 
+  // Cache busting log
+  console.log("[DuelProvider] Initializing Duel Context.");
+
   const clearDuel = useCallback(() => {
     setIsDuelActive(false);
     setCurrentTurn(null);

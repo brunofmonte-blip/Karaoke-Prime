@@ -54,7 +54,7 @@ const App = () => (
       <AuthProvider>
         <LoginModalProvider>
           <PrimeSubscriptionProvider>
-            <VocalSandboxProvider>
+            <VocalSandboxProvider key="forced-clean-mount-v2">
               <DuelProvider>
                 <BrowserRouter>
                   <Layout>
