@@ -19,6 +19,8 @@ import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
 import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
 import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
 import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
+import { DuelProvider } from "./hooks/use-duel-engine";
+import DuelSummaryModal from "./components/DuelSummaryModal";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,10 @@ const BadgeUnlockedModalWrapper = () => {
   return <BadgeUnlockedModal />;
 };
 
+const DuelSummaryModalWrapper = () => {
+  return <DuelSummaryModal />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -49,20 +55,23 @@ const App = () => (
           <PrimeSubscriptionProvider>
             <VocalSandboxProvider key="vocal-sandbox-root">
               <BrowserRouter>
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/library" element={<Library />} />
-                    <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
-                    <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Layout>
-                <LoginModalWrapper />
-                <PrimeSubscriptionModalWrapper />
-                <VocalSandboxOverlay />
-                <PerformanceSummaryModalWrapper />
-                <BadgeUnlockedModalWrapper />
+                <DuelProvider>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/library" element={<Library />} />
+                      <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
+                      <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Layout>
+                  <LoginModalWrapper />
+                  <PrimeSubscriptionModalWrapper />
+                  <VocalSandboxOverlay />
+                  <PerformanceSummaryModalWrapper />
+                  <BadgeUnlockedModalWrapper />
+                  <DuelSummaryModalWrapper />
+                </DuelProvider>
               </BrowserRouter>
             </VocalSandboxProvider>
           </PrimeSubscriptionProvider>

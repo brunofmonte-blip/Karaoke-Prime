@@ -5,21 +5,18 @@ import { cn } from '@/lib/utils';
 interface ChartDataItem {
   name: string;
   pitch: number; // 0-100
-  breath: number; // 0-100 (Placeholder for future use)
+  breath: number; // 0-100
 }
 
 interface VocalEvolutionChartProps {
   data: ChartDataItem[];
   title: string;
   height?: number | string;
-  opponentTrace?: ChartDataItem[]; // Renamed ghostTrace to opponentTrace for clarity
+  opponentTrace?: ChartDataItem[]; 
 }
 
-// Custom Dot component to highlight peak performance
 const CustomDot = (props: any) => {
   const { cx, cy, payload, dataKey, data } = props;
-  
-  // Find the maximum pitch value in the entire dataset
   const maxPitch = Math.max(...data.map((d: ChartDataItem) => d.pitch));
   
   if (dataKey === 'pitch' && payload.pitch === maxPitch && maxPitch > 0) {
@@ -44,51 +41,37 @@ const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, 
       <h3 className="text-lg font-semibold mb-4 text-primary neon-blue-glow">{title}</h3>
       <ResponsiveContainer width="100%" height="80%">
         <AreaChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-          
-          <CartesianGrid 
-            stroke="hsl(var(--primary)/0.2)" 
-            strokeDasharray="3 3" 
-          />
-          
+          <CartesianGrid stroke="hsl(var(--primary)/0.2)" strokeDasharray="3 3" />
           <XAxis dataKey="name" hide />
           <YAxis domain={[0, 100]} hide />
-          
           <Tooltip 
-            contentStyle={{ 
-              backgroundColor: 'hsl(var(--card))', 
-              border: '1px solid hsl(var(--border))', 
-              borderRadius: '0.5rem' 
-            }}
-            formatter={(value, name) => [`${value}%`, name === 'pitch' ? 'Your Pitch' : name === 'opponent' ? 'Opponent Pitch' : 'Breath Control']}
+            contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '0.5rem' }}
+            formatter={(value, name) => [`${value}%`, name === 'pitch' ? 'Your Pitch' : 'AI Target']}
           />
-          
           <defs>
             <linearGradient id="colorPitch" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
               <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.0}/>
             </linearGradient>
-            {/* Opponent Trace Gradient (Gold/Accent) */}
             <linearGradient id="colorOpponent" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.15}/>
               <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0.0}/>
             </linearGradient>
           </defs>
           
-          {/* Opponent Trace Area (User 1's score if User 2 is singing, or previous session) */}
           {opponentTrace && opponentTrace.length > 0 && (
             <Area 
               type="monotone" 
               dataKey="pitch" 
               data={opponentTrace}
               name="opponent"
-              stroke="hsl(var(--accent)/0.8)" 
+              stroke="hsl(var(--accent))" 
               fill="url(#colorOpponent)" 
               strokeWidth={2} 
               dot={false}
             />
           )}
 
-          {/* Current Session Area (User 1 or User 2) */}
           <Area 
             type="monotone" 
             dataKey="pitch" 
@@ -103,7 +86,6 @@ const VocalEvolutionChart: React.FC<VocalEvolutionChartProps> = ({ data, title, 
             stroke="hsl(var(--primary))" 
             strokeWidth={3} 
             dot={<CustomDot dataKey="pitch" data={data} />}
-            activeDot={{ r: 6, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }} 
             style={{ filter: 'drop-shadow(0 0 5px hsl(var(--primary)/0.8))' }}
           />
         </AreaChart>
