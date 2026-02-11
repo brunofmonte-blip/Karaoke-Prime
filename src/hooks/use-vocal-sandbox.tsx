@@ -93,6 +93,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const stabilityToastRef = useRef<string | number | null>(null);
   const audioTimerRef = useRef<number>();
   const countdownIntervalRef = useRef<number>();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { 
     isAnalyzing, 
@@ -193,6 +194,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       countdownIntervalRef.current = undefined;
     }
     setCountdown(null);
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     
     if (pitchHistory.length > 0 && sessionStartTimeRef.current && effectiveSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
@@ -229,10 +235,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
     setCountdown(3);
     
+    // Calculate duration based on lyrics or a minimum of 30 seconds for testing
     const lastLyricTime = song.lyrics.length > 0 
       ? song.lyrics[song.lyrics.length - 1].time 
-      : 10;
-    const songDuration = lastLyricTime + 5; 
+      : 0;
+    const songDuration = Math.max(30, lastLyricTime + 10); 
     
     countdownIntervalRef.current = setInterval(() => {
       setCountdown(prev => {
@@ -241,10 +248,19 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           startAudio();
           sessionStartTimeRef.current = Date.now();
           
+          // Mock Audio Playback Attempt
+          try {
+            const audio = new Audio(song.audioUrl);
+            audio.volume = 0.5;
+            audio.play().catch(() => console.log("[VocalSandbox] Autoplay blocked or file missing, continuing with mock timer."));
+            audioRef.current = audio;
+          } catch (e) {
+            console.log("[VocalSandbox] Audio initialization failed, using mock timer.");
+          }
+
           const tick = () => {
             setCurrentTime(prevTime => {
-              const offsetSeconds = latencyOffsetMs / 1000;
-              const newTime = prevTime + 0.1 + offsetSeconds; 
+              const newTime = prevTime + 0.1; 
               if (newTime >= songDuration) {
                 stopAnalysis();
                 return songDuration;
@@ -259,7 +275,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         return (prev || 0) - 1;
       });
     }, 1000) as unknown as number;
-  }, [isAnalyzing, countdown, latencyOffsetMs, startAudio, stopAnalysis]);
+  }, [isAnalyzing, countdown, startAudio, stopAnalysis]);
 
   useEffect(() => {
     if (sessionSummary && user && !isCurrentDuelMode && effectiveSong && profile) {
@@ -324,7 +340,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           songId: sessionSummary.songId,
           pitchAccuracy: sessionSummary.pitchAccuracy,
           rhythmPrecision: sessionSummary.rhythmPrecision,
-          vocalStability: sessionSummary.vocalStability,
+          vocal_stability: sessionSummary.vocalStability,
           durationSeconds: sessionSummary.durationSeconds,
           timestamp: Date.now(),
         });
