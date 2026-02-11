@@ -61,7 +61,7 @@ const BadgeUnlockedModal: React.FC = () => {
           <Crown className="h-16 w-16 text-accent mx-auto mb-4 relative z-10 amazon-gold-glow animate-bounce" />
           
           <h1 className="text-3xl font-extrabold text-accent neon-gold-glow mb-2 relative z-10">
-            BADGE UNLOCKED!
+            BADGE DESBLOQUEADO!
           </h1>
           
           <div className="flex flex-col items-center justify-center relative z-10">
