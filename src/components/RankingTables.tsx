@@ -5,9 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useGlobalRankings, RankingItem } from '@/hooks/use-global-rankings';
 import { useAuth } from '@/integrations/supabase/auth';
+import { useUserProfile } from '@/hooks/use-user-profile';
 import { toast } from 'sonner';
 
-// Mock data for National and Local rankings (since we only fetch global profiles)
+// Mock data for National and Local rankings
 const nationalRankingsMock: RankingItem[] = [
   { userId: 'mock-n1', userName: "LocalHero_NY", song: "Empire State of Mind", score: 95.2, avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=500&auto=format&fit=crop" },
   { userId: 'mock-n2', userName: "TexasTenor", song: "Country Roads", score: 94.8, avatar_url: "https://images.unsplash.com/photo-1507003211169-0a812d6ce89d?q=80&w=500&auto=format&fit=crop" },
@@ -19,15 +20,11 @@ const localRankingsMock: RankingItem[] = [
   { userId: 'mock-l2', userName: "BaritoneBob", song: "Fly Me to the Moon", score: 92.9, avatar_url: "https://images.unsplash.com/photo-1542909168-82c72e8906da?q=80&w=500&auto=format&fit=crop" },
 ];
 
-// Mock data for Global Rankings fallback
 const globalRankingsFallback: RankingItem[] = [
   { userId: 'mock-g1', userName: "VocalPro_88", song: "The High Note", score: 98.5, avatar_url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=500" },
   { userId: 'mock-g2', userName: "SingStar_JP", song: "Tokyo Drift Anthem", score: 97.1, avatar_url: "https://images.unsplash.com/photo-1519732773401-d92c7293764c?q=80&w=500" },
   { userId: 'mock-g3', userName: "OperaQueen", song: "Nessun Dorma", score: 96.9, avatar_url: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500" },
-  { userId: 'mock-g4', userName: "BeatBoxer", song: "Rhythm Nation", score: 95.5, avatar_url: "https://images.unsplash.com/photo-1501084817091-ec513ea013b6?q=80&w=500" },
-  { userId: 'mock-g5', userName: "AcousticSoul", song: "Hallelujah", score: 94.9, avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=500" },
 ];
-
 
 interface RankingListProps {
   title: string;
@@ -47,11 +44,10 @@ const RankingList: React.FC<RankingListProps> = ({ title, data, colorClass, isGl
     const prevRank = prevDataRef.current.findIndex(item => item.userId === currentUserId);
     const currentRank = data.findIndex(item => item.userId === currentUserId);
 
-    // Check for rank jump (only if user was previously ranked and improved)
     if (prevRank !== -1 && currentRank !== -1 && currentRank < prevRank) {
-      toast.success(`Rank Jump! You moved up to position #${currentRank + 1}!`, {
+      toast.success(`Salto no Ranking! Você subiu para a posição #${currentRank + 1}!`, {
         duration: 4000,
-        description: "Your new best note boosted your global standing.",
+        description: "Sua nova melhor nota impulsionou sua classificação global.",
       });
     }
 
@@ -73,7 +69,6 @@ const RankingList: React.FC<RankingListProps> = ({ title, data, colorClass, isGl
           <TableBody>
             {data.map((item, index) => {
               const isCurrentUser = user && item.userId === user.id;
-              const avatarUrl = item.avatar_url || user?.user_metadata.avatar_url;
               
               return (
                 <TableRow 
@@ -81,7 +76,7 @@ const RankingList: React.FC<RankingListProps> = ({ title, data, colorClass, isGl
                   className={cn(
                     "border-b border-border/30 transition-colors",
                     isCurrentUser 
-                      ? "bg-primary/10 hover:bg-primary/20 border-primary/50 shadow-inner shadow-primary/50" 
+                      ? "bg-primary/20 hover:bg-primary/30 border-primary/50 shadow-inner shadow-primary/50" 
                       : "hover:bg-secondary/20"
                   )}
                 >
@@ -89,12 +84,17 @@ const RankingList: React.FC<RankingListProps> = ({ title, data, colorClass, isGl
                     {index + 1}
                   </TableCell>
                   <TableCell className="flex items-center space-x-3 p-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={avatarUrl || undefined} alt={item.userName} />
-                      <AvatarFallback>{item.userName.slice(0, 2)}</AvatarFallback>
+                    <Avatar className="h-8 w-8 border border-border/50">
+                      <AvatarImage src={item.avatar_url || undefined} alt={item.userName} />
+                      <AvatarFallback className="bg-primary/20 text-primary text-xs">{item.userName.slice(0, 2)}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium text-foreground truncate max-w-[100px]">{item.userName}</span>
+                      <span className={cn(
+                        "text-sm font-medium truncate max-w-[100px]",
+                        isCurrentUser ? "text-primary font-bold" : "text-foreground"
+                      )}>
+                        {item.userName}
+                      </span>
                       <span className="text-xs text-muted-foreground truncate max-w-[100px]">{item.song}</span>
                     </div>
                   </TableCell>
@@ -113,20 +113,41 @@ const RankingList: React.FC<RankingListProps> = ({ title, data, colorClass, isGl
 
 const RankingTables: React.FC = () => {
   const { data: globalRankings, isLoading: isGlobalLoading } = useGlobalRankings();
+  const { data: profile } = useUserProfile();
+  const { user } = useAuth();
   
-  // Use fallback if real data is empty or null
-  const effectiveGlobalRankings = (globalRankings && globalRankings.length > 0) 
-    ? globalRankings 
-    : globalRankingsFallback;
+  // Merge real data with fallback and ensure current user is included
+  const effectiveGlobalRankings = React.useMemo(() => {
+    let list = [...(globalRankings || [])];
+    
+    // If list is empty, use fallback
+    if (list.length === 0) {
+      list = [...globalRankingsFallback];
+    }
 
-  // Filter global rankings to top 5 for display
-  const topGlobalRankings = effectiveGlobalRankings.slice(0, 5);
+    // Ensure current user is in the list if they have a score
+    if (user && profile && profile.best_note > 0) {
+      const userInList = list.find(item => item.userId === user.id);
+      if (!userInList) {
+        list.push({
+          userId: user.id,
+          userName: profile.username || user.email?.split('@')[0] || "Você",
+          avatar_url: profile.avatar_url || user.user_metadata.avatar_url,
+          score: profile.best_note,
+          song: "Última Performance",
+        });
+      }
+    }
+
+    // Sort by score descending
+    return list.sort((a, b) => b.score - a.score);
+  }, [globalRankings, profile, user]);
 
   if (isGlobalLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-3 text-center p-10 text-primary neon-blue-glow">
-          Loading Global Rankings...
+          Carregando Rankings Globais...
         </div>
       </div>
     );
@@ -136,18 +157,18 @@ const RankingTables: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <RankingList 
         title="Global Top 5" 
-        data={topGlobalRankings} 
+        data={effectiveGlobalRankings.slice(0, 5)} 
         colorClass="text-primary neon-blue-glow" 
         isGlobal={true}
       />
       <RankingList 
-        title="National Top 3 (Mock)" 
+        title="Nacional Top 3" 
         data={nationalRankingsMock} 
         colorClass="text-accent neon-gold-glow" 
         isGlobal={false}
       />
       <RankingList 
-        title="Local Top 2 (Mock)" 
+        title="Local Top 2" 
         data={localRankingsMock} 
         colorClass="text-foreground" 
         isGlobal={false}

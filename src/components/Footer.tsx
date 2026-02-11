@@ -4,7 +4,6 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
 import VocalEvolutionChart from './VocalEvolutionChart';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
-import { mockGetOfflineLibrary } from '@/utils/offline-storage';
 import { useMemo } from 'react';
 
 const staticChartData = [
@@ -45,18 +44,18 @@ const Footer = () => {
   }, [isAnalyzing]); // Refresh when analysis ends
 
   const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : historicalData;
-  const chartTitle = isAnalyzing ? "Live Pitch Tracking" : "Vocal Note Evolution (Last 5 Sessions)";
+  const chartTitle = isAnalyzing ? "Live Pitch Tracking" : "Evolução Vocal (Últimas 5 Sessões)";
 
   const userData = user && profile ? {
-    userName: profile.username || user.email?.split('@')[0] || "Vocalist",
-    bestNote: profile.best_note,
-    academyLevel: profile.academy_level,
-    rankingOnline: profile.ranking_position,
-    rankingOffline: profile.ranking_position,
+    userName: profile.username || user.email?.split('@')[0] || "Cantor",
+    bestNote: profile.best_note || 0,
+    academyLevel: profile.academy_level || 0,
+    rankingOnline: profile.ranking_position || 9999,
+    rankingOffline: profile.ranking_position || 9999,
     avatarUrl: profile.avatar_url || user.user_metadata.avatar_url,
-    earnedBadgeIds: profile.badges,
+    earnedBadgeIds: profile.badges || [],
   } : {
-    userName: "Guest Singer",
+    userName: "Cantor Convidado",
     bestNote: 0,
     academyLevel: 0,
     rankingOnline: 9999,
@@ -75,7 +74,7 @@ const Footer = () => {
           <div className="lg:col-span-1">
             {isProfileLoading && user ? (
               <div className="h-full flex items-center justify-center glass-pillar rounded-2xl p-6">
-                <p className="text-muted-foreground">Loading profile...</p>
+                <p className="text-muted-foreground">Carregando perfil...</p>
               </div>
             ) : (
               <UserProfileCard 
@@ -89,7 +88,7 @@ const Footer = () => {
         </div>
         <div className="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-border/40">
           <p className="text-sm text-muted-foreground order-2 md:order-1 mt-4 md:mt-0">
-            © {new Date().getFullYear()} Karaoke Prime. All rights reserved.
+            © {new Date().getFullYear()} Karaoke Prime. Todos os direitos reservados.
           </p>
           <div className="order-1 md:order-2">
             <MadeWithDyad />

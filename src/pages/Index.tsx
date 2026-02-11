@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { GraduationCap, Star, Lock, Music, Trophy } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import RecentlyAdded from "@/components/RecentlyAdded";
@@ -36,10 +36,21 @@ interface ElitePillarProps {
   onClick?: () => void;
   isRateLimited?: boolean;
   isLocked?: boolean;
+  isUnlocked?: boolean;
   onLockClick?: () => void;
 }
 
-const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon: Icon, to, onClick, isRateLimited = false, isLocked = false, onLockClick }) => {
+const ElitePillarCard: React.FC<ElitePillarProps> = ({ 
+  title, 
+  description, 
+  icon: Icon, 
+  to, 
+  onClick, 
+  isRateLimited = false, 
+  isLocked = false, 
+  isUnlocked = false,
+  onLockClick 
+}) => {
   const handleClick = (e: React.MouseEvent) => {
     if (isLocked) {
       e.preventDefault();
@@ -48,7 +59,7 @@ const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon:
     }
     if (isRateLimited) {
       e.preventDefault();
-      toast.warning("Please wait a moment before trying again.", { duration: 1500 });
+      toast.warning("Aguarde um momento antes de tentar novamente.", { duration: 1500 });
       return;
     }
     onClick?.();
@@ -58,7 +69,8 @@ const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon:
     <div className={cn(
       "p-4 rounded-2xl transition-all duration-500 flex-shrink-0 w-[200px] lg:w-[200px] relative",
       "bg-card/10 backdrop-blur-md",
-      "border-2 border-primary/70 shadow-xl",
+      "border-2 shadow-xl",
+      isUnlocked ? "border-green-500/70 shadow-green-500/30" : "border-primary/70 shadow-primary/30",
       "cursor-pointer hover:scale-[1.03] hover:shadow-primary/70",
       "neon-blue-border-glow",
       isRateLimited && "opacity-50",
@@ -71,11 +83,21 @@ const ElitePillarCard: React.FC<ElitePillarProps> = ({ title, description, icon:
           <Lock className="h-8 w-8 text-gray-400" />
         </div>
       )}
+      {isUnlocked && (
+        <div className="absolute top-2 right-2 z-10">
+          <CheckCircle className="h-5 w-5 text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]" />
+        </div>
+      )}
       <div className={cn(
         "h-10 w-10 mb-3 flex items-center justify-center rounded-full border-2",
-        isLocked ? "border-gray-500/50 bg-gray-500/10" : "border-primary/50 bg-primary/10"
+        isLocked ? "border-gray-500/50 bg-gray-500/10" : 
+        isUnlocked ? "border-green-500/50 bg-green-500/10" : "border-primary/50 bg-primary/10"
       )}>
-        <Icon className={cn("h-5 w-5", isLocked ? "text-gray-400" : "text-primary icon-neon-glow")} />
+        <Icon className={cn(
+          "h-5 w-5", 
+          isLocked ? "text-gray-400" : 
+          isUnlocked ? "text-green-400 icon-neon-glow" : "text-primary icon-neon-glow"
+        )} />
       </div>
       
       <h3 className="text-lg font-bold mb-1 text-foreground">{title}</h3>
@@ -112,7 +134,7 @@ const Index = () => {
 
   const handlePillarClick = (title: string, requiredLevel: number, to: string) => {
     if (!user) {
-      toast.warning("Please sign in to access premium features.", { duration: 3000 });
+      toast.warning("Faça login para acessar recursos premium.", { duration: 3000 });
       return;
     }
     if (currentLevel < requiredLevel) {
@@ -124,13 +146,13 @@ const Index = () => {
   
   const handleSuccessPillarClick = () => {
     if (!user) {
-      toast.warning("Please sign in to access Prime features.", { duration: 3000 });
+      toast.warning("Faça login para acessar recursos Prime.", { duration: 3000 });
       return;
     }
     if (!isPrime) {
       openPrimeModal();
     } else {
-      toast.info("Welcome back, Prime Member!", { duration: 3000 });
+      toast.info("Bem-vindo de volta, Membro Prime!", { duration: 3000 });
     }
   };
 
@@ -151,37 +173,42 @@ const Index = () => {
           <div className="flex overflow-x-auto space-x-4 pb-4 px-4 md:px-0 md:justify-center">
             <ElitePillarCard 
               title="Basic" 
-              description="Traditional Karaoke with original MVs and Battle system." 
+              description="Karaoke tradicional com MVs originais e sistema de batalha." 
               icon={Music} 
               onClick={handleBasicPillarClick}
               isRateLimited={isRateLimited}
+              isUnlocked={currentLevel > 0}
             />
             <ElitePillarCard 
               title="Academy" 
-              description="10-level curriculum with AI Vocal Diagnostic." 
+              description="Currículo de 10 níveis com Diagnóstico Vocal AI." 
               icon={GraduationCap} 
               to="/academy"
+              isUnlocked={currentLevel > 0}
             />
             <ElitePillarCard 
               title="Next Talent" 
-              description="10-level gamified auditions, local to global." 
+              description="Audições gamificadas de 10 níveis, do local ao global." 
               icon={Star} 
               isLocked={currentLevel < 5}
+              isUnlocked={currentLevel >= 5}
               onLockClick={() => handlePillarClick("Next Talent", 5, "/talent")}
             />
             <ElitePillarCard 
               title="Backstage" 
-              description="Premium UI locked behind Pro-Vocal test." 
+              description="UI Premium bloqueada por teste Pro-Vocal." 
               icon={Lock} 
               isLocked={currentLevel < 8}
+              isUnlocked={currentLevel >= 8}
               onLockClick={() => handlePillarClick("Backstage", 8, "/backstage")}
             />
             <ElitePillarCard 
               title="Amazon Success" 
-              description="Global ranking system based on performance." 
+              description="Ranking global baseado em performance." 
               icon={isPrime ? Trophy : Lock} 
               onClick={handleSuccessPillarClick}
               isLocked={!isPrime}
+              isUnlocked={isPrime}
               onLockClick={handleSuccessPillarClick}
             />
           </div>
@@ -198,7 +225,7 @@ const Index = () => {
         <RecentlyAdded />
         <TrendTopicsFeed />
         <div className="mt-12 pb-16 px-4 md:px-0">
-          <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Karaoke Anthems Worldwide</h2>
+          <h2 className="text-4xl font-bold text-center mb-8 text-primary neon-blue-glow">Antemas de Karaoke em Todo o Mundo</h2>
           <RankingTables />
         </div>
       </div>
