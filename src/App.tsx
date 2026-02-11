@@ -18,13 +18,10 @@ import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
 import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
 import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
-// import { DuelProvider } from "./hooks/use-duel-engine"; // Removed
-// import DuelSummaryModal from "./components/DuelSummaryModal"; // Removed
 import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
 
 const queryClient = new QueryClient();
 
-// Helper components for modals
 const LoginModalWrapper = () => {
   const { isModalOpen, closeModal } = useLoginModal();
   return <LoginModal isOpen={isModalOpen} onClose={closeModal} />;
@@ -38,10 +35,6 @@ const PerformanceSummaryModalWrapper = () => {
   return <PerformanceSummaryModal />;
 }
 
-// const DuelSummaryModalWrapper = () => { // Removed
-//   return <DuelSummaryModal />;
-// }
-
 const BadgeUnlockedModalWrapper = () => {
   return <BadgeUnlockedModal />;
 }
@@ -54,25 +47,20 @@ const App = () => (
       <AuthProvider>
         <LoginModalProvider>
           <PrimeSubscriptionProvider>
-            <VocalSandboxProvider key="forced-clean-mount-v2">
-              {/* <DuelProvider> */}
-                <BrowserRouter>
-                  <Layout>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/library" element={<Library />} />
-                      <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
-                      <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Layout>
-                  {/* Modals that rely on Auth/Login/Prime context */}
-                  <LoginModalWrapper />
-                  <PrimeSubscriptionModalWrapper />
-                  {/* <DuelSummaryModalWrapper /> */}
-                </BrowserRouter>
-              {/* </DuelProvider> */}
-              {/* Modals that rely on VocalSandbox context (must be inside VocalSandboxProvider) */}
+            <VocalSandboxProvider key="vocal-sandbox-root">
+              <BrowserRouter>
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/library" element={<Library />} />
+                    <Route path="/academy" element={<ProtectedRoute element={<Academy />} />} />
+                    <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Layout>
+                <LoginModalWrapper />
+                <PrimeSubscriptionModalWrapper />
+              </BrowserRouter>
               <VocalSandboxOverlay />
               <PerformanceSummaryModalWrapper />
               <BadgeUnlockedModalWrapper />

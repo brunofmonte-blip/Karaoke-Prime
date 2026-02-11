@@ -9,13 +9,13 @@ interface LayoutProps {
 }
 
 const Tagline: React.FC = () => (
-  <div className="text-center py-10">
+  <div className="text-center py-12 px-4">
     <h2 className={cn(
-      "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
+      "text-3xl md:text-5xl lg:text-6xl font-extrabold uppercase tracking-widest leading-tight",
       "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
     )}>
       CANTE. EVOLUA. CONQUISTAR O 
-      <span className="relative inline-block ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+      <span className="block md:inline-block md:ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
         MUNDO.
       </span>
     </h2>
@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      <main className="flex-grow pb-16 md:pb-0"> {/* Added padding bottom for mobile nav */}
+      <main className="flex-grow pb-16 md:pb-0">
         {children}
       </main>
       <Tagline />

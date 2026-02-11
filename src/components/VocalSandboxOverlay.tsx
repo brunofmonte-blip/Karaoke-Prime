@@ -1,12 +1,11 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, StopCircle, Music, X, ShieldCheck, Loader2 } from 'lucide-react';
+import { Mic, StopCircle, Music, X, ShieldCheck } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/integrations/supabase/auth';
 import LyricPlayer from './LyricPlayer';
-import { useDuel } from '@/hooks/use-duel-engine';
 import { Slider } from '@/components/ui/slider';
 
 const VocalSandboxOverlay: React.FC = () => {
@@ -14,43 +13,32 @@ const VocalSandboxOverlay: React.FC = () => {
     isOverlayOpen, 
     closeOverlay, 
     isAnalyzing, 
-    startAnalysis: startSandboxAnalysis, 
-    stopAnalysis: stopSandboxAnalysis, 
+    startAnalysis, 
+    stopAnalysis, 
     pitchData, 
     pitchHistory,
     currentSongTitle,
     currentSongArtist,
     currentSong,
     currentTime,
-    sessionSummary,
-    isDuelMode,
     countdown,
     sensitivity,
     setSensitivity,
     isOnline,
-    ghostTrace,
   } = useVocalSandbox();
-  
-  const { isDuelActive, currentTurn, recordTurn, duelSong } = useDuel();
   
   const { user } = useAuth();
 
-  // Determine the effective song and mode based on Duel context
-  const effectiveSong = isDuelActive ? duelSong : currentSong;
-  const effectiveIsDuelMode = isDuelActive;
-
-  // Calculate final score when analysis stops (used for display before summary modal opens)
   const finalScore = useMemo(() => {
     if (pitchHistory.length === 0) return 0;
     const totalPitch = pitchHistory.reduce((sum, item) => sum + item.pitch, 0);
     return totalPitch / pitchHistory.length;
   }, [pitchHistory]);
 
-  if (!isOverlayOpen || !effectiveSong) {
+  if (!isOverlayOpen || !currentSong) {
     return null;
   }
   
-  // If countdown is active, show the large countdown screen
   if (countdown !== null) {
     return (
       <div className="fixed inset-0 z-[101] bg-background/95 backdrop-blur-xl flex items-center justify-center">
@@ -66,38 +54,13 @@ const VocalSandboxOverlay: React.FC = () => {
     );
   }
   
-  const player1Name = user?.email?.split('@')[0] || 'Player 1';
-  const player2Name = 'Local Opponent (AI)';
+  const playerName = user?.email?.split('@')[0] || 'Vocalist';
   
-  const currentPlayerName = effectiveIsDuelMode && currentTurn === 2 ? player2Name : player1Name;
-  
-  const overlayTitle = effectiveIsDuelMode 
-    ? `Duel Mode: Turn ${currentTurn} (${currentPlayerName})`
-    : 'Live Vocal Sandbox';
-
-  const handleStartAnalysis = () => {
-    // Pass duel mode and ghost trace to the agnostic sandbox provider
-    const trace = effectiveIsDuelMode && currentTurn === 2 ? pitchHistory : [];
-    startSandboxAnalysis(effectiveSong, effectiveIsDuelMode, trace);
-  };
-
-  const handleStopAnalysis = () => {
-    const result = stopSandboxAnalysis();
-    
-    if (effectiveIsDuelMode && result) {
-      // If in duel mode, pass control back to the Duel engine
-      recordTurn();
-    }
-    // If not in duel mode, the score persistence is handled internally by useVocalSandbox useEffect
-  };
-
   return (
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
-      
-      {/* Header and Close Button */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl md:text-4xl font-bold text-primary neon-blue-glow">
-          {overlayTitle}
+          Live Vocal Sandbox
         </h1>
         <Button 
           variant="ghost" 
@@ -110,11 +73,7 @@ const VocalSandboxOverlay: React.FC = () => {
       </div>
 
       <div className="flex-grow space-y-8">
-        
-        {/* Control Panel & Current Track */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Control Panel */}
           <Card className={cn("lg:col-span-1 glass-pillar h-fit")}>
             <CardHeader>
               <CardTitle className="text-accent neon-gold-glow">Controls</CardTitle>
@@ -122,15 +81,15 @@ const VocalSandboxOverlay: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="flex justify-center space-x-4">
                 <Button 
-                  onClick={handleStartAnalysis} 
-                  disabled={isAnalyzing || effectiveIsDuelMode && currentTurn === 2 && pitchHistory.length > 0}
+                  onClick={() => startAnalysis(currentSong, false)} 
+                  disabled={isAnalyzing}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/30"
                 >
                   <Mic className="h-5 w-5 mr-2" />
-                  {isAnalyzing ? 'Singing...' : (effectiveIsDuelMode && currentTurn === 2 ? `Start ${player2Name}'s Turn` : 'Start Singing')}
+                  {isAnalyzing ? 'Singing...' : 'Start Singing'}
                 </Button>
                 <Button 
-                  onClick={handleStopAnalysis} 
+                  onClick={stopAnalysis} 
                   disabled={!isAnalyzing}
                   variant="destructive"
                   className="rounded-xl shadow-lg shadow-destructive/30"
@@ -140,7 +99,6 @@ const VocalSandboxOverlay: React.FC = () => {
                 </Button>
               </div>
 
-              {/* Microphone Sensitivity Control */}
               <div className="pt-4 border-t border-border/50">
                 <h3 className="text-lg font-semibold text-foreground mb-2">Microphone Sensitivity</h3>
                 <Slider
@@ -156,7 +114,6 @@ const VocalSandboxOverlay: React.FC = () => {
                 </p>
               </div>
               
-              {/* Online Status Indicator */}
               <div className="pt-4 border-t border-border/50">
                 <h3 className="text-lg font-semibold text-foreground mb-2">Sync Status</h3>
                 <p className={cn(
@@ -174,18 +131,14 @@ const VocalSandboxOverlay: React.FC = () => {
                   <Music className="h-4 w-4 mr-2" />
                   {currentSongTitle} by {currentSongArtist}
                 </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Note: This is a royalty-free track placeholder.
-                </p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Session Summary / Score Display */}
           <Card className={cn("lg:col-span-2 glass-pillar flex items-center justify-center p-6")}>
             <div className="text-center">
               <p className="text-xl text-muted-foreground mb-2">
-                {effectiveIsDuelMode ? `Current Pitch (${currentPlayerName})` : 'Current Pitch Accuracy'}
+                Current Pitch Accuracy
               </p>
               <p className={cn(
                 "text-6xl font-extrabold",
@@ -195,36 +148,31 @@ const VocalSandboxOverlay: React.FC = () => {
               </p>
               {!isAnalyzing && pitchHistory.length > 0 && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  {effectiveIsDuelMode 
-                    ? (currentTurn === 2 ? `Player 1 score recorded. Waiting for Player 2.` : 'Duel finished. Results saved locally.')
-                    : 'Session ended. Score saved to profile.'
-                  }
+                  Session ended. Score saved to profile.
                 </p>
               )}
             </div>
           </Card>
         </div>
         
-        {/* Live Lyrics Display (Glassmorphism Style) */}
         <Card className={cn("glass-pillar")}>
           <CardHeader>
             <CardTitle className="text-primary">Live Lyrics</CardTitle>
           </CardHeader>
           <CardContent className="py-6">
-            <LyricPlayer lyrics={effectiveSong.lyrics} currentTime={currentTime} />
+            <LyricPlayer lyrics={currentSong.lyrics} currentTime={currentTime} />
           </CardContent>
         </Card>
       </div>
       
-      {/* Footer Tagline Fix (Cleaned up) */}
       <div className="text-center py-10 mt-auto">
         <h2 className={cn(
           "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
           "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
         )}>
-          SING. EVOLVE. CONQUER THE 
+          CANTE. EVOLUA. CONQUISTAR O 
           <span className="relative inline-block ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-            WORLD.
+            MUNDO.
           </span>
         </h2>
       </div>

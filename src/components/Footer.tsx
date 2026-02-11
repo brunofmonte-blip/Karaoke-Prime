@@ -1,11 +1,9 @@
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import UserProfileCard from './UserProfileCard';
-import { cn } from '@/lib/utils';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
 import VocalEvolutionChart from './VocalEvolutionChart';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
-// import { useDuel } from '@/hooks/use-duel-engine'; // Removed Import
 
 const staticChartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -18,20 +16,10 @@ const staticChartData = [
 ];
 
 const Footer = () => {
-  // Call all hooks at the top level
   const { user } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   const vocalContext = useVocalSandbox();
   
-  // Removed useDuel context access to bypass error
-  // let duelContext;
-  // try {
-  //   duelContext = useDuel();
-  // } catch (e) {
-  //   return null; 
-  // }
-
-  // Safety check: If vocal context is undefined (shouldn't happen with correct hierarchy)
   if (!vocalContext) {
     return null;
   }
@@ -41,7 +29,6 @@ const Footer = () => {
     pitchHistory, 
     isPitchDeviating, 
     recentAchievements,
-    ghostTrace,
   } = vocalContext;
 
   const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : staticChartData;
@@ -54,7 +41,7 @@ const Footer = () => {
     rankingOnline: 9999,
     rankingOffline: 9999,
     avatarUrl: undefined,
-    earnedBadgeIds: [], // Default empty array
+    earnedBadgeIds: [],
   };
 
   const userData = user && profile ? {
@@ -62,28 +49,22 @@ const Footer = () => {
     bestNote: profile.best_note,
     academyLevel: profile.academy_level,
     rankingOnline: profile.ranking_position,
-    rankingOffline: profile.ranking_position, // Using online ranking as mock for offline
+    rankingOffline: profile.ranking_position,
     avatarUrl: profile.avatar_url || user.user_metadata.avatar_url,
-    earnedBadgeIds: profile.badges, // Pass earned badges
+    earnedBadgeIds: profile.badges,
   } : defaultUserData;
 
   return (
     <footer className="w-full bg-background border-t border-border/40 p-6">
       <div className="container mx-auto">
-        
-        {/* Main Content Grid: Chart (2/3) and Profile (1/3) - items-stretch for symmetry */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8 h-[300px]">
-          
-          {/* Vocal Note Evolution Chart */}
-          <div className="lg:col-span-2 w-full h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8 h-auto lg:h-[300px]">
+          <div className="lg:col-span-2 w-full h-[300px] lg:h-full">
             <VocalEvolutionChart 
               title={chartTitle} 
               data={chartData} 
-              opponentTrace={isAnalyzing ? ghostTrace : undefined}
             />
           </div>
 
-          {/* User Profile Card */}
           <div className="lg:col-span-1">
             {isProfileLoading && user ? (
               <div className="h-full flex items-center justify-center glass-pillar rounded-2xl p-6">
@@ -106,7 +87,6 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Footer Links and Branding */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-border/40">
           <p className="text-sm text-muted-foreground order-2 md:order-1 mt-4 md:mt-0">
             © {new Date().getFullYear()} Karaoke Prime. All rights reserved.
