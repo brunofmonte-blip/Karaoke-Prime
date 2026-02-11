@@ -33,7 +33,6 @@ const PerformanceSummaryModal: React.FC = () => {
   
   const isOpen = !!sessionSummary;
   const currentLevel = profile?.academy_level ?? 0;
-  const currentXp = profile?.xp ?? 0;
 
   const finalScore = sessionSummary?.pitchAccuracy || 0;
   const rhythmPrecision = sessionSummary?.rhythmPrecision || 0;
@@ -53,21 +52,19 @@ const PerformanceSummaryModal: React.FC = () => {
   useEffect(() => {
     if (isOpen && !isProfileLoading && profile && currentLevel === 0) {
       const unlockLevel1 = async () => {
-        if (currentXp > 0) { 
-          const { error } = await supabase
-            .from('profiles')
-            .update({ academy_level: 1 })
-            .eq('id', profile.id);
+        const { error } = await supabase
+          .from('profiles')
+          .update({ academy_level: 1 })
+          .eq('id', profile.id);
 
-          if (!error) {
-            toast.success("Academy Desbloqueada! Nível 1 disponível.", { duration: 5000 });
-            queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-          }
+        if (!error) {
+          toast.success("Academy Desbloqueada! Nível 1 disponível.", { duration: 5000 });
+          queryClient.invalidateQueries({ queryKey: ['userProfile'] });
         }
       };
       unlockLevel1();
     }
-  }, [isOpen, isProfileLoading, profile, currentLevel, currentXp, queryClient]);
+  }, [isOpen, isProfileLoading, profile, currentLevel, queryClient]);
 
   const handleGoToAcademy = () => {
     clearSessionSummary();
@@ -118,7 +115,7 @@ const PerformanceSummaryModal: React.FC = () => {
             <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
               <Clock className="h-5 w-5 text-primary mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">Duração</p>
-              <p className="font-semibold text-foreground">{durationSeconds}s</p>
+              <p className="font-semibold text-foreground">{durationSeconds} segundos</p>
             </div>
           </div>
 
@@ -162,7 +159,7 @@ const PerformanceSummaryModal: React.FC = () => {
           onClick={handleGoToAcademy}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-8 py-3 shadow-lg shadow-primary/30"
         >
-          Ir para Academy
+          Ir para a Academia
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
         

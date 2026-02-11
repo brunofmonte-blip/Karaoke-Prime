@@ -5,34 +5,29 @@ interface AudioAnalyzerResult {
   isAnalyzing: boolean;
   startAnalysis: () => void;
   stopAnalysis: () => void;
-  pitchDataHz: number; // New: Raw detected frequency in Hz
-  pitchDataVisualization: number; // Existing: 0-100 scale for UI
-  sensitivity: number; // New: Current sensitivity setting (0-255)
-  setSensitivity: (value: number) => void; // New: Setter for sensitivity
+  pitchDataHz: number;
+  pitchDataVisualization: number;
+  sensitivity: number;
+  setSensitivity: (value: number) => void;
 }
 
 const FFT_SIZE = 2048;
 const SAMPLE_RATE = 44100;
-const MIN_FREQ = 80; // Approx E2
-const MAX_FREQ = 1000; // Approx C6
-
-// Default threshold for pitch detection (volume level 0-255)
+const MIN_FREQ = 80;
+const MAX_FREQ = 1000;
 const DEFAULT_SENSITIVITY_THRESHOLD = 100; 
 
-// Function to convert frequency (Hz) to a 0-100 visualization scale
 const frequencyToVisualizationScale = (frequency: number): number => {
   if (frequency < MIN_FREQ) return 0;
   if (frequency > MAX_FREQ) return 100;
-  
-  // Simple linear scaling for visualization purposes
   return ((frequency - MIN_FREQ) / (MAX_FREQ - MIN_FREQ)) * 100;
 };
 
 export const useAudioAnalyzer = (): AudioAnalyzerResult => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [pitchDataHz, setPitchDataHz] = useState(0); // New state for Hz
-  const [pitchDataVisualization, setPitchDataVisualization] = useState(0); // Existing state for visualization
-  const [sensitivity, setSensitivity] = useState(DEFAULT_SENSITIVITY_THRESHOLD); // New state for sensitivity
+  const [pitchDataHz, setPitchDataHz] = useState(0);
+  const [pitchDataVisualization, setPitchDataVisualization] = useState(0);
+  const [sensitivity, setSensitivity] = useState(DEFAULT_SENSITIVITY_THRESHOLD);
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -48,7 +43,6 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     
     analyser.getByteFrequencyData(dataArray);
 
-    // Simple pitch detection: find the peak frequency bin
     let maxVolume = 0;
     let maxIndex = -1;
 
@@ -60,19 +54,17 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     }
 
     let frequency = 0;
-    // Use sensitivity threshold here
     if (maxIndex > 0 && maxVolume > sensitivity) { 
-      // Calculate frequency based on bin index
       frequency = (maxIndex * SAMPLE_RATE) / FFT_SIZE;
     }
     
     const visualizationPitch = frequencyToVisualizationScale(frequency);
     
-    setPitchDataHz(frequency); // Update raw frequency
-    setPitchDataVisualization(visualizationPitch); // Update visualization pitch
+    setPitchDataHz(frequency);
+    setPitchDataVisualization(visualizationPitch);
 
     animationFrameRef.current = requestAnimationFrame(analyze);
-  }, [sensitivity]); // Added sensitivity as dependency
+  }, [sensitivity]);
 
   const startAnalysis = async () => {
     if (isAnalyzing) return;
@@ -82,6 +74,12 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       const context = new AudioContext();
+      
+      // Explicitly resume context to bypass browser security
+      if (context.state === 'suspended') {
+        await context.resume();
+      }
+      
       audioContextRef.current = context;
 
       const analyser = context.createAnalyser();
@@ -93,14 +91,13 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
       sourceRef.current = source;
 
       setIsAnalyzing(true);
-      toast.success("Microphone connected. Start singing!", { duration: 2000 });
+      toast.success("Microfone conectado. Pode começar a cantar!", { duration: 2000 });
       
-      // Start the analysis loop
       animationFrameRef.current = requestAnimationFrame(analyze);
 
     } catch (error) {
       console.error("[use-audio-analyzer] Error accessing microphone:", error);
-      toast.error("Microphone access denied. Please check permissions.", { duration: 5000 });
+      toast.error("Acesso ao microfone negado. Verifique as permissões.", { duration: 5000 });
       setIsAnalyzing(false);
     }
   };
@@ -110,8 +107,8 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
       cancelAnimationFrame(animationFrameRef.current);
     }
     if (sourceRef.current) {
-      const track = sourceRef.current.mediaStream.getTracks()[0];
-      track.stop();
+      const tracks = sourceRef.current.mediaStream.getTracks();
+      tracks.forEach(track => track.stop());
       sourceRef.current.disconnect();
     }
     if (audioContextRef.current) {
@@ -120,7 +117,6 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     setIsAnalyzing(false);
     setPitchDataHz(0);
     setPitchDataVisualization(0);
-    toast.info("Analysis stopped.", { duration: 2000 });
   };
 
   useEffect(() => {
