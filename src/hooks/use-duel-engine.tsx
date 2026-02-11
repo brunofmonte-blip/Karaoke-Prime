@@ -2,16 +2,11 @@ import React, { createContext, useContext, useState, ReactNode, useCallback } fr
 import { useAuth } from '@/integrations/supabase/auth';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { OfflineDuelResult, mockSaveOfflineDuel, mockGetUnsyncedDuels, mockMarkDuelAsSynced } from '@/utils/offline-storage';
-import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine';
-import { PublicDomainSong, publicDomainLibrary, getDifficultyMultiplier } from '@/data/public-domain-library';
+import { OfflineDuelResult, mockSaveOfflineDuel } from '@/utils/offline-storage';
+import { PerformanceInsight } from '@/utils/scoring-engine';
+import { PublicDomainSong } from '@/data/public-domain-library';
 import { ChartDataItem, useVocalSandbox } from './use-vocal-sandbox';
-import { supabase } from '@/integrations/supabase/client';
-import { useUserProfile, UserProfile } from './use-user-profile';
-import { checkAndUnlockBadges } from '@/utils/badge-logic';
-import { BadgeId } from '@/data/badges';
-
-const MOCK_USER_2_ID = "ai-opponent-pro"; 
+import { useUserProfile } from './use-user-profile';
 
 interface DuelContextType {
   isDuelActive: boolean;
@@ -25,30 +20,28 @@ interface DuelContextType {
 const DuelContext = createContext<DuelContextType | undefined>(undefined);
 
 export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Safe Duel Injection: Ensure we are in a browser environment
+  if (typeof window === 'undefined') return <>{children}</>;
+
   const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const { data: profile } = useUserProfile();
-  const { startAnalysis, stopAnalysis, openOverlay, closeOverlay, setUnlockedBadges, clearUnlockedBadges } = useVocalSandbox();
+  const { startAnalysis, openOverlay, closeOverlay, clearUnlockedBadges } = useVocalSandbox();
   
   const [isDuelActive, setIsDuelActive] = useState(false);
   const [duelSong, setDuelSong] = useState<PublicDomainSong | null>(null);
   const [duelSummary, setDuelSummary] = useState<OfflineDuelResult | null>(null);
-  const [aiHistory, setAiHistory] = useState<ChartDataItem[]>([]);
 
   const clearDuel = useCallback(() => {
     setIsDuelActive(false);
     setDuelSong(null);
     setDuelSummary(null);
-    setAiHistory([]);
     clearUnlockedBadges();
     closeOverlay();
   }, [closeOverlay, clearUnlockedBadges]);
 
   const generateAiTrace = (song: PublicDomainSong): ChartDataItem[] => {
-    // Generate a trace with ~85% accuracy
     return song.referenceMelody.map((ref, i) => ({
       name: `T${i}`,
-      pitch: 85 + (Math.random() * 10 - 5), // AI stays around 85%
+      pitch: 85 + (Math.random() * 10 - 5),
       frequency: ref.frequency,
       breath: 80
     }));
@@ -61,7 +54,6 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
     
     const ghostTrace = generateAiTrace(song);
-    setAiHistory(ghostTrace);
     setDuelSong(song);
     setIsDuelActive(true);
     
@@ -70,13 +62,6 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     toast.info(`AI Duel Started! Beat the AI's 85% target.`, { duration: 4000 });
   }, [user, startAnalysis, openOverlay]);
-
-  // Handle duel completion when sandbox stops
-  React.useEffect(() => {
-    if (isDuelActive && !isDuelActive) { // This is a placeholder for when analysis ends
-        // Logic handled in sandbox completion
-    }
-  }, [isDuelActive]);
 
   const getDuelFeedback = useCallback((userId: string) => {
     if (!duelSummary || !duelSong) {
@@ -99,7 +84,7 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const opponentMetrics: PerformanceInsight = {
         pitchAccuracy: isUser1 ? duelSummary.user2PitchAccuracy : duelSummary.user1PitchAccuracy,
         rhythmPrecision: isUser1 ? duelSummary.user2RhythmPrecision : duelSummary.user1RhythmPrecision,
-        vocalStability: isUser1 ? duelSummary.user2VocalStability : duelSummary.user1VocalStability,
+        vocalStability: isUser1 ? duelSummary.user1VocalStability : duelSummary.user2VocalStability,
         improvementTips: [],
     };
     

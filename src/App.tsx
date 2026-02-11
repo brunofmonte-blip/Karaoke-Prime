@@ -29,22 +29,6 @@ const LoginModalWrapper = () => {
   return <LoginModal isOpen={isModalOpen} onClose={closeModal} />;
 };
 
-const PrimeSubscriptionModalWrapper = () => {
-  return <PrimeSubscriptionModal />;
-};
-
-const PerformanceSummaryModalWrapper = () => {
-  return <PerformanceSummaryModal />;
-};
-
-const BadgeUnlockedModalWrapper = () => {
-  return <BadgeUnlockedModal />;
-};
-
-const DuelSummaryModalWrapper = () => {
-  return <DuelSummaryModal />;
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -66,11 +50,11 @@ const App = () => (
                     </Routes>
                   </Layout>
                   <LoginModalWrapper />
-                  <PrimeSubscriptionModalWrapper />
+                  <PrimeSubscriptionModal />
                   <VocalSandboxOverlay />
-                  <PerformanceSummaryModalWrapper />
-                  <BadgeUnlockedModalWrapper />
-                  <DuelSummaryModalWrapper />
+                  <PerformanceSummaryModal />
+                  <BadgeUnlockedModal />
+                  <DuelSummaryModal />
                 </DuelProvider>
               </BrowserRouter>
             </VocalSandboxProvider>
