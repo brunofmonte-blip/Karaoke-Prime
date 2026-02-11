@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle } from "lucide-react";
+import React, { useState, useEffect, useMemo } from 'react';
+import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle, PlayCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import RecentlyAdded from "@/components/RecentlyAdded";
@@ -15,6 +15,8 @@ import { useAuth } from '@/integrations/supabase/auth';
 import { usePrimeSubscription } from '@/hooks/use-prime-subscription';
 import AchievementsSection from '@/components/AchievementsSection';
 import { publicDomainLibrary } from '@/data/public-domain-library';
+import { academyLessons } from '@/data/lessons';
+import { Button } from '@/components/ui/button';
 
 const HeroSection = () => (
   <section 
@@ -124,6 +126,13 @@ const Index = () => {
   const isPrime = profile?.is_prime ?? false;
   const [lockedPillar, setLockedPillar] = useState<{ title: string, requiredLevel: number } | null>(null);
 
+  const recommendedLesson = useMemo(() => {
+    if (currentLevel < 10) {
+      return academyLessons.find(lesson => lesson.level === currentLevel + 1);
+    }
+    return academyLessons[9]; // Max level
+  }, [currentLevel]);
+
   const handleBasicPillarClick = () => {
     trigger(() => {
       const defaultSong = publicDomainLibrary[0];
@@ -216,6 +225,32 @@ const Index = () => {
       </div>
 
       <div className="container mx-auto px-0 md:px-6 relative z-30 pt-[140px] md:pt-[140px]"> 
+        {/* AI Recommended Training Section */}
+        {user && (
+          <div className="mt-8 px-4 md:px-0 flex justify-center">
+            <div className="glass-pillar p-6 rounded-2xl border-2 border-accent/50 shadow-xl max-w-2xl w-full flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-full bg-accent/10 border border-accent/50">
+                  <Sparkles className="h-6 w-6 text-accent amazon-gold-glow" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Treinamento Recomendado</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Foco: <span className="text-accent font-semibold">{recommendedLesson?.focus}</span>
+                  </p>
+                </div>
+              </div>
+              <Button 
+                onClick={() => navigate('/academy')}
+                className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl px-6 py-2 shadow-lg shadow-accent/30 font-bold"
+              >
+                <PlayCircle className="h-5 w-5 mr-2" />
+                Começar Agora
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="py-16 px-4 md:px-0">
           <AchievementsSection />
         </div>

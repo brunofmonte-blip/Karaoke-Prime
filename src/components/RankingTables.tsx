@@ -74,9 +74,9 @@ const RankingList: React.FC<RankingListProps> = ({ title, data, colorClass, isGl
                 <TableRow 
                   key={item.userId} 
                   className={cn(
-                    "border-b border-border/30 transition-colors",
+                    "border-b border-border/30 transition-all duration-500",
                     isCurrentUser 
-                      ? "bg-primary/20 hover:bg-primary/30 border-primary/50 shadow-inner shadow-primary/50" 
+                      ? "bg-primary/20 border-2 border-primary shadow-[0_0_15px_rgba(0,168,225,0.4)] scale-[1.02] z-10 relative" 
                       : "hover:bg-secondary/20"
                   )}
                 >
@@ -84,21 +84,27 @@ const RankingList: React.FC<RankingListProps> = ({ title, data, colorClass, isGl
                     {index + 1}
                   </TableCell>
                   <TableCell className="flex items-center space-x-3 p-2">
-                    <Avatar className="h-8 w-8 border border-border/50">
+                    <Avatar className={cn(
+                      "h-8 w-8 border",
+                      isCurrentUser ? "border-primary shadow-sm shadow-primary/50" : "border-border/50"
+                    )}>
                       <AvatarImage src={item.avatar_url || undefined} alt={item.userName} />
                       <AvatarFallback className="bg-primary/20 text-primary text-xs">{item.userName.slice(0, 2)}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
                       <span className={cn(
                         "text-sm font-medium truncate max-w-[100px]",
-                        isCurrentUser ? "text-primary font-bold" : "text-foreground"
+                        isCurrentUser ? "text-primary font-bold neon-blue-glow" : "text-foreground"
                       )}>
                         {item.userName}
                       </span>
                       <span className="text-xs text-muted-foreground truncate max-w-[100px]">{item.song}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-extrabold text-lg p-2 text-accent">
+                  <TableCell className={cn(
+                    "text-right font-extrabold text-lg p-2",
+                    isCurrentUser ? "text-primary neon-blue-glow" : "text-accent"
+                  )}>
                     {item.score.toFixed(1)}
                   </TableCell>
                 </TableRow>
@@ -143,6 +149,21 @@ const RankingTables: React.FC = () => {
     return list.sort((a, b) => b.score - a.score);
   }, [globalRankings, profile, user]);
 
+  // Inject user into National Mock for visual proof
+  const effectiveNationalRankings = React.useMemo(() => {
+    let list = [...nationalRankingsMock];
+    if (user && profile && profile.best_note > 0) {
+      list.push({
+        userId: user.id,
+        userName: profile.username || "Você",
+        avatar_url: profile.avatar_url || user.user_metadata.avatar_url,
+        score: profile.best_note,
+        song: "Última Performance",
+      });
+    }
+    return list.sort((a, b) => b.score - a.score).slice(0, 3);
+  }, [profile, user]);
+
   if (isGlobalLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -163,7 +184,7 @@ const RankingTables: React.FC = () => {
       />
       <RankingList 
         title="Nacional Top 3" 
-        data={nationalRankingsMock} 
+        data={effectiveNationalRankings} 
         colorClass="text-accent neon-gold-glow" 
         isGlobal={false}
       />

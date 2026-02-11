@@ -7,6 +7,20 @@ import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { GraduationCap, Zap, Trophy } from 'lucide-react';
 
+const Tagline: React.FC = () => (
+  <div className="text-center py-12 px-4 mt-12 border-t border-border/40">
+    <h2 className={cn(
+      "text-2xl md:text-4xl font-extrabold uppercase tracking-widest leading-tight",
+      "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+    )}>
+      CANTE. EVOLUA. CONQUISTAR O 
+      <span className="block md:inline-block md:ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+        MUNDO.
+      </span>
+    </h2>
+  </div>
+);
+
 const Academy: React.FC = () => {
   const { data: profile, isLoading } = useUserProfile();
   
@@ -86,6 +100,8 @@ const Academy: React.FC = () => {
           <LessonCard key={lesson.level} lesson={lesson} />
         ))}
       </div>
+
+      <Tagline />
     </div>
   );
 };
