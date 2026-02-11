@@ -25,19 +25,19 @@ const queryClient = new QueryClient();
 const LoginModalWrapper = () => {
   const { isModalOpen, closeModal } = useLoginModal();
   return <LoginModal isOpen={isModalOpen} onClose={closeModal} />;
-}
+};
 
 const PrimeSubscriptionModalWrapper = () => {
   return <PrimeSubscriptionModal />;
-}
+};
 
 const PerformanceSummaryModalWrapper = () => {
   return <PerformanceSummaryModal />;
-}
+};
 
 const BadgeUnlockedModalWrapper = () => {
   return <BadgeUnlockedModal />;
-}
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -60,10 +60,10 @@ const App = () => (
                 </Layout>
                 <LoginModalWrapper />
                 <PrimeSubscriptionModalWrapper />
+                <VocalSandboxOverlay />
+                <PerformanceSummaryModalWrapper />
+                <BadgeUnlockedModalWrapper />
               </BrowserRouter>
-              <VocalSandboxOverlay />
-              <PerformanceSummaryModalWrapper />
-              <BadgeUnlockedModalWrapper />
             </VocalSandboxProvider>
           </PrimeSubscriptionProvider>
         </LoginModalProvider>
