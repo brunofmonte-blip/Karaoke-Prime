@@ -1,14 +1,11 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from 'react';
 import { useAudioAnalyzer } from './use-audio-analyzer';
 import { toast } from 'sonner';
-import { publicDomainLibrary, PublicDomainSong, getDifficultyMultiplier } from '@/data/public-domain-library';
-import { mockDownloadSong, mockSaveOfflineLog, mockGetUnsyncedLogs, mockMarkLogAsSynced } from '@/utils/offline-storage';
+import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
+import { mockDownloadSong } from '@/utils/offline-storage';
 import { runScoringEngine, PerformanceInsight } from '@/utils/scoring-engine';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/integrations/supabase/auth';
-import { useQueryClient } from '@tanstack/react-query';
 import { useUserProfile } from './use-user-profile';
-import { checkAndUnlockBadges } from '@/utils/badge-logic';
 import { BadgeId } from '@/data/badges';
 
 export interface ChartDataItem {
@@ -58,16 +55,12 @@ interface VocalSandboxContextType {
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
 
 const MAX_HISTORY = 100; 
-const MIN_SESSION_DURATION_POINTS = 10;
 const STABILITY_WINDOW = 10;
 const STABILITY_THRESHOLD = 5;
 const DEVIATION_THRESHOLD = 10;
-const XP_BONUS_THRESHOLD = 80;
-const XP_BONUS_VALUE = 50;
 
 export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
   const { data: profile } = useUserProfile();
   
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
@@ -82,7 +75,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); 
-  const [isCurrentDuelMode, setIsCurrentDuelMode] = useState(false);
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
@@ -114,11 +106,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
     
     if (audioTimerRef.current) {
-      clearTimeout(audioTimerRef.current);
+      window.clearTimeout(audioTimerRef.current);
       audioTimerRef.current = undefined;
     }
     if (countdownIntervalRef.current) {
-      clearInterval(countdownIntervalRef.current);
+      window.clearInterval(countdownIntervalRef.current);
       countdownIntervalRef.current = undefined;
     }
     setCountdown(null);
@@ -149,7 +141,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (isAnalyzing || countdown !== null) return;
     
     setCurrentSong(song);
-    setIsCurrentDuelMode(isDuelMode);
     await mockDownloadSong(song); 
 
     setPitchHistory([]);
@@ -166,24 +157,26 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     const lastLyricTime = song.lyrics.length > 0 
       ? song.lyrics[song.lyrics.length - 1].time 
       : 0;
-    const songDuration = Math.max(180, lastLyricTime + 20); // Ensure full track length
+    const songDuration = Math.max(180, lastLyricTime + 20); 
     
-    countdownIntervalRef.current = setInterval(() => {
+    countdownIntervalRef.current = window.setInterval(() => {
       setCountdown(prev => {
         if (prev === 1) {
-          clearInterval(countdownIntervalRef.current);
+          window.clearInterval(countdownIntervalRef.current);
           startAudio();
           sessionStartTimeRef.current = Date.now();
           
+          // Attempt audio playback but don't let it block the engine
           try {
             const audio = new Audio(song.audioUrl);
             audio.volume = 0.5;
-            audio.play().catch(() => console.log("[VocalSandbox] Autoplay blocked, continuing with mock timer."));
+            audio.play().catch(() => console.log("[VocalSandbox] Audio playback blocked by browser. Using synthetic timer."));
             audioRef.current = audio;
           } catch (e) {
             console.log("[VocalSandbox] Audio initialization failed.");
           }
 
+          // Synthetic Internal Timer (Drives the experience even if audio fails)
           const tick = () => {
             setCurrentTime(prevTime => {
               const newTime = prevTime + 0.1; 
@@ -191,22 +184,21 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
                 stopAnalysis();
                 return songDuration;
               }
-              audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
+              audioTimerRef.current = window.setTimeout(tick, 100);
               return newTime;
             });
           };
-          audioTimerRef.current = setTimeout(tick, 100) as unknown as number;
+          audioTimerRef.current = window.setTimeout(tick, 100);
           return null;
         }
         return (prev || 0) - 1;
       });
-    }, 1000) as unknown as number;
+    }, 1000);
   }, [isAnalyzing, countdown, startAudio, stopAnalysis]);
 
   useEffect(() => {
     if (isAnalyzing && pitchDataVisualization !== undefined) {
       const now = Date.now();
-      // Throttle history updates to 100ms for stability
       if (now - lastHistoryUpdateRef.current < 100) return;
       lastHistoryUpdateRef.current = now;
 
