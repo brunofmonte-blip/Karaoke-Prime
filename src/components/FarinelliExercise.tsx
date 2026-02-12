@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Wind, Pause, Play, AlertCircle, Volume2, Activity, User, Headphones, CheckCircle2 } from 'lucide-react';
@@ -27,7 +29,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     phases: ['inhale', 'suspend', 'exhale'],
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA' },
-    narration: { inhale: 'Inspira', suspend: 'Segura', exhale: 'Expira', rest: 'Pausa' },
+    narration: { inhale: 'Inspira profundamente', suspend: 'Segura o ar', exhale: 'Expira controladamente', rest: 'Pausa' },
     avatarAction: 'Expansão Pulmonar',
     checklist: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta e os ombros relaxados.'
   },
@@ -37,7 +39,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     phases: ['inhale', 'exhale'],
     durations: [4, 8],
     labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '' },
-    narration: { inhale: 'Inspira', exhale: 'Expira com bolhas', suspend: '', rest: '' },
+    narration: { inhale: 'Inspira pelo nariz', exhale: 'Expira com bolhas constantes', suspend: '', rest: '' },
     avatarAction: 'Bolhas no Canudo',
     checklist: 'Antes de começarmos, separe seu canudo e um copo com 3 dedos de água.'
   },
@@ -47,7 +49,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     phases: ['inhale', 'suspend', 'exhale'],
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA' },
-    narration: { inhale: 'Inspira', suspend: 'Segura', exhale: 'Expira', rest: 'Pausa' },
+    narration: { inhale: 'Inspira e expande', suspend: 'Mantém o suporte', exhale: 'Solta o ar com apoio', rest: 'Pausa' },
     avatarAction: 'Suporte Diafragmático',
     checklist: 'Foco no diafragma. Sinta a pressão abdominal e mantenha o suporte constante.'
   },
@@ -90,9 +92,15 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     if ('speechSynthesis' in window && isActive) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Target high-quality Brazilian Portuguese male voice
+      const voices = window.speechSynthesis.getVoices();
+      const ptBrVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Daniel') || v.name.includes('Male') || v.name.includes('Google')));
+      
+      if (ptBrVoice) utterance.voice = ptBrVoice;
       utterance.lang = 'pt-BR';
-      utterance.rate = 0.85; // Deep, professional male tone
-      utterance.pitch = 0.75; 
+      utterance.rate = 0.9; 
+      utterance.pitch = 0.85; 
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -100,7 +108,9 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   // Checklist Narration
   useEffect(() => {
     if (!isReady && config.checklist) {
-      speak(config.checklist);
+      // Small delay to ensure voices are loaded
+      const timer = setTimeout(() => speak(config.checklist), 500);
+      return () => clearTimeout(timer);
     }
   }, [isReady, config.checklist]);
 
@@ -181,24 +191,45 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8">
       {config.music && <audio ref={audioRef} src={config.music} loop hidden />}
 
-      {/* Studio Specialist Male Avatar */}
+      {/* Animated Studio Specialist Male Avatar */}
       <div className="w-full lg:w-64 h-80 rounded-3xl glass-pillar border-2 border-primary/30 overflow-hidden relative flex flex-col items-center justify-center p-4">
         <div className="absolute top-2 left-2 bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/30">
           STUDIO SPECIALIST
         </div>
+        
+        {/* Avatar Body with Phase-Synced Animations */}
         <div className={cn(
-          "h-32 w-32 rounded-full bg-primary/10 border-4 border-primary/30 flex items-center justify-center mb-4 transition-all duration-500 relative",
-          currentPhase === 'inhale' ? "scale-110 bg-primary/20" : "scale-100"
+          "h-40 w-40 rounded-full bg-primary/10 border-4 border-primary/30 flex items-center justify-center mb-4 transition-all duration-1000 relative",
+          currentPhase === 'inhale' && "scale-110 bg-primary/20 shadow-[0_0_30px_rgba(0,168,225,0.3)]",
+          currentPhase === 'suspend' && "scale-105 bg-accent/10 border-accent/50",
+          currentPhase === 'exhale' && "scale-95 bg-destructive/10 border-destructive/50"
         )}>
-          <User className="h-16 w-16 text-primary" />
-          <Headphones className="absolute -top-2 -right-2 h-8 w-8 text-accent amazon-gold-glow" />
+          <User className={cn(
+            "h-20 w-20 text-primary transition-transform duration-1000",
+            currentPhase === 'inhale' && "scale-110 translate-y-[-4px]",
+            currentPhase === 'suspend' && "scale-105",
+            currentPhase === 'exhale' && "scale-95 translate-y-[4px]"
+          )} />
+          
+          {/* Headphones Branding */}
+          <Headphones className="absolute -top-2 -right-2 h-10 w-10 text-accent amazon-gold-glow" />
+          
+          {/* Visual Breath Indicator */}
+          {currentPhase === 'inhale' && (
+            <div className="absolute inset-0 rounded-full border-2 border-primary/50 animate-ping" />
+          )}
         </div>
+
         <p className="text-sm font-bold text-foreground text-center uppercase tracking-wider">{config.avatarAction}</p>
         <p className="text-xs text-muted-foreground text-center mt-2">Observe o movimento do diafragma e ombros.</p>
         
+        {/* Phase Progress Bar */}
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20">
           <div 
-            className="h-full bg-primary transition-all duration-100" 
+            className={cn(
+              "h-full transition-all duration-100",
+              currentPhase === 'inhale' ? "bg-primary" : currentPhase === 'suspend' ? "bg-accent" : "bg-destructive"
+            )} 
             style={{ width: `${progress}%` }}
           />
         </div>
