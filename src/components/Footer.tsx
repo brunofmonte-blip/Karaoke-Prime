@@ -92,10 +92,7 @@ const Footer = () => {
             "text-2xl md:text-4xl font-extrabold uppercase tracking-widest leading-tight",
             "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
           )}>
-            CANTE. EVOLUA. CONQUISTAR O 
-            <span className="block md:inline-block md:ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-              MUNDO.
-            </span>
+            CANTE. EVOLUA. CONQUISTAR O MUNDO.
           </h2>
         </div>
 

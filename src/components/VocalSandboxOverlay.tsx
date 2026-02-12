@@ -43,20 +43,7 @@ const VocalSandboxOverlay: React.FC = () => {
     return null;
   }
   
-  if (countdown !== null) {
-    return (
-      <div className="fixed inset-0 z-[101] bg-background/95 backdrop-blur-xl flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-8xl font-extrabold text-primary neon-blue-glow animate-pulse">
-            {countdown === 0 ? 'VAI!' : countdown}
-          </p>
-          <p className="text-xl text-muted-foreground mt-4">
-            Prepare-se para o Treinamento: "{currentSongTitle}"
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Redundant full-screen countdown removed to prioritize internal exercise countdown
   
   return (
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">

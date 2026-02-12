@@ -44,7 +44,7 @@ const modules: Module[] = [
     exercises: [
       { id: 'canudo', title: 'Exercício do Canudo (SOVT)', type: 'sovt' },
       { id: 'lip-trills', title: 'Lip Trills de Resistência', type: 'sovt' },
-      { id: 'vacuo-b', title: 'Inalação de Vácuo (Jacobs)', type: 'sovt' }
+      { id: 'glissando', title: 'Glissando de Fluxo', type: 'sovt' }
     ]
   },
   {
@@ -67,8 +67,7 @@ const modules: Module[] = [
     prescription: 'Prática constante',
     exercises: [
       { id: 'expansao', title: 'Expansão Costal', type: 'alexander' },
-      { id: 'panting', title: 'Panting (Cachorro)', type: 'alexander' },
-      { id: 'alexander-pro', title: 'Técnica de Alexander Pro', type: 'alexander' }
+      { id: 'panting', title: 'Panting (Cachorro)', type: 'alexander' }
     ]
   }
 ];

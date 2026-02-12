@@ -84,7 +84,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
-      utterance.rate = 1.1;
+      utterance.rate = 0.9; // Slightly lower rate for a more masculine tone
+      utterance.pitch = 0.8; // Lower pitch for a male voice effect
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -137,10 +138,10 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8">
       {config.music && <audio ref={audioRef} src={config.music} loop hidden />}
 
-      {/* Instructional Avatar Window */}
+      {/* Male Instructional Avatar Window */}
       <div className="w-full lg:w-64 h-80 rounded-3xl glass-pillar border-2 border-primary/30 overflow-hidden relative flex flex-col items-center justify-center p-4">
         <div className="absolute top-2 left-2 bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/30">
-          AI TUTOR
+          INSTRUTOR MASCULINO
         </div>
         <div className={cn(
           "h-32 w-32 rounded-full bg-primary/10 border-4 border-primary/30 flex items-center justify-center mb-4 transition-all duration-500",
