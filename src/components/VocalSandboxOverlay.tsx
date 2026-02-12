@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, StopCircle, Music, X, ShieldCheck, Trophy, Wind, AlertCircle } from 'lucide-react';
+import { Mic, StopCircle, Music, X, ShieldCheck, Trophy, Wind, AlertCircle, Activity } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,10 @@ const VocalSandboxOverlay: React.FC = () => {
     countdown,
     sensitivity,
     setSensitivity,
+    breathingPhase,
+    breathingProgress,
+    isAirflowLow,
+    stabilityScore,
   } = useVocalSandbox();
   
   const progressValue = (currentTime / totalDuration) * 100;
@@ -79,8 +83,53 @@ const VocalSandboxOverlay: React.FC = () => {
 
       <div className="flex-grow space-y-8">
         {isBreathingExercise ? (
-          <div className="max-w-2xl mx-auto w-full">
+          <div className="max-w-4xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <FarinelliExercise />
+            
+            <Card className="glass-pillar border-2 border-accent/50 p-6">
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="text-accent flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Monitor de Apoio (SOVT)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 space-y-6">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground uppercase tracking-widest mb-2">Estabilidade do Sopro</p>
+                  <div className="relative h-32 w-32 mx-auto">
+                    <div className="absolute inset-0 rounded-full border-8 border-border/30" />
+                    <div 
+                      className={cn(
+                        "absolute inset-0 rounded-full border-8 transition-all duration-300",
+                        stabilityScore > 70 ? "border-primary" : stabilityScore > 40 ? "border-accent" : "border-destructive"
+                      )}
+                      style={{ 
+                        clipPath: `inset(${100 - stabilityScore}% 0 0 0)`,
+                        filter: 'drop-shadow(0 0 8px currentColor)'
+                      }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-3xl font-black">{stabilityScore.toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className={cn(
+                    "text-center font-bold text-lg animate-pulse",
+                    isAirflowLow ? "text-destructive" : "text-primary"
+                  )}>
+                    {breathingPhase === 'exhale' ? "MANTENHA AS BOLHAS CONSTANTES" : "PREPARE O APOIO"}
+                  </p>
+                  {isAirflowLow && breathingPhase === 'exhale' && (
+                    <div className="flex items-center justify-center gap-2 text-destructive text-sm font-bold">
+                      <AlertCircle className="h-4 w-4" />
+                      PERDA DE APOIO DETECTADA!
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

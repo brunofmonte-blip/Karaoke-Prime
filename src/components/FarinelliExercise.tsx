@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Wind, Pause, Play, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 
 type Phase = 'inhale' | 'suspend' | 'exhale';
 
@@ -105,7 +106,7 @@ const FarinelliExercise: React.FC = () => {
       <div className="p-4 rounded-2xl bg-card/50 border border-border/50 flex items-start gap-3 max-w-md">
         <AlertCircle className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
         <p className="text-xs text-muted-foreground">
-          <span className="font-bold text-foreground">Dica Pro:</span> Mantenha a glote aberta durante a suspensão. Não bloqueie o ar com a garganta, use o diafragma.
+          <span className="font-bold text-foreground">Dica de Segurança:</span> Se sentir tontura, pare imediatamente. O excesso de oxigênio é comum no início.
         </p>
       </div>
     </div>

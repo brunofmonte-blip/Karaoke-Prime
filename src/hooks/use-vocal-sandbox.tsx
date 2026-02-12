@@ -56,6 +56,7 @@ interface VocalSandboxContextType {
   breathingPhase: BreathingPhase;
   breathingProgress: number; // 0 to 1
   isAirflowLow: boolean;
+  stabilityScore: number; // 0 to 100
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
@@ -82,10 +83,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [isOnline, setIsOnline] = useState(true);
   const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); 
   
-  // Breathing States
+  // Breathing & SOVT States
   const [breathingPhase, setBreathingPhase] = useState<BreathingPhase>('none');
   const [breathingProgress, setBreathingProgress] = useState(0);
   const [isAirflowLow, setIsAirflowLow] = useState(false);
+  const [stabilityScore, setStabilityScore] = useState(100);
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
@@ -114,6 +116,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setBreathingPhase('none');
     setBreathingProgress(0);
     setIsAirflowLow(false);
+    setStabilityScore(100);
 
     if (stabilityToastRef.current) {
       toast.dismiss(stabilityToastRef.current);
@@ -166,6 +169,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     sessionStartTimeRef.current = null; 
     setCurrentTime(0);
     setGhostTrace(ghostTrace); 
+    setStabilityScore(100);
 
     const lastLyricTime = song.lyrics.length > 0 ? song.lyrics[song.lyrics.length - 1].time : 0;
     const duration = Math.max(30, lastLyricTime + 10); 
@@ -219,13 +223,15 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   useEffect(() => {
     if (isAnalyzing && pitchDataVisualization !== undefined) {
-      // Airflow Analysis: If exhaling, volume must be above threshold
+      // SOVT Airflow Analysis
       if (breathingPhase === 'exhale') {
-        const isLow = pitchDataVisualization < 15; // Threshold for "Sss" sound
+        const isLow = pitchDataVisualization < 15; // Threshold for "Sss" or bubbles
         setIsAirflowLow(isLow);
+        
         if (isLow) {
-          // Penalize score slightly in real-time by adding "noise" to history
-          // or just flagging for the scoring engine
+          setStabilityScore(prev => Math.max(0, prev - 2)); // Penalty for loss of support
+        } else {
+          setStabilityScore(prev => Math.min(100, prev + 0.5)); // Reward for consistency
         }
       } else {
         setIsAirflowLow(false);
@@ -301,6 +307,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         breathingPhase,
         breathingProgress,
         isAirflowLow,
+        stabilityScore,
       }}
     >
       {children}
