@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Wind, Pause, Play, AlertCircle, Volume2, Activity, User } from 'lucide-react';
+import { Wind, Pause, Play, AlertCircle, Volume2, Activity, User, Headphones } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ConservatoryModule } from '@/hooks/use-vocal-sandbox';
@@ -84,8 +84,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
-      utterance.rate = 0.9; // Slightly lower rate for a more masculine tone
-      utterance.pitch = 0.8; // Lower pitch for a male voice effect
+      utterance.rate = 0.85; // Deep, professional male tone
+      utterance.pitch = 0.75; 
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -138,21 +138,21 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8">
       {config.music && <audio ref={audioRef} src={config.music} loop hidden />}
 
-      {/* Male Instructional Avatar Window */}
+      {/* Studio Specialist Male Avatar */}
       <div className="w-full lg:w-64 h-80 rounded-3xl glass-pillar border-2 border-primary/30 overflow-hidden relative flex flex-col items-center justify-center p-4">
         <div className="absolute top-2 left-2 bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/30">
-          INSTRUTOR MASCULINO
+          STUDIO SPECIALIST
         </div>
         <div className={cn(
-          "h-32 w-32 rounded-full bg-primary/10 border-4 border-primary/30 flex items-center justify-center mb-4 transition-all duration-500",
+          "h-32 w-32 rounded-full bg-primary/10 border-4 border-primary/30 flex items-center justify-center mb-4 transition-all duration-500 relative",
           currentPhase === 'inhale' ? "scale-110 bg-primary/20" : "scale-100"
         )}>
-          <User className="h-16 w-16 text-primary animate-pulse" />
+          <User className="h-16 w-16 text-primary" />
+          <Headphones className="absolute -top-2 -right-2 h-8 w-8 text-accent amazon-gold-glow" />
         </div>
-        <p className="text-sm font-bold text-foreground text-center">{config.avatarAction}</p>
+        <p className="text-sm font-bold text-foreground text-center uppercase tracking-wider">{config.avatarAction}</p>
         <p className="text-xs text-muted-foreground text-center mt-2">Observe o movimento do diafragma e ombros.</p>
         
-        {/* Animation Overlay */}
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20">
           <div 
             className="h-full bg-primary transition-all duration-100" 
