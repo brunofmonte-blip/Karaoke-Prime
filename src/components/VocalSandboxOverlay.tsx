@@ -9,55 +9,7 @@ import LyricPlayer from './LyricPlayer';
 import { Slider } from '@/components/ui/slider';
 import VocalEvolutionChart from './VocalEvolutionChart';
 import { Progress } from '@/components/ui/progress';
-
-const BreathingSphere = () => {
-  const { breathingPhase, breathingProgress, isAirflowLow } = useVocalSandbox();
-  
-  const scale = breathingPhase === 'inhale' 
-    ? 0.6 + (breathingProgress * 0.6) 
-    : 1.2 - (breathingProgress * 0.6);
-
-  return (
-    <div className="flex flex-col items-center justify-center py-12">
-      <div className="relative">
-        {/* Metronome Pulse Ring */}
-        <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
-        
-        {/* The Sphere */}
-        <div 
-          className={cn(
-            "h-48 w-48 rounded-full transition-all duration-100 flex items-center justify-center shadow-2xl",
-            breathingPhase === 'inhale' ? "bg-primary/40 border-4 border-primary" : "bg-accent/40 border-4 border-accent",
-            isAirflowLow && "bg-destructive/40 border-destructive animate-shake"
-          )}
-          style={{ transform: `scale(${scale})` }}
-        >
-          <Wind className={cn(
-            "h-12 w-12",
-            breathingPhase === 'inhale' ? "text-primary" : "text-accent",
-            isAirflowLow && "text-destructive"
-          )} />
-        </div>
-      </div>
-
-      <div className="mt-8 text-center">
-        <h2 className={cn(
-          "text-4xl font-black tracking-tighter uppercase",
-          breathingPhase === 'inhale' ? "text-primary neon-blue-glow" : "text-accent neon-gold-glow",
-          isAirflowLow && "text-destructive"
-        )}>
-          {breathingPhase === 'inhale' ? "INALAR PROFUNDO" : "EXALAR CONSTANTE (Sssss)"}
-        </h2>
-        {isAirflowLow && (
-          <p className="text-destructive font-bold mt-2 flex items-center justify-center gap-2">
-            <AlertCircle className="h-5 w-5" />
-            SOPRO FRACO! SUSTENTE O AR
-          </p>
-        )}
-      </div>
-    </div>
-  );
-};
+import FarinelliExercise from './FarinelliExercise';
 
 const VocalSandboxOverlay: React.FC = () => {
   const { 
@@ -77,7 +29,6 @@ const VocalSandboxOverlay: React.FC = () => {
     countdown,
     sensitivity,
     setSensitivity,
-    breathingPhase,
   } = useVocalSandbox();
   
   const progressValue = (currentTime / totalDuration) * 100;
@@ -106,7 +57,7 @@ const VocalSandboxOverlay: React.FC = () => {
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl md:text-4xl font-bold text-primary neon-blue-glow">
-          {isBreathingExercise ? "Treinamento de Respiração" : "Sandbox Vocal ao Vivo"}
+          {isBreathingExercise ? "Conservatório Vocal" : "Sandbox Vocal ao Vivo"}
         </h1>
         <Button 
           variant="ghost" 
@@ -128,7 +79,9 @@ const VocalSandboxOverlay: React.FC = () => {
 
       <div className="flex-grow space-y-8">
         {isBreathingExercise ? (
-          <BreathingSphere />
+          <div className="max-w-2xl mx-auto w-full">
+            <FarinelliExercise />
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className={cn("lg:col-span-1 glass-pillar h-fit")}>
