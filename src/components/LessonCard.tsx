@@ -18,37 +18,37 @@ const LessonCard: React.FC<LessonCardProps> = ({ lesson }) => {
   const { startAnalysis, openOverlay } = useVocalSandbox();
   
   const currentLevel = profile?.academy_level ?? 0;
-  const isUnlocked = currentLevel >= lesson.level;
-  const isCompleted = currentLevel > lesson.level;
-  const isCurrent = currentLevel === lesson.level;
+  
+  // Logic: A lesson is unlocked if the user has completed the previous level
+  const isUnlocked = currentLevel >= lesson.level - 1;
+  const isCompleted = currentLevel >= lesson.level;
+  const isCurrent = currentLevel === lesson.level - 1;
 
-  // Mock: Find a suitable song for the lesson (using Vocal Exercises genre)
   const lessonSong = publicDomainLibrary.find(song => 
     song.genre === 'Vocal Exercises' && song.title.includes(lesson.focus.split(' ')[0])
   ) || publicDomainLibrary.find(song => song.genre === 'Vocal Exercises');
 
   const handleStartLesson = () => {
     if (!isUnlocked) {
-      toast.error(`Lesson Locked: Complete Level ${lesson.level - 1} first.`);
+      toast.error(`Lição Trancada: Complete o Nível ${lesson.level - 1} primeiro.`);
       return;
     }
     
     if (!lessonSong) {
-      toast.error("Lesson material not found. Please check the library.");
+      toast.error("Material da lição não encontrado.");
       return;
     }
 
-    // Start the sandbox analysis for this specific lesson song
-    startAnalysis(lessonSong, false); // Not duel mode
+    startAnalysis(lessonSong, false);
     openOverlay();
-    toast.info(`Starting Lesson ${lesson.level}: ${lesson.title}`, { duration: 3000 });
+    toast.info(`Iniciando Nível ${lesson.level}: ${lesson.title}`, { duration: 3000 });
   };
 
   const getStatusText = () => {
-    if (isCompleted) return "Completed";
-    if (isCurrent) return "Current Focus";
-    if (isUnlocked) return "Ready to Start";
-    return `Requires Level ${lesson.level - 1}`;
+    if (isCompleted) return "Completado";
+    if (isCurrent) return "Foco Atual";
+    if (isUnlocked) return "Pronto para Iniciar";
+    return `Requer Nível ${lesson.level - 1}`;
   };
 
   return (
@@ -64,7 +64,7 @@ const LessonCard: React.FC<LessonCardProps> = ({ lesson }) => {
             "text-xl font-bold",
             isCurrent ? "text-primary neon-blue-glow" : "text-foreground"
           )}>
-            Level {lesson.level}: {lesson.title}
+            Nível {lesson.level}: {lesson.title}
           </CardTitle>
           <div className={cn(
             "text-xs font-semibold px-2 py-1 rounded-full border",
@@ -82,11 +82,11 @@ const LessonCard: React.FC<LessonCardProps> = ({ lesson }) => {
         <div className="space-y-2 mb-4 pt-2 border-t border-border/50">
           <div className="flex items-center text-sm text-accent font-medium">
             <Target className="h-4 w-4 mr-2 amazon-gold-glow" />
-            Focus: {lesson.focus}
+            Foco: {lesson.focus}
           </div>
           <div className="flex items-center text-sm text-muted-foreground">
             <Zap className="h-4 w-4 mr-2 text-primary" />
-            Pass Score: {lesson.required_score}%
+            Nota de Aprovação: {lesson.required_score}%
           </div>
         </div>
 
@@ -103,17 +103,17 @@ const LessonCard: React.FC<LessonCardProps> = ({ lesson }) => {
           {isCompleted ? (
             <>
               <CheckCircle className="h-4 w-4 mr-2" />
-              Review Lesson
+              Revisar Lição
             </>
           ) : isUnlocked ? (
             <>
               <PlayCircle className="h-4 w-4 mr-2" />
-              Start Lesson
+              Iniciar Lição
             </>
           ) : (
             <>
               <Lock className="h-4 w-4 mr-2" />
-              Locked
+              Trancado
             </>
           )}
         </Button>

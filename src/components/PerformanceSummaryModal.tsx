@@ -11,20 +11,6 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-const Tagline: React.FC = () => (
-  <div className="text-center py-4">
-    <h2 className={cn(
-      "text-xl md:text-2xl font-extrabold uppercase tracking-widest",
-      "text-foreground drop-shadow-[0_0_5px_rgba(255,255,255,0.2)]"
-    )}>
-      CANTE. EVOLUA. CONQUISTAR O 
-      <span className="relative inline-block ml-2 text-foreground drop-shadow-[0_0_5px_rgba(255,255,255,0.2)]">
-        MUNDO.
-      </span>
-    </h2>
-  </div>
-);
-
 const PerformanceSummaryModal: React.FC = () => {
   const { sessionSummary, clearSessionSummary } = useVocalSandbox();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
@@ -33,6 +19,7 @@ const PerformanceSummaryModal: React.FC = () => {
   
   const isOpen = !!sessionSummary;
   const currentLevel = profile?.academy_level ?? 0;
+  const currentXp = profile?.xp ?? 0;
 
   const finalScore = sessionSummary?.pitchAccuracy || 0;
   const rhythmPrecision = sessionSummary?.rhythmPrecision || 0;
@@ -50,21 +37,36 @@ const PerformanceSummaryModal: React.FC = () => {
   }, [currentLevel]);
 
   useEffect(() => {
-    if (isOpen && !isProfileLoading && profile && currentLevel === 0) {
-      const unlockLevel1 = async () => {
+    if (isOpen && !isProfileLoading && profile) {
+      const updateProgress = async () => {
+        let newLevel = currentLevel;
+        
+        // Check if this session unlocks the next level
+        // Logic: If score meets requirement and user is at the previous level
+        if (recommendedLesson && finalScore >= recommendedLesson.required_score) {
+          newLevel = currentLevel + 1;
+          toast.success(`PARABÉNS! Você subiu para o Nível ${newLevel} da Academy!`, {
+            description: `Lição "${recommendedLesson.title}" completada com sucesso.`,
+            duration: 6000
+          });
+        }
+
         const { error } = await supabase
           .from('profiles')
-          .update({ academy_level: 1 })
+          .update({ 
+            academy_level: newLevel,
+            xp: currentXp + xpGained,
+            best_note: Math.max(profile.best_note || 0, finalScore)
+          })
           .eq('id', profile.id);
 
         if (!error) {
-          toast.success("Academy Desbloqueada! Nível 1 disponível.", { duration: 5000 });
           queryClient.invalidateQueries({ queryKey: ['userProfile'] });
         }
       };
-      unlockLevel1();
+      updateProgress();
     }
-  }, [isOpen, isProfileLoading, profile, currentLevel, queryClient]);
+  }, [isOpen, isProfileLoading, profile, currentLevel, queryClient, finalScore, recommendedLesson, xpGained, currentXp]);
 
   const handleGoToAcademy = () => {
     clearSessionSummary();
@@ -115,7 +117,7 @@ const PerformanceSummaryModal: React.FC = () => {
             <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
               <Clock className="h-5 w-5 text-primary mx-auto mb-1" />
               <p className="text-xs text-muted-foreground">Duração</p>
-              <p className="font-semibold text-foreground">{durationSeconds} segundos</p>
+              <p className="font-semibold text-foreground">{durationSeconds}s</p>
             </div>
           </div>
 
@@ -140,19 +142,12 @@ const PerformanceSummaryModal: React.FC = () => {
           {recommendedLesson && (
             <div className="p-4 bg-primary/10 border border-primary/50 rounded-xl">
               <h4 className="text-lg font-bold text-primary flex items-center mb-1">
-                <BookOpen className="h-5 w-5 mr-2" /> Lição Recomendada
+                <BookOpen className="h-5 w-5 mr-2" /> Próxima Lição
               </h4>
               <p className="text-sm text-foreground font-medium">{recommendedLesson.title}</p>
-              <p className="text-xs text-muted-foreground mt-1">Foco: {recommendedLesson.focus}</p>
+              <p className="text-xs text-muted-foreground mt-1">Foco: {recommendedLesson.focus} | Requer: {recommendedLesson.required_score}%</p>
             </div>
           )}
-        </div>
-        
-        <div className="mt-4 pt-4 border-t border-border/50 text-center">
-          <p className="text-sm text-green-400 font-medium flex items-center justify-center">
-            <ShieldCheck className="h-4 w-4 mr-2 text-green-400 amazon-gold-glow" />
-            Progresso Salvo com Segurança
-          </p>
         </div>
 
         <Button 
@@ -162,8 +157,6 @@ const PerformanceSummaryModal: React.FC = () => {
           Ir para a Academia
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
-        
-        <Tagline />
       </DialogContent>
     </Dialog>
   );

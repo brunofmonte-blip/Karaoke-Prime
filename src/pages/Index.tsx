@@ -17,6 +17,7 @@ import AchievementsSection from '@/components/AchievementsSection';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 import { academyLessons } from '@/data/lessons';
 import { Button } from '@/components/ui/button';
+import AdvancedSearch from '@/components/AdvancedSearch';
 
 const HeroSection = () => (
   <section 
@@ -225,6 +226,11 @@ const Index = () => {
       </div>
 
       <div className="container mx-auto px-0 md:px-6 relative z-30 pt-[140px] md:pt-[140px]"> 
+        {/* Advanced Search Section */}
+        <div className="mt-8 px-4 md:px-0">
+          <AdvancedSearch />
+        </div>
+
         {/* AI Recommended Training Section */}
         {user && (
           <div className="mt-8 px-4 md:px-0 flex justify-center">

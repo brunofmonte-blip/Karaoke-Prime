@@ -5,6 +5,7 @@ import { useAuth } from '@/integrations/supabase/auth';
 import VocalEvolutionChart from './VocalEvolutionChart';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 const staticChartData = [
   { name: 'Note 1', pitch: 65, breath: 80 },
@@ -25,14 +26,12 @@ const Footer = () => {
   
   const { isAnalyzing, pitchHistory, isPitchDeviating, recentAchievements } = vocalContext;
 
-  // Fetch last 5 performance logs for the dynamic graph
   const historicalData = useMemo(() => {
     if (typeof window === 'undefined') return staticChartData;
     try {
       const stored = localStorage.getItem('karaoke_offline_performance_logs');
       if (!stored) return staticChartData;
       const logs = JSON.parse(stored);
-      // Take last 5 logs and format for chart
       return logs.slice(-5).map((log: any, index: number) => ({
         name: `Session ${index + 1}`,
         pitch: log.pitchAccuracy,
@@ -41,7 +40,7 @@ const Footer = () => {
     } catch (e) {
       return staticChartData;
     }
-  }, [isAnalyzing]); // Refresh when analysis ends
+  }, [isAnalyzing]);
 
   const chartData = isAnalyzing && pitchHistory.length > 0 ? pitchHistory : historicalData;
   const chartTitle = isAnalyzing ? "Live Pitch Tracking" : "Evolução Vocal (Últimas 5 Sessões)";
@@ -86,6 +85,20 @@ const Footer = () => {
             )}
           </div>
         </div>
+
+        {/* Centralized Branding Tagline */}
+        <div className="text-center py-12 border-t border-border/40">
+          <h2 className={cn(
+            "text-2xl md:text-4xl font-extrabold uppercase tracking-widest leading-tight",
+            "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+          )}>
+            CANTE. EVOLUA. CONQUISTAR O 
+            <span className="block md:inline-block md:ml-4 text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+              MUNDO.
+            </span>
+          </h2>
+        </div>
+
         <div className="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-border/40">
           <p className="text-sm text-muted-foreground order-2 md:order-1 mt-4 md:mt-0">
             © {new Date().getFullYear()} Karaoke Prime. Todos os direitos reservados.
