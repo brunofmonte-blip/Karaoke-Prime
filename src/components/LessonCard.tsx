@@ -35,6 +35,11 @@ const LessonCard: React.FC<LessonCardProps> = ({ lesson, isAdminMode = false }) 
       return;
     }
     
+    // Level 1 is the Conservatory Menu, so we don't start analysis here
+    if (lesson.level === 1) {
+      return;
+    }
+
     if (!lessonSong) {
       toast.error("Material da lição não encontrado.");
       return;

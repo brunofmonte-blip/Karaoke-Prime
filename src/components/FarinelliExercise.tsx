@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Wind, Pause, Play, AlertCircle, Volume2, Activity, User, Headphones } from 'lucide-react';
+import { Wind, Pause, Play, AlertCircle, Volume2, Activity, User, Headphones, CheckCircle2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ConservatoryModule } from '@/hooks/use-vocal-sandbox';
@@ -18,7 +18,8 @@ const moduleConfigs: Record<ConservatoryModule, {
   durations: number[],
   labels: Record<Phase, string>,
   narration: Record<Phase, string>,
-  avatarAction: string
+  avatarAction: string,
+  checklist: string
 }> = {
   farinelli: {
     title: 'Breathing Gym',
@@ -27,7 +28,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA' },
     narration: { inhale: 'Inspira', suspend: 'Segura', exhale: 'Expira', rest: 'Pausa' },
-    avatarAction: 'Expansão Pulmonar'
+    avatarAction: 'Expansão Pulmonar',
+    checklist: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta e os ombros relaxados.'
   },
   sovt: {
     title: 'Método Arnold Jacobs',
@@ -36,7 +38,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [4, 8],
     labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '' },
     narration: { inhale: 'Inspira', exhale: 'Expira com bolhas', suspend: '', rest: '' },
-    avatarAction: 'Bolhas no Canudo'
+    avatarAction: 'Bolhas no Canudo',
+    checklist: 'Antes de começarmos, separe seu canudo e um copo com 3 dedos de água.'
   },
   panting: {
     title: 'Appoggio Clássico',
@@ -45,7 +48,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA' },
     narration: { inhale: 'Inspira', suspend: 'Segura', exhale: 'Expira', rest: 'Pausa' },
-    avatarAction: 'Suporte Diafragmático'
+    avatarAction: 'Suporte Diafragmático',
+    checklist: 'Foco no diafragma. Sinta a pressão abdominal e mantenha o suporte constante.'
   },
   alexander: {
     title: 'Técnica de Alexander',
@@ -54,7 +58,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [6, 2, 6, 2],
     labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE' },
     narration: { inhale: 'Expanda as costelas', suspend: 'Mantenha a expansão', exhale: 'Solte o ar devagar', rest: 'Relaxe os ombros' },
-    avatarAction: 'Alinhamento Postural'
+    avatarAction: 'Alinhamento Postural',
+    checklist: 'Alinhamento total. Relaxe o pescoço e alongue a coluna para ressonância máxima.'
   },
   none: {
     title: 'Treinamento Vocal',
@@ -63,7 +68,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [],
     labels: { inhale: '', suspend: '', exhale: '', rest: '' },
     narration: { inhale: '', suspend: '', exhale: '', rest: '' },
-    avatarAction: ''
+    avatarAction: '',
+    checklist: ''
   }
 };
 
@@ -73,7 +79,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const [timeLeft, setTimeLeft] = useState(config.durations[0] || 4);
   const [repCount, setRepCount] = useState(1);
   const [isActive, setIsActive] = useState(true);
-  const [countdown, setCountdown] = useState<number | null>(3);
+  const [isReady, setIsReady] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentPhase = config.phases[phaseIndex];
@@ -90,6 +97,14 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
   };
 
+  // Checklist Narration
+  useEffect(() => {
+    if (!isReady && config.checklist) {
+      speak(config.checklist);
+    }
+  }, [isReady, config.checklist]);
+
+  // Countdown Logic
   useEffect(() => {
     if (countdown !== null) {
       if (countdown > 0) {
@@ -103,8 +118,9 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
   }, [countdown]);
 
+  // Exercise Loop
   useEffect(() => {
-    if (countdown !== null || !isActive) {
+    if (!isReady || countdown !== null || !isActive) {
       if (audioRef.current) audioRef.current.pause();
       return;
     }
@@ -130,9 +146,36 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [phaseIndex, isActive, config, currentPhase, currentDuration, countdown]);
+  }, [phaseIndex, isActive, config, currentPhase, currentDuration, countdown, isReady]);
 
   const progress = ((currentDuration - timeLeft) / currentDuration) * 100;
+
+  const handleReady = () => {
+    setIsReady(true);
+    setCountdown(3);
+  };
+
+  if (!isReady) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-8 py-12 animate-in fade-in duration-500">
+        <div className="w-64 h-64 rounded-full bg-primary/10 border-4 border-primary/30 flex items-center justify-center relative">
+          <User className="h-32 w-32 text-primary" />
+          <Headphones className="absolute -top-4 -right-4 h-12 w-12 text-accent amazon-gold-glow" />
+        </div>
+        <div className="text-center max-w-md">
+          <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">Checklist de Preparação</h3>
+          <p className="text-lg text-foreground mb-8 leading-relaxed">{config.checklist}</p>
+          <Button 
+            onClick={handleReady}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-12 py-6 text-xl font-bold shadow-lg shadow-primary/30"
+          >
+            <CheckCircle2 className="h-6 w-6 mr-2" />
+            ESTOU PRONTO
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8">
