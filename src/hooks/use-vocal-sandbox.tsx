@@ -54,7 +54,7 @@ interface VocalSandboxContextType {
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
 
-const MAX_HISTORY = 100; 
+const MAX_VISUAL_HISTORY = 100; 
 const STABILITY_WINDOW = 10;
 const STABILITY_THRESHOLD = 5;
 const DEVIATION_THRESHOLD = 10;
@@ -79,7 +79,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
   const stabilityToastRef = useRef<string | number | null>(null);
-  const audioTimerRef = useRef<number>();
+  const playbackIntervalRef = useRef<number>();
   const countdownIntervalRef = useRef<number>();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastHistoryUpdateRef = useRef<number>(0);
@@ -105,9 +105,9 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       stabilityToastRef.current = null;
     }
     
-    if (audioTimerRef.current) {
-      window.clearTimeout(audioTimerRef.current);
-      audioTimerRef.current = undefined;
+    if (playbackIntervalRef.current) {
+      window.clearInterval(playbackIntervalRef.current);
+      playbackIntervalRef.current = undefined;
     }
     if (countdownIntervalRef.current) {
       window.clearInterval(countdownIntervalRef.current);
@@ -154,41 +154,37 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
     setCountdown(3);
     
-    const lastLyricTime = song.lyrics.length > 0 
-      ? song.lyrics[song.lyrics.length - 1].time 
-      : 0;
-    const songDuration = Math.max(180, lastLyricTime + 20); 
+    const songDuration = 180; // Forced 180s duration for stability
     
     countdownIntervalRef.current = window.setInterval(() => {
       setCountdown(prev => {
         if (prev === 1) {
           window.clearInterval(countdownIntervalRef.current);
           startAudio();
-          sessionStartTimeRef.current = Date.now();
+          
+          const startTime = Date.now();
+          sessionStartTimeRef.current = startTime;
           
           // Attempt audio playback but don't let it block the engine
           try {
             const audio = new Audio(song.audioUrl);
             audio.volume = 0.5;
-            audio.play().catch(() => console.log("[VocalSandbox] Audio playback blocked by browser. Using synthetic timer."));
+            audio.play().catch(() => console.log("[VocalSandbox] Audio playback blocked. Using synthetic timer."));
             audioRef.current = audio;
           } catch (e) {
             console.log("[VocalSandbox] Audio initialization failed.");
           }
 
-          // Synthetic Internal Timer (Drives the experience even if audio fails)
-          const tick = () => {
-            setCurrentTime(prevTime => {
-              const newTime = prevTime + 0.1; 
-              if (newTime >= songDuration) {
-                stopAnalysis();
-                return songDuration;
-              }
-              audioTimerRef.current = window.setTimeout(tick, 100);
-              return newTime;
-            });
-          };
-          audioTimerRef.current = window.setTimeout(tick, 100);
+          // Bulletproof Native Interval Timer
+          playbackIntervalRef.current = window.setInterval(() => {
+            const elapsed = (Date.now() - startTime) / 1000;
+            setCurrentTime(elapsed);
+            
+            if (elapsed >= songDuration) {
+              stopAnalysis();
+            }
+          }, 100);
+
           return null;
         }
         return (prev || 0) - 1;
@@ -212,7 +208,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       setPitchHistory(prevHistory => {
         const newHistory = [...prevHistory, newPoint];
-        if (newHistory.length > MAX_HISTORY) newHistory.shift();
+        // We keep the full history for scoring, but the chart component can slice it if needed
         
         if (newHistory.length >= STABILITY_WINDOW) {
           const recentPitches = newHistory.slice(-STABILITY_WINDOW).map(p => p.pitch);

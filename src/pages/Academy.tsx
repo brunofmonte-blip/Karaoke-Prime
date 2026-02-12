@@ -21,9 +21,10 @@ const Tagline: React.FC = () => (
   </div>
 );
 
-const Academy = () => {
+export default function Academy() {
   const { data: profile, isLoading } = useUserProfile();
   
+  // Defensive defaults for profile data
   const currentLevel = profile?.academy_level ?? 0;
   const currentXp = profile?.xp ?? 0;
   const bestNote = profile?.best_note ?? 0;
@@ -34,67 +35,74 @@ const Academy = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto p-8 min-h-[80vh] flex items-center justify-center">
-        <p className="text-primary neon-blue-glow animate-pulse">Carregando dados da Academia...</p>
+        <div className="text-center">
+          <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-primary neon-blue-glow font-bold">Carregando currículo da Academia...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-4 md:p-8 min-h-[80vh] bg-background">
-      <h1 className="text-4xl font-bold text-primary neon-blue-glow mb-4 text-center">
-        Karaoke Academy: Vocal Mastery
-      </h1>
-      <p className="text-lg text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
-        Siga o currículo de 10 níveis projetado por AI Vocal Coaches. Complete as lições para desbloquear novos recursos.
-      </p>
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold text-primary neon-blue-glow mb-4 text-center">
+          Karaoke Academy: Vocal Mastery
+        </h1>
+        <p className="text-lg text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
+          Siga o currículo de 10 níveis projetado por AI Vocal Coaches. Complete as lições para desbloquear novos recursos e subir no ranking global.
+        </p>
 
-      <Card className={cn(
-        "max-w-4xl mx-auto mb-12 p-6 rounded-2xl border-2 border-accent/70 shadow-xl",
-        "glass-pillar bg-card/80 backdrop-blur-xl"
-      )}>
-        <CardContent className="p-0 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-3 bg-card/50 rounded-xl border border-border/50">
-            <GraduationCap className="h-6 w-6 text-primary mx-auto mb-1" />
-            <p className="text-sm text-muted-foreground">Nível Atual</p>
-            <p className="text-3xl font-extrabold text-primary neon-blue-glow">{currentLevel}</p>
-          </div>
-          
-          <div className="text-center p-3 bg-card/50 rounded-xl border border-border/50">
-            <Zap className="h-6 w-6 text-accent mx-auto mb-1 amazon-gold-glow" />
-            <p className="text-sm text-muted-foreground">Melhor Nota</p>
-            <p className="text-3xl font-extrabold text-accent neon-gold-glow">{bestNote.toFixed(1)}%</p>
-          </div>
-          
-          <div className="text-center p-3 bg-card/50 rounded-xl border border-border/50">
-            <Trophy className="h-6 w-6 text-foreground mx-auto mb-1" />
-            <p className="text-sm text-muted-foreground">Total XP</p>
-            <p className="text-3xl font-extrabold text-foreground">{currentXp}</p>
-          </div>
-          
-          <div className="md:col-span-3 pt-4 border-t border-border/50">
-            <p className="text-sm font-medium text-foreground mb-2">
-              Progresso para Vocal Master (Nível 10)
-            </p>
-            <Progress 
-              value={progressValue} 
-              className="h-3 bg-primary/20" 
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {currentLevel} / {maxLevel} Níveis Completados
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Progress Dashboard */}
+        <Card className={cn(
+          "mb-12 p-6 rounded-2xl border-2 border-accent/70 shadow-xl",
+          "glass-pillar bg-card/80 backdrop-blur-xl"
+        )}>
+          <CardContent className="p-0 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-4 bg-card/50 rounded-xl border border-border/50">
+              <GraduationCap className="h-8 w-8 text-primary mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">Nível Atual</p>
+              <p className="text-4xl font-black text-primary neon-blue-glow">{currentLevel}</p>
+            </div>
+            
+            <div className="text-center p-4 bg-card/50 rounded-xl border border-border/50">
+              <Zap className="h-8 w-8 text-accent mx-auto mb-2 amazon-gold-glow" />
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">Melhor Nota</p>
+              <p className="text-4xl font-black text-accent neon-gold-glow">{bestNote.toFixed(1)}%</p>
+            </div>
+            
+            <div className="text-center p-4 bg-card/50 rounded-xl border border-border/50">
+              <Trophy className="h-8 w-8 text-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground uppercase tracking-wider">Total XP</p>
+              <p className="text-4xl font-black text-foreground">{currentXp}</p>
+            </div>
+            
+            <div className="md:col-span-3 pt-6 border-t border-border/50">
+              <div className="flex justify-between items-end mb-2">
+                <p className="text-sm font-bold text-foreground uppercase tracking-widest">
+                  Progresso para Vocal Master
+                </p>
+                <p className="text-xs text-muted-foreground font-mono">
+                  {currentLevel} / {maxLevel} NÍVEIS
+                </p>
+              </div>
+              <Progress 
+                value={progressValue} 
+                className="h-4 bg-primary/10 border border-primary/20" 
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {academyLessons.map((lesson) => (
-          <LessonCard key={lesson.level} lesson={lesson} />
-        ))}
+        {/* Lessons Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {academyLessons.map((lesson) => (
+            <LessonCard key={lesson.level} lesson={lesson} />
+          ))}
+        </div>
+
+        <Tagline />
       </div>
-
-      <Tagline />
     </div>
   );
-};
-
-export default Academy;
+}
