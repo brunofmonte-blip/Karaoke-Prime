@@ -41,6 +41,7 @@ interface VocalSandboxContextType {
   loadSong: (songId: string) => void;
   currentSong: PublicDomainSong | null;
   currentTime: number;
+  totalDuration: number;
   latencyOffsetMs: number; 
   calibrateLatency: () => void; 
   countdown: number | null; 
@@ -54,7 +55,6 @@ interface VocalSandboxContextType {
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
 
-const MAX_VISUAL_HISTORY = 100; 
 const STABILITY_WINDOW = 10;
 const STABILITY_THRESHOLD = 5;
 const DEVIATION_THRESHOLD = 10;
@@ -72,6 +72,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null);
   const [currentSong, setCurrentSong] = useState<PublicDomainSong | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(180); // Default 3 minutes
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isOnline, setIsOnline] = useState(true);
   const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); 
@@ -152,10 +153,12 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setCurrentTime(0);
     setGhostTrace(ghostTrace); 
 
+    // Determine duration based on lyrics or default
+    const lastLyricTime = song.lyrics.length > 0 ? song.lyrics[song.lyrics.length - 1].time : 0;
+    const duration = Math.max(30, lastLyricTime + 10); // At least 30s, or 10s after last lyric
+    setTotalDuration(duration);
+
     setCountdown(3);
-    
-    // Forced Independent Timer: 180s duration for stability
-    const songDuration = 180; 
     
     countdownIntervalRef.current = window.setInterval(() => {
       setCountdown(prev => {
@@ -166,22 +169,22 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           const startTime = Date.now();
           sessionStartTimeRef.current = startTime;
           
-          // Attempt audio playback
+          // Audio is now purely optional and non-blocking
           try {
             const audio = new Audio(song.audioUrl);
             audio.volume = 0.5;
-            audio.play().catch(() => console.log("[VocalSandbox] Audio playback blocked. Using synthetic timer."));
+            audio.play().catch(() => console.log("[VocalSandbox] Audio playback blocked. Using pure timer."));
             audioRef.current = audio;
           } catch (e) {
             console.log("[VocalSandbox] Audio initialization failed.");
           }
 
-          // Bulletproof Native Interval Timer
+          // Pure Timer-Based Progress
           playbackIntervalRef.current = window.setInterval(() => {
             const elapsed = (Date.now() - startTime) / 1000;
             setCurrentTime(elapsed);
             
-            if (elapsed >= songDuration) {
+            if (elapsed >= duration) {
               stopAnalysis();
             }
           }, 100);
@@ -252,6 +255,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         loadSong: (id) => { const s = publicDomainLibrary.find(x => x.id === id); if(s) setCurrentSong(s); },
         currentSong: effectiveSong,
         currentTime,
+        totalDuration,
         latencyOffsetMs: 150,
         calibrateLatency: () => {},
         countdown,

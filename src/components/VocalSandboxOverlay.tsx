@@ -8,6 +8,7 @@ import { useAuth } from '@/integrations/supabase/auth';
 import LyricPlayer from './LyricPlayer';
 import { Slider } from '@/components/ui/slider';
 import VocalEvolutionChart from './VocalEvolutionChart';
+import { Progress } from '@/components/ui/progress';
 
 const VocalSandboxOverlay: React.FC = () => {
   const { 
@@ -23,6 +24,7 @@ const VocalSandboxOverlay: React.FC = () => {
     currentSongArtist,
     currentSong,
     currentTime,
+    totalDuration,
     countdown,
     sensitivity,
     setSensitivity,
@@ -31,11 +33,7 @@ const VocalSandboxOverlay: React.FC = () => {
   
   const { user } = useAuth();
 
-  const finalScore = useMemo(() => {
-    if (pitchHistory.length === 0) return 0;
-    const totalPitch = pitchHistory.reduce((sum, item) => sum + item.pitch, 0);
-    return totalPitch / pitchHistory.length;
-  }, [pitchHistory]);
+  const progressValue = (currentTime / totalDuration) * 100;
 
   if (!isOverlayOpen || !currentSong) {
     return null;
@@ -46,10 +44,10 @@ const VocalSandboxOverlay: React.FC = () => {
       <div className="fixed inset-0 z-[101] bg-background/95 backdrop-blur-xl flex items-center justify-center">
         <div className="text-center">
           <p className="text-8xl font-extrabold text-primary neon-blue-glow animate-pulse">
-            {countdown === 0 ? 'GO!' : countdown}
+            {countdown === 0 ? 'VAI!' : countdown}
           </p>
           <p className="text-xl text-muted-foreground mt-4">
-            Get ready to sing "{currentSongTitle}"
+            Prepare-se para cantar "{currentSongTitle}"
           </p>
         </div>
       </div>
@@ -60,7 +58,7 @@ const VocalSandboxOverlay: React.FC = () => {
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl md:text-4xl font-bold text-primary neon-blue-glow">
-          {ghostTrace.length > 0 ? "AI Duel Mode" : "Live Vocal Sandbox"}
+          {ghostTrace.length > 0 ? "Modo Duelo AI" : "Sandbox Vocal ao Vivo"}
         </h1>
         <Button 
           variant="ghost" 
@@ -72,13 +70,22 @@ const VocalSandboxOverlay: React.FC = () => {
         </Button>
       </div>
 
+      {/* Training Progress Bar */}
+      <div className="w-full max-w-4xl mx-auto mb-8 space-y-2">
+        <div className="flex justify-between text-sm font-medium text-muted-foreground">
+          <span>Progresso do Treinamento</span>
+          <span>{Math.min(100, progressValue).toFixed(0)}%</span>
+        </div>
+        <Progress value={progressValue} className="h-3 bg-primary/20" indicatorClassName="bg-primary shadow-lg shadow-primary/50" />
+      </div>
+
       <div className="flex-grow space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className={cn("lg:col-span-1 glass-pillar h-fit")}>
             <CardHeader>
               <CardTitle className="text-accent neon-gold-glow flex items-center">
                 {ghostTrace.length > 0 && <Trophy className="h-5 w-5 mr-2" />}
-                Controls
+                Controles
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -89,7 +96,7 @@ const VocalSandboxOverlay: React.FC = () => {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/30"
                 >
                   <Mic className="h-5 w-5 mr-2" />
-                  {isAnalyzing ? 'Singing...' : 'Start Singing'}
+                  {isAnalyzing ? 'Cantando...' : 'Começar a Cantar'}
                 </Button>
                 <Button 
                   onClick={stopAnalysis} 
@@ -98,12 +105,12 @@ const VocalSandboxOverlay: React.FC = () => {
                   className="rounded-xl shadow-lg shadow-destructive/30"
                 >
                   <StopCircle className="h-5 w-5 mr-2" />
-                  Stop Analysis
+                  Parar Análise
                 </Button>
               </div>
 
               <div className="pt-4 border-t border-border/50">
-                <h3 className="text-lg font-semibold text-foreground mb-2">Microphone Sensitivity</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Sensibilidade do Microfone</h3>
                 <Slider
                   defaultValue={[sensitivity]}
                   max={200}
@@ -115,7 +122,7 @@ const VocalSandboxOverlay: React.FC = () => {
               </div>
               
               <div className="pt-4 border-t border-border/50">
-                <h3 className="text-lg font-semibold text-foreground mb-2">Current Track</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Faixa Atual</h3>
                 <p className="text-sm text-primary font-medium flex items-center">
                   <Music className="h-4 w-4 mr-2" />
                   {currentSongTitle}
@@ -126,14 +133,14 @@ const VocalSandboxOverlay: React.FC = () => {
 
           <Card className={cn("lg:col-span-2 glass-pillar p-6")}>
             <VocalEvolutionChart 
-              title="Real-time Vocal Comparison" 
+              title="Comparação Vocal em Tempo Real" 
               data={pitchHistory} 
               opponentTrace={ghostTrace}
               height={250}
             />
             <div className="text-center mt-4">
               <p className="text-xl text-muted-foreground">
-                Current Pitch Accuracy: <span className="text-primary font-bold">{pitchData.toFixed(1)}%</span>
+                Precisão do Tom Atual: <span className="text-primary font-bold">{pitchData.toFixed(1)}%</span>
               </p>
             </div>
           </Card>
@@ -141,7 +148,7 @@ const VocalSandboxOverlay: React.FC = () => {
         
         <Card className={cn("glass-pillar")}>
           <CardHeader>
-            <CardTitle className="text-primary">Live Lyrics</CardTitle>
+            <CardTitle className="text-primary">Letras ao Vivo</CardTitle>
           </CardHeader>
           <CardContent className="py-6">
             <LyricPlayer lyrics={currentSong.lyrics} currentTime={currentTime} />
