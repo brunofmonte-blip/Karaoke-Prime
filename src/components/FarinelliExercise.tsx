@@ -1,28 +1,83 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Wind, Pause, Play, AlertCircle, Volume2 } from 'lucide-react';
+import { Wind, Pause, Play, AlertCircle, Volume2, Activity } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { ConservatoryModule } from '@/hooks/use-vocal-sandbox';
 
-type Phase = 'inhale' | 'suspend' | 'exhale';
+type Phase = 'inhale' | 'suspend' | 'exhale' | 'rest';
 
-const FarinelliExercise: React.FC = () => {
-  const [phase, setPhase] = useState<Phase>('inhale');
-  const [seconds, setSeconds] = useState(4);
-  const [timeLeft, setTimeLeft] = useState(4);
+interface FarinelliExerciseProps {
+  moduleType: ConservatoryModule;
+}
+
+const moduleConfigs: Record<ConservatoryModule, { 
+  title: string, 
+  music: string, 
+  phases: Phase[], 
+  durations: number[],
+  labels: Record<Phase, string>,
+  narration: Record<Phase, string>
+}> = {
+  farinelli: {
+    title: 'Exercício de Farinelli',
+    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    phases: ['inhale', 'suspend', 'exhale'],
+    durations: [4, 4, 4],
+    labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA' },
+    narration: { inhale: 'Inspira', suspend: 'Segura', exhale: 'Expira', rest: 'Pausa' }
+  },
+  sovt: {
+    title: 'Exercício do Canudo (SOVT)',
+    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+    phases: ['inhale', 'exhale'],
+    durations: [4, 8],
+    labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '' },
+    narration: { inhale: 'Inspira', exhale: 'Expira com bolhas', suspend: '', rest: '' }
+  },
+  panting: {
+    title: 'Panting de Diafragma',
+    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+    phases: ['inhale', 'exhale'],
+    durations: [2, 2],
+    labels: { inhale: 'IN', exhale: 'OUT', suspend: '', rest: '' },
+    narration: { inhale: 'In', exhale: 'Out', suspend: '', rest: '' }
+  },
+  alexander: {
+    title: 'Expansão Costal',
+    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+    phases: ['inhale', 'suspend', 'exhale', 'rest'],
+    durations: [6, 2, 6, 2],
+    labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE' },
+    narration: { inhale: 'Expanda as costelas', suspend: 'Mantenha a expansão', exhale: 'Solte o ar devagar', rest: 'Relaxe os ombros' }
+  },
+  none: {
+    title: 'Treinamento Vocal',
+    music: '',
+    phases: [],
+    durations: [],
+    labels: { inhale: '', suspend: '', exhale: '', rest: '' },
+    narration: { inhale: '', suspend: '', exhale: '', rest: '' }
+  }
+};
+
+const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
+  const config = moduleConfigs[moduleType];
+  const [phaseIndex, setPhaseIndex] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(config.durations[0] || 4);
   const [repCount, setRepCount] = useState(1);
   const [isActive, setIsActive] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Voice Narration Function
+  const currentPhase = config.phases[phaseIndex];
+  const currentDuration = config.durations[phaseIndex];
+
   const speak = (text: string) => {
     if ('speechSynthesis' in window && isActive) {
-      // Cancel any ongoing speech to avoid overlap
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
       utterance.rate = 1.1;
-      utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -33,69 +88,43 @@ const FarinelliExercise: React.FC = () => {
       return;
     }
 
-    // Start background music if not playing
-    if (audioRef.current && audioRef.current.paused) {
-      audioRef.current.play().catch(() => console.log("Audio playback blocked"));
+    if (audioRef.current && audioRef.current.paused && config.music) {
+      audioRef.current.play().catch(() => {});
     }
 
-    // Initial narration for the first phase
-    if (timeLeft === seconds) {
-      const text = phase === 'inhale' ? "Inspira" : phase === 'suspend' ? "Segura" : "Expira";
-      speak(text);
+    if (timeLeft === currentDuration) {
+      speak(config.narration[currentPhase]);
     }
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          // Switch Phase
-          let nextPhase: Phase;
-          if (phase === 'inhale') {
-            nextPhase = 'suspend';
-          } else if (phase === 'suspend') {
-            nextPhase = 'exhale';
-          } else {
-            nextPhase = 'inhale';
-            setRepCount(r => r + 1);
-            // Increase difficulty every 2 reps
-            if (repCount % 2 === 0 && seconds < 12) {
-              setSeconds(s => s + 1);
-            }
-          }
-          
-          setPhase(nextPhase);
-          const text = nextPhase === 'inhale' ? "Inspira" : nextPhase === 'suspend' ? "Segura" : "Expira";
-          speak(text);
-          
-          return seconds;
+          const nextIndex = (phaseIndex + 1) % config.phases.length;
+          if (nextIndex === 0) setRepCount(r => r + 1);
+          setPhaseIndex(nextIndex);
+          return config.durations[nextIndex];
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [phase, seconds, isActive, repCount]);
+  }, [phaseIndex, isActive, config, currentPhase, currentDuration]);
 
-  const progress = ((seconds - timeLeft) / seconds) * 100;
+  const progress = ((currentDuration - timeLeft) / currentDuration) * 100;
 
   return (
     <div className="flex flex-col items-center justify-center py-8 space-y-8">
-      {/* Background Zen Music (Placeholder URL for low-tempo instrumental) */}
-      <audio 
-        ref={audioRef}
-        src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" 
-        loop 
-        hidden 
-      />
+      {config.music && <audio ref={audioRef} src={config.music} loop hidden />}
 
       <div className="text-center">
         <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-1 uppercase tracking-widest">
-          Exercício de Farinelli
+          {config.title}
         </h3>
-        <p className="text-sm text-muted-foreground">Repetição: {repCount} | Ciclo: {seconds}s</p>
+        <p className="text-sm text-muted-foreground">Repetição: {repCount} | Fase: {config.labels[currentPhase]}</p>
       </div>
 
       <div className="relative flex items-center justify-center">
-        {/* Visual Metronome Ring */}
         <div className={cn(
           "absolute inset-0 rounded-full border-4 border-primary/20 animate-ping",
           !isActive && "animate-none"
@@ -103,20 +132,20 @@ const FarinelliExercise: React.FC = () => {
         
         <div className={cn(
           "h-64 w-64 rounded-full border-8 flex flex-col items-center justify-center transition-all duration-500 shadow-2xl",
-          phase === 'inhale' ? "border-primary bg-primary/10 scale-110" :
-          phase === 'suspend' ? "border-accent bg-accent/10 scale-105" :
-          "border-destructive bg-destructive/10 scale-95"
+          currentPhase === 'inhale' ? "border-primary bg-primary/10 scale-110" :
+          currentPhase === 'suspend' ? "border-accent bg-accent/10 scale-105" :
+          currentPhase === 'exhale' ? "border-destructive bg-destructive/10 scale-95" :
+          "border-muted bg-muted/10 scale-100"
         )}>
           <span className="text-6xl font-black text-foreground mb-2">{timeLeft}</span>
           <span className={cn(
-            "text-xl font-bold uppercase tracking-tighter",
-            phase === 'inhale' ? "text-primary" :
-            phase === 'suspend' ? "text-accent" :
-            "text-destructive"
+            "text-xl font-bold uppercase tracking-tighter text-center px-4",
+            currentPhase === 'inhale' ? "text-primary" :
+            currentPhase === 'suspend' ? "text-accent" :
+            currentPhase === 'exhale' ? "text-destructive" :
+            "text-muted-foreground"
           )}>
-            {phase === 'inhale' ? "INSPIRA" :
-             phase === 'suspend' ? "SEGURA" :
-             "EXPIRA (Ssss)"}
+            {config.labels[currentPhase]}
           </span>
         </div>
       </div>
@@ -133,21 +162,10 @@ const FarinelliExercise: React.FC = () => {
       </div>
 
       <div className="flex gap-4">
-        <Button 
-          variant="outline" 
-          onClick={() => setIsActive(!isActive)}
-          className="rounded-xl border-2 border-primary/50"
-        >
+        <Button variant="outline" onClick={() => setIsActive(!isActive)} className="rounded-xl border-2 border-primary/50">
           {isActive ? <Pause className="h-5 w-5 mr-2" /> : <Play className="h-5 w-5 mr-2" />}
           {isActive ? "Pausar" : "Retomar"}
         </Button>
-      </div>
-
-      <div className="p-4 rounded-2xl bg-card/50 border border-border/50 flex items-start gap-3 max-w-md">
-        <AlertCircle className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-muted-foreground">
-          <span className="font-bold text-foreground">Dica de Segurança:</span> Se sentir tontura, pare imediatamente. O excesso de oxigênio é comum no início.
-        </p>
       </div>
     </div>
   );

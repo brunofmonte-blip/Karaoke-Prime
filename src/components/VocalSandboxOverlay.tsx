@@ -33,10 +33,11 @@ const VocalSandboxOverlay: React.FC = () => {
     breathingProgress,
     isAirflowLow,
     stabilityScore,
+    activeModule,
   } = useVocalSandbox();
   
   const progressValue = (currentTime / totalDuration) * 100;
-  const isBreathingExercise = currentSong?.genre === 'Vocal Exercises';
+  const isBreathingExercise = activeModule !== 'none';
 
   if (!isOverlayOpen || !currentSong) {
     return null;
@@ -84,7 +85,7 @@ const VocalSandboxOverlay: React.FC = () => {
       <div className="flex-grow space-y-8">
         {isBreathingExercise ? (
           <div className="max-w-4xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <FarinelliExercise />
+            <FarinelliExercise moduleType={activeModule} />
             
             <Card className="glass-pillar border-2 border-accent/50 p-6">
               <CardHeader className="p-0 pb-4">
@@ -119,9 +120,9 @@ const VocalSandboxOverlay: React.FC = () => {
                     "text-center font-bold text-lg animate-pulse",
                     isAirflowLow ? "text-destructive" : "text-primary"
                   )}>
-                    {breathingPhase === 'exhale' ? "MANTENHA AS BOLHAS CONSTANTES" : "PREPARE O APOIO"}
+                    {activeModule === 'sovt' ? "MANTENHA AS BOLHAS CONSTANTES" : "MANTENHA O APOIO"}
                   </p>
-                  {isAirflowLow && breathingPhase === 'exhale' && (
+                  {isAirflowLow && (
                     <div className="flex items-center justify-center gap-2 text-destructive text-sm font-bold">
                       <AlertCircle className="h-4 w-4" />
                       PERDA DE APOIO DETECTADA!

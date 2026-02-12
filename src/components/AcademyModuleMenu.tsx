@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Wind, Music, Anchor, UserCheck, PlayCircle, AlertCircle } from 'lucide-react';
-import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+import { useVocalSandbox, ConservatoryModule } from '@/hooks/use-vocal-sandbox';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 import { toast } from 'sonner';
 
@@ -13,7 +13,7 @@ interface Module {
   description: string;
   icon: React.ElementType;
   prescription: string;
-  type: 'farinelli' | 'sovt' | 'panting' | 'alexander';
+  type: ConservatoryModule;
 }
 
 const modules: Module[] = [
@@ -55,7 +55,6 @@ const AcademyModuleMenu: React.FC<{ level: number }> = ({ level }) => {
   const { startAnalysis, openOverlay } = useVocalSandbox();
 
   const handleStartModule = (module: Module) => {
-    // Safety Warning
     toast.warning("Dica de Segurança", {
       description: "Se sentir tontura, pare imediatamente. O excesso de oxigênio é comum no início.",
       duration: 6000,
@@ -64,8 +63,7 @@ const AcademyModuleMenu: React.FC<{ level: number }> = ({ level }) => {
 
     const exerciseSong = publicDomainLibrary.find(s => s.genre === 'Vocal Exercises') || publicDomainLibrary[0];
     
-    // We'll pass the module type to the sandbox to render the specific UI
-    startAnalysis(exerciseSong, false);
+    startAnalysis(exerciseSong, false, module.type);
     openOverlay();
   };
 

@@ -20,14 +20,15 @@ export interface SessionSummary extends PerformanceInsight {
   songId: string; 
 }
 
-export type BreathingPhase = 'inhale' | 'exhale' | 'none';
+export type BreathingPhase = 'inhale' | 'suspend' | 'exhale' | 'none';
+export type ConservatoryModule = 'farinelli' | 'sovt' | 'panting' | 'alexander' | 'none';
 
 interface VocalSandboxContextType {
   isOverlayOpen: boolean;
   openOverlay: () => void;
   closeOverlay: () => void;
   isAnalyzing: boolean;
-  startAnalysis: (song: PublicDomainSong, isDuelMode: boolean, ghostTrace?: ChartDataItem[]) => Promise<void>;
+  startAnalysis: (song: PublicDomainSong, isDuelMode: boolean, module?: ConservatoryModule) => Promise<void>;
   stopAnalysis: () => { summary: SessionSummary, history: ChartDataItem[] } | null;
   pitchData: number; 
   pitchHistory: ChartDataItem[];
@@ -44,19 +45,16 @@ interface VocalSandboxContextType {
   currentSong: PublicDomainSong | null;
   currentTime: number;
   totalDuration: number;
-  latencyOffsetMs: number; 
-  calibrateLatency: () => void; 
   countdown: number | null; 
   sensitivity: number; 
   setSensitivity: (value: number) => void; 
-  isOnline: boolean; 
-  syncOfflineLogs: () => Promise<void>; 
   unlockedBadges: BadgeId[]; 
   clearUnlockedBadges: () => void; 
   breathingPhase: BreathingPhase;
-  breathingProgress: number; // 0 to 1
+  breathingProgress: number; 
   isAirflowLow: boolean;
-  stabilityScore: number; // 0 to 100
+  stabilityScore: number; 
+  activeModule: ConservatoryModule;
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
@@ -66,9 +64,6 @@ const STABILITY_THRESHOLD = 5;
 const DEVIATION_THRESHOLD = 10;
 
 export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  const { data: profile } = useUserProfile();
-  
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [pitchHistory, setPitchHistory] = useState<ChartDataItem[]>([]);
   const [ghostTrace, setGhostTrace] = useState<ChartDataItem[]>([]);
@@ -80,10 +75,9 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(180); 
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [isOnline, setIsOnline] = useState(true);
   const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); 
+  const [activeModule, setActiveModule] = useState<ConservatoryModule>('none');
   
-  // Breathing & SOVT States
   const [breathingPhase, setBreathingPhase] = useState<BreathingPhase>('none');
   const [breathingProgress, setBreathingProgress] = useState(0);
   const [isAirflowLow, setIsAirflowLow] = useState(false);
@@ -107,16 +101,13 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setSensitivity, 
   } = useAudioAnalyzer();
   
-  const effectiveSong = currentSong;
-  const currentSongTitle = effectiveSong?.title || "Selecione uma Música";
-  const currentSongArtist = effectiveSong?.artist || "Karaoke Prime";
-
   const stopAnalysis = useCallback(() => {
     stopAudio();
     setBreathingPhase('none');
     setBreathingProgress(0);
     setIsAirflowLow(false);
     setStabilityScore(100);
+    setActiveModule('none');
 
     if (stabilityToastRef.current) {
       toast.dismiss(stabilityToastRef.current);
@@ -138,14 +129,14 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       audioRef.current = null;
     }
     
-    if (pitchHistory.length > 0 && sessionStartTimeRef.current && effectiveSong) {
+    if (pitchHistory.length > 0 && sessionStartTimeRef.current && currentSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
-      const insight = runScoringEngine(pitchHistory, effectiveSong);
+      const insight = runScoringEngine(pitchHistory, currentSong);
       
       const summary: SessionSummary = {
         ...insight,
         durationSeconds: durationSeconds,
-        songId: effectiveSong.id, 
+        songId: currentSong.id, 
       };
       
       setSessionSummary(summary);
@@ -153,12 +144,13 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
     
     return null;
-  }, [stopAudio, pitchHistory, effectiveSong]);
+  }, [stopAudio, pitchHistory, currentSong]);
 
-  const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, ghostTrace: ChartDataItem[] = []) => {
+  const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, module: ConservatoryModule = 'none') => {
     if (isAnalyzing || countdown !== null) return;
     
     setCurrentSong(song);
+    setActiveModule(module);
     await mockDownloadSong(song); 
 
     setPitchHistory([]);
@@ -168,11 +160,9 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     historyCounter.current = 0;
     sessionStartTimeRef.current = null; 
     setCurrentTime(0);
-    setGhostTrace(ghostTrace); 
     setStabilityScore(100);
 
-    const lastLyricTime = song.lyrics.length > 0 ? song.lyrics[song.lyrics.length - 1].time : 0;
-    const duration = Math.max(30, lastLyricTime + 10); 
+    const duration = 60; // Default training duration
     setTotalDuration(duration);
 
     setCountdown(3);
@@ -186,29 +176,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           const startTime = Date.now();
           sessionStartTimeRef.current = startTime;
           
-          try {
-            const audio = new Audio(song.audioUrl);
-            audio.volume = 0.5;
-            audio.play().catch(() => console.log("[VocalSandbox] Audio playback blocked."));
-            audioRef.current = audio;
-          } catch (e) {}
-
           playbackIntervalRef.current = window.setInterval(() => {
             const elapsed = (Date.now() - startTime) / 1000;
             setCurrentTime(elapsed);
             
-            // Breathing Cycle Logic (4s Inhale, 8s Exhale)
-            const cycleDuration = 12;
-            const timeInCycle = elapsed % cycleDuration;
-            
-            if (timeInCycle < 4) {
-              setBreathingPhase('inhale');
-              setBreathingProgress(timeInCycle / 4);
-            } else {
-              setBreathingPhase('exhale');
-              setBreathingProgress((timeInCycle - 4) / 8);
-            }
-
             if (elapsed >= duration) {
               stopAnalysis();
             }
@@ -223,20 +194,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   useEffect(() => {
     if (isAnalyzing && pitchDataVisualization !== undefined) {
-      // SOVT Airflow Analysis
-      if (breathingPhase === 'exhale') {
-        const isLow = pitchDataVisualization < 15; // Threshold for "Sss" or bubbles
-        setIsAirflowLow(isLow);
-        
-        if (isLow) {
-          setStabilityScore(prev => Math.max(0, prev - 2)); // Penalty for loss of support
-        } else {
-          setStabilityScore(prev => Math.min(100, prev + 0.5)); // Reward for consistency
-        }
-      } else {
-        setIsAirflowLow(false);
-      }
-
       const now = Date.now();
       if (now - lastHistoryUpdateRef.current < 100) return;
       lastHistoryUpdateRef.current = now;
@@ -246,7 +203,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         name: `T${historyCounter.current}`,
         pitch: pitchDataVisualization,
         frequency: pitchDataHz,
-        breath: breathingPhase === 'inhale' ? 100 : 50,
+        breath: 50,
       };
       
       setPitchHistory(prevHistory => {
@@ -257,19 +214,12 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           const variance = Math.max(...recentPitches) - Math.min(...recentPitches);
           const stable = variance < STABILITY_THRESHOLD && Math.max(...recentPitches) > 0;
           setIsPitchStable(stable);
-          setIsPitchDeviating(variance > DEVIATION_THRESHOLD || isAirflowLow);
-
-          if (stable && !stabilityToastRef.current) {
-            stabilityToastRef.current = toast.success("Ótima Estabilidade!", { duration: 1000000 });
-          } else if (!stable && stabilityToastRef.current) {
-            toast.dismiss(stabilityToastRef.current);
-            stabilityToastRef.current = null;
-          }
+          setIsPitchDeviating(variance > DEVIATION_THRESHOLD);
         }
         return newHistory;
       });
     }
-  }, [pitchDataVisualization, pitchDataHz, isAnalyzing, breathingPhase, isAirflowLow]);
+  }, [pitchDataVisualization, pitchDataHz, isAnalyzing]);
 
   return (
     <VocalSandboxContext.Provider 
@@ -283,31 +233,28 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         pitchData: pitchDataVisualization, 
         pitchHistory,
         ghostTrace,
-        currentSongTitle,
-        currentSongArtist,
-        currentLyrics: effectiveSong?.lyrics.map(l => l.text).join(' ') || "",
+        currentSongTitle: currentSong?.title || "Selecione uma Música",
+        currentSongArtist: currentSong?.artist || "Karaoke Prime",
+        currentLyrics: currentSong?.lyrics.map(l => l.text).join(' ') || "",
         isPitchStable,
         isPitchDeviating,
         recentAchievements,
         sessionSummary,
         clearSessionSummary: () => setSessionSummary(null),
         loadSong: (id) => { const s = publicDomainLibrary.find(x => x.id === id); if(s) setCurrentSong(s); },
-        currentSong: effectiveSong,
+        currentSong,
         currentTime,
         totalDuration,
-        latencyOffsetMs: 150,
-        calibrateLatency: () => {},
         countdown,
         sensitivity,
         setSensitivity,
-        isOnline,
-        syncOfflineLogs: async () => {},
         unlockedBadges, 
         clearUnlockedBadges: () => setUnlockedBadges([]), 
         breathingPhase,
         breathingProgress,
         isAirflowLow,
         stabilityScore,
+        activeModule,
       }}
     >
       {children}
