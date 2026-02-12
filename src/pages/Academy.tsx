@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { academyLessons } from '@/data/lessons';
 import LessonCard from '@/components/LessonCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
-import { GraduationCap, Zap, Trophy } from 'lucide-react';
+import { GraduationCap, Zap, Trophy, ShieldAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Academy = () => {
   const { data: profile, isLoading } = useUserProfile();
+  const [isAdminMode, setIsAdminMode] = useState(true); // Default true for testing bypass
   
   const currentLevel = profile?.academy_level ?? 0;
   const currentXp = profile?.xp ?? 0;
@@ -27,12 +29,28 @@ const Academy = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-8 min-h-[80vh] bg-background">
-      <h1 className="text-4xl font-bold text-primary neon-blue-glow mb-4 text-center">
-        Karaoke Academy: Vocal Mastery
-      </h1>
-      <p className="text-lg text-muted-foreground mb-8 text-center max-w-3xl mx-auto">
-        Siga o currículo de 10 níveis projetado por AI Vocal Coaches. Complete as lições para desbloquear novos recursos.
-      </p>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div className="text-center md:text-left">
+          <h1 className="text-4xl font-bold text-primary neon-blue-glow mb-2">
+            Karaoke Academy: Vocal Mastery
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            Siga o currículo de 10 níveis projetado por AI Vocal Coaches.
+          </p>
+        </div>
+        
+        <Button 
+          variant="outline" 
+          onClick={() => setIsAdminMode(!isAdminMode)}
+          className={cn(
+            "rounded-xl border-2 transition-all duration-300",
+            isAdminMode ? "border-accent text-accent bg-accent/10" : "border-border text-muted-foreground"
+          )}
+        >
+          <ShieldAlert className="h-4 w-4 mr-2" />
+          {isAdminMode ? "Admin Bypass: ON" : "Admin Bypass: OFF"}
+        </Button>
+      </div>
 
       <Card className={cn(
         "max-w-4xl mx-auto mb-12 p-6 rounded-2xl border-2 border-accent/70 shadow-xl",
@@ -74,7 +92,7 @@ const Academy = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {academyLessons.map((lesson) => (
-          <LessonCard key={lesson.level} lesson={lesson} />
+          <LessonCard key={lesson.level} lesson={lesson} isAdminMode={isAdminMode} />
         ))}
       </div>
     </div>

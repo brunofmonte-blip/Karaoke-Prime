@@ -11,18 +11,19 @@ import { toast } from 'sonner';
 
 interface LessonCardProps {
   lesson: Lesson;
+  isAdminMode?: boolean;
 }
 
-const LessonCard: React.FC<LessonCardProps> = ({ lesson }) => {
+const LessonCard: React.FC<LessonCardProps> = ({ lesson, isAdminMode = false }) => {
   const { data: profile } = useUserProfile();
   const { startAnalysis, openOverlay } = useVocalSandbox();
   
   const currentLevel = profile?.academy_level ?? 0;
   
-  // Logic: A lesson is unlocked if the user has completed the previous level
-  const isUnlocked = currentLevel >= lesson.level - 1;
-  const isCompleted = currentLevel >= lesson.level;
-  const isCurrent = currentLevel === lesson.level - 1;
+  // Logic: A lesson is unlocked if the user has completed the previous level OR admin mode is on
+  const isUnlocked = isAdminMode || currentLevel >= lesson.level - 1;
+  const isCompleted = !isAdminMode && currentLevel >= lesson.level;
+  const isCurrent = isAdminMode || currentLevel === lesson.level - 1;
 
   const lessonSong = publicDomainLibrary.find(song => 
     song.genre === 'Vocal Exercises' && song.title.includes(lesson.focus.split(' ')[0])
@@ -92,7 +93,7 @@ const LessonCard: React.FC<LessonCardProps> = ({ lesson }) => {
 
         <Button
           onClick={handleStartLesson}
-          disabled={!isUnlocked || isCompleted}
+          disabled={!isUnlocked || (isCompleted && !isAdminMode)}
           className={cn(
             "w-full rounded-xl font-semibold",
             isCurrent ? 'bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30' :

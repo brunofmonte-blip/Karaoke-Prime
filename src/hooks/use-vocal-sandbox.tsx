@@ -154,7 +154,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
     setCountdown(3);
     
-    const songDuration = 180; // Forced 180s duration for stability
+    // Forced Independent Timer: 180s duration for stability
+    const songDuration = 180; 
     
     countdownIntervalRef.current = window.setInterval(() => {
       setCountdown(prev => {
@@ -165,7 +166,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           const startTime = Date.now();
           sessionStartTimeRef.current = startTime;
           
-          // Attempt audio playback but don't let it block the engine
+          // Attempt audio playback
           try {
             const audio = new Audio(song.audioUrl);
             audio.volume = 0.5;
@@ -208,7 +209,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       setPitchHistory(prevHistory => {
         const newHistory = [...prevHistory, newPoint];
-        // We keep the full history for scoring, but the chart component can slice it if needed
         
         if (newHistory.length >= STABILITY_WINDOW) {
           const recentPitches = newHistory.slice(-STABILITY_WINDOW).map(p => p.pitch);
