@@ -20,15 +20,15 @@ const modules: Module[] = [
   {
     id: 'A',
     title: 'Módulo A: Breathing Gym',
-    description: 'Capacidade e Fluxo. Exercícios de expansão pulmonar e controle de saída.',
+    description: '"S" Explosivo, Linear e Inalação de Vácuo (Arnold Jacobs). Foco em capacidade e fluxo.',
     icon: Wind,
     prescription: '3 séries de 10 repetições',
-    type: 'farinelli'
+    type: 'farinelli' // Using Farinelli engine for rhythmic breathing
   },
   {
     id: 'B',
-    title: 'Módulo B: Método Arnold Jacobs',
-    description: 'Song and Wind. A psicologia do som e a fisiologia do sopro.',
+    title: 'Módulo B: Método Arnold Jacobs (SOVT)',
+    description: 'Exercício do Canudo (SOVT) e Lip Trills de Resistência. A psicologia do som.',
     icon: Music,
     prescription: '15 minutos diários',
     type: 'sovt'
@@ -36,15 +36,15 @@ const modules: Module[] = [
   {
     id: 'C',
     title: 'Módulo C: Appoggio Clássico',
-    description: 'Pressão vs. Resistência. O suporte diafragmático italiano.',
+    description: 'Exercício de Farinelli (3 Fases) e Técnica do Livro. Pressão vs. Resistência.',
     icon: Anchor,
     prescription: '5 repetições lentas',
-    type: 'panting'
+    type: 'panting' // Using Panting engine for support resistance
   },
   {
     id: 'D',
     title: 'Módulo D: Técnica de Alexander',
-    description: 'Postural Release. Alinhamento da coluna para ressonância máxima.',
+    description: 'Expansão Costal e Panting de Diafragma (Cachorro). Alinhamento e ressonância.',
     icon: UserCheck,
     prescription: 'Prática constante',
     type: 'alexander'

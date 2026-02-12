@@ -20,32 +20,32 @@ const moduleConfigs: Record<ConservatoryModule, {
   narration: Record<Phase, string>
 }> = {
   farinelli: {
-    title: 'Exercício de Farinelli',
-    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    title: 'Breathing Gym (Módulo A)',
+    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Rhythmic
     phases: ['inhale', 'suspend', 'exhale'],
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA' },
     narration: { inhale: 'Inspira', suspend: 'Segura', exhale: 'Expira', rest: 'Pausa' }
   },
   sovt: {
-    title: 'Exercício do Canudo (SOVT)',
-    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+    title: 'Método Arnold Jacobs (Módulo B)',
+    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', // Zen/Fluid
     phases: ['inhale', 'exhale'],
     durations: [4, 8],
     labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '' },
     narration: { inhale: 'Inspira', exhale: 'Expira com bolhas', suspend: '', rest: '' }
   },
   panting: {
-    title: 'Panting de Diafragma',
-    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-    phases: ['inhale', 'exhale'],
-    durations: [2, 2],
-    labels: { inhale: 'IN', exhale: 'OUT', suspend: '', rest: '' },
-    narration: { inhale: 'In', exhale: 'Out', suspend: '', rest: '' }
+    title: 'Appoggio Clássico (Módulo C)',
+    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', // Classical
+    phases: ['inhale', 'suspend', 'exhale'],
+    durations: [4, 4, 4],
+    labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA' },
+    narration: { inhale: 'Inspira', suspend: 'Segura', exhale: 'Expira', rest: 'Pausa' }
   },
   alexander: {
-    title: 'Expansão Costal',
-    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+    title: 'Técnica de Alexander (Módulo D)',
+    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', // Nature/Ambient
     phases: ['inhale', 'suspend', 'exhale', 'rest'],
     durations: [6, 2, 6, 2],
     labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE' },
@@ -92,6 +92,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       audioRef.current.play().catch(() => {});
     }
 
+    // Narration trigger
     if (timeLeft === currentDuration) {
       speak(config.narration[currentPhase]);
     }
