@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, CheckCircle, Loader2, PlayCircle, Users, Zap } from 'lucide-react';
+import { Download, CheckCircle, Loader2, PlayCircle, Users, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PublicDomainSong } from '@/data/public-domain-library';
 import { useOfflineDownload } from '@/hooks/use-offline-download';
@@ -18,25 +18,29 @@ const difficultyColors: Record<PublicDomainSong['difficulty'], string> = {
   Hard: 'bg-red-600/20 text-red-400 border-red-600/50',
 };
 
+const academyRecommendations: Record<PublicDomainSong['difficulty'], string> = {
+  Easy: 'Level 1-3: Foundation',
+  Medium: 'Level 4-7: Intermediate',
+  Hard: 'Level 8-10: Pro-Vocal',
+};
+
 const SongCard: React.FC<SongCardProps> = ({ song }) => {
   const { isDownloaded, isDownloading, toggleDownload } = useOfflineDownload(song);
-  const { openOverlay, loadSong, startAnalysis } = useVocalSandbox(); 
+  const { openOverlay, startAnalysis } = useVocalSandbox(); 
   const { startLocalDuel } = useDuel();
 
   const handlePlay = () => {
-    // Single player mode: load song and start analysis directly
     startAnalysis(song, false);
     openOverlay(); 
   };
   
   const handleDuel = () => {
-    // Duel mode: let the Duel engine handle the setup and start analysis
     startLocalDuel(song);
   };
 
   return (
     <Card className={cn(
-      "rounded-xl overflow-hidden border-2 border-border/50 transition-all duration-300",
+      "rounded-xl overflow-hidden border-2 border-border/50 transition-all duration-300 flex flex-col h-full",
       "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-lg"
     )}>
       <div 
@@ -45,63 +49,67 @@ const SongCard: React.FC<SongCardProps> = ({ song }) => {
       >
         {/* Difficulty Badge */}
         <div className={cn(
-          "absolute top-2 right-2 text-xs font-semibold px-2 py-1 rounded-full border",
+          "absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-tighter",
           difficultyColors[song.difficulty]
         )}>
           {song.difficulty}
         </div>
+        
+        {/* Academy Recommendation Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-1 flex items-center justify-center gap-1">
+          <GraduationCap className="h-3 w-3 text-accent" />
+          <span className="text-[10px] font-medium text-accent uppercase tracking-tighter">
+            {academyRecommendations[song.difficulty]}
+          </span>
+        </div>
       </div>
       
-      <CardContent className="p-4 flex flex-col justify-between h-full">
+      <CardContent className="p-4 flex flex-col flex-grow justify-between">
         <div>
-          <h3 className="text-lg font-bold text-primary truncate">{song.title}</h3>
-          <p className="text-sm text-muted-foreground mb-3 truncate">{song.artist}</p>
+          <h3 className="text-base font-bold text-primary truncate leading-tight">{song.title}</h3>
+          <p className="text-xs text-muted-foreground mb-3 truncate">{song.artist}</p>
         </div>
         
         <div className="space-y-2">
           <Button 
             onClick={handlePlay}
-            className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg shadow-md shadow-accent/30"
+            size="sm"
+            className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg shadow-md shadow-accent/30 h-9"
           >
             <PlayCircle className="h-4 w-4 mr-2" />
             Sing Now
           </Button>
           
-          <Button 
-            onClick={handleDuel}
-            variant="outline"
-            className="w-full rounded-lg border-primary/50 text-primary hover:bg-primary/10"
-          >
-            <Users className="h-4 w-4 mr-2" />
-            Start Duel
-          </Button>
-          
-          <Button 
-            onClick={toggleDownload}
-            disabled={isDownloading}
-            variant="outline"
-            className={cn(
-              "w-full rounded-lg transition-colors",
-              isDownloaded ? "border-green-500 text-green-500 hover:bg-green-500/10" : "border-border/50 text-muted-foreground hover:bg-secondary/10"
-            )}
-          >
-            {isDownloading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {isDownloaded ? 'Removing...' : 'Downloading...'}
-              </>
-            ) : isDownloaded ? (
-              <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Offline Ready
-              </>
-            ) : (
-              <>
-                <Download className="h-4 w-4 mr-2" />
-                Download for Offline
-              </>
-            )}
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button 
+              onClick={handleDuel}
+              variant="outline"
+              size="sm"
+              className="rounded-lg border-primary/50 text-primary hover:bg-primary/10 h-9 px-1"
+            >
+              <Users className="h-3 w-3 mr-1" />
+              Duel
+            </Button>
+            
+            <Button 
+              onClick={toggleDownload}
+              disabled={isDownloading}
+              variant="outline"
+              size="sm"
+              className={cn(
+                "rounded-lg transition-colors h-9 px-1",
+                isDownloaded ? "border-green-500 text-green-500 hover:bg-green-500/10" : "border-border/50 text-muted-foreground hover:bg-secondary/10"
+              )}
+            >
+              {isDownloading ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : isDownloaded ? (
+                <CheckCircle className="h-3 w-3" />
+              ) : (
+                <Download className="h-3 w-3" />
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

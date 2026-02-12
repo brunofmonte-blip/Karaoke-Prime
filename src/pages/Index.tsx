@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle, PlayCircle, Sparkles } from "lucide-react";
+import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle, PlayCircle, Sparkles, Library as LibraryIcon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import RecentlyAdded from "@/components/RecentlyAdded";
@@ -14,10 +14,12 @@ import PillarLockedOverlay from '@/components/PillarLockedOverlay';
 import { useAuth } from '@/integrations/supabase/auth';
 import { usePrimeSubscription } from '@/hooks/use-prime-subscription';
 import AchievementsSection from '@/components/AchievementsSection';
-import { publicDomainLibrary } from '@/data/public-domain-library';
+import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
 import { academyLessons } from '@/data/lessons';
 import { Button } from '@/components/ui/button';
 import AdvancedSearch from '@/components/AdvancedSearch';
+import SongCard from '@/components/SongCard';
+import { Input } from '@/components/ui/input';
 
 const HeroSection = () => (
   <section 
@@ -126,6 +128,7 @@ const Index = () => {
   const currentLevel = profile?.academy_level ?? 0;
   const isPrime = profile?.is_prime ?? false;
   const [lockedPillar, setLockedPillar] = useState<{ title: string, requiredLevel: number } | null>(null);
+  const [heritageSearch, setHeritageSearch] = useState('');
 
   const recommendedLesson = useMemo(() => {
     if (currentLevel < 10) {
@@ -133,6 +136,15 @@ const Index = () => {
     }
     return academyLessons[9]; // Max level
   }, [currentLevel]);
+
+  const heritageSongs = useMemo(() => {
+    const filtered = publicDomainLibrary.filter(s => s.genre === 'Folk/Traditional');
+    if (!heritageSearch) return filtered.slice(0, 5);
+    return filtered.filter(s => 
+      s.title.toLowerCase().includes(heritageSearch.toLowerCase()) || 
+      s.artist.toLowerCase().includes(heritageSearch.toLowerCase())
+    ).slice(0, 5);
+  }, [heritageSearch]);
 
   const handleBasicPillarClick = () => {
     trigger(() => {
@@ -229,6 +241,41 @@ const Index = () => {
         {/* Advanced Search Section */}
         <div className="mt-8 px-4 md:px-0">
           <AdvancedSearch />
+        </div>
+
+        {/* Heritage Library Section */}
+        <div className="mt-16 px-4 md:px-0">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+            <div>
+              <h2 className="text-3xl font-bold text-primary neon-blue-glow flex items-center gap-2">
+                <LibraryIcon className="h-8 w-8" />
+                Tesouros da Música Brasileira
+              </h2>
+              <p className="text-muted-foreground mt-1">Obras em domínio público para sua evolução vocal.</p>
+            </div>
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar no acervo..." 
+                className="pl-9 rounded-xl bg-card/50 border-primary/30"
+                value={heritageSearch}
+                onChange={(e) => setHeritageSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div className="flex overflow-x-auto space-x-6 pb-6 -mx-4 px-4 md:mx-0 md:px-0">
+            {heritageSongs.map(song => (
+              <div key={song.id} className="flex-shrink-0 w-[220px]">
+                <SongCard song={song} />
+              </div>
+            ))}
+            {heritageSongs.length === 0 && (
+              <div className="w-full text-center py-12 text-muted-foreground italic">
+                Nenhum tesouro encontrado para sua busca.
+              </div>
+            )}
+          </div>
         </div>
 
         {/* AI Recommended Training Section */}
