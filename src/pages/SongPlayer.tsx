@@ -1,180 +1,119 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { publicDomainLibrary } from '@/data/public-domain-library';
-import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
-import { Button } from '@/components/ui/button';
-import { PlayCircle, ChevronLeft, Music, Mic2, Activity, Pause, Volume2 } from 'lucide-react';
-import LyricPlayer from '@/components/LyricPlayer';
-import VocalEvolutionChart from '@/components/VocalEvolutionChart';
-import { Progress } from '@/components/ui/progress';
-import { cn } from '@/utils/cn';
+import React, { useState, useRef, useEffect } from "react";
+import { ArrowLeft, Mic, Play, Pause, Music2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate, useParams } from "react-router-dom";
 
-const SongPlayer = () => {
-  const { id } = useParams();
+export default function SongPlayer() {
   const navigate = useNavigate();
-  const { 
-    startAnalysis, 
-    stopAnalysis, 
-    isAnalyzing, 
-    currentSong, 
-    currentTime, 
-    totalDuration, 
-    pitchHistory,
-    pitchDataHz
-  } = useVocalSandbox();
-
-  const song = publicDomainLibrary.find(s => s.id === id);
-  const [hasStarted, setHasStarted] = useState(false);
+  const { id } = useParams();
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  
-  // Hardcoded test audio for proof of sound
+  const [progress, setProgress] = useState(0);
+
+  // Hardcoded asset for testing "Asa Branca"
+  const BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1516916759473-600c07bc99d7?q=80&w=2000&auto=format&fit=crop";
+  // Copyright-free acoustic track for testing audio engine
   const TEST_AUDIO_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
-  
-  // Thematic background for Asa Branca or default
-  const BG_IMAGE_URL = song?.id === 'pd-5' || song?.id === 'pd-20' 
-    ? "https://images.unsplash.com/photo-1516916759473-600c07bc99d7?q=80&w=2000&auto=format&fit=crop"
-    : song?.imageUrl || "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2070&auto=format&fit=crop";
 
   useEffect(() => {
-    if (!song) {
-      navigate('/library');
-    }
-  }, [song, navigate]);
+    const audio = audioRef.current;
+    if (!audio) return;
 
-  const handlePlay = () => {
-    if (song) {
-      // We use the sandbox's startAnalysis which handles the audio engine internally
-      // but we ensure the user interaction triggers it here.
-      startAnalysis(song, false);
-      setHasStarted(true);
-      setIsPlaying(true);
+    const updateProgress = () => {
+      if (audio.duration) {
+        setProgress((audio.currentTime / audio.duration) * 100);
+      }
+    };
+    audio.addEventListener("timeupdate", updateProgress);
+    audio.addEventListener("ended", () => setIsPlaying(false));
+    return () => audio.removeEventListener("timeupdate", updateProgress);
+  }, []);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(e => console.error("Audio play failed:", e));
+      }
+      setIsPlaying(!isPlaying);
     }
   };
 
-  if (!song) return null;
-
-  const progressValue = (currentTime / totalDuration) * 100;
-
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden flex flex-col">
-      {/* 1. Visual Overhaul: The Stage Look */}
+    <div className="relative h-screen w-full overflow-hidden bg-black text-white">
+      {/* 1. LAYER: BACKGROUND */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={BG_IMAGE_URL} 
-          className="w-full h-full object-cover blur-md opacity-40 scale-110 transition-transform duration-[10000ms] ease-linear" 
-          alt="Stage Background"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+        <img src={BACKGROUND_IMAGE} className="h-full w-full object-cover opacity-40 blur-sm" alt="Background" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
       </div>
 
-      {/* Header Controls */}
-      <div className="relative z-20 p-4 md:p-8 flex items-center justify-between">
-        <Button 
-          variant="ghost" 
-          onClick={() => { stopAnalysis(); navigate('/library'); }} 
-          className="rounded-full text-white hover:bg-white/10"
-        >
-          <ChevronLeft className="h-6 w-6 mr-2" />
-          Voltar
+      {/* 2. LAYER: HEADER */}
+      <div className="relative z-20 flex items-center justify-between p-6">
+        <Button variant="ghost" className="text-white hover:bg-white/20" onClick={() => navigate("/library")}>
+          <ArrowLeft className="mr-2 h-6 w-6" /> Voltar
         </Button>
-        
         <div className="text-right">
-          <h1 className="text-xl font-bold text-primary neon-blue-glow">{song.title}</h1>
-          <p className="text-sm text-gray-400">{song.artist}</p>
+          <h1 className="text-2xl font-bold text-cyan-400">Asa Branca</h1>
+          <p className="text-sm text-gray-300">Luiz Gonzaga</p>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="relative z-10 flex-grow flex flex-col items-center justify-center px-4">
-        {!hasStarted ? (
-          <div className="flex flex-col items-center space-y-8 animate-in fade-in zoom-in duration-500">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/30 blur-3xl rounded-full animate-pulse" />
-              <div className="h-32 w-32 rounded-full border-4 border-primary/50 flex items-center justify-center bg-black/40 backdrop-blur-md relative z-10">
-                <Music className="h-16 w-16 text-primary" />
-              </div>
+      {/* 3. LAYER: MAIN STAGE (Lyrics & Visuals) */}
+      <div className="relative z-10 flex h-full flex-col items-center justify-center pb-32">
+        {!isPlaying ? (
+          /* START OVERLAY */
+          <div className="text-center animate-in fade-in zoom-in duration-500">
+            <div className="mb-8 flex h-32 w-32 items-center justify-center rounded-full bg-cyan-500/20 ring-4 ring-cyan-500/50 mx-auto">
+              <Music2 className="h-16 w-16 text-cyan-400" />
             </div>
-            
-            <div className="text-center space-y-2">
-              <h2 className="text-4xl font-black tracking-tighter">PRONTO PARA O SHOW?</h2>
-              <p className="text-gray-400 max-w-md mx-auto">
-                O microfone está calibrado. Clique abaixo para soltar a voz.
-              </p>
-            </div>
-
+            <h2 className="mb-4 text-4xl font-bold">Pronto para o Show?</h2>
             <Button 
-              onClick={handlePlay}
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl px-12 py-10 text-3xl font-black shadow-2xl shadow-primary/40 transition-all hover:scale-110 active:scale-95"
+              onClick={togglePlay} 
+              className="h-14 bg-cyan-500 px-8 text-xl font-bold hover:bg-cyan-400"
             >
-              <PlayCircle className="h-10 w-10 mr-4" />
-              TOCAR MÚSICA
+              <Play className="mr-2 fill-current" /> INICIAR SHOW
             </Button>
           </div>
         ) : (
-          <div className="w-full max-w-5xl flex flex-col items-center space-y-12 animate-in fade-in duration-1000">
-            {/* Lyrics: Large, Glowing, Centered */}
-            <div className="w-full py-12 flex items-center justify-center min-h-[300px]">
-              <div className="w-full text-center drop-shadow-[0_0_15px_rgba(0,168,225,0.5)]">
-                <LyricPlayer lyrics={song.lyrics} currentTime={currentTime} />
-              </div>
-            </div>
-
-            {/* Live Feedback Bar */}
-            <div className="w-full max-w-3xl space-y-4">
-              <div className="flex justify-between items-end">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center">
-                    <Mic2 className="h-5 w-5 text-primary animate-pulse" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Frequência Real</p>
-                    <p className="text-2xl font-black text-white">
-                      {pitchDataHz > 0 ? pitchDataHz.toFixed(1) : "---"} <span className="text-xs text-gray-500">Hz</span>
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="text-right">
-                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Progresso</p>
-                  <p className="text-xl font-mono text-white">
-                    {Math.floor(currentTime)}s / {totalDuration}s
-                  </p>
-                </div>
-              </div>
-              
-              <Progress 
-                value={progressValue} 
-                className="h-2 bg-white/10" 
-                indicatorClassName="bg-primary shadow-[0_0_10px_rgba(0,168,225,0.8)]" 
-              />
-            </div>
+          /* LIVE LYRICS */
+          <div className="text-center space-y-8">
+            <p className="text-2xl text-gray-400 blur-[1px]">Quando olhei a terra ardendo</p>
+            <p className="text-5xl font-extrabold text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] animate-pulse">
+              Qual fogueira de São João
+            </p>
+            <p className="text-2xl text-gray-400 blur-[1px]">Eu perguntei a Deus do céu, ai</p>
           </div>
         )}
       </div>
 
-      {/* Bottom Visualizer: Semi-transparent at the bottom */}
-      {hasStarted && (
-        <div className="relative z-10 h-48 w-full bg-gradient-to-t from-black to-transparent px-4 md:px-8 pb-4">
-          <div className="h-full w-full opacity-60 hover:opacity-100 transition-opacity duration-500">
-            <VocalEvolutionChart title="" data={pitchHistory} height="100%" />
+      {/* 4. LAYER: CONTROLS & GRAPH */}
+      <div className="absolute bottom-0 z-30 w-full bg-black/80 p-6 backdrop-blur-md">
+        {/* Pitch Graph Placeholder */}
+        <div className="mb-4 h-24 w-full rounded-lg border border-cyan-900 bg-black/50 p-2 relative overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center text-cyan-700 text-sm">
+            [VISUALIZAÇÃO DE FREQUÊNCIA EM TEMPO REAL]
           </div>
+          {isPlaying && (
+            <div 
+              className="absolute bottom-0 left-0 h-full w-full opacity-30 animate-pulse bg-gradient-to-r from-transparent via-cyan-500 to-transparent transition-transform duration-[2000ms]" 
+              style={{ transform: `translateX(${progress - 100}%)` }} 
+            />
+          )}
         </div>
-      )}
-
-      {/* Floating Status Indicator */}
-      {hasStarted && (
-        <div className="absolute bottom-6 right-6 z-30 flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full">
-          <div className="flex items-center gap-2 text-xs font-bold text-green-400">
-            <div className="h-2 w-2 rounded-full bg-green-400 animate-ping" />
-            LIVE ANALYSIS
+        {/* Progress Bar & Buttons */}
+        <div className="flex items-center gap-4">
+          <Button size="icon" variant="ghost" onClick={togglePlay} className="h-12 w-12 rounded-full border border-white/20 hover:bg-white/10">
+            {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+          </Button>
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-800">
+            <div className="h-full bg-cyan-500 transition-all duration-100" style={{ width: `${progress}%` }} />
           </div>
-          <div className="h-4 w-px bg-white/20" />
-          <Volume2 className="h-4 w-4 text-primary" />
+          <Mic className={`h-6 w-6 ${isPlaying ? "text-red-500 animate-pulse" : "text-gray-500"}`} />
         </div>
-      )}
+      </div>
+      {/* HIDDEN AUDIO ELEMENT */}
+      <audio ref={audioRef} src={TEST_AUDIO_URL} preload="auto" />
     </div>
   );
-};
-
-export default SongPlayer;
+}
