@@ -22,6 +22,7 @@ const InstructorAvatar: React.FC<InstructorAvatarProps> = ({ phase, moduleType =
         
         {/* Head with Grey Hair */}
         <div className="w-16 h-16 rounded-full bg-[#f3f4f6] border-2 border-border relative z-10 overflow-hidden">
+          {/* Grey Hair Detail */}
           <div className="absolute top-0 left-0 right-0 h-4 bg-[#9ca3af] rounded-t-full" />
           <div className="absolute inset-0 flex items-center justify-center pt-2">
             <User className="h-10 w-10 text-muted-foreground/40" />
@@ -41,22 +42,21 @@ const InstructorAvatar: React.FC<InstructorAvatarProps> = ({ phase, moduleType =
           phase === 'inhale' && "scale-x-110 scale-y-105",
           phase === 'suspend' && "scale-x-105",
           phase === 'exhale' && "scale-x-95 scale-y-95",
-          moduleType === 'alexander' && "translate-y-[-5px]" // Posture focus
+          moduleType === 'alexander' && "translate-y-[-5px]" 
         )}>
           {/* Light Grey Sweater V-Neck */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-12 bg-[#d1d5db]" 
                style={{ clipPath: 'polygon(0 0, 100% 0, 50% 100%)' }} />
           
-          {/* Hands demonstrating specific techniques */}
+          {/* Contextual Gestures: Hands on Diaphragm/Ribs */}
           <div className={cn(
             "absolute bottom-4 left-1/2 -translate-x-1/2 flex transition-all duration-1000",
-            // Diaphragm Focus (Farinelli)
-            moduleType === 'farinelli' && "gap-6",
-            moduleType === 'farinelli' && phase === 'inhale' && "translate-y-[-8px] gap-10",
-            // Ribs Focus (Alexander/Panting)
-            (moduleType === 'alexander' || moduleType === 'panting') && "gap-12 translate-y-[-10px]",
-            // SOVT Focus (Straw)
-            moduleType === 'sovt' && "gap-2 translate-y-[-15px]"
+            // Diaphragm Focus (Farinelli/Breathing)
+            (moduleType === 'farinelli' || moduleType === 'panting') && "gap-8 translate-y-[-8px]",
+            // Posture Focus (Alexander)
+            moduleType === 'alexander' && "gap-12 translate-y-[-12px]",
+            // Default
+            moduleType === 'none' && "gap-4"
           )}>
             <div className="w-3 h-3 rounded-full bg-[#f3f4f6] shadow-md" />
             <div className="w-3 h-3 rounded-full bg-[#f3f4f6] shadow-md" />
