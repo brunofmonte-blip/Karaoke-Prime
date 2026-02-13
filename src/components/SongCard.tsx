@@ -2,10 +2,10 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, CheckCircle, Loader2, PlayCircle, Users, GraduationCap } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 import { PublicDomainSong } from '@/data/public-domain-library';
 import { useOfflineDownload } from '@/hooks/use-offline-download';
-import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+import { useNavigate } from 'react-router-dom';
 import { useDuel } from '@/hooks/use-duel-engine';
 
 interface SongCardProps {
@@ -26,12 +26,11 @@ const academyRecommendations: Record<PublicDomainSong['difficulty'], string> = {
 
 const SongCard: React.FC<SongCardProps> = ({ song }) => {
   const { isDownloaded, isDownloading, toggleDownload } = useOfflineDownload(song);
-  const { openOverlay, startAnalysis } = useVocalSandbox(); 
+  const navigate = useNavigate();
   const { startLocalDuel } = useDuel();
 
   const handlePlay = () => {
-    startAnalysis(song, false);
-    openOverlay(); 
+    navigate(`/song/${song.id}`);
   };
   
   const handleDuel = () => {

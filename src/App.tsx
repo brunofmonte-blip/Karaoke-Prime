@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Academy from "./pages/Academy";
 import Backstage from "./pages/Backstage";
 import Library from "./pages/Library";
+import SongPlayer from "./pages/SongPlayer";
 import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
 import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
@@ -45,6 +46,7 @@ const App = () => (
                       <Route path="/" element={<Index />} />
                       <Route path="/academy" element={<Academy />} />
                       <Route path="/library" element={<Library />} />
+                      <Route path="/song/:id" element={<SongPlayer />} />
                       <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
