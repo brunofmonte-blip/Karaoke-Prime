@@ -21,7 +21,6 @@ const moduleConfigs: Record<ConservatoryModule, {
   durations: number[],
   labels: Record<Phase, string>,
   narration: Record<Phase, string>,
-  avatarAction: string,
   checklist: string
 }> = {
   farinelli: {
@@ -31,8 +30,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA' },
     narration: { inhale: 'Inspira profundamente, expandindo o diafragma.', suspend: 'Segura o ar com o core engajado.', exhale: 'Expira de forma controlada.', rest: 'Pausa' },
-    avatarAction: 'Expansão Pulmonar',
-    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
+    checklist: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta e os ombros relaxados.'
   },
   sovt: {
     title: 'Método Arnold Jacobs',
@@ -41,7 +39,6 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [4, 8],
     labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '' },
     narration: { inhale: 'Inspira pelo nariz, relaxando os ombros.', exhale: 'Expira criando bolhas constantes no canudo.', suspend: '', rest: '' },
-    avatarAction: 'Bolhas no Canudo',
     checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
   },
   panting: {
@@ -51,8 +48,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA' },
     narration: { inhale: 'Inspira e expande as costelas.', suspend: 'Mantém o suporte abdominal.', exhale: 'Solta o ar com apoio constante.', rest: 'Pausa' },
-    avatarAction: 'Suporte Diafragmático',
-    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
+    checklist: 'Foco no diafragma. Separe um livro pesado para o biofeedback abdominal. Clique em "Estou Pronto" para iniciar.'
   },
   alexander: {
     title: 'Técnica de Alexander',
@@ -61,8 +57,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [6, 2, 6, 2],
     labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE' },
     narration: { inhale: 'Expanda as costelas lateralmente.', suspend: 'Mantenha a expansão sem tensão.', exhale: 'Solte o ar devagar, alongando a coluna.', rest: 'Relaxe os ombros' },
-    avatarAction: 'Alinhamento Postural',
-    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
+    checklist: 'Alinhamento total. Relaxe o pescoço e alongue a coluna para ressonância máxima.'
   },
   none: {
     title: 'Treinamento Vocal',
@@ -71,7 +66,6 @@ const moduleConfigs: Record<ConservatoryModule, {
     durations: [],
     labels: { inhale: '', suspend: '', exhale: '', rest: '' },
     narration: { inhale: '', suspend: '', exhale: '', rest: '' },
-    avatarAction: '',
     checklist: ''
   }
 };
@@ -93,15 +87,12 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     if ('speechSynthesis' in window && isActive) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      
       const voices = window.speechSynthesis.getVoices();
-      // High-quality Brazilian Portuguese male voice selection
       const ptBrVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Daniel') || v.name.includes('Male') || v.name.includes('Google')));
-      
       if (ptBrVoice) utterance.voice = ptBrVoice;
       utterance.lang = 'pt-BR';
       utterance.rate = 0.9; 
-      utterance.pitch = 1.05; 
+      utterance.pitch = 1.0; 
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -165,7 +156,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   if (!isReady) {
     return (
       <div className="flex flex-col items-center justify-center gap-8 py-12 animate-in fade-in duration-500">
-        <InstructorAvatar phase="rest" />
+        <InstructorAvatar phase="rest" moduleType={moduleType} />
         <div className="text-center max-w-md">
           <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">Checklist de Preparação</h3>
           <p className="text-lg text-foreground mb-8 leading-relaxed">{config.checklist}</p>
@@ -185,7 +176,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8">
       {config.music && <audio ref={audioRef} src={config.music} loop hidden />}
 
-      <InstructorAvatar phase={currentPhase} />
+      <InstructorAvatar phase={currentPhase} moduleType={moduleType} />
 
       <div className="flex flex-col items-center space-y-8 flex-grow">
         <div className="text-center">
