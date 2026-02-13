@@ -3,7 +3,7 @@ import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-libr
 import SongCard from '@/components/SongCard';
 import { Input } from '@/components/ui/input';
 import { Search, Globe, Download, Users, PlayCircle } from 'lucide-react';
-import { cn } from '@/utils/cn';
+import { cn } from '../utils/cn';
 import SongCategoryRow from '@/components/SongCategoryRow';
 import { Button } from '@/components/ui/button';
 

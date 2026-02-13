@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle, PlayCircle, Sparkles, Library as LibraryIcon, Search } from "lucide-react";
-import { cn } from "@/utils/cn";
+import { cn } from "../utils/cn";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import RecentlyAdded from "@/components/RecentlyAdded";
 import TrendTopicsFeed from "@/components/TrendTopicsFeed";
