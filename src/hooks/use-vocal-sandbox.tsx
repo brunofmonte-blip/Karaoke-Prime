@@ -172,6 +172,13 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setCurrentTime(0);
     setStabilityScore(100);
 
+    // Initialize Audio
+    if (song.audioUrl) {
+      const audio = new Audio(song.audioUrl);
+      audio.volume = 0.5;
+      audioRef.current = audio;
+    }
+
     const duration = module === 'pitch-calibration' ? 60 : 60; 
     setTotalDuration(duration);
 
@@ -183,6 +190,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
           window.clearInterval(countdownIntervalRef.current);
           startAudio();
           
+          if (audioRef.current) {
+            audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
+          }
+
           const startTime = Date.now();
           sessionStartTimeRef.current = startTime;
           

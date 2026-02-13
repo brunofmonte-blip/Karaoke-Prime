@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, StopCircle, Music, X, ShieldCheck, Trophy, Wind, AlertCircle, Activity, Target } from 'lucide-react';
+import { Mic, StopCircle, Music, X, ShieldCheck, Trophy, Wind, AlertCircle, Activity, Target, Volume2 } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -50,9 +50,17 @@ const VocalSandboxOverlay: React.FC = () => {
   return (
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl md:text-4xl font-bold text-primary neon-blue-glow">
-          {isBreathingExercise ? "Conservatório Vocal" : isPitchCalibration ? "Laboratório de Calibração" : "Sandbox Vocal ao Vivo"}
-        </h1>
+        <div className="flex flex-col">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary neon-blue-glow">
+            {isBreathingExercise ? "Conservatório Vocal" : isPitchCalibration ? "Laboratório de Calibração" : "Sandbox Vocal ao Vivo"}
+          </h1>
+          {!isBreathingExercise && !isPitchCalibration && (
+            <p className="text-muted-foreground flex items-center gap-2 mt-1">
+              <Music className="h-4 w-4" />
+              {currentSongTitle} — {currentSongArtist}
+            </p>
+          )}
+        </div>
         <Button 
           variant="ghost" 
           size="icon" 
@@ -65,7 +73,10 @@ const VocalSandboxOverlay: React.FC = () => {
 
       <div className="w-full max-w-4xl mx-auto mb-8 space-y-2">
         <div className="flex justify-between text-sm font-medium text-muted-foreground">
-          <span>Progresso da Sessão</span>
+          <span className="flex items-center gap-2">
+            {isAnalyzing && <Volume2 className="h-4 w-4 text-primary animate-pulse" />}
+            {isAnalyzing ? "Áudio Ativo" : "Aguardando Início"}
+          </span>
           <span>{Math.min(100, progressValue).toFixed(0)}%</span>
         </div>
         <Progress value={progressValue} className="h-3 bg-primary/20" indicatorClassName="bg-primary shadow-lg shadow-primary/50" />
@@ -142,11 +153,11 @@ const VocalSandboxOverlay: React.FC = () => {
                 <div className="flex justify-center space-x-4">
                   <Button 
                     onClick={() => startAnalysis(currentSong, ghostTrace.length > 0)} 
-                    disabled={isAnalyzing}
+                    disabled={isAnalyzing || countdown !== null}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/30"
                   >
                     <Mic className="h-5 w-5 mr-2" />
-                    {isAnalyzing ? 'Analisando...' : 'Começar'}
+                    {countdown !== null ? `Iniciando em ${countdown}...` : isAnalyzing ? 'Analisando...' : 'Começar'}
                   </Button>
                   <Button 
                     onClick={stopAnalysis} 
