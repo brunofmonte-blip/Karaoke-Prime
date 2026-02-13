@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ArrowLeft, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 export default function SongPlayer() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function SongPlayer() {
 
   // SIMULATED TIMER for lyric synchronization
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
     if (isPlaying) {
       interval = setInterval(() => {
         setCurrentTime((prev) => prev + 1);
@@ -56,10 +57,11 @@ export default function SongPlayer() {
               return (
                 <p 
                   key={index}
-                  className={`transition-all duration-500 text-center font-bold py-2
-                    ${isActive ? "text-4xl text-yellow-400 scale-110 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]" : 
-                      isPast ? "text-xl text-gray-600 blur-[1px]" : "text-xl text-gray-500"}
-                  `}
+                  className={cn(
+                    "transition-all duration-500 text-center font-bold py-2",
+                    isActive ? "text-4xl text-yellow-400 scale-110 drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]" : 
+                    isPast ? "text-xl text-gray-600 blur-[1px]" : "text-xl text-gray-500"
+                  )}
                 >
                   {line.text}
                 </p>
