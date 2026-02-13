@@ -101,7 +101,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       if (ptBrVoice) utterance.voice = ptBrVoice;
       utterance.lang = 'pt-BR';
       utterance.rate = 0.9; 
-      utterance.pitch = 1.0; 
+      utterance.pitch = 1.05; 
       window.speechSynthesis.speak(utterance);
     }
   };
