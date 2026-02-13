@@ -100,7 +100,7 @@ export default function SongPlayer() {
               <Mic className="h-12 w-12 text-yellow-400" />
             </div>
             <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">Asa Branca</h2>
-            <p className="text-gray-400 mb-8">Versão Instrumental / Karaoke</p>
+            <p className="text-gray-400 mb-8">Versão Original / Karaoke</p>
             <Button 
               onClick={() => setIsPlaying(true)} 
               className="text-2xl px-12 py-8 bg-yellow-500 hover:bg-yellow-400 text-black font-black rounded-2xl shadow-2xl shadow-yellow-500/20 transition-transform hover:scale-105 active:scale-95"
@@ -110,11 +110,11 @@ export default function SongPlayer() {
           </div>
         )}
         
-        {/* Instrumental Video Source */}
+        {/* Functional Video Source */}
         <iframe 
           width="100%" 
           height="100%" 
-          src={`https://www.youtube.com/embed/QxJ4k3vC5s4?autoplay=${isPlaying ? 1 : 0}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3`} 
+          src={`https://www.youtube.com/embed/zsFSHg2hxbc?autoplay=${isPlaying ? 1 : 0}&controls=0&modestbranding=1&rel=0&enablejsapi=1`} 
           title="Karaoke Video" 
           frameBorder="0" 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
