@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, StopCircle, Music, X, ShieldCheck, Trophy, Wind, AlertCircle, Activity } from 'lucide-react';
+import { Mic, StopCircle, Music, X, ShieldCheck, Trophy, Wind, AlertCircle, Activity, Target } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import VocalEvolutionChart from './VocalEvolutionChart';
 import { Progress } from '@/components/ui/progress';
 import FarinelliExercise from './FarinelliExercise';
+import PitchCalibrationExercise from './PitchCalibrationExercise';
 
 const VocalSandboxOverlay: React.FC = () => {
   const { 
@@ -19,6 +20,7 @@ const VocalSandboxOverlay: React.FC = () => {
     startAnalysis, 
     stopAnalysis, 
     pitchData, 
+    pitchDataHz,
     pitchHistory,
     ghostTrace,
     currentSongTitle,
@@ -34,22 +36,22 @@ const VocalSandboxOverlay: React.FC = () => {
     isAirflowLow,
     stabilityScore,
     activeModule,
+    activeSubModule,
   } = useVocalSandbox();
   
   const progressValue = (currentTime / totalDuration) * 100;
-  const isBreathingExercise = activeModule !== 'none';
+  const isBreathingExercise = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander';
+  const isPitchCalibration = activeModule === 'pitch-calibration';
 
   if (!isOverlayOpen || !currentSong) {
     return null;
   }
   
-  // Redundant full-screen countdown removed to prioritize internal exercise countdown
-  
   return (
     <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl md:text-4xl font-bold text-primary neon-blue-glow">
-          {isBreathingExercise ? "Conservatório Vocal" : "Sandbox Vocal ao Vivo"}
+          {isBreathingExercise ? "Conservatório Vocal" : isPitchCalibration ? "Laboratório de Calibração" : "Sandbox Vocal ao Vivo"}
         </h1>
         <Button 
           variant="ghost" 
@@ -119,6 +121,14 @@ const VocalSandboxOverlay: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+        ) : isPitchCalibration ? (
+          <div className="max-w-5xl mx-auto w-full">
+            <PitchCalibrationExercise 
+              subModule={activeSubModule} 
+              frequency={pitchDataHz} 
+              currentTime={currentTime} 
+            />
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className={cn("lg:col-span-1 glass-pillar h-fit")}>
@@ -174,7 +184,7 @@ const VocalSandboxOverlay: React.FC = () => {
           </div>
         )}
         
-        {!isBreathingExercise && (
+        {!isBreathingExercise && !isPitchCalibration && (
           <Card className={cn("glass-pillar")}>
             <CardHeader>
               <CardTitle className="text-primary">Letras</CardTitle>

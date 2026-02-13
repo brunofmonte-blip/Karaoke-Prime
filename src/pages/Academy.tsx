@@ -3,6 +3,7 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 import { academyLessons } from '@/data/lessons';
 import LessonCard from '@/components/LessonCard';
 import AcademyModuleMenu from '@/components/AcademyModuleMenu';
+import AcademyLevel2Menu from '@/components/AcademyLevel2Menu';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
@@ -116,9 +117,13 @@ const Academy = () => {
               <div className="col-span-full">
                 <AcademyModuleMenu level={1} />
               </div>
+            ) : selectedLevel === 2 ? (
+              <div className="col-span-full">
+                <AcademyLevel2Menu />
+              </div>
             ) : (
               academyLessons.map((lesson) => (
-                <div key={lesson.level} onClick={() => lesson.level === 1 && setSelectedLevel(1)}>
+                <div key={lesson.level} onClick={() => (lesson.level === 1 || lesson.level === 2) && setSelectedLevel(lesson.level)}>
                   <LessonCard lesson={lesson} isAdminMode={isAdminMode} />
                 </div>
               ))
