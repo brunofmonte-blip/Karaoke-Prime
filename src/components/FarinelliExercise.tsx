@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Wind, Pause, Play, AlertCircle, Volume2, Activity, User, Headphones, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Wind, Pause, Play, AlertCircle, Volume2, Activity, CheckCircle2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ConservatoryModule } from '@/hooks/use-vocal-sandbox';
+import InstructorAvatar from './InstructorAvatar';
 
 type Phase = 'inhale' | 'suspend' | 'exhale' | 'rest';
 
@@ -41,7 +42,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '' },
     narration: { inhale: 'Inspira pelo nariz, relaxando os ombros.', exhale: 'Expira criando bolhas constantes no canudo.', suspend: '', rest: '' },
     avatarAction: 'Bolhas no Canudo',
-    checklist: 'Antes de começarmos, separe seu canudo e um copo com 3 dedos de água.'
+    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Estou pronto quando você estiver.'
   },
   panting: {
     title: 'Appoggio Clássico',
@@ -75,68 +76,6 @@ const moduleConfigs: Record<ConservatoryModule, {
   }
 };
 
-const StudioSpecialistAvatar = ({ phase, action }: { phase: Phase, action: string }) => {
-  return (
-    <div className="w-full lg:w-64 h-80 rounded-3xl glass-pillar border-2 border-primary/30 overflow-hidden relative flex flex-col items-center justify-center p-4 bg-gradient-to-b from-card/50 to-background/80">
-      <div className="absolute top-2 left-2 bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/30 z-20">
-        STUDIO SPECIALIST
-      </div>
-      
-      {/* Avatar Visual Representation */}
-      <div className="relative w-40 h-48 flex flex-col items-center">
-        {/* Head with Grey Hair */}
-        <div className="w-16 h-16 rounded-full bg-[#f3f4f6] border-2 border-border relative z-10 overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-4 bg-[#9ca3af]" /> {/* Grey Hair */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <User className="h-10 w-10 text-muted-foreground/50" />
-          </div>
-        </div>
-        
-        {/* Headphones */}
-        <Headphones className="absolute top-[-4px] h-20 w-20 text-accent amazon-gold-glow z-20" />
-        
-        {/* Body (Dark Blazer over Light Grey Sweater) */}
-        <div className={cn(
-          "w-32 h-32 bg-[#1f2937] rounded-t-[40px] mt-[-10px] relative transition-all duration-1000",
-          phase === 'inhale' && "scale-x-110 scale-y-105",
-          phase === 'suspend' && "scale-x-105",
-          phase === 'exhale' && "scale-x-95 scale-y-95"
-        )}>
-          {/* Light Grey Sweater V-Neck */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-16 bg-[#d1d5db] clip-path-v-neck" 
-               style={{ clipPath: 'polygon(0 0, 100% 0, 50% 100%)' }} />
-          
-          {/* Hands demonstrating breathing */}
-          <div className={cn(
-            "absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-8 transition-all duration-1000",
-            phase === 'inhale' && "translate-y-[-10px] gap-12",
-            phase === 'suspend' && "translate-y-[-5px]",
-            phase === 'exhale' && "translate-y-[5px] gap-4"
-          )}>
-            <div className="w-4 h-4 rounded-full bg-[#f3f4f6] shadow-md" />
-            <div className="w-4 h-4 rounded-full bg-[#f3f4f6] shadow-md" />
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-4 text-center">
-        <p className="text-sm font-bold text-foreground uppercase tracking-wider">{action}</p>
-        <p className="text-[10px] text-muted-foreground mt-1 leading-tight">Observe o movimento do diafragma e ombros.</p>
-      </div>
-      
-      {/* Phase Progress Bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20">
-        <div 
-          className={cn(
-            "h-full transition-all duration-100",
-            phase === 'inhale' ? "bg-primary" : phase === 'suspend' ? "bg-accent" : "bg-destructive"
-          )} 
-        />
-      </div>
-    </div>
-  );
-};
-
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const config = moduleConfigs[moduleType];
   const [phaseIndex, setPhaseIndex] = useState(0);
@@ -161,8 +100,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       
       if (ptBrVoice) utterance.voice = ptBrVoice;
       utterance.lang = 'pt-BR';
-      utterance.rate = 0.9; 
-      utterance.pitch = 0.85; 
+      utterance.rate = 0.95; 
+      utterance.pitch = 0.9; 
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -226,7 +165,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   if (!isReady) {
     return (
       <div className="flex flex-col items-center justify-center gap-8 py-12 animate-in fade-in duration-500">
-        <StudioSpecialistAvatar phase="rest" action="Preparação" />
+        <InstructorAvatar phase="rest" />
         <div className="text-center max-w-md">
           <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">Checklist de Preparação</h3>
           <p className="text-lg text-foreground mb-8 leading-relaxed">{config.checklist}</p>
@@ -246,7 +185,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8">
       {config.music && <audio ref={audioRef} src={config.music} loop hidden />}
 
-      <StudioSpecialistAvatar phase={currentPhase} action={config.avatarAction} />
+      <InstructorAvatar phase={currentPhase} />
 
       <div className="flex flex-col items-center space-y-8 flex-grow">
         <div className="text-center">
