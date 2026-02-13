@@ -4,10 +4,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Target, Music, EyeOff, PlayCircle, AlertCircle, ChevronRight, Zap } from 'lucide-react';
+import { Target, Music, EyeOff, PlayCircle, ChevronRight, Zap, Activity, Mic2, Headphones, BarChart3 } from 'lucide-react';
 import { useVocalSandbox, CalibrationSubModule } from '@/hooks/use-vocal-sandbox';
 import { publicDomainLibrary } from '@/data/public-domain-library';
-import { toast } from 'sonner';
 
 interface Exercise {
   id: string;
@@ -28,32 +27,48 @@ interface Module {
 const modules: Module[] = [
   {
     id: 'L2-A',
-    title: 'Módulo A: Ataque Laser',
-    description: 'Audiation e precisão instantânea. Elimine o "scooping" vocal.',
+    title: 'Módulo A: Ataque & Audiation',
+    description: 'Precisão instantânea e mentalização de frequência.',
     icon: Target,
-    prescription: '10 ataques perfeitos',
+    prescription: 'Foco em Intonação Pura',
     exercises: [
-      { id: 'laser-1', title: 'Ataque Laser & Audiation', subModule: 'laser-attack', icon: Zap }
+      { id: 'farinelli-int', title: '1. Farinelli (Intonation)', subModule: 'laser-attack', icon: Activity },
+      { id: 'audiation', title: '6. Audiation (Mentalization)', subModule: 'audiation', icon: Zap },
+      { id: 'bone-cond', title: '10. Condução Óssea', subModule: 'bone-conduction', icon: Headphones }
     ]
   },
   {
     id: 'L2-B',
-    title: 'Módulo B: Sustentação em Drone',
-    description: 'Estabilidade contra referência fixa. Sinta a ressonância pura.',
-    icon: Music,
-    prescription: '5 minutos de sustentação',
+    title: 'Módulo B: Biofeedback & Tuning',
+    description: 'A ciência do Hertz e correção em tempo real.',
+    icon: BarChart3,
+    prescription: 'Precisão < 5 Cents',
     exercises: [
-      { id: 'drone-1', title: 'Sustentação em Drone (C4)', subModule: 'drone-sustain', icon: Music }
+      { id: 'biofeedback', title: '2. Biofeedback (Hertz/Cents)', subModule: 'biofeedback', icon: BarChart3 },
+      { id: 'sovt-pitch', title: '5. SOVT (Straw/Lip Trills)', subModule: 'sovt-pitch', icon: Activity },
+      { id: 'autotune', title: '7. Auto-Tune Real-Time', subModule: 'autotune-realtime', icon: Mic2 }
     ]
   },
   {
     id: 'L2-C',
-    title: 'Módulo C: Blind Tuning',
-    description: 'O teste final de memória muscular. Cante sem o afinador.',
-    icon: EyeOff,
-    prescription: '3 ciclos de 10s ocultos',
+    title: 'Módulo C: Ressonância & Teoria',
+    description: 'Modificação de vogais e solfejo clássico.',
+    icon: Music,
+    prescription: 'Pureza de Vogais',
     exercises: [
-      { id: 'blind-1', title: 'Teste de Blind Tuning', subModule: 'blind-tuning', icon: EyeOff }
+      { id: 'vowel-mod', title: '3. Vowel Modification', subModule: 'vowel-mod', icon: Mic2 },
+      { id: 'solfege', title: '9. Solfège (Do-Re-Mi)', subModule: 'solfege', icon: Music }
+    ]
+  },
+  {
+    id: 'L2-D',
+    title: 'Módulo D: Estúdio & Performance',
+    description: 'Estabilidade contra drone e análise de estúdio.',
+    icon: Activity,
+    prescription: 'Estabilidade Absoluta',
+    exercises: [
+      { id: 'drone-pedal', title: '4. Drone (Nota Pedal)', subModule: 'drone-sustain', icon: Music },
+      { id: 'melodyne', title: '8. Melodyne Analysis', subModule: 'melodyne-analysis', icon: BarChart3 }
     ]
   }
 ];
@@ -64,7 +79,6 @@ const AcademyLevel2Menu: React.FC = () => {
 
   const handleStartExercise = (exercise: Exercise) => {
     const exerciseSong = publicDomainLibrary.find(s => s.id === 'pd-21') || publicDomainLibrary[0];
-    
     startAnalysis(exerciseSong, false, 'pitch-calibration', exercise.subModule);
     openOverlay();
   };
@@ -93,7 +107,7 @@ const AcademyLevel2Menu: React.FC = () => {
             {expandedModule === module.id && (
               <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
                 <div className="p-3 rounded-xl bg-primary/10 border border-primary/30 mb-4">
-                  <p className="text-xs font-bold text-primary uppercase tracking-wider">Meta de Precisão</p>
+                  <p className="text-xs font-bold text-primary uppercase tracking-wider">Meta de Treino</p>
                   <p className="text-sm text-foreground font-medium">{module.prescription}</p>
                 </div>
                 
@@ -105,7 +119,10 @@ const AcademyLevel2Menu: React.FC = () => {
                       variant="outline"
                       className="justify-between bg-background/50 border-accent/20 hover:border-accent hover:bg-accent/10 rounded-xl h-12"
                     >
-                      <span className="font-medium">{ex.title}</span>
+                      <div className="flex items-center gap-2">
+                        <ex.icon className="h-4 w-4 text-accent" />
+                        <span className="font-medium">{ex.title}</span>
+                      </div>
                       <PlayCircle className="h-5 w-5 text-accent" />
                     </Button>
                   ))}

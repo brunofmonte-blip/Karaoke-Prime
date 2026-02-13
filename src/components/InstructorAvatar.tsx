@@ -3,15 +3,16 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { User, Headphones } from 'lucide-react';
-import { ConservatoryModule } from '@/hooks/use-vocal-sandbox';
+import { ConservatoryModule, CalibrationSubModule } from '@/hooks/use-vocal-sandbox';
 
 interface InstructorAvatarProps {
   phase: 'inhale' | 'suspend' | 'exhale' | 'rest';
   moduleType?: ConservatoryModule;
+  subModule?: CalibrationSubModule;
   className?: string;
 }
 
-const InstructorAvatar: React.FC<InstructorAvatarProps> = ({ phase, moduleType = 'none', className }) => {
+const InstructorAvatar: React.FC<InstructorAvatarProps> = ({ phase, moduleType = 'none', subModule = 'none', className }) => {
   return (
     <div className={cn(
       "relative w-48 h-64 flex flex-col items-center justify-center transition-all duration-1000",
@@ -22,7 +23,6 @@ const InstructorAvatar: React.FC<InstructorAvatarProps> = ({ phase, moduleType =
         
         {/* Head with Grey Hair */}
         <div className="w-16 h-16 rounded-full bg-[#f3f4f6] border-2 border-border relative z-10 overflow-hidden">
-          {/* Grey Hair Detail */}
           <div className="absolute top-0 left-0 right-0 h-4 bg-[#9ca3af] rounded-t-full" />
           <div className="absolute inset-0 flex items-center justify-center pt-2">
             <User className="h-10 w-10 text-muted-foreground/40" />
@@ -44,21 +44,25 @@ const InstructorAvatar: React.FC<InstructorAvatarProps> = ({ phase, moduleType =
           phase === 'exhale' && "scale-x-95 scale-y-95",
           moduleType === 'alexander' && "translate-y-[-5px]" 
         )}>
-          {/* Light Grey Sweater V-Neck */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-12 bg-[#d1d5db]" 
                style={{ clipPath: 'polygon(0 0, 100% 0, 50% 100%)' }} />
           
-          {/* Contextual Gestures: Hands on Diaphragm/Ribs */}
+          {/* Contextual Gestures */}
           <div className={cn(
             "absolute bottom-4 left-1/2 -translate-x-1/2 flex transition-all duration-1000",
-            // Diaphragm Focus (Farinelli/Breathing)
+            // Diaphragm Focus
             (moduleType === 'farinelli' || moduleType === 'panting') && "gap-8 translate-y-[-8px]",
-            // Posture Focus (Alexander)
+            // Posture Focus
             moduleType === 'alexander' && "gap-12 translate-y-[-12px]",
+            // Bone Conduction Gesture (Hand behind ear)
+            subModule === 'bone-conduction' && "gap-16 translate-y-[-20px] translate-x-[-10px]",
             // Default
             moduleType === 'none' && "gap-4"
           )}>
-            <div className="w-3 h-3 rounded-full bg-[#f3f4f6] shadow-md" />
+            <div className={cn(
+              "w-3 h-3 rounded-full bg-[#f3f4f6] shadow-md transition-all duration-500",
+              subModule === 'bone-conduction' && "translate-y-[-40px] translate-x-[40px]" // Right hand to ear
+            )} />
             <div className="w-3 h-3 rounded-full bg-[#f3f4f6] shadow-md" />
           </div>
         </div>

@@ -22,7 +22,11 @@ export interface SessionSummary extends PerformanceInsight {
 
 export type BreathingPhase = 'inhale' | 'suspend' | 'exhale' | 'rest';
 export type ConservatoryModule = 'farinelli' | 'sovt' | 'panting' | 'alexander' | 'pitch-calibration' | 'none';
-export type CalibrationSubModule = 'laser-attack' | 'drone-sustain' | 'blind-tuning' | 'none';
+export type CalibrationSubModule = 
+  | 'laser-attack' | 'drone-sustain' | 'blind-tuning' 
+  | 'bone-conduction' | 'audiation' | 'biofeedback' 
+  | 'sovt-pitch' | 'autotune-realtime' | 'vowel-mod' 
+  | 'solfege' | 'melodyne-analysis' | 'none';
 
 interface VocalSandboxContextType {
   isOverlayOpen: boolean;
