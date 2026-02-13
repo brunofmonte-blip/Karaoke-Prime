@@ -32,7 +32,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA' },
     narration: { inhale: 'Inspira profundamente, expandindo o diafragma.', suspend: 'Segura o ar com o core engajado.', exhale: 'Expira de forma controlada.', rest: 'Pausa' },
     avatarAction: 'Expansão Pulmonar',
-    checklist: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta e os ombros relaxados.'
+    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
   },
   sovt: {
     title: 'Método Arnold Jacobs',
@@ -52,7 +52,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA' },
     narration: { inhale: 'Inspira e expande as costelas.', suspend: 'Mantém o suporte abdominal.', exhale: 'Solta o ar com apoio constante.', rest: 'Pausa' },
     avatarAction: 'Suporte Diafragmático',
-    checklist: 'Foco no diafragma. Sinta a pressão abdominal e mantenha o suporte constante.'
+    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
   },
   alexander: {
     title: 'Técnica de Alexander',
@@ -62,7 +62,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE' },
     narration: { inhale: 'Expanda as costelas lateralmente.', suspend: 'Mantenha a expansão sem tensão.', exhale: 'Solte o ar devagar, alongando a coluna.', rest: 'Relaxe os ombros' },
     avatarAction: 'Alinhamento Postural',
-    checklist: 'Alinhamento total. Relaxe o pescoço e alongue a coluna para ressonância máxima.'
+    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
   },
   none: {
     title: 'Treinamento Vocal',
@@ -100,8 +100,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       
       if (ptBrVoice) utterance.voice = ptBrVoice;
       utterance.lang = 'pt-BR';
-      utterance.rate = 0.95; 
-      utterance.pitch = 0.9; 
+      utterance.rate = 0.9; 
+      utterance.pitch = 1.0; 
       window.speechSynthesis.speak(utterance);
     }
   };
