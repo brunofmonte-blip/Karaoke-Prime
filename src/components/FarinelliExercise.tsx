@@ -42,7 +42,7 @@ const moduleConfigs: Record<ConservatoryModule, {
     labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '' },
     narration: { inhale: 'Inspira pelo nariz, relaxando os ombros.', exhale: 'Expira criando bolhas constantes no canudo.', suspend: '', rest: '' },
     avatarAction: 'Bolhas no Canudo',
-    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Estou pronto quando você estiver.'
+    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
   },
   panting: {
     title: 'Appoggio Clássico',
