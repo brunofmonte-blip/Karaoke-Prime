@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle, PlayCircle, Sparkles, Library as LibraryIcon, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
 import RecentlyAdded from "@/components/RecentlyAdded";
 import TrendTopicsFeed from "@/components/TrendTopicsFeed";
@@ -14,7 +14,7 @@ import PillarLockedOverlay from '@/components/PillarLockedOverlay';
 import { useAuth } from '@/integrations/supabase/auth';
 import { usePrimeSubscription } from '@/hooks/use-prime-subscription';
 import AchievementsSection from '@/components/AchievementsSection';
-import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
+import { publicDomainLibrary } from '@/data/public-domain-library';
 import { academyLessons } from '@/data/lessons';
 import { Button } from '@/components/ui/button';
 import AdvancedSearch from '@/components/AdvancedSearch';
@@ -24,10 +24,16 @@ import { Input } from '@/components/ui/input';
 const HeroSection = () => (
   <section 
     className="relative h-[85vh] w-full bg-cover bg-center flex flex-col justify-end" 
-    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600')" }}
+    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=1600')" }}
   >
     <div className="absolute inset-0 hero-vignette" />
     <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
+      <h1 className="text-5xl md:text-7xl font-black text-white mb-4 drop-shadow-2xl">
+        KARAOKE <span className="text-primary neon-blue-glow">PRIME</span>
+      </h1>
+      <p className="text-xl text-gray-200 max-w-2xl font-medium">
+        A plataforma definitiva para evolução vocal e performance global.
+      </p>
     </div>
     <div className="h-[10vh] md:h-[15vh] relative z-10"></div>
   </section>
@@ -119,8 +125,6 @@ const ElitePillarCard: React.FC<ElitePillarProps> = ({
 
 const Index = () => {
   const navigate = useNavigate();
-  const { openOverlay, startAnalysis } = useVocalSandbox();
-  const { trigger, isRateLimited } = useRateLimiter(1500);
   const { data: profile } = useUserProfile();
   const { user } = useAuth();
   const { openModal: openPrimeModal } = usePrimeSubscription();
@@ -134,7 +138,7 @@ const Index = () => {
     if (currentLevel < 10) {
       return academyLessons.find(lesson => lesson.level === currentLevel + 1);
     }
-    return academyLessons[9]; // Max level
+    return academyLessons[9]; 
   }, [currentLevel]);
 
   const heritageSongs = useMemo(() => {
@@ -145,14 +149,6 @@ const Index = () => {
       s.artist.toLowerCase().includes(heritageSearch.toLowerCase())
     ).slice(0, 5);
   }, [heritageSearch]);
-
-  const handleBasicPillarClick = () => {
-    trigger(() => {
-      const defaultSong = publicDomainLibrary[0];
-      startAnalysis(defaultSong, false);
-      openOverlay();
-    });
-  };
 
   const handlePillarClick = (title: string, requiredLevel: number, to: string) => {
     if (!user) {
@@ -194,11 +190,10 @@ const Index = () => {
         <div className="absolute bottom-[-60px] left-0 right-0 z-50 w-full max-w-7xl mx-auto"> 
           <div className="flex overflow-x-auto space-x-4 pb-4 px-4 md:px-0 md:justify-center">
             <ElitePillarCard 
-              title="Basic" 
+              title="Básico" 
               description="Karaoke tradicional com MVs originais e sistema de batalha." 
               icon={Music} 
-              onClick={handleBasicPillarClick}
-              isRateLimited={isRateLimited}
+              to="/library"
               isUnlocked={currentLevel > 0}
             />
             <ElitePillarCard 
@@ -238,12 +233,10 @@ const Index = () => {
       </div>
 
       <div className="container mx-auto px-0 md:px-6 relative z-30 pt-[140px] md:pt-[140px]"> 
-        {/* Advanced Search Section */}
         <div className="mt-8 px-4 md:px-0">
           <AdvancedSearch />
         </div>
 
-        {/* Heritage Library Section */}
         <div className="mt-16 px-4 md:px-0">
           <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
             <div>
@@ -270,15 +263,9 @@ const Index = () => {
                 <SongCard song={song} />
               </div>
             ))}
-            {heritageSongs.length === 0 && (
-              <div className="w-full text-center py-12 text-muted-foreground italic">
-                Nenhum tesouro encontrado para sua busca.
-              </div>
-            )}
           </div>
         </div>
 
-        {/* AI Recommended Training Section */}
         {user && (
           <div className="mt-8 px-4 md:px-0 flex justify-center">
             <div className="glass-pillar p-6 rounded-2xl border-2 border-accent/50 shadow-xl max-w-2xl w-full flex flex-col md:flex-row items-center justify-between gap-4">
