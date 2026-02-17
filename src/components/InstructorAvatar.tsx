@@ -1,77 +1,58 @@
 import React from "react";
-import { User, Headphones, Mic2 } from "lucide-react";
+import { User, Headphones, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface InstructorAvatarProps {
-  phase?: 'inhale' | 'suspend' | 'exhale' | 'rest' | string;
-  moduleType?: string;
-  subModule?: string;
-}
-
-export default function InstructorAvatar({ phase = "rest" }: InstructorAvatarProps) {
-  // Animation logic based on breathing phase
-  const isBreathing = phase === 'inhale' || phase === 'exhale';
-  
+export default function InstructorAvatar() {
   return (
-    <div className="relative w-48 h-64 flex flex-col items-center justify-center animate-in fade-in duration-1000">
+    <div className="relative w-48 h-64 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-700">
+      {/* Aura Glow */}
+      <div className="absolute inset-0 bg-primary/20 rounded-full filter blur-3xl animate-pulse" />
+      
       {/* Studio Specialist Visual Model */}
-      <div className="relative w-32 h-40 flex flex-col items-center">
+      <div className="relative w-32 h-40 flex flex-col items-center z-10">
         
         {/* Head & Face Container */}
-        <div className={cn(
-          "w-16 h-16 rounded-full bg-slate-200 border-2 border-slate-400 relative z-10 overflow-hidden shadow-inner transition-transform duration-500",
-          phase === 'inhale' && "scale-110",
-          phase === 'exhale' && "scale-95"
-        )}>
-          <div className="absolute top-0 left-0 right-0 h-4 bg-slate-500 rounded-t-full" />
+        <div className="w-20 h-20 rounded-full bg-slate-200 border-4 border-primary/50 relative z-10 overflow-hidden shadow-[0_0_20px_rgba(0,168,225,0.3)]">
+          <div className="absolute top-0 left-0 right-0 h-5 bg-slate-500 rounded-t-full" />
           <div className="absolute inset-0 flex items-center justify-center pt-2">
-            <User className="h-10 w-10 text-slate-400" />
+            <User className="h-12 w-12 text-slate-400" />
           </div>
           
-          {/* Mouth Animation for Breathing */}
-          {isBreathing && (
-            <div className={cn(
-              "absolute bottom-3 left-1/2 -translate-x-1/2 w-3 h-1 bg-slate-600 rounded-full transition-all duration-300",
-              phase === 'inhale' ? "h-3 w-3" : "h-1 w-4"
-            )} />
-          )}
+          {/* AI Pulse Eye */}
+          <div className="absolute top-8 right-6 w-1.5 h-1.5 bg-primary rounded-full animate-ping" />
         </div>
         
         {/* Professional Studio Headphones */}
-        <div className="absolute top-[-4px] z-20 flex justify-between w-20">
-          <div className="h-8 w-3 bg-slate-900 rounded-l-lg shadow-lg" />
-          <div className="h-8 w-3 bg-slate-900 rounded-r-lg shadow-lg" />
-          <Headphones className="absolute top-[-8px] left-1/2 -translate-x-1/2 h-20 w-20 text-primary/60 drop-shadow-[0_0_8px_rgba(0,168,225,0.4)]" />
+        <div className="absolute top-[-6px] z-20 flex justify-between w-24">
+          <div className="h-10 w-4 bg-slate-900 rounded-l-lg shadow-lg border-r border-white/10" />
+          <div className="h-10 w-4 bg-slate-900 rounded-r-lg shadow-lg border-l border-white/10" />
+          <Headphones className="absolute top-[-10px] left-1/2 -translate-x-1/2 h-24 w-24 text-primary/80 drop-shadow-[0_0_12px_rgba(0,168,225,0.6)]" />
         </div>
         
         {/* Body: Professional Studio Attire */}
-        <div className="w-28 h-28 bg-slate-800 rounded-t-[40px] mt-[-10px] relative shadow-2xl border-t border-white/10">
+        <div className="w-32 h-32 bg-slate-800 rounded-t-[50px] mt-[-15px] relative shadow-2xl border-t border-white/20">
           {/* Shirt Detail */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-12 bg-slate-300" 
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-14 bg-slate-300" 
                style={{ clipPath: 'polygon(0 0, 100% 0, 50% 100%)' }} />
           
-          {/* Hands/Gestures - Animated during active phases */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-6">
-            <div className={cn(
-              "w-3 h-3 rounded-full bg-slate-100 shadow-md transition-all duration-500",
-              isBreathing ? "animate-bounce" : "opacity-50"
-            )} style={{ animationDelay: '0ms' }} />
-            <div className={cn(
-              "w-3 h-3 rounded-full bg-slate-100 shadow-md transition-all duration-500",
-              isBreathing ? "animate-bounce" : "opacity-50"
-            )} style={{ animationDelay: '200ms' }} />
+          {/* AI Core Badge */}
+          <div className="absolute top-8 left-1/2 -translate-x-1/2">
+            <Sparkles className="h-4 w-4 text-primary animate-spin-slow" />
           </div>
         </div>
       </div>
 
       {/* Status Badge */}
-      <div className="mt-6 bg-primary/20 text-primary text-[10px] font-black px-4 py-1.5 rounded-full border border-primary/40 uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(0,168,225,0.2)]">
-        Studio Specialist
+      <div className="mt-8 bg-primary/20 text-primary text-[10px] font-black px-6 py-2 rounded-full border border-primary/40 uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(0,168,225,0.3)] backdrop-blur-md">
+        AI VOCAL COACH
       </div>
       
-      {/* Phase Indicator */}
-      <div className="mt-2 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-        Status: {phase}
+      {/* Active Indicator */}
+      <div className="mt-3 flex items-center gap-2">
+        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+          System Online
+        </span>
       </div>
     </div>
   );

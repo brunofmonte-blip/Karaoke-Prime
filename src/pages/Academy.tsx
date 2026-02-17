@@ -4,10 +4,11 @@ import { academyLessons } from '@/data/lessons';
 import LessonCard from '@/components/LessonCard';
 import AcademyModuleMenu from '@/components/AcademyModuleMenu';
 import AcademyLevel2Menu from '@/components/AcademyLevel2Menu';
+import InstructorAvatar from '@/components/InstructorAvatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
-import { GraduationCap, Zap, Trophy, ShieldAlert, ChevronLeft } from 'lucide-react';
+import { GraduationCap, Zap, Trophy, ShieldAlert, ChevronLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Academy = () => {
@@ -38,25 +39,35 @@ const Academy = () => {
       className="min-h-screen bg-cover bg-center bg-fixed transition-all duration-1000"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className="min-h-screen bg-background/80 backdrop-blur-sm p-4 md:p-8">
-        <div className="container mx-auto">
+      <div className="min-h-screen bg-background/80 backdrop-blur-md p-4 md:p-8">
+        <div className="container mx-auto max-w-6xl">
+          
+          {/* Welcome Section with Instructor */}
+          {!selectedLevel && (
+            <div className="flex flex-col items-center text-center mb-12 animate-in fade-in slide-in-from-top-8 duration-1000">
+              <InstructorAvatar />
+              <h1 className="text-4xl md:text-6xl font-black text-white mt-6 mb-4 tracking-tighter">
+                KARAOKE <span className="text-primary neon-blue-glow">ACADEMY</span>
+              </h1>
+              <p className="text-xl text-gray-300 max-w-2xl font-medium leading-relaxed">
+                Bem-vindo à Academia. Seu diagnóstico vocal de 10 níveis começa aqui. 
+                Siga o currículo projetado por AI para atingir a maestria.
+              </p>
+            </div>
+          )}
+
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div className="text-center md:text-left">
               <div className="flex items-center gap-2 mb-2">
                 {selectedLevel && (
-                  <Button variant="ghost" size="icon" onClick={() => setSelectedLevel(null)} className="rounded-full">
+                  <Button variant="ghost" size="icon" onClick={() => setSelectedLevel(null)} className="rounded-full text-white hover:bg-white/10">
                     <ChevronLeft className="h-6 w-6" />
                   </Button>
                 )}
-                <h1 className="text-4xl font-bold text-primary neon-blue-glow">
-                  {selectedLevel ? `Nível ${selectedLevel}: Conservatório` : "Karaoke Academy: Vocal Mastery"}
-                </h1>
+                <h2 className="text-3xl font-bold text-primary neon-blue-glow">
+                  {selectedLevel ? `Nível ${selectedLevel}: ${currentLesson?.title}` : "Seu Currículo Vocal"}
+                </h2>
               </div>
-              <p className="text-lg text-muted-foreground">
-                {selectedLevel 
-                  ? "Módulos avançados de fisiologia e técnica vocal profissional." 
-                  : "Siga o currículo de 10 níveis projetado por AI Vocal Coaches."}
-              </p>
             </div>
             
             <Button 
@@ -64,7 +75,7 @@ const Academy = () => {
               onClick={() => setIsAdminMode(!isAdminMode)}
               className={cn(
                 "rounded-xl border-2 transition-all duration-300",
-                isAdminMode ? "border-accent text-accent bg-accent/10" : "border-border text-muted-foreground"
+                isAdminMode ? "border-accent text-accent bg-accent/10" : "border-white/20 text-gray-400 bg-white/5"
               )}
             >
               <ShieldAlert className="h-4 w-4 mr-2" />
@@ -74,45 +85,47 @@ const Academy = () => {
 
           {!selectedLevel && (
             <Card className={cn(
-              "max-w-4xl mx-auto mb-12 p-6 rounded-2xl border-2 border-accent/70 shadow-xl",
-              "glass-pillar bg-card/80 backdrop-blur-xl"
+              "mb-12 p-6 rounded-3xl border-2 border-primary/30 shadow-2xl",
+              "glass-pillar bg-card/40 backdrop-blur-xl"
             )}>
-              <CardContent className="p-0 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-3 bg-card/50 rounded-xl border border-border/50">
-                  <GraduationCap className="h-6 w-6 text-primary mx-auto mb-1" />
-                  <p className="text-sm text-muted-foreground">Nível Atual</p>
-                  <p className="text-3xl font-extrabold text-primary neon-blue-glow">{currentLevel}</p>
+              <CardContent className="p-0 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <GraduationCap className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Nível Atual</p>
+                  <p className="text-4xl font-black text-white">{currentLevel}</p>
                 </div>
                 
-                <div className="text-center p-3 bg-card/50 rounded-xl border border-border/50">
-                  <Zap className="h-6 w-6 text-accent mx-auto mb-1 amazon-gold-glow" />
-                  <p className="text-sm text-muted-foreground">Melhor Nota</p>
-                  <p className="text-3xl font-extrabold text-accent neon-gold-glow">{bestNote.toFixed(1)}%</p>
+                <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <Zap className="h-8 w-8 text-accent mx-auto mb-2 amazon-gold-glow" />
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Melhor Nota</p>
+                  <p className="text-4xl font-black text-accent neon-gold-glow">{bestNote.toFixed(1)}%</p>
                 </div>
                 
-                <div className="text-center p-3 bg-card/50 rounded-xl border border-border/50">
-                  <Trophy className="h-6 w-6 text-foreground mx-auto mb-1" />
-                  <p className="text-sm text-muted-foreground">Total XP</p>
-                  <p className="text-3xl font-extrabold text-foreground">{currentXp}</p>
+                <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <Trophy className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total XP</p>
+                  <p className="text-4xl font-black text-white">{currentXp}</p>
                 </div>
                 
-                <div className="md:col-span-3 pt-4 border-t border-border/50">
-                  <p className="text-sm font-medium text-foreground mb-2">
-                    Progresso para Vocal Master (Nível 10)
-                  </p>
+                <div className="md:col-span-3 pt-6 border-t border-white/10">
+                  <div className="flex justify-between items-end mb-3">
+                    <p className="text-sm font-bold text-white flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      Progresso para Vocal Master
+                    </p>
+                    <span className="text-xs font-bold text-primary">{progressValue.toFixed(0)}%</span>
+                  </div>
                   <Progress 
                     value={progressValue} 
-                    className="h-3 bg-primary/20" 
+                    className="h-4 bg-white/10" 
+                    indicatorClassName="bg-primary shadow-[0_0_15px_rgba(0,168,225,0.6)]"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {currentLevel} / {maxLevel} Níveis Completados
-                  </p>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {selectedLevel === 1 ? (
               <div className="col-span-full">
                 <AcademyModuleMenu level={1} />
@@ -123,7 +136,14 @@ const Academy = () => {
               </div>
             ) : (
               academyLessons.map((lesson) => (
-                <div key={lesson.level} onClick={() => (lesson.level === 1 || lesson.level === 2) && setSelectedLevel(lesson.level)}>
+                <div 
+                  key={lesson.level} 
+                  onClick={() => (lesson.level === 1 || lesson.level === 2) && setSelectedLevel(lesson.level)}
+                  className={cn(
+                    "transition-transform duration-300",
+                    (lesson.level === 1 || lesson.level === 2) && "cursor-pointer hover:scale-[1.02]"
+                  )}
+                >
                   <LessonCard lesson={lesson} isAdminMode={isAdminMode} />
                 </div>
               ))
