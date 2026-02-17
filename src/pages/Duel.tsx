@@ -48,45 +48,49 @@ export default function Duel() {
     let animationId: number;
 
     if (!isConfiguring && !isFinished && !isPaused) {
-      const constraints = { audio: true, video: cameraEnabled };
-      
-      navigator.mediaDevices.getUserMedia(constraints)
-        .then((s) => {
-          stream = s;
-          if (cameraEnabled && userVideoRef.current) {
-            userVideoRef.current.srcObject = s;
-          }
+      // Small delay to ensure the video element is mounted in the DOM
+      const timer = setTimeout(() => {
+        const constraints = { audio: true, video: cameraEnabled };
+        
+        navigator.mediaDevices.getUserMedia(constraints)
+          .then((s) => {
+            stream = s;
+            if (cameraEnabled && userVideoRef.current) {
+              userVideoRef.current.srcObject = s;
+            }
 
-          // Initialize Audio Analysis
-          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-          audioCtx = new AudioContext();
-          const analyser = audioCtx.createAnalyser();
-          const source = audioCtx.createMediaStreamSource(s);
-          source.connect(analyser);
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
-          
-          const updateVolume = () => {
-            analyser.getByteFrequencyData(dataArray);
-            const sum = dataArray.reduce((a, b) => a + b, 0);
-            micVolumeRef.current = sum / dataArray.length;
-            animationId = requestAnimationFrame(updateVolume);
-          };
-          updateVolume();
-        })
-        .catch(err => {
-          console.error("Media access failed:", err);
-          toast.error("Erro ao acessar microfone/câmera.");
-        });
+            // Initialize Audio Analysis
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            audioCtx = new AudioContext();
+            const analyser = audioCtx.createAnalyser();
+            const source = audioCtx.createMediaStreamSource(s);
+            source.connect(analyser);
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            const updateVolume = () => {
+              analyser.getByteFrequencyData(dataArray);
+              const sum = dataArray.reduce((a, b) => a + b, 0);
+              micVolumeRef.current = sum / dataArray.length;
+              animationId = requestAnimationFrame(updateVolume);
+            };
+            updateVolume();
+          })
+          .catch(err => {
+            console.error("Media access failed:", err);
+            toast.error("Erro ao acessar microfone/câmera.");
+          });
+      }, 100);
+
+      return () => {
+        clearTimeout(timer);
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        if (audioCtx) audioCtx.close();
+        if (animationId) cancelAnimationFrame(animationId);
+      };
     }
-
-    return () => {
-      if (stream) stream.getTracks().forEach(track => track.stop());
-      if (audioCtx) audioCtx.close();
-      if (animationId) cancelAnimationFrame(animationId);
-    };
   }, [isConfiguring, isFinished, isPaused, cameraEnabled]);
 
-  // AI BOSS SCORING LOGIC (Must wait 15 seconds)
+  // AI BOSS SCORING LOGIC (Strict 15-second delay)
   useEffect(() => {
     let bossInterval: NodeJS.Timeout;
     let delayTimeout: NodeJS.Timeout;
@@ -108,7 +112,7 @@ export default function Duel() {
     };
   }, [isConfiguring, isFinished, isPaused]);
 
-  // USER SCORING LOGIC
+  // USER SCORING LOGIC (Strict 15-second delay)
   useEffect(() => {
     let userInterval: NodeJS.Timeout;
     let delayTimeout: NodeJS.Timeout;
@@ -243,10 +247,10 @@ export default function Duel() {
               </div>
             </div>
 
-            {/* CAMERA CIRCLE (ARENA) */}
-            {cameraEnabled && (
-              <div className="absolute bottom-10 left-10 z-50 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-cyan-500 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)] bg-gray-900">
-                <video ref={userVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+            {/* USER VIDEO CIRCLE - SAFE RENDER */}
+            {!isConfiguring && cameraEnabled && !isFinished && (
+              <div className="absolute bottom-4 left-4 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-cyan-500 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)] z-20 bg-black">
+                <video ref={userVideoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
               </div>
             )}
           </>
@@ -372,15 +376,22 @@ export default function Duel() {
 
       {/* FINISH SCREEN */}
       {isFinished && (
-        <div className="absolute inset-0 z-[110] bg-gray-950 flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
-          <div className="max-w-2xl w-full text-center space-y-8">
+        <div 
+          className="absolute inset-0 z-[110] bg-gray-950 flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 bg-cover bg-center"
+          style={{ 
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url(${isUserWinning 
+              ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
+              : "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop"})` 
+          }}
+        >
+          <div className="max-w-2xl w-full text-center space-y-8 relative z-10">
             <div className={cn(
-              "text-7xl md:text-9xl font-black italic tracking-tighter mb-4",
+              "text-5xl md:text-7xl font-black italic tracking-tighter mb-4 drop-shadow-2xl",
               isUserWinning ? "text-cyan-400" : "text-red-500"
             )}>
-              {isUserWinning ? "VITÓRIA!" : "DERROTA"}
+              {isUserWinning ? "PARABÉNS PELO SHOW!" : "HOJE O SHOW NÃO FOI BOM!!!"}
             </div>
-            <div className="bg-gray-900 border border-gray-800 p-8 rounded-3xl shadow-2xl">
+            <div className="bg-black/60 backdrop-blur-md border border-white/10 p-8 rounded-3xl shadow-2xl">
               <div className="flex justify-around mb-8">
                 <div className="text-center">
                   <p className="text-gray-400 text-sm uppercase font-bold mb-1">Seu Score</p>
@@ -393,10 +404,10 @@ export default function Duel() {
               </div>
             </div>
             <div className="flex gap-4 justify-center">
-              <Button className="h-14 px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl" onClick={() => navigate("/academy")}>
+              <Button className="h-14 px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20" onClick={() => navigate("/academy")}>
                 Ir para a Academy
               </Button>
-              <Button variant="outline" className="h-14 px-8 border-gray-700 text-gray-300" onClick={() => navigate("/library")}>
+              <Button variant="outline" className="h-14 px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm" onClick={() => navigate("/library")}>
                 Voltar à Biblioteca
               </Button>
             </div>
