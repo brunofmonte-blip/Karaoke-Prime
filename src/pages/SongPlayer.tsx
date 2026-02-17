@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Music, ChevronRight, Pause, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function SongPlayer() {
   const navigate = useNavigate();
+  const { id } = useParams(); // Get the videoId from the URL
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -17,7 +18,7 @@ export default function SongPlayer() {
   const [feedback, setFeedback] = useState("");
   const micVolumeRef = useRef(0);
 
-  // RECOMMENDATION ENGINE (Mock data based on Asa Branca)
+  // RECOMMENDATION ENGINE (Mock data)
   const RECOMMENDED_SONGS = [
     { title: "O Xote das Meninas", artist: "Luiz Gonzaga", thumb: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=300&auto=format&fit=crop" },
     { title: "Anunciação", artist: "Alceu Valença", thumb: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=300&auto=format&fit=crop" },
@@ -45,8 +46,7 @@ export default function SongPlayer() {
     setCombo(0);
     setFeedback("");
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      // Seek back to 5 seconds (skipping intro as configured) and play
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [5, true] }), '*');
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
     }
   };
@@ -73,17 +73,16 @@ export default function SongPlayer() {
     };
   };
 
-  // AUTO-FINISH TIMER (Simulates end of song - Asa Branca is ~3m20s)
+  // AUTO-FINISH TIMER
   useEffect(() => {
     let songTimer: NodeJS.Timeout;
     if (isPlaying && !isFinished && !isPaused) {
-      // Fallback auto-finish after 3m 15s (195000ms)
-      songTimer = setTimeout(() => setIsFinished(true), 195000);
+      songTimer = setTimeout(() => setIsFinished(true), 240000); // 4 minute fallback
     }
     return () => clearTimeout(songTimer);
   }, [isPlaying, isFinished, isPaused]);
 
-  // MIC EFFECT (Silent tracking)
+  // MIC EFFECT
   useEffect(() => {
     let audioCtx: AudioContext;
     let analyser: AnalyserNode;
@@ -115,22 +114,20 @@ export default function SongPlayer() {
     let interval: NodeJS.Timeout;
     let clearFeedback: NodeJS.Timeout;
     if (isPlaying && !isFinished && !isPaused) {
-      setTimeout(() => {
-        interval = setInterval(() => {
-          if (micVolumeRef.current > 10) {
-            const accuracy = Math.random();
-            if (accuracy > 0.7) {
-              setScore(s => s + 100); setCombo(c => c + 1); setFeedback("PERFECT!");
-            } else if (accuracy > 0.4) {
-              setScore(s => s + 50); setCombo(0); setFeedback("GOOD!");
-            } else {
-              setCombo(0); setFeedback("MISS");
-            }
-            clearTimeout(clearFeedback);
-            clearFeedback = setTimeout(() => setFeedback(""), 800);
-          } else { setFeedback(""); }
-        }, 2000);
-      }, 12000); // Wait for intro
+      interval = setInterval(() => {
+        if (micVolumeRef.current > 10) {
+          const accuracy = Math.random();
+          if (accuracy > 0.7) {
+            setScore(s => s + 100); setCombo(c => c + 1); setFeedback("PERFECT!");
+          } else if (accuracy > 0.4) {
+            setScore(s => s + 50); setCombo(0); setFeedback("GOOD!");
+          } else {
+            setCombo(0); setFeedback("MISS");
+          }
+          clearTimeout(clearFeedback);
+          clearFeedback = setTimeout(() => setFeedback(""), 800);
+        } else { setFeedback(""); }
+      }, 2000);
     }
     return () => { clearInterval(interval); clearTimeout(clearFeedback); };
   }, [isPlaying, isFinished, isPaused]);
@@ -195,8 +192,8 @@ export default function SongPlayer() {
           <div className="w-24 h-24 mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/50">
             <Mic className="w-12 h-12 text-cyan-400" />
           </div>
-          <h2 className="text-4xl font-bold text-yellow-500 mb-2">Asa Branca</h2>
-          <p className="text-xl text-gray-300 mb-8">Luiz Gonzaga (Ao Vivo)</p>
+          <h2 className="text-4xl font-bold text-yellow-500 mb-2">Pronto para o Show?</h2>
+          <p className="text-xl text-gray-300 mb-8">Aqueça a voz e prepare-se para brilhar.</p>
           <Button onClick={() => setIsPlaying(true)} className="text-2xl px-12 py-8 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full shadow-[0_0_40px_rgba(6,182,212,0.5)] transition-transform hover:scale-105">
             <Play className="mr-2 fill-black w-8 h-8" /> ENTRAR NO PALCO
           </Button>
@@ -228,7 +225,7 @@ export default function SongPlayer() {
             ref={iframeRef}
             width="100%" 
             height="100%" 
-            src={`https://www.youtube.com/embed/HO8AZPOrJqQ?autoplay=${isPlaying ? 1 : 0}&start=5&controls=0&modestbranding=1&rel=0&enablejsapi=1`} 
+            src={`https://www.youtube.com/embed/${id}?autoplay=${isPlaying ? 1 : 0}&start=0&controls=0&modestbranding=1&rel=0&enablejsapi=1`} 
             title="Karaoke Video"
             frameBorder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

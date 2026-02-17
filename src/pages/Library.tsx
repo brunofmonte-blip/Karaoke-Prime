@@ -1,57 +1,67 @@
-import React, { useState, useMemo } from 'react';
-import { publicDomainLibrary, PublicDomainSong } from '@/data/public-domain-library';
-import SongCard from '@/components/SongCard';
-import { Input } from '@/components/ui/input';
-import { Search, Globe, Download, Users, PlayCircle } from 'lucide-react';
-import { cn } from '../utils/cn';
-import SongCategoryRow from '@/components/SongCategoryRow';
-import { Button } from '@/components/ui/button';
+"use client";
 
-const GENRE_ORDER: PublicDomainSong['genre'][] = [
-  'Pop Anthems',
-  'Rock Classics',
-  'Folk/Traditional',
-  'Vocal Exercises',
-];
+import React, { useState, useEffect } from 'react';
+import { Search, Globe, Download, Users, PlayCircle, Loader2, Music } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+const API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
+const PRIORITY_CHANNELS = ["@ViguibaKaraoke", "@ClubinhodoKaraoke", "@singerkaraoke", "@singkingkaraoke"];
 
 const Library: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'all' | 'offline' | 'duel'>('all');
+  const navigate = useNavigate();
 
-  const filteredSongs = useMemo(() => {
-    const lowerCaseSearch = searchTerm.toLowerCase();
-    
-    let results = publicDomainLibrary.filter(song => 
-      song.title.toLowerCase().includes(lowerCaseSearch) ||
-      song.artist.toLowerCase().includes(lowerCaseSearch) ||
-      song.genre.toLowerCase().includes(lowerCaseSearch)
-    );
-
-    if (activeFilter === 'offline') {
-      // Mock offline filter: in a real app, this would check local storage
-      results = results.slice(0, 3); 
-    }
-
-    const groupedSongs = results.reduce((acc, song) => {
-      const genre = song.genre;
-      if (!acc[genre]) {
-        acc[genre] = [];
+  const searchSongs = async (searchQuery: string = "") => {
+    setIsLoading(true);
+    try {
+      // Append "karaoke" and priority channels to the query for better results
+      const enhancedQuery = `${searchQuery} karaoke ${PRIORITY_CHANNELS.join(" ")}`;
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(enhancedQuery)}&type=video&key=${API_KEY}`
+      );
+      const data = await response.json();
+      
+      if (data.items) {
+        setResults(data.items);
+      } else {
+        toast.error("Erro ao buscar músicas. Verifique sua conexão ou limite da API.");
       }
-      acc[genre].push(song);
-      return acc;
-    }, {} as Record<PublicDomainSong['genre'], PublicDomainSong[]>);
+    } catch (error) {
+      console.error("Search error:", error);
+      toast.error("Falha na busca em tempo real.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return groupedSongs;
-  }, [searchTerm, activeFilter]);
+  // Initial search on mount
+  useEffect(() => {
+    searchSongs("popular");
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      searchSongs(query);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4 md:p-8 min-h-[80vh]">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-primary neon-blue-glow mb-4">
-          Modo Básico
+          Busca em Tempo Real
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Escolha como você quer brilhar hoje. Do streaming online ao desafio de duelos.
+          Explore milhões de faixas de karaoke via YouTube Engine.
         </p>
       </div>
 
@@ -68,7 +78,7 @@ const Library: React.FC = () => {
           <Globe className="h-8 w-8 text-primary" />
           <div className="text-center">
             <p className="font-bold text-lg">Cantar Online</p>
-            <p className="text-xs text-muted-foreground">Acesso total à biblioteca</p>
+            <p className="text-xs text-muted-foreground">YouTube Search Engine</p>
           </div>
         </Button>
 
@@ -104,37 +114,64 @@ const Library: React.FC = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="max-w-xl mx-auto mb-10 relative">
+      <form onSubmit={handleSearchSubmit} className="max-w-xl mx-auto mb-10 relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Buscar por título, artista ou gênero..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="O que você quer cantar hoje?"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
           className={cn(
             "w-full pl-10 pr-4 py-3 rounded-xl border-2 border-border/50 bg-card/50 backdrop-blur-md",
             "focus:border-primary transition-all duration-300"
           )}
         />
+        <Button 
+          type="submit" 
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 bg-primary text-primary-foreground rounded-lg"
+          disabled={isLoading}
+        >
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Buscar"}
+        </Button>
+      </form>
+
+      {/* Results Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {results.map((item) => (
+          <Card key={item.id.videoId} className={cn(
+            "rounded-xl overflow-hidden border-2 border-border/50 transition-all duration-300 flex flex-col h-full",
+            "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-lg"
+          )}>
+            <div 
+              className="h-40 bg-cover bg-center relative group cursor-pointer"
+              style={{ backgroundImage: `url(${item.snippet.thumbnails.high.url})` }}
+              onClick={() => navigate(`/song/${item.id.videoId}`)}
+            >
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <PlayCircle className="h-12 w-12 text-primary icon-neon-glow" />
+              </div>
+            </div>
+            <CardContent className="p-4 flex flex-col flex-grow justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-primary line-clamp-2 mb-1">{item.snippet.title}</h3>
+                <p className="text-xs text-muted-foreground mb-3">{item.snippet.channelTitle}</p>
+              </div>
+              <Button 
+                onClick={() => navigate(`/song/${item.id.videoId}`)}
+                className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg shadow-md shadow-accent/30 h-9"
+              >
+                <PlayCircle className="h-4 w-4 mr-2" />
+                Cantar Agora
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Song Categories */}
-      <div className="space-y-8">
-        {GENRE_ORDER.map(genre => {
-          const songs = filteredSongs[genre] || [];
-          return (
-            <SongCategoryRow 
-              key={genre} 
-              title={genre} 
-              songs={songs} 
-            />
-          );
-        })}
-      </div>
-
-      {Object.keys(filteredSongs).length === 0 && (
-        <div className="text-center p-10 text-muted-foreground">
-          Nenhuma música encontrada para "{searchTerm}".
+      {results.length === 0 && !isLoading && (
+        <div className="text-center p-10 text-muted-foreground flex flex-col items-center gap-4">
+          <Music className="h-12 w-12 opacity-20" />
+          <p>Nenhuma música encontrada. Tente buscar por um artista ou título.</p>
         </div>
       )}
     </div>
