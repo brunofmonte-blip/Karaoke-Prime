@@ -249,7 +249,7 @@ export default function Duel() {
 
             {/* USER VIDEO CIRCLE - SAFE RENDER */}
             {!isConfiguring && cameraEnabled && !isFinished && (
-              <div className="absolute bottom-4 left-4 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-cyan-500 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)] z-20 bg-black">
+              <div className="absolute bottom-24 left-8 md:bottom-1/3 md:left-16 w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-cyan-500 overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.6)] z-50 bg-black">
                 <video ref={userVideoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
               </div>
             )}

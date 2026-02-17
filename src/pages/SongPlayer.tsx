@@ -11,7 +11,9 @@ export default function SongPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [cameraEnabled, setCameraEnabled] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -82,32 +84,45 @@ export default function SongPlayer() {
     return () => clearTimeout(songTimer);
   }, [isPlaying, isFinished, isPaused]);
 
-  // MIC EFFECT
+  // CAMERA & MIC INIT
   useEffect(() => {
-    let audioCtx: AudioContext;
-    let analyser: AnalyserNode;
+    let stream: MediaStream | null = null;
+    let audioCtx: AudioContext | null = null;
     let animationId: number;
+
     if (isPlaying && !isFinished && !isPaused) {
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        const source = audioCtx.createMediaStreamSource(stream);
-        source.connect(analyser);
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-        const updateVolume = () => {
-          analyser.getByteFrequencyData(dataArray);
-          const sum = dataArray.reduce((a, b) => a + b, 0);
-          micVolumeRef.current = sum / dataArray.length;
-          animationId = requestAnimationFrame(updateVolume);
-        };
-        updateVolume();
-      }).catch(err => console.error(err));
+      navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
+        .then((s) => {
+          stream = s;
+          if (cameraEnabled && videoRef.current) {
+            videoRef.current.srcObject = s;
+          }
+
+          // Initialize Audio Analysis
+          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+          audioCtx = new AudioContext();
+          const analyser = audioCtx.createAnalyser();
+          const source = audioCtx.createMediaStreamSource(s);
+          source.connect(analyser);
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          
+          const updateVolume = () => {
+            analyser.getByteFrequencyData(dataArray);
+            const sum = dataArray.reduce((a, b) => a + b, 0);
+            micVolumeRef.current = sum / dataArray.length;
+            animationId = requestAnimationFrame(updateVolume);
+          };
+          updateVolume();
+        })
+        .catch(err => console.error("Media access error:", err));
     }
+
     return () => {
       if (animationId) cancelAnimationFrame(animationId);
       if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
+      if (stream) stream.getTracks().forEach(track => track.stop());
     };
-  }, [isPlaying, isFinished, isPaused]);
+  }, [isPlaying, isFinished, isPaused, cameraEnabled]);
 
   // SCORING ENGINE
   useEffect(() => {
@@ -194,6 +209,15 @@ export default function SongPlayer() {
           </div>
           <h2 className="text-4xl font-bold text-yellow-500 mb-2">Pronto para o Show?</h2>
           <p className="text-xl text-gray-300 mb-8">Aqueça a voz e prepare-se para brilhar.</p>
+          
+          <Button 
+            variant="outline" 
+            onClick={() => setCameraEnabled(!cameraEnabled)}
+            className={`mb-6 border-cyan-500 ${cameraEnabled ? 'bg-cyan-500/20 text-cyan-400' : 'bg-transparent text-gray-400'}`}
+          >
+            {cameraEnabled ? "📷 Câmera ATIVADA" : "📷 Câmera DESATIVADA"}
+          </Button>
+
           <Button onClick={() => setIsPlaying(true)} className="text-2xl px-12 py-8 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full shadow-[0_0_40px_rgba(6,182,212,0.5)] transition-transform hover:scale-105">
             <Play className="mr-2 fill-black w-8 h-8" /> ENTRAR NO PALCO
           </Button>
@@ -234,6 +258,13 @@ export default function SongPlayer() {
         </div>
       )}
 
+      {/* USER VIDEO CIRCLE */}
+      {isPlaying && !isFinished && cameraEnabled && (
+        <div className="absolute bottom-10 left-10 w-40 h-40 md:w-48 md:h-48 rounded-full border-2 border-cyan-400 overflow-hidden shadow-lg z-50 bg-black animate-in fade-in zoom-in">
+          <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
+        </div>
+      )}
+
       {/* BOTTOM MIC STATUS */}
       {!isFinished && (
         <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
@@ -246,9 +277,7 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* ========================================= */}
-      {/* POST-PERFORMANCE EVALUATION & RETENTION DASHBOARD */}
-      {/* ========================================= */}
+      {/* POST-PERFORMANCE EVALUATION */}
       {isFinished && (
         <div className="absolute inset-0 z-50 bg-gray-950 overflow-y-auto pointer-events-auto flex flex-col items-center py-12 px-4 animate-in fade-in duration-500">
           
@@ -286,7 +315,7 @@ export default function SongPlayer() {
               </div>
             </div>
 
-            {/* SECTION 2: SONG RECOMMENDATIONS (Retention Loop) */}
+            {/* SECTION 2: SONG RECOMMENDATIONS */}
             <div className="mt-12">
               <div className="flex items-center gap-3 mb-6">
                 <Music className="w-6 h-6 text-yellow-500" />
