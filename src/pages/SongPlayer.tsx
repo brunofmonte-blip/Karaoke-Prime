@@ -10,19 +10,19 @@ export default function SongPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [offset, setOffset] = useState(0); // User manual sync
 
-  // TIMESTAMPS: CALIBRATED FOR "AO VIVO" VERSION (Approx start ~24s)
+  // TIMESTAMPS: CALIBRATED FOR "AO VIVO" VERSION (Skipping first 5s, vocals start at 10s)
   const LYRICS = [
-    { time: 0, text: "🎵 [INTRODUÇÃO DA BANDA ORIGINAL] 🎵" },
-    { time: 24, text: "Quando olhei a terra ardendo" },
-    { time: 30, text: "Qual fogueira de São João" },
-    { time: 36, text: "Eu perguntei a Deus do céu, ai" },
-    { time: 42, text: "Por que tamanha judiação" },
-    { time: 48, text: "Eu perguntei a Deus do céu, ai" },
-    { time: 54, text: "Por que tamanha judiação" },
-    { time: 60, text: "Que braseiro, que fornalha" },
-    { time: 66, text: "Nem um pé de plantação" },
-    { time: 72, text: "Por falta d'água, perdi meu gado" },
-    { time: 78, text: "Morreu de sede meu alazão" },
+    { time: 0, text: "🎵 [INTRODUÇÃO] 🎵" },
+    { time: 10, text: "Quando olhei a terra ardendo" },
+    { time: 16, text: "Qual fogueira de São João" },
+    { time: 22, text: "Eu perguntei a Deus do céu, ai" },
+    { time: 28, text: "Por que tamanha judiação" },
+    { time: 34, text: "Eu perguntei a Deus do céu, ai" },
+    { time: 40, text: "Por que tamanha judiação" },
+    { time: 46, text: "Que braseiro, que fornalha" },
+    { time: 52, text: "Nem um pé de plantação" },
+    { time: 58, text: "Por falta d'água, perdi meu gado" },
+    { time: 64, text: "Morreu de sede meu alazão" },
   ];
 
   // TIMER ENGINE
@@ -106,12 +106,12 @@ export default function SongPlayer() {
           </div>
         )}
         
-        {/* YOUTUBE EMBED - USER SELECTED LIVE VERSION */}
+        {/* YOUTUBE EMBED - USER SELECTED LIVE VERSION WITH 5S START OFFSET */}
         <iframe 
           width="100%" 
           height="100%" 
-          src={`https://www.youtube.com/embed/HO8AZPOrJqQ?autoplay=${isPlaying ? 1 : 0}&controls=0&modestbranding=1&rel=0&enablejsapi=1`} 
-          title="Luiz Gonzaga Live" 
+          src={`https://www.youtube.com/embed/HO8AZPOrJqQ?autoplay=${isPlaying ? 1 : 0}&start=5&controls=0&modestbranding=1&rel=0&enablejsapi=1`} 
+          title="Karaoke Video" 
           frameBorder="0" 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
           className="w-full h-full object-cover"
