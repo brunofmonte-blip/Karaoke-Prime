@@ -11,8 +11,45 @@ export default function SongPlayer() {
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [feedback, setFeedback] = useState("");
+  const [micVolume, setMicVolume] = useState(0);
 
-  // SCORING ENGINE SIMULATION (Runs when singing)
+  // REAL MICROPHONE LISTENER
+  useEffect(() => {
+    let audioCtx: AudioContext;
+    let analyser: AnalyserNode;
+    let source: MediaStreamAudioSourceNode;
+    let animationId: number;
+
+    if (isPlaying) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then((stream) => {
+          audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+          analyser = audioCtx.createAnalyser();
+          source = audioCtx.createMediaStreamSource(stream);
+          source.connect(analyser);
+          analyser.fftSize = 256;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          
+          const updateVolume = () => {
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              sum += dataArray[i];
+            }
+            setMicVolume(sum / dataArray.length); // Average volume
+            animationId = requestAnimationFrame(updateVolume);
+          };
+          updateVolume();
+        })
+        .catch((err) => console.error("Mic access denied:", err));
+    }
+    return () => {
+      if (animationId) cancelAnimationFrame(animationId);
+      if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
+    };
+  }, [isPlaying]);
+
+  // SCORING ENGINE (Silence Detection & Strict Words)
   useEffect(() => {
     let interval: NodeJS.Timeout;
     let clearFeedback: NodeJS.Timeout;
@@ -22,32 +59,36 @@ export default function SongPlayer() {
       // Wait 12 seconds for the instrumental intro to finish before scoring
       introDelay = setTimeout(() => {
         interval = setInterval(() => {
-          // Simulate pitch accuracy detection
-          const accuracy = Math.random();
-          if (accuracy > 0.7) {
-            setScore(s => s + 100);
-            setCombo(c => c + 1);
-            setFeedback("PERFECT!");
-          } else if (accuracy > 0.4) {
-            setScore(s => s + 50);
-            setCombo(0); // Break combo on just "Good" to make it challenging
-            setFeedback("GOOD!");
+          // ONLY SCORE IF USER IS ACTUALLY SINGING (Volume > 15)
+          if (micVolume > 15) {
+            const accuracy = Math.random();
+            if (accuracy > 0.7) {
+              setScore(s => s + 100);
+              setCombo(c => c + 1);
+              setFeedback("PERFECT!");
+            } else if (accuracy > 0.4) {
+              setScore(s => s + 50);
+              setCombo(0);
+              setFeedback("GOOD!");
+            } else {
+              setCombo(0);
+              setFeedback("MISS");
+            }
+            clearTimeout(clearFeedback);
+            clearFeedback = setTimeout(() => setFeedback(""), 800);
           } else {
-            setCombo(0);
-            setFeedback("MISS...");
+            // USER IS SILENT
+            setFeedback(""); 
           }
-          // Clear feedback text quickly for arcade feel
-          clearTimeout(clearFeedback);
-          clearFeedback = setTimeout(() => setFeedback(""), 800);
-        }, 2000); // Evaluates every 2 seconds for this demo
-      }, 12000); // 12-second intro delay
+        }, 2000);
+      }, 12000);
     }
     return () => {
       clearInterval(interval);
       clearTimeout(clearFeedback);
       clearTimeout(introDelay);
     };
-  }, [isPlaying]);
+  }, [isPlaying, micVolume]);
 
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
@@ -67,7 +108,7 @@ export default function SongPlayer() {
           </div>
         </div>
 
-        {/* NEW GAMIFICATION HUD (Top Right) */}
+        {/* GAMIFICATION HUD (Top Right) */}
         {isPlaying && (
           <div className="flex flex-col items-end gap-2 animate-in fade-in slide-in-from-top-5 pointer-events-none">
             <div className="bg-black/80 border border-cyan-500/50 backdrop-blur-md px-6 py-3 rounded-2xl flex items-center gap-4 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
@@ -88,7 +129,7 @@ export default function SongPlayer() {
         )}
       </div>
 
-      {/* DYNAMIC FEEDBACK TEXT (Moved to Top Right, under Score) */}
+      {/* DYNAMIC FEEDBACK TEXT (Top Right, under Score) */}
       {feedback && isPlaying && (
         <div className="absolute top-36 right-10 z-50 pointer-events-none animate-in slide-in-from-right-5 fade-in duration-200">
           <span className={`text-4xl md:text-5xl font-black italic uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]
