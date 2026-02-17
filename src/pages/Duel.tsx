@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   ArrowLeft, Mic, Play, Trophy, Flame, BrainCircuit, 
   ChevronRight, Pause, RotateCcw, Zap, User, Bot, 
-  Search, Camera, CameraOff, Users, ToggleLeft, ToggleRight,
+  Search, Camera, CameraOff, Users,
   Loader2, Radio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ export default function Duel() {
   const [isPaused, setIsPaused] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const userVideoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Search & Selection State
   const [songQuery, setSongQuery] = useState("");
@@ -63,14 +64,16 @@ export default function Duel() {
   // Camera Logic
   const toggleCamera = async () => {
     if (isCameraActive) {
-      if (userVideoRef.current?.srcObject) {
-        const tracks = (userVideoRef.current.srcObject as MediaStream).getTracks();
-        tracks.forEach(track => track.stop());
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
       }
+      if (userVideoRef.current) userVideoRef.current.srcObject = null;
       setIsCameraActive(false);
     } else {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        streamRef.current = stream;
         if (userVideoRef.current) {
           userVideoRef.current.srcObject = stream;
         }
@@ -103,12 +106,13 @@ export default function Duel() {
     iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
   };
 
-  // Mic Detection & Scoring
+  // Mic Detection & Scoring with 12s Delay
   useEffect(() => {
     let audioCtx: AudioContext;
     let analyser: AnalyserNode;
     let animationId: number;
     let scoreInterval: NodeJS.Timeout;
+    let delayTimeout: NodeJS.Timeout;
 
     if (isPlaying && !isFinished && !isPaused) {
       // Initialize Audio
@@ -127,35 +131,40 @@ export default function Duel() {
         };
         updateVolume();
 
-        // Scoring Loop
-        scoreInterval = setInterval(() => {
-          // User Scoring
-          if (micVolumeRef.current > 10) {
-            const accuracy = Math.random();
-            if (accuracy > 0.7) {
-              setUserScore(s => s + 100); setUserCombo(c => c + 1); setUserFeedback("PERFECT!");
-            } else if (accuracy > 0.4) {
-              setUserScore(s => s + 50); setUserCombo(0); setUserFeedback("GOOD!");
+        // 12-second intro delay before scoring starts
+        delayTimeout = setTimeout(() => {
+          toast.info("AQUECIMENTO CONCLUÍDO: PONTUAÇÃO ATIVA!", { duration: 3000 });
+          
+          scoreInterval = setInterval(() => {
+            // User Scoring
+            if (micVolumeRef.current > 10) {
+              const accuracy = Math.random();
+              if (accuracy > 0.7) {
+                setUserScore(s => s + 100); setUserCombo(c => c + 1); setUserFeedback("PERFECT!");
+              } else if (accuracy > 0.4) {
+                setUserScore(s => s + 50); setUserCombo(0); setUserFeedback("GOOD!");
+              } else {
+                setUserCombo(0); setUserFeedback("MISS");
+              }
             } else {
-              setUserCombo(0); setUserFeedback("MISS");
+              setUserFeedback("");
             }
-          } else {
-            setUserFeedback("");
-          }
 
-          // AI Scoring
-          const aiAccuracy = Math.random();
-          if (aiAccuracy > 0.3) {
-            setAiScore(s => s + 90); setAiFeedback("PERFECT!");
-          } else {
-            setAiScore(s => s + 60); setAiFeedback("GOOD!");
-          }
+            // AI Scoring
+            const aiAccuracy = Math.random();
+            if (aiAccuracy > 0.3) {
+              setAiScore(s => s + 90); setAiFeedback("PERFECT!");
+            } else {
+              setAiScore(s => s + 60); setAiFeedback("GOOD!");
+            }
 
-          setTimeout(() => {
-            setUserFeedback("");
-            setAiFeedback("");
-          }, 1000);
-        }, 2000);
+            setTimeout(() => {
+              setUserFeedback("");
+              setAiFeedback("");
+            }, 1000);
+          }, 2000);
+        }, 12000);
+
       }).catch(err => toast.error("Microfone não detectado."));
     }
 
@@ -163,14 +172,27 @@ export default function Duel() {
       if (animationId) cancelAnimationFrame(animationId);
       if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
       if (scoreInterval) clearInterval(scoreInterval);
+      if (delayTimeout) clearTimeout(delayTimeout);
     };
   }, [isPlaying, isFinished, isPaused]);
+
+  // Cleanup camera on unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   const isUserWinning = userScore >= aiScore;
   const teamScore = userScore + aiScore;
 
   return (
-    <div className="relative h-screen w-full bg-black overflow-hidden flex flex-col">
+    <div className="relative h-screen w-full bg-gradient-to-br from-gray-950 via-blue-950 to-purple-950 overflow-hidden flex flex-col">
+      {/* PULSE EFFECT LAYER */}
+      <div className="absolute inset-0 bg-primary/5 animate-pulse pointer-events-none" />
+
       {/* HEADER */}
       <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-center bg-gradient-to-b from-black/90 to-transparent">
         <div className="flex items-center gap-4">
@@ -197,6 +219,15 @@ export default function Duel() {
         )}
       </div>
 
+      {/* VS NEON SIGN (CENTERED) */}
+      {isPlaying && !isFinished && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none">
+          <div className="text-7xl md:text-9xl font-black italic text-white/20 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)] animate-pulse select-none">
+            VS
+          </div>
+        </div>
+      )}
+
       {/* CAMERA BUBBLES */}
       {isPlaying && !isFinished && isCameraActive && (
         <>
@@ -218,28 +249,28 @@ export default function Duel() {
         {/* COMPETITIVE MODE SPLIT */}
         {duelMode === 'competitive' ? (
           <>
-            <div className={cn("flex-1 flex flex-col items-center justify-center transition-all duration-500 border-r border-white/10", isUserWinning ? "bg-cyan-950/10" : "bg-black")}>
-              <div className="mb-8 flex flex-col items-center">
-                <p className="text-5xl font-black text-white">{userScore.toLocaleString()}</p>
-                <p className="text-cyan-400 font-bold text-sm mt-2">{userFeedback}</p>
+            <div className={cn("flex-1 flex flex-col items-center justify-center transition-all duration-500 border-r border-white/10", isUserWinning ? "bg-cyan-950/10" : "bg-black/40")}>
+              <div className="mb-8 flex flex-col items-center z-10">
+                <p className="text-6xl font-black text-white drop-shadow-lg">{userScore.toLocaleString()}</p>
+                <p className="text-cyan-400 font-bold text-lg mt-2 h-8">{userFeedback}</p>
               </div>
             </div>
-            <div className={cn("flex-1 flex flex-col items-center justify-center transition-all duration-500", !isUserWinning ? "bg-red-950/10" : "bg-black")}>
-              <div className="mb-8 flex flex-col items-center">
-                <p className="text-5xl font-black text-white">{aiScore.toLocaleString()}</p>
-                <p className="text-red-400 font-bold text-sm mt-2">{aiFeedback}</p>
+            <div className={cn("flex-1 flex flex-col items-center justify-center transition-all duration-500", !isUserWinning ? "bg-red-950/10" : "bg-black/40")}>
+              <div className="mb-8 flex flex-col items-center z-10">
+                <p className="text-6xl font-black text-white drop-shadow-lg">{aiScore.toLocaleString()}</p>
+                <p className="text-red-400 font-bold text-lg mt-2 h-8">{aiFeedback}</p>
               </div>
             </div>
           </>
         ) : (
           /* DUET MODE UNIFIED */
           <div className="flex-1 flex flex-col items-center justify-end pb-32 bg-gradient-to-t from-purple-900/20 to-transparent">
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-4 z-10">
               <p className="text-xs font-bold text-purple-400 uppercase tracking-[0.3em]">Team Score</p>
-              <p className="text-7xl font-black text-white drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]">{teamScore.toLocaleString()}</p>
-              <div className="flex gap-8 justify-center">
-                <p className="text-cyan-400 font-bold">{userFeedback}</p>
-                <p className="text-red-400 font-bold">{aiFeedback}</p>
+              <p className="text-8xl font-black text-white drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">{teamScore.toLocaleString()}</p>
+              <div className="flex gap-12 justify-center">
+                <p className="text-cyan-400 font-bold text-xl">{userFeedback}</p>
+                <p className="text-red-400 font-bold text-xl">{aiFeedback}</p>
               </div>
             </div>
           </div>
@@ -264,7 +295,7 @@ export default function Duel() {
 
       {/* SETUP SCREEN */}
       {!isPlaying && !isFinished && (
-        <div className="absolute inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 overflow-y-auto">
+        <div className="absolute inset-0 z-[60] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 overflow-y-auto">
           <div className="max-w-2xl w-full space-y-8">
             <div className="text-center">
               <h2 className="text-5xl font-black text-white mb-2 tracking-tighter">CONFIGURAR DUELO</h2>
@@ -363,9 +394,27 @@ export default function Duel() {
         </div>
       )}
 
+      {/* PAUSE MENU OVERLAY (HIGH PRIORITY) */}
+      {isPaused && !isFinished && (
+        <div className="absolute inset-0 z-[100] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in-95 duration-200">
+          <h2 className="text-6xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
+          <p className="text-gray-400 mb-12">Recupere o fôlego. O palco aguarda.</p>
+          <div className="flex gap-6">
+            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+              <Play className="w-10 h-10 fill-black" />
+              <span className="text-xl tracking-wider">CONTINUAR</span>
+            </Button>
+            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+              <RotateCcw className="w-10 h-10 text-gray-300" />
+              <span className="text-xl tracking-wider text-gray-300">REINICIAR</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* FINISH SCREEN */}
       {isFinished && (
-        <div className="absolute inset-0 z-50 bg-gray-950 flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
+        <div className="absolute inset-0 z-[110] bg-gray-950 flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
           <div className="max-w-2xl w-full text-center space-y-8">
             <div className={cn(
               "text-7xl md:text-9xl font-black italic tracking-tighter mb-4",
