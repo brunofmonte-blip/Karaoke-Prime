@@ -28,7 +28,7 @@ export default function Duel() {
   const [songQuery, setSongQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedVideoId, setSelectedVideoId] = useState("HO8AZPOrJqQ");
+  const [selectedVideoId, setSelectedVideoId] = useState("HO8AZPOrJqQ"); // Default to a popular karaoke track
   const [opponentName, setOpponentName] = useState(() => localStorage.getItem("lastOpponent") || "AI Boss");
   const [duelMode, setDuelMode] = useState<'competitive' | 'duet'>('competitive');
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -107,6 +107,7 @@ export default function Duel() {
   };
 
   // Mic Detection & Scoring with 15s Delay
+  // CRITICAL: AudioContext is initialized only after user clicks "ENTRAR NO PALCO"
   useEffect(() => {
     let audioCtx: AudioContext;
     let analyser: AnalyserNode;
@@ -115,7 +116,6 @@ export default function Duel() {
     let delayTimeout: NodeJS.Timeout;
 
     if (isPlaying && !isFinished && !isPaused) {
-      // Initialize Audio on user interaction
       navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
         audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
@@ -131,12 +131,12 @@ export default function Duel() {
         };
         updateVolume();
 
-        // 15-second intro delay before scoring starts
+        // 15-second intro delay before scoring starts for BOTH User and AI
         delayTimeout = setTimeout(() => {
           toast.info("SHOW TIME: PONTUAÇÃO ATIVA!", { duration: 3000 });
           
           scoreInterval = setInterval(() => {
-            // User Scoring
+            // User Scoring Logic
             if (micVolumeRef.current > 10) {
               const accuracy = Math.random();
               if (accuracy > 0.7) {
@@ -150,7 +150,7 @@ export default function Duel() {
               setUserFeedback("");
             }
 
-            // AI Scoring (Boss)
+            // AI Scoring Logic (Boss)
             const aiAccuracy = Math.random();
             if (aiAccuracy > 0.3) {
               setAiScore(s => s + 90); setAiFeedback("PERFECT!");
@@ -165,7 +165,7 @@ export default function Duel() {
           }, 2000);
         }, 15000);
 
-      }).catch(err => toast.error("Microfone não detectado."));
+      }).catch(err => toast.error("Microfone não detectado. Verifique as permissões."));
     }
 
     return () => {
@@ -176,7 +176,7 @@ export default function Duel() {
     };
   }, [isPlaying, isFinished, isPaused]);
 
-  // Ensure camera stream is attached to video element
+  // Ensure camera stream is attached to video element when playing
   useEffect(() => {
     if (isCameraActive && userVideoRef.current && streamRef.current) {
       userVideoRef.current.srcObject = streamRef.current;
@@ -299,6 +299,18 @@ export default function Duel() {
         >
           {/* Dark Overlay */}
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+
+          {/* Microphone Stands (Visual Framing) */}
+          <div className="absolute left-10 bottom-0 h-[70vh] w-1 bg-gray-400/30 hidden lg:block">
+            <div className="absolute -top-10 -left-4 p-4 bg-gray-800 rounded-full border-2 border-gray-600 shadow-2xl">
+              <Mic className="h-12 w-12 text-gray-400" />
+            </div>
+          </div>
+          <div className="absolute right-10 bottom-0 h-[70vh] w-1 bg-gray-400/30 hidden lg:block">
+            <div className="absolute -top-10 -left-4 p-4 bg-gray-800 rounded-full border-2 border-gray-600 shadow-2xl">
+              <Mic className="h-12 w-12 text-gray-400" />
+            </div>
+          </div>
 
           <div className="max-w-2xl w-full space-y-8 relative z-10">
             <div className="text-center">
