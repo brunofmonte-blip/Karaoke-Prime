@@ -20,7 +20,7 @@ export default function Duel() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [activeVideoId, setActiveVideoId] = useState("HO8AZPOrJqQ");
+  const [activeVideoId, setActiveVideoId] = useState(""); // Removed hardcoded ID
   const [isScoringActive, setIsScoringActive] = useState(false);
   
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -62,11 +62,26 @@ export default function Duel() {
   };
 
   const handleStartStage = async () => {
+    if (!activeVideoId) {
+      toast.error("Por favor, selecione uma música antes de começar.");
+      return;
+    }
+
     try {
-      // 1. Initialize Microphone & AudioContext ONLY on user click to bypass browser blocks
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // 1. Initialize Microphone & Camera ONLY on user click to bypass browser blocks
+      const constraints = { 
+        audio: true, 
+        video: isCameraActive 
+      };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
       
+      // Set video source if camera is active
+      if (isCameraActive && userVideoRef.current) {
+        userVideoRef.current.srcObject = stream;
+      }
+
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       const context = new AudioContext();
       audioCtxRef.current = context;
@@ -95,7 +110,7 @@ export default function Duel() {
       }, 15000);
 
     } catch (err) {
-      toast.error("Microfone não detectado. Verifique as permissões.");
+      toast.error("Erro ao acessar dispositivos. Verifique as permissões.");
     }
   };
 
@@ -154,6 +169,18 @@ export default function Duel() {
     iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
     setTimeout(() => setIsScoringActive(true), 15000);
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close();
+      }
+    };
+  }, []);
 
   const isUserWinning = userScore >= aiScore;
 
@@ -215,6 +242,13 @@ export default function Duel() {
                 />
               </div>
             </div>
+
+            {/* CAMERA CIRCLE (ARENA) */}
+            {isCameraActive && (
+              <div className="absolute bottom-10 left-10 z-50 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-cyan-500 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)] bg-gray-900">
+                <video ref={userVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+              </div>
+            )}
           </>
         )}
       </div>
@@ -293,6 +327,19 @@ export default function Duel() {
                     </Button>
                   </div>
                 </div>
+
+                {/* CAMERA TOGGLE (CONFIG) */}
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-primary uppercase tracking-widest">Câmera ao Vivo</label>
+                  <Button 
+                    variant="outline" 
+                    className={cn("w-full flex items-center justify-center gap-2", isCameraActive ? "border-cyan-500 bg-cyan-500/10 text-cyan-400" : "border-white/10")}
+                    onClick={() => setIsCameraActive(!isCameraActive)}
+                  >
+                    {isCameraActive ? <Camera className="h-4 w-4" /> : <CameraOff className="h-4 w-4" />}
+                    {isCameraActive ? "Câmera: ATIVADA" : "Câmera: DESATIVADA"}
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -308,7 +355,7 @@ export default function Duel() {
 
       {/* PAUSE MENU */}
       {isPaused && (
-        <div className="absolute inset-0 z-[9999] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center animate-in zoom-in-95 duration-200">
+        <div className="absolute inset-0 z-[9999] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in-95 duration-200">
           <h2 className="text-6xl font-black text-white mb-2 tracking-widest">SHOW PAUSADO</h2>
           <div className="flex gap-6 mt-12">
             <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl flex flex-col items-center gap-4 h-auto">
