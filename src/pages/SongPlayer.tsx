@@ -16,31 +16,36 @@ export default function SongPlayer() {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     let clearFeedback: NodeJS.Timeout;
+    let introDelay: NodeJS.Timeout;
 
     if (isPlaying) {
-      interval = setInterval(() => {
-        // Simulate pitch accuracy detection
-        const accuracy = Math.random();
-        if (accuracy > 0.7) {
-          setScore(s => s + 100);
-          setCombo(c => c + 1);
-          setFeedback("PERFECT!");
-        } else if (accuracy > 0.4) {
-          setScore(s => s + 50);
-          setCombo(0); // Break combo on just "Good" to make it challenging
-          setFeedback("GOOD!");
-        } else {
-          setCombo(0);
-          setFeedback("MISS...");
-        }
-        // Clear feedback text quickly for arcade feel
-        clearTimeout(clearFeedback);
-        clearFeedback = setTimeout(() => setFeedback(""), 800);
-      }, 2000); // Evaluates every 2 seconds for this demo
+      // Wait 12 seconds for the instrumental intro to finish before scoring
+      introDelay = setTimeout(() => {
+        interval = setInterval(() => {
+          // Simulate pitch accuracy detection
+          const accuracy = Math.random();
+          if (accuracy > 0.7) {
+            setScore(s => s + 100);
+            setCombo(c => c + 1);
+            setFeedback("PERFECT!");
+          } else if (accuracy > 0.4) {
+            setScore(s => s + 50);
+            setCombo(0); // Break combo on just "Good" to make it challenging
+            setFeedback("GOOD!");
+          } else {
+            setCombo(0);
+            setFeedback("MISS...");
+          }
+          // Clear feedback text quickly for arcade feel
+          clearTimeout(clearFeedback);
+          clearFeedback = setTimeout(() => setFeedback(""), 800);
+        }, 2000); // Evaluates every 2 seconds for this demo
+      }, 12000); // 12-second intro delay
     }
     return () => {
       clearInterval(interval);
       clearTimeout(clearFeedback);
+      clearTimeout(introDelay);
     };
   }, [isPlaying]);
 
@@ -83,10 +88,10 @@ export default function SongPlayer() {
         )}
       </div>
 
-      {/* DYNAMIC FEEDBACK TEXT (Center Screen Floating) */}
+      {/* DYNAMIC FEEDBACK TEXT (Moved to Top Right, under Score) */}
       {feedback && isPlaying && (
-        <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none animate-in zoom-in duration-200 fade-out-80">
-          <span className={`text-6xl font-black italic uppercase drop-shadow-[0_0_30px_rgba(255,255,255,0.8)]
+        <div className="absolute top-36 right-10 z-50 pointer-events-none animate-in slide-in-from-right-5 fade-in duration-200">
+          <span className={`text-4xl md:text-5xl font-black italic uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]
             ${feedback === "PERFECT!" ? "text-cyan-400" : feedback === "GOOD!" ? "text-yellow-400" : "text-red-500"}
           `}>
             {feedback}
