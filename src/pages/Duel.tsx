@@ -106,7 +106,7 @@ export default function Duel() {
     iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
   };
 
-  // Mic Detection & Scoring with 12s Delay
+  // Mic Detection & Scoring with 15s Delay
   useEffect(() => {
     let audioCtx: AudioContext;
     let analyser: AnalyserNode;
@@ -115,7 +115,7 @@ export default function Duel() {
     let delayTimeout: NodeJS.Timeout;
 
     if (isPlaying && !isFinished && !isPaused) {
-      // Initialize Audio
+      // Initialize Audio on user interaction
       navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
         audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
@@ -131,9 +131,9 @@ export default function Duel() {
         };
         updateVolume();
 
-        // 12-second intro delay before scoring starts
+        // 15-second intro delay before scoring starts
         delayTimeout = setTimeout(() => {
-          toast.info("AQUECIMENTO CONCLUÍDO: PONTUAÇÃO ATIVA!", { duration: 3000 });
+          toast.info("SHOW TIME: PONTUAÇÃO ATIVA!", { duration: 3000 });
           
           scoreInterval = setInterval(() => {
             // User Scoring
@@ -150,7 +150,7 @@ export default function Duel() {
               setUserFeedback("");
             }
 
-            // AI Scoring
+            // AI Scoring (Boss)
             const aiAccuracy = Math.random();
             if (aiAccuracy > 0.3) {
               setAiScore(s => s + 90); setAiFeedback("PERFECT!");
@@ -163,7 +163,7 @@ export default function Duel() {
               setAiFeedback("");
             }, 1000);
           }, 2000);
-        }, 12000);
+        }, 15000);
 
       }).catch(err => toast.error("Microfone não detectado."));
     }
@@ -176,14 +176,12 @@ export default function Duel() {
     };
   }, [isPlaying, isFinished, isPaused]);
 
-  // Cleanup camera on unmount
+  // Ensure camera stream is attached to video element
   useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
+    if (isCameraActive && userVideoRef.current && streamRef.current) {
+      userVideoRef.current.srcObject = streamRef.current;
+    }
+  }, [isCameraActive, isPlaying]);
 
   const isUserWinning = userScore >= aiScore;
   const teamScore = userScore + aiScore;
@@ -213,7 +211,7 @@ export default function Duel() {
               <Pause className="h-4 w-4" />
             </Button>
             <Button variant="destructive" size="sm" onClick={() => setIsFinished(true)}>
-              <BrainCircuit className="h-4 w-4" />
+              <BrainCircuit className="h-4 w-4" /> FINALIZAR O SHOW
             </Button>
           </div>
         )}
@@ -295,11 +293,17 @@ export default function Duel() {
 
       {/* SETUP SCREEN */}
       {!isPlaying && !isFinished && (
-        <div className="absolute inset-0 z-[60] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 overflow-y-auto">
-          <div className="max-w-2xl w-full space-y-8">
+        <div 
+          className="absolute inset-0 z-[60] bg-cover bg-center flex flex-col items-center justify-center p-6 overflow-y-auto"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=2070')" }}
+        >
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+
+          <div className="max-w-2xl w-full space-y-8 relative z-10">
             <div className="text-center">
               <h2 className="text-5xl font-black text-white mb-2 tracking-tighter">CONFIGURAR DUELO</h2>
-              <p className="text-gray-400">Escolha sua música e seu oponente.</p>
+              <p className="text-gray-400">Escolha sua música e seu oponente para a batalha.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
