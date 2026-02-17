@@ -187,10 +187,7 @@ export default function Duel() {
   const teamScore = userScore + aiScore;
 
   return (
-    <div className="relative h-screen w-full bg-gradient-to-br from-gray-950 via-blue-950 to-purple-950 overflow-hidden flex flex-col">
-      {/* PULSE EFFECT LAYER */}
-      <div className="absolute inset-0 bg-primary/5 animate-pulse pointer-events-none" />
-
+    <div className="relative h-screen w-full bg-black overflow-hidden flex flex-col">
       {/* HEADER */}
       <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-center bg-gradient-to-b from-black/90 to-transparent">
         <div className="flex items-center gap-4">
