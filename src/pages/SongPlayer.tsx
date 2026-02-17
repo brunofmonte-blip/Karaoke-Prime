@@ -75,15 +75,6 @@ export default function SongPlayer() {
     };
   };
 
-  // AUTO-FINISH TIMER
-  useEffect(() => {
-    let songTimer: NodeJS.Timeout;
-    if (isPlaying && !isFinished && !isPaused) {
-      songTimer = setTimeout(() => setIsFinished(true), 240000); // 4 minute fallback
-    }
-    return () => clearTimeout(songTimer);
-  }, [isPlaying, isFinished, isPaused]);
-
   // CAMERA & MIC INIT
   useEffect(() => {
     let stream: MediaStream | null = null;

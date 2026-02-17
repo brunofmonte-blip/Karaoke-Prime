@@ -44,51 +44,43 @@ export default function Duel() {
   // CAMERA & MIC INIT (Only runs inside the Arena)
   useEffect(() => {
     let stream: MediaStream | null = null;
-    let audioCtx: AudioContext | null = null;
-    let animationId: number;
+    let audioContext: AudioContext | null = null;
+    let animationFrameId: number;
 
-    if (!isConfiguring && !isFinished && !isPaused) {
-      // Small delay to ensure the video element is mounted in the DOM
-      const timer = setTimeout(() => {
-        const constraints = { audio: true, video: cameraEnabled };
-        
-        navigator.mediaDevices.getUserMedia(constraints)
-          .then((s) => {
-            stream = s;
-            if (cameraEnabled && userVideoRef.current) {
-              userVideoRef.current.srcObject = s;
-            }
-
-            // Initialize Audio Analysis
-            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-            audioCtx = new AudioContext();
-            const analyser = audioCtx.createAnalyser();
-            const source = audioCtx.createMediaStreamSource(s);
-            source.connect(analyser);
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            const updateVolume = () => {
-              analyser.getByteFrequencyData(dataArray);
-              const sum = dataArray.reduce((a, b) => a + b, 0);
-              micVolumeRef.current = sum / dataArray.length;
-              animationId = requestAnimationFrame(updateVolume);
-            };
-            updateVolume();
-          })
-          .catch(err => {
-            console.error("Media access failed:", err);
-            toast.error("Erro ao acessar microfone/câmera.");
-          });
-      }, 100);
-
-      return () => {
-        clearTimeout(timer);
-        if (stream) stream.getTracks().forEach(track => track.stop());
-        if (audioCtx) audioCtx.close();
-        if (animationId) cancelAnimationFrame(animationId);
-      };
+    if (!isConfiguring && cameraEnabled && userVideoRef.current) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then((s) => {
+          stream = s;
+          if (userVideoRef.current) userVideoRef.current.srcObject = s;
+          
+          // REWIRE AUDIO TO SCORING ENGINE
+          audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const analyser = audioContext.createAnalyser();
+          const microphone = audioContext.createMediaStreamSource(stream);
+          microphone.connect(analyser);
+          analyser.fftSize = 256;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          
+          const checkVolume = () => {
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            micVolumeRef.current = average; // Feeds the scoring interval
+            animationFrameId = requestAnimationFrame(checkVolume);
+          };
+          checkVolume();
+        })
+        .catch(err => {
+          console.error("Media access error:", err);
+          toast.error("Erro ao acessar microfone/câmera.");
+        });
     }
-  }, [isConfiguring, isFinished, isPaused, cameraEnabled]);
+
+    return () => {
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      if (audioContext && audioContext.state !== 'closed') audioContext.close();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [isConfiguring, cameraEnabled]);
 
   // AI BOSS SCORING LOGIC (Strict 15-second delay)
   useEffect(() => {
