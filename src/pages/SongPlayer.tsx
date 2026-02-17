@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Music, ChevronRight } from "lucide-react";
+import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Music, ChevronRight, Pause, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +9,8 @@ export default function SongPlayer() {
   const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -21,6 +23,33 @@ export default function SongPlayer() {
     { title: "Anunciação", artist: "Alceu Valença", thumb: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=300&auto=format&fit=crop" },
     { title: "A Vida do Viajante", artist: "Luiz Gonzaga", thumb: "https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?q=80&w=300&auto=format&fit=crop" }
   ];
+
+  // YOUTUBE CONTROLS VIA POSTMESSAGE
+  const handlePause = () => {
+    setIsPaused(true);
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
+    }
+  };
+
+  const handleResume = () => {
+    setIsPaused(false);
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
+    }
+  };
+
+  const handleRestart = () => {
+    setIsPaused(false);
+    setScore(0);
+    setCombo(0);
+    setFeedback("");
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      // Seek back to 5 seconds (skipping intro as configured) and play
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [5, true] }), '*');
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
+    }
+  };
 
   // AI FEEDBACK LOGIC
   const getDiagnosis = (finalScore: number) => {
@@ -47,19 +76,19 @@ export default function SongPlayer() {
   // AUTO-FINISH TIMER (Simulates end of song - Asa Branca is ~3m20s)
   useEffect(() => {
     let songTimer: NodeJS.Timeout;
-    if (isPlaying && !isFinished) {
+    if (isPlaying && !isFinished && !isPaused) {
       // Fallback auto-finish after 3m 15s (195000ms)
       songTimer = setTimeout(() => setIsFinished(true), 195000);
     }
     return () => clearTimeout(songTimer);
-  }, [isPlaying, isFinished]);
+  }, [isPlaying, isFinished, isPaused]);
 
   // MIC EFFECT (Silent tracking)
   useEffect(() => {
     let audioCtx: AudioContext;
     let analyser: AnalyserNode;
     let animationId: number;
-    if (isPlaying && !isFinished) {
+    if (isPlaying && !isFinished && !isPaused) {
       navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
         audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
@@ -79,13 +108,13 @@ export default function SongPlayer() {
       if (animationId) cancelAnimationFrame(animationId);
       if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
     };
-  }, [isPlaying, isFinished]);
+  }, [isPlaying, isFinished, isPaused]);
 
   // SCORING ENGINE
   useEffect(() => {
     let interval: NodeJS.Timeout;
     let clearFeedback: NodeJS.Timeout;
-    if (isPlaying && !isFinished) {
+    if (isPlaying && !isFinished && !isPaused) {
       setTimeout(() => {
         interval = setInterval(() => {
           if (micVolumeRef.current > 10) {
@@ -104,7 +133,7 @@ export default function SongPlayer() {
       }, 12000); // Wait for intro
     }
     return () => { clearInterval(interval); clearTimeout(clearFeedback); };
-  }, [isPlaying, isFinished]);
+  }, [isPlaying, isFinished, isPaused]);
 
   const diagnosis = getDiagnosis(score);
 
@@ -117,14 +146,15 @@ export default function SongPlayer() {
             <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/library")}>
               <ArrowLeft className="mr-2 h-5 w-5" /> Voltar
             </Button>
-            {isPlaying && (
-              <Button 
-                variant="destructive" 
-                className="w-fit bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-in fade-in" 
-                onClick={() => setIsFinished(true)}
-              >
-                <BrainCircuit className="mr-2 h-4 w-4" /> Finalizar o Show!
-              </Button>
+            {isPlaying && !isPaused && (
+              <div className="flex gap-2">
+                <Button variant="outline" className="w-fit bg-black/60 hover:bg-black/80 text-white border-gray-600 backdrop-blur-md animate-in fade-in" onClick={handlePause}>
+                  <Pause className="mr-2 h-4 w-4" /> Pausar
+                </Button>
+                <Button variant="destructive" className="w-fit bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-in fade-in" onClick={() => setIsFinished(true)}>
+                  <BrainCircuit className="mr-2 h-4 w-4" /> Finalizar o Show!
+                </Button>
+              </div>
             )}
           </div>
           {/* SCORE HUD */}
@@ -173,13 +203,32 @@ export default function SongPlayer() {
         </div>
       )}
 
+      {/* PAUSE MENU OVERLAY */}
+      {isPaused && !isFinished && (
+        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in-95 duration-200">
+          <h2 className="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
+          <p className="text-gray-400 mb-12">Recupere o fôlego. O palco aguarda.</p>
+          <div className="flex gap-6">
+            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+              <Play className="w-10 h-10 fill-black" />
+              <span className="text-xl tracking-wider">CONTINUAR</span>
+            </Button>
+            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+              <RotateCcw className="w-10 h-10 text-gray-300" />
+              <span className="text-xl tracking-wider text-gray-300">REINICIAR</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* YOUTUBE IFRAME */}
       {!isFinished && (
         <div className="absolute inset-0 z-10 pt-20 pb-20 bg-black flex items-center justify-center pointer-events-none">
           <iframe 
+            ref={iframeRef}
             width="100%" 
             height="100%" 
-            src={`https://www.youtube.com/embed/HO8AZPOrJqQ?autoplay=${isPlaying ? 1 : 0}&start=5&controls=0&modestbranding=1&rel=0`} 
+            src={`https://www.youtube.com/embed/HO8AZPOrJqQ?autoplay=${isPlaying ? 1 : 0}&start=5&controls=0&modestbranding=1&rel=0&enablejsapi=1`} 
             title="Karaoke Video"
             frameBorder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
