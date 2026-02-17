@@ -17,7 +17,7 @@ export default function SongPlayer() {
 
   // RECOMMENDATION ENGINE (Mock data based on Asa Branca)
   const RECOMMENDED_SONGS = [
-    { title: "O Xote das Meninas", artist: "Luiz Gonzaga", thumb: "https://images.unsplash.com/photo-1516916759473-600c07bc99d7?q=80&w=300&auto=format&fit=crop" },
+    { title: "O Xote das Meninas", artist: "Luiz Gonzaga", thumb: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=300&auto=format&fit=crop" },
     { title: "Anunciação", artist: "Alceu Valença", thumb: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=300&auto=format&fit=crop" },
     { title: "A Vida do Viajante", artist: "Luiz Gonzaga", thumb: "https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?q=80&w=300&auto=format&fit=crop" }
   ];
@@ -123,7 +123,7 @@ export default function SongPlayer() {
                 className="w-fit bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-in fade-in" 
                 onClick={() => setIsFinished(true)}
               >
-                <BrainCircuit className="mr-2 h-4 w-4" /> Finalizar Show Cedo
+                <BrainCircuit className="mr-2 h-4 w-4" /> Finalizar o Show!
               </Button>
             )}
           </div>
@@ -180,9 +180,10 @@ export default function SongPlayer() {
             width="100%" 
             height="100%" 
             src={`https://www.youtube.com/embed/HO8AZPOrJqQ?autoplay=${isPlaying ? 1 : 0}&start=5&controls=0&modestbranding=1&rel=0`} 
-            frameBorder="0" 
-            className="w-full max-w-6xl h-full object-contain"
             title="Karaoke Video"
+            frameBorder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            className="w-full max-w-6xl h-full object-contain"
           ></iframe>
         </div>
       )}
@@ -213,7 +214,7 @@ export default function SongPlayer() {
               {/* Score Sphere */}
               <div className="flex flex-col items-center justify-center w-full md:w-1/3 z-10">
                 <div className="w-32 h-32 rounded-full border-4 border-cyan-500 overflow-hidden mb-6 shadow-[0_0_30px_rgba(6,182,212,0.3)]">
-                  <img src="https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover" alt="Instrutor" />
+                  <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover" alt="Instrutor" />
                 </div>
                 <h3 className="text-gray-400 tracking-widest text-sm mb-2 uppercase font-bold">Pontuação Final</h3>
                 <p className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{score}</p>
