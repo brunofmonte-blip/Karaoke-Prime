@@ -98,7 +98,7 @@ const Library: React.FC = () => {
         </Button>
 
         <Button 
-          onClick={() => setActiveFilter('duel')}
+          onClick={() => navigate('/duel')}
           variant="outline"
           className={cn(
             "h-32 rounded-2xl border-2 flex flex-col gap-2 transition-all duration-300",
