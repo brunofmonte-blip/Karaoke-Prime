@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Mic, Settings2 } from "lucide-react";
+import { ArrowLeft, Mic, Settings2, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 export default function SongPlayer() {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [offset, setOffset] = useState(0); // Sync Offset in seconds
+  const [offset, setOffset] = useState(0); // User manual sync
 
-  // TIMESTAMPS FOR "KARAOKE VIOLÃO" VERSION (Estimated)
+  // TIMESTAMPS: CALIBRATED FOR "AO VIVO" VERSION (Approx start ~24s)
   const LYRICS = [
-    { time: 0, text: "🎵 [INTRODUÇÃO] 🎵" },
-    { time: 13, text: "Quando olhei a terra ardendo" },
-    { time: 19, text: "Qual fogueira de São João" },
-    { time: 25, text: "Eu perguntei a Deus do céu, ai" },
-    { time: 31, text: "Por que tamanha judiação" },
-    { time: 37, text: "Eu perguntei a Deus do céu, ai" },
-    { time: 43, text: "Por que tamanha judiação" },
-    { time: 49, text: "Que braseiro, que fornalha" },
-    { time: 55, text: "Nem um pé de plantação" },
-    { time: 61, text: "Por falta d'água, perdi meu gado" },
-    { time: 67, text: "Morreu de sede meu alazão" },
+    { time: 0, text: "🎵 [INTRODUÇÃO DA BANDA ORIGINAL] 🎵" },
+    { time: 24, text: "Quando olhei a terra ardendo" },
+    { time: 30, text: "Qual fogueira de São João" },
+    { time: 36, text: "Eu perguntei a Deus do céu, ai" },
+    { time: 42, text: "Por que tamanha judiação" },
+    { time: 48, text: "Eu perguntei a Deus do céu, ai" },
+    { time: 54, text: "Por que tamanha judiação" },
+    { time: 60, text: "Que braseiro, que fornalha" },
+    { time: 66, text: "Nem um pé de plantação" },
+    { time: 72, text: "Por falta d'água, perdi meu gado" },
+    { time: 78, text: "Morreu de sede meu alazão" },
   ];
 
-  // SIMULATED TIMER (Syncs with Video Play)
+  // TIMER ENGINE
   useEffect(() => {
     let interval: any;
     if (isPlaying) {
@@ -35,39 +36,43 @@ export default function SongPlayer() {
     return () => clearInterval(interval);
   }, [isPlaying]);
 
-  // Logic: Adjust current time by offset to find active line
+  // LOGIC: Current Time + User Offset vs Lyric Time
   const activeIndex = LYRICS.findLastIndex((line) => (currentTime + offset) >= line.time);
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-full bg-black overflow-hidden">
-      {/* LEFT SIDE: LYRICS (50%) */}
-      <div className="w-full md:w-1/2 h-1/2 md:h-full flex flex-col p-8 border-r border-gray-800 bg-gray-950 relative">
-        <div className="flex justify-between items-center mb-6">
-          <Button variant="ghost" className="text-white z-50 hover:bg-white/10" onClick={() => navigate("/library")}>
+      {/* LEFT SIDE: LYRICS & CONTROLS */}
+      <div className="w-full md:w-1/2 h-1/2 md:h-full flex flex-col p-6 border-r border-gray-800 bg-gray-950 relative">
+        <div className="flex justify-between items-center mb-4 z-20">
+          <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => navigate("/library")}>
             <ArrowLeft className="mr-2 h-5 w-5" /> Sair
           </Button>
           
-          {/* SYNC CONTROLS */}
-          <div className="flex items-center gap-2 bg-gray-900 p-2 rounded-lg border border-gray-700">
-            <Settings2 className="w-4 h-4 text-gray-400" />
-            <span className="text-xs text-gray-400">Sync: {offset > 0 ? `+${offset}s` : `${offset}s`}</span>
-            <Button size="sm" variant="secondary" className="h-6 px-2" onClick={() => setOffset(o => o - 0.5)}>-</Button>
-            <Button size="sm" variant="secondary" className="h-6 px-2" onClick={() => setOffset(o => o + 0.5)}>+</Button>
+          {/* SYNC WIDGET */}
+          <div className="flex items-center gap-3 bg-gray-900/80 p-2 rounded-full border border-yellow-500/30 backdrop-blur-sm">
+            <Settings2 className="w-4 h-4 text-yellow-500" />
+            <span className="text-xs font-mono text-gray-300 w-16 text-center">
+              Sync: {offset > 0 ? `+${offset}s` : `${offset}s`}
+            </span>
+            <Button size="icon" variant="outline" className="h-8 w-8 rounded-full border-gray-600 hover:bg-gray-800" onClick={() => setOffset(o => o - 1)}>-</Button>
+            <Button size="icon" variant="outline" className="h-8 w-8 rounded-full border-gray-600 hover:bg-gray-800" onClick={() => setOffset(o => o + 1)}>+</Button>
           </div>
         </div>
         
-        <div className="flex-1 flex flex-col items-center justify-center space-y-6 overflow-hidden">
-          <div className="w-full transition-all duration-700 ease-in-out transform" style={{ transform: `translateY(-${activeIndex * 40}px)` }}>
+        {/* LYRICS DISPLAY */}
+        <div className="flex-1 flex flex-col items-center justify-center space-y-8 overflow-hidden py-10">
+          <div className="w-full transition-all duration-700 ease-in-out transform" style={{ transform: `translateY(-${activeIndex * 60}px)` }}>
             {LYRICS.map((line, index) => {
               const isActive = index === activeIndex;
               const isPast = index < activeIndex;
               return (
                 <p 
                   key={index}
-                  className={`transition-all duration-500 text-center font-bold py-2
-                    ${isActive ? "text-4xl text-yellow-400 scale-110 drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]" : 
-                      isPast ? "text-xl text-gray-700 blur-[1px]" : "text-xl text-gray-600"}
-                  `}
+                  className={cn(
+                    "transition-all duration-500 text-center font-bold px-4 py-2",
+                    isActive ? "text-3xl md:text-5xl text-yellow-400 scale-105 drop-shadow-[0_0_20px_rgba(250,204,21,0.5)]" : 
+                    isPast ? "text-lg text-gray-700 blur-[1px]" : "text-lg text-gray-600"
+                  )}
                 >
                   {line.text}
                 </p>
@@ -76,63 +81,42 @@ export default function SongPlayer() {
           </div>
         </div>
 
-        {/* Pitch Graph Overlay */}
-        <div className="h-32 w-full mt-4 bg-gray-900/50 rounded-xl border border-gray-800 relative flex flex-col items-center justify-center overflow-hidden">
-          <div className="flex items-center mb-2">
-            <Mic className="text-cyan-500 animate-pulse mr-2 h-4 w-4" />
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">MICROFONE ABERTO</span>
-          </div>
-          <div className="w-full h-12 flex items-end justify-center gap-1 px-4">
-            {[...Array(20)].map((_, i) => (
-              <div 
-                key={i} 
-                className="w-1 bg-cyan-500/40 rounded-t-full transition-all duration-150"
-                style={{ 
-                  height: isPlaying ? `${Math.random() * 100}%` : '10%',
-                  opacity: isPlaying ? 0.4 + Math.random() * 0.6 : 0.2
-                }}
-              />
-            ))}
+        {/* MIC INDICATOR */}
+        <div className="h-20 w-full mt-2 bg-gray-900/50 rounded-xl border border-gray-800 flex items-center justify-center gap-4">
+          <Mic className={cn("w-6 h-6", isPlaying ? "text-green-500 animate-pulse" : "text-gray-500")} />
+          <div className="text-xs text-gray-500 font-mono">
+            {isPlaying ? "CAPTANDO ÁUDIO..." : "AGUARDANDO..."}
           </div>
         </div>
       </div>
 
-      {/* RIGHT SIDE: VIDEO (50%) */}
+      {/* RIGHT SIDE: THE SHOW (Luiz Gonzaga) */}
       <div className="w-full md:w-1/2 h-1/2 md:h-full relative bg-black flex items-center justify-center">
+        {/* PLAY OVERLAY */}
         {!isPlaying && (
-          <div className="absolute inset-0 z-50 bg-black/80 flex flex-col items-center justify-center p-6 text-center">
-            <div className="mb-6 h-24 w-24 rounded-full bg-yellow-500/20 flex items-center justify-center ring-4 ring-yellow-500/50">
-              <Mic className="h-12 w-12 text-yellow-400" />
-            </div>
-            <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">Asa Branca</h2>
-            <p className="text-gray-400 mb-8">Versão Instrumental / Karaokê Violão</p>
+          <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center flex-col gap-4">
+            <h2 className="text-3xl font-bold text-yellow-500">Modo Show Ao Vivo</h2>
+            <p className="text-gray-300 mb-4">Cante com a banda original</p>
             <Button 
               onClick={() => setIsPlaying(true)} 
-              className="text-2xl px-12 py-8 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-full shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-transform hover:scale-105 active:scale-95"
+              className="text-xl px-12 py-8 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-full shadow-[0_0_40px_rgba(234,179,8,0.4)] transition-transform hover:scale-105"
             >
-              INICIAR KARAOKE
+              <Play className="mr-2 fill-black h-6 w-6" /> ENTRAR NO PALCO
             </Button>
           </div>
         )}
         
-        {/* INSTRUMENTAL VIDEO SOURCE */}
+        {/* YOUTUBE EMBED - USER SELECTED LIVE VERSION */}
         <iframe 
           width="100%" 
           height="100%" 
-          src={`https://www.youtube.com/embed/tvAtWam6V0E?autoplay=${isPlaying ? 1 : 0}&controls=0&modestbranding=1&rel=0&enablejsapi=1`} 
-          title="Karaoke Video" 
+          src={`https://www.youtube.com/embed/HO8AZPOrJqQ?autoplay=${isPlaying ? 1 : 0}&controls=0&modestbranding=1&rel=0&enablejsapi=1`} 
+          title="Luiz Gonzaga Live" 
           frameBorder="0" 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          className="w-full h-full object-cover pointer-events-none"
+          className="w-full h-full object-cover"
+          style={{ pointerEvents: isPlaying ? 'none' : 'auto' }}
         ></iframe>
-
-        {/* Live Status Badge */}
-        {isPlaying && (
-          <div className="absolute top-6 right-6 z-40 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-md flex items-center gap-2 animate-pulse">
-            <div className="h-2 w-2 rounded-full bg-white" />
-            REC ON AIR
-          </div>
-        )}
       </div>
     </div>
   );
