@@ -17,25 +17,22 @@ const API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
 
 export default function Duel() {
   const navigate = useNavigate();
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isConfiguring, setIsConfiguring] = useState(true);
   const [isFinished, setIsFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [activeVideoId, setActiveVideoId] = useState(""); // Removed hardcoded ID
-  const [isScoringActive, setIsScoringActive] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState("");
   
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const userVideoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
   const micVolumeRef = useRef(0);
 
-  // Search State
+  // Search & Config State
   const [songQuery, setSongQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [opponentName, setOpponentName] = useState(() => localStorage.getItem("lastOpponent") || "AI Boss");
   const [duelMode, setDuelMode] = useState<'competitive' | 'duet'>('competitive');
-  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraEnabled, setCameraEnabled] = useState(false);
 
   // Stats
   const [userScore, setUserScore] = useState(0);
@@ -43,6 +40,102 @@ export default function Duel() {
   const [userFeedback, setUserFeedback] = useState("");
   const [aiScore, setAiScore] = useState(0);
   const [aiFeedback, setAiFeedback] = useState("");
+
+  // CAMERA & MIC INIT (Only runs inside the Arena)
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    let audioCtx: AudioContext | null = null;
+    let animationId: number;
+
+    if (!isConfiguring && !isFinished && !isPaused) {
+      const constraints = { audio: true, video: cameraEnabled };
+      
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then((s) => {
+          stream = s;
+          if (cameraEnabled && userVideoRef.current) {
+            userVideoRef.current.srcObject = s;
+          }
+
+          // Initialize Audio Analysis
+          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+          audioCtx = new AudioContext();
+          const analyser = audioCtx.createAnalyser();
+          const source = audioCtx.createMediaStreamSource(s);
+          source.connect(analyser);
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          
+          const updateVolume = () => {
+            analyser.getByteFrequencyData(dataArray);
+            const sum = dataArray.reduce((a, b) => a + b, 0);
+            micVolumeRef.current = sum / dataArray.length;
+            animationId = requestAnimationFrame(updateVolume);
+          };
+          updateVolume();
+        })
+        .catch(err => {
+          console.error("Media access failed:", err);
+          toast.error("Erro ao acessar microfone/câmera.");
+        });
+    }
+
+    return () => {
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      if (audioCtx) audioCtx.close();
+      if (animationId) cancelAnimationFrame(animationId);
+    };
+  }, [isConfiguring, isFinished, isPaused, cameraEnabled]);
+
+  // AI BOSS SCORING LOGIC (Must wait 15 seconds)
+  useEffect(() => {
+    let bossInterval: NodeJS.Timeout;
+    let delayTimeout: NodeJS.Timeout;
+
+    if (!isConfiguring && !isFinished && !isPaused) {
+      // Wait 15 seconds for the song intro to finish
+      delayTimeout = setTimeout(() => {
+        bossInterval = setInterval(() => {
+          setAiScore(prev => prev + Math.floor(Math.random() * 50) + 50);
+          setAiFeedback(Math.random() > 0.5 ? "PERFECT!" : "GOOD!");
+          setTimeout(() => setAiFeedback(""), 1000);
+        }, 2000);
+      }, 15000); // 15s delay
+    }
+
+    return () => {
+      if (bossInterval) clearInterval(bossInterval);
+      if (delayTimeout) clearTimeout(delayTimeout);
+    };
+  }, [isConfiguring, isFinished, isPaused]);
+
+  // USER SCORING LOGIC
+  useEffect(() => {
+    let userInterval: NodeJS.Timeout;
+    let delayTimeout: NodeJS.Timeout;
+
+    if (!isConfiguring && !isFinished && !isPaused) {
+      delayTimeout = setTimeout(() => {
+        userInterval = setInterval(() => {
+          if (micVolumeRef.current > 10) {
+            const accuracy = Math.random();
+            if (accuracy > 0.7) {
+              setUserScore(s => s + 100); setUserCombo(c => c + 1); setUserFeedback("PERFECT!");
+            } else if (accuracy > 0.4) {
+              setUserScore(s => s + 50); setUserCombo(0); setUserFeedback("GOOD!");
+            } else {
+              setUserCombo(0); setUserFeedback("MISS");
+            }
+            setTimeout(() => setUserFeedback(""), 1000);
+          }
+        }, 2000);
+      }, 15000);
+    }
+
+    return () => {
+      if (userInterval) clearInterval(userInterval);
+      if (delayTimeout) clearTimeout(delayTimeout);
+    };
+  }, [isConfiguring, isFinished, isPaused]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,93 +154,14 @@ export default function Duel() {
     }
   };
 
-  const handleStartStage = async () => {
+  const handleStartStage = () => {
     if (!activeVideoId) {
       toast.error("Por favor, selecione uma música antes de começar.");
       return;
     }
-
-    try {
-      // 1. Initialize Microphone & Camera ONLY on user click to bypass browser blocks
-      const constraints = { 
-        audio: true, 
-        video: isCameraActive 
-      };
-      
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      streamRef.current = stream;
-      
-      // Set video source if camera is active
-      if (isCameraActive && userVideoRef.current) {
-        userVideoRef.current.srcObject = stream;
-      }
-
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      const context = new AudioContext();
-      audioCtxRef.current = context;
-      
-      const analyser = context.createAnalyser();
-      const source = context.createMediaStreamSource(stream);
-      source.connect(analyser);
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      
-      const updateVolume = () => {
-        if (!audioCtxRef.current) return;
-        analyser.getByteFrequencyData(dataArray);
-        const sum = dataArray.reduce((a, b) => a + b, 0);
-        micVolumeRef.current = sum / dataArray.length;
-        requestAnimationFrame(updateVolume);
-      };
-      updateVolume();
-
-      // 2. Start Game
-      setIsPlaying(true);
-      
-      // 3. 15s Intro Delay for Scoring
-      setTimeout(() => {
-        setIsScoringActive(true);
-        toast.info("SHOW TIME: PONTUAÇÃO ATIVA!", { duration: 3000 });
-      }, 15000);
-
-    } catch (err) {
-      toast.error("Erro ao acessar dispositivos. Verifique as permissões.");
-    }
+    setIsConfiguring(false);
+    toast.info("O show vai começar! Prepare-se para a intro de 15s.");
   };
-
-  useEffect(() => {
-    let scoreInterval: NodeJS.Timeout;
-    if (isPlaying && !isFinished && !isPaused && isScoringActive) {
-      scoreInterval = setInterval(() => {
-        // User Scoring Logic based on mic volume
-        if (micVolumeRef.current > 10) {
-          const accuracy = Math.random();
-          if (accuracy > 0.7) {
-            setUserScore(s => s + 100); setUserCombo(c => c + 1); setUserFeedback("PERFECT!");
-          } else if (accuracy > 0.4) {
-            setUserScore(s => s + 50); setUserCombo(0); setUserFeedback("GOOD!");
-          } else {
-            setUserCombo(0); setUserFeedback("MISS");
-          }
-        } else {
-          setUserFeedback("");
-        }
-
-        // AI Scoring Logic (Boss)
-        const aiAccuracy = Math.random();
-        if (aiAccuracy > 0.3) {
-          setAiScore(s => s + 90); setAiFeedback("PERFECT!");
-        } else {
-          setAiScore(s => s + 60); setAiFeedback("GOOD!");
-        }
-
-        setTimeout(() => {
-          setUserFeedback("");
-          setAiFeedback("");
-        }, 1000);
-      }, 2000);
-    }
-    return () => clearInterval(scoreInterval);
-  }, [isPlaying, isFinished, isPaused, isScoringActive]);
 
   const handlePause = () => {
     setIsPaused(true);
@@ -164,23 +178,9 @@ export default function Duel() {
     setUserScore(0);
     setUserCombo(0);
     setAiScore(0);
-    setIsScoringActive(false);
     iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
     iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
-    setTimeout(() => setIsScoringActive(true), 15000);
   };
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close();
-      }
-    };
-  }, []);
 
   const isUserWinning = userScore >= aiScore;
 
@@ -192,7 +192,7 @@ export default function Duel() {
           <Button variant="ghost" className="text-white hover:bg-white/20" onClick={() => navigate("/library")}>
             <ArrowLeft className="mr-2 h-5 w-5" /> Sair
           </Button>
-          {isPlaying && (
+          {!isConfiguring && (
             <div className="flex items-center gap-3 px-4 py-1 bg-red-600/20 border border-red-600/50 rounded-full">
               <Radio className="h-4 w-4 text-red-500 animate-pulse" />
               <span className="text-xs font-black text-red-500 uppercase tracking-widest">LIVE: VOCÊ VS {opponentName.toUpperCase()}</span>
@@ -200,7 +200,7 @@ export default function Duel() {
           )}
         </div>
 
-        {isPlaying && !isFinished && (
+        {!isConfiguring && !isFinished && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="bg-black/60 text-white border-gray-600" onClick={handlePause}>
               <Pause className="h-4 w-4" />
@@ -214,7 +214,7 @@ export default function Duel() {
 
       {/* MAIN DUEL AREA */}
       <div className="flex-grow flex relative">
-        {isPlaying && !isFinished && (
+        {!isConfiguring && !isFinished && (
           <>
             <div className={cn("flex-1 flex flex-col items-center justify-center transition-all duration-500 border-r border-white/10", isUserWinning ? "bg-cyan-950/10" : "bg-black/40")}>
               <div className="mb-8 flex flex-col items-center z-10">
@@ -244,7 +244,7 @@ export default function Duel() {
             </div>
 
             {/* CAMERA CIRCLE (ARENA) */}
-            {isCameraActive && (
+            {cameraEnabled && (
               <div className="absolute bottom-10 left-10 z-50 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-cyan-500 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.5)] bg-gray-900">
                 <video ref={userVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
               </div>
@@ -254,7 +254,7 @@ export default function Duel() {
       </div>
 
       {/* SETUP SCREEN */}
-      {!isPlaying && !isFinished && (
+      {isConfiguring && !isFinished && (
         <div 
           className="absolute inset-0 z-[60] bg-cover bg-center flex flex-col items-center justify-center p-6 overflow-y-auto"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2000&auto=format&fit=crop')" }}
@@ -333,11 +333,11 @@ export default function Duel() {
                   <label className="text-xs font-bold text-primary uppercase tracking-widest">Câmera ao Vivo</label>
                   <Button 
                     variant="outline" 
-                    className={cn("w-full flex items-center justify-center gap-2", isCameraActive ? "border-cyan-500 bg-cyan-500/10 text-cyan-400" : "border-white/10")}
-                    onClick={() => setIsCameraActive(!isCameraActive)}
+                    className={cn("w-full flex items-center justify-center gap-2", cameraEnabled ? "border-cyan-500 bg-cyan-500/10 text-cyan-400" : "border-white/10")}
+                    onClick={() => setCameraEnabled(!cameraEnabled)}
                   >
-                    {isCameraActive ? <Camera className="h-4 w-4" /> : <CameraOff className="h-4 w-4" />}
-                    {isCameraActive ? "Câmera: ATIVADA" : "Câmera: DESATIVADA"}
+                    {cameraEnabled ? <Camera className="h-4 w-4" /> : <CameraOff className="h-4 w-4" />}
+                    {cameraEnabled ? "Câmera: ATIVADA" : "Câmera: DESATIVADA"}
                   </Button>
                 </div>
               </div>
