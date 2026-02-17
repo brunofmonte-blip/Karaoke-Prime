@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Mic, Play, Trophy, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -11,9 +11,11 @@ export default function SongPlayer() {
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [feedback, setFeedback] = useState("");
-  const [micVolume, setMicVolume] = useState(0);
 
-  // REAL MICROPHONE LISTENER
+  // MEMORY REF FOR MIC VOLUME (Prevents re-render loops)
+  const micVolumeRef = useRef(0);
+
+  // EFFECT 1: REAL MICROPHONE LISTENER
   useEffect(() => {
     let audioCtx: AudioContext;
     let analyser: AnalyserNode;
@@ -36,7 +38,8 @@ export default function SongPlayer() {
             for (let i = 0; i < dataArray.length; i++) {
               sum += dataArray[i];
             }
-            setMicVolume(sum / dataArray.length); // Average volume
+            // Update the REF, not state. Does not trigger re-renders.
+            micVolumeRef.current = sum / dataArray.length; 
             animationId = requestAnimationFrame(updateVolume);
           };
           updateVolume();
@@ -49,18 +52,18 @@ export default function SongPlayer() {
     };
   }, [isPlaying]);
 
-  // SCORING ENGINE (Silence Detection & Strict Words)
+  // EFFECT 2: SCORING ENGINE (Reads from Ref)
   useEffect(() => {
     let interval: NodeJS.Timeout;
     let clearFeedback: NodeJS.Timeout;
     let introDelay: NodeJS.Timeout;
 
     if (isPlaying) {
-      // Wait 12 seconds for the instrumental intro to finish before scoring
+      // Wait 12 seconds for the instrumental intro to finish
       introDelay = setTimeout(() => {
         interval = setInterval(() => {
-          // ONLY SCORE IF USER IS ACTUALLY SINGING (Volume > 15)
-          if (micVolume > 15) {
+          // Check the ref current value silently
+          if (micVolumeRef.current > 10) {
             const accuracy = Math.random();
             if (accuracy > 0.7) {
               setScore(s => s + 100);
@@ -77,22 +80,22 @@ export default function SongPlayer() {
             clearTimeout(clearFeedback);
             clearFeedback = setTimeout(() => setFeedback(""), 800);
           } else {
-            // USER IS SILENT
-            setFeedback(""); 
+            // Silence detected
+            setFeedback("");
           }
-        }, 2000);
-      }, 12000);
+        }, 2000); // Check every 2 seconds
+      }, 12000); // 12-second delay
     }
     return () => {
       clearInterval(interval);
       clearTimeout(clearFeedback);
       clearTimeout(introDelay);
     };
-  }, [isPlaying, micVolume]);
+  }, [isPlaying]); // Removed micVolume dependency to fix the loop
 
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
-      {/* HEADER OVERLAY */}
+      {/* HEADER */}
       <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
         <div className="flex flex-col gap-2 pointer-events-auto">
           <Button 
@@ -108,13 +111,13 @@ export default function SongPlayer() {
           </div>
         </div>
 
-        {/* GAMIFICATION HUD (Top Right) */}
+        {/* SCORE HUD */}
         {isPlaying && (
           <div className="flex flex-col items-end gap-2 animate-in fade-in slide-in-from-top-5 pointer-events-none">
             <div className="bg-black/80 border border-cyan-500/50 backdrop-blur-md px-6 py-3 rounded-2xl flex items-center gap-4 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
               <Trophy className="w-8 h-8 text-yellow-400" />
               <div className="flex flex-col items-end">
-                <span className="text-xs font-bold text-gray-400 tracking-widest uppercase">Score</span>
+                <span className="text-xs font-bold text-gray-400 tracking-widest uppercase">Pontuação</span>
                 <span className="text-3xl font-black text-white font-mono leading-none">{score.toLocaleString()}</span>
               </div>
             </div>
@@ -129,7 +132,7 @@ export default function SongPlayer() {
         )}
       </div>
 
-      {/* DYNAMIC FEEDBACK TEXT (Top Right, under Score) */}
+      {/* FEEDBACK HUD */}
       {feedback && isPlaying && (
         <div className="absolute top-36 right-10 z-50 pointer-events-none animate-in slide-in-from-right-5 fade-in duration-200">
           <span className={`text-4xl md:text-5xl font-black italic uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]
@@ -140,7 +143,7 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* PLAY OVERLAY (Bypasses browser autoplay block) */}
+      {/* START SCREEN OVERLAY */}
       {!isPlaying && (
         <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-auto">
           <div className="w-24 h-24 mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/50">
@@ -156,7 +159,7 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* YOUTUBE IFRAME (The Show) */}
+      {/* YOUTUBE IFRAME */}
       <div className="absolute inset-0 z-10 pt-20 pb-20 bg-black flex items-center justify-center pointer-events-none">
         <iframe 
           width="100%" 
@@ -169,7 +172,7 @@ export default function SongPlayer() {
         ></iframe>
       </div>
 
-      {/* BOTTOM OVERLAY (Mic Status) */}
+      {/* BOTTOM MIC STATUS */}
       <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
         <div className="flex items-center gap-4 bg-gray-900/90 px-8 py-3 rounded-full border border-gray-700 backdrop-blur-md shadow-lg">
           <Mic className={`w-5 h-5 ${isPlaying ? "text-green-500 animate-pulse" : "text-gray-500"}`} />
