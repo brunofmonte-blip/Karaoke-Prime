@@ -23,50 +23,50 @@ const moduleConfigs: Record<ConservatoryModule, {
 }> = {
   farinelli: {
     title: 'Breathing Gym',
-    phases: ['inhale', 'suspend', 'exhale'],
-    durations: [4, 4, 4],
-    labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA', idle: 'PRONTO' },
-    narration: { inhale: 'Inspira profundamente, expandindo o diafragma.', suspend: 'Segura o ar com o core engajado.', exhale: 'Expira de forma controlada.', rest: 'Pausa', idle: '' },
-    checklist: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta e os ombros relaxados.'
+    phases: ['inhale', 'hold', 'exhale', 'rest'],
+    durations: [4, 4, 4, 4],
+    labels: { inhale: 'INSPIRA', hold: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA', idle: 'PRONTO' },
+    narration: { inhale: 'Inspira.', hold: 'Segura.', exhale: 'Solta.', rest: 'Pausa.', idle: '' },
+    checklist: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.'
   },
   sovt: {
     title: 'Método Arnold Jacobs',
-    phases: ['inhale', 'exhale'],
-    durations: [4, 8],
-    labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '', idle: 'PRONTO' },
-    narration: { inhale: 'Inspira pelo nariz, relaxando os ombros.', exhale: 'Expira criando bolhas constantes no canudo.', suspend: '', rest: '', idle: '' },
-    checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
+    phases: ['inhale', 'hold', 'exhale', 'rest'],
+    durations: [4, 2, 8, 2],
+    labels: { inhale: 'INSPIRA', hold: 'TRAVA', exhale: 'BOLHAS', rest: 'PAUSA', idle: 'PRONTO' },
+    narration: { inhale: 'Inspira.', hold: 'Trava.', exhale: 'Bolhas.', rest: 'Pausa.', idle: '' },
+    checklist: 'Separe seu canudo e copo d\'água. Foco no fluxo constante.'
   },
   panting: {
     title: 'Appoggio Clássico',
-    phases: ['inhale', 'suspend', 'exhale'],
-    durations: [4, 4, 4],
-    labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA', idle: 'PRONTO' },
-    narration: { inhale: 'Inspira e expande as costelas.', suspend: 'Mantém o suporte abdominal.', exhale: 'Solta o ar com apoio constante.', rest: 'Pausa', idle: '' },
-    checklist: 'Foco no diafragma. Separe um livro pesado para o biofeedback abdominal. Clique em "Estou Pronto" para iniciar.'
+    phases: ['inhale', 'hold', 'exhale', 'rest'],
+    durations: [2, 2, 2, 2],
+    labels: { inhale: 'INSPIRA', hold: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA', idle: 'PRONTO' },
+    narration: { inhale: 'Inspira.', hold: 'Segura.', exhale: 'Solta.', rest: 'Pausa.', idle: '' },
+    checklist: 'Foco no diafragma. Use o livro para biofeedback abdominal.'
   },
   alexander: {
     title: 'Técnica de Alexander',
-    phases: ['inhale', 'suspend', 'exhale', 'rest'],
+    phases: ['inhale', 'hold', 'exhale', 'rest'],
     durations: [6, 2, 6, 2],
-    labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE', idle: 'PRONTO' },
-    narration: { inhale: 'Expanda as costelas lateralmente.', suspend: 'Mantenha a expansão sem tensão.', exhale: 'Solte o ar devagar, alongando a coluna.', rest: 'Relaxe os ombros', idle: '' },
-    checklist: 'Alinhamento total. Relaxe o pescoço e alongue a coluna para ressonância máxima.'
+    labels: { inhale: 'EXPANDA', hold: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE', idle: 'PRONTO' },
+    narration: { inhale: 'Expanda.', hold: 'Mantenha.', exhale: 'Solte.', rest: 'Relaxe.', idle: '' },
+    checklist: 'Alinhamento total. Relaxe o pescoço e alongue a coluna.'
   },
   'pitch-calibration': {
     title: 'Calibração de Tom',
-    phases: ['inhale', 'exhale'],
-    durations: [2, 10],
-    labels: { inhale: 'PREPARE', exhale: 'CANTE', suspend: '', rest: '', idle: 'PRONTO' },
-    narration: { inhale: 'Prepare a nota.', exhale: 'Cante mantendo o centro do afinador.', suspend: '', rest: '', idle: '' },
-    checklist: 'Foco na precisão tonal. Mantenha a nota no centro absoluto.'
+    phases: ['inhale', 'hold', 'exhale', 'rest'],
+    durations: [2, 1, 10, 2],
+    labels: { inhale: 'PREPARE', hold: 'FOCO', exhale: 'CANTE', rest: 'PAUSA', idle: 'PRONTO' },
+    narration: { inhale: 'Prepare.', hold: 'Foco.', exhale: 'Cante.', rest: 'Pausa.', idle: '' },
+    checklist: 'Foco na precisão tonal. Mantenha a nota no centro.'
   },
   none: {
     title: 'Treinamento Vocal',
     phases: [],
     durations: [],
-    labels: { inhale: '', suspend: '', exhale: '', rest: '', idle: '' },
-    narration: { inhale: '', suspend: '', exhale: '', rest: '', idle: '' },
+    labels: { inhale: '', hold: '', exhale: '', rest: '', idle: '' },
+    narration: { inhale: '', hold: '', exhale: '', rest: '', idle: '' },
     checklist: ''
   }
 };
@@ -75,13 +75,11 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const config = useMemo(() => moduleConfigs[moduleType], [moduleType]);
   const { setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
-  // Engine States
   const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
   const [timeLeft, setTimeLeft] = useState(0);
   const [feedback, setFeedback] = useState(config.checklist);
   const [repCount, setRepCount] = useState(0);
 
-  // Refs for Audio Engine & State Machine
   const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -91,7 +89,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const accumulatedScoreRef = useRef(0);
   const stateRef = useRef<BreathingPhase>(exerciseState);
 
-  // Sync stateRef with exerciseState to avoid stale closures in audio loop
   useEffect(() => {
     stateRef.current = exerciseState;
   }, [exerciseState]);
@@ -101,7 +98,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
-      utterance.rate = 0.9;
+      utterance.rate = 1.1;
       utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     }
@@ -142,7 +139,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
 
       const firstPhase = config.phases[0];
       const firstDuration = config.durations[0];
-      const firstMsg = `Série 1: ${config.narration[firstPhase]}`;
+      const firstMsg = config.narration[firstPhase];
 
       setRepCount(1);
       setExerciseState(firstPhase);
@@ -174,7 +171,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       const nextPhaseIndex = currentPhaseIndex + 1;
 
       if (nextPhaseIndex < config.phases.length) {
-        // Transition to next phase in the same series
         const nextPhase = config.phases[nextPhaseIndex];
         const nextDuration = config.durations[nextPhaseIndex];
         const nextMsg = config.narration[nextPhase];
@@ -189,37 +185,29 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           setStabilityScore(100);
         }
       } else {
-        // Series completed
         accumulatedScoreRef.current += stabilityRef.current;
         const totalSeries = 3;
         setManualProgress(Math.floor((repCount / totalSeries) * 100));
 
         if (repCount < totalSeries) {
-          setExerciseState('rest');
-          setTimeLeft(5);
-          const msg = "Descanse e prepare-se para a próxima série...";
-          setFeedback(msg);
-          speak(msg);
+          const nextRep = repCount + 1;
+          const firstPhase = config.phases[0];
+          const firstDuration = config.durations[0];
+          const firstMsg = config.narration[firstPhase];
+
+          setRepCount(nextRep);
+          setExerciseState(firstPhase);
+          setTimeLeft(firstDuration);
+          setFeedback(firstMsg);
+          speak(firstMsg);
         } else {
           const finalAvg = accumulatedScoreRef.current / totalSeries;
           setExerciseState('idle');
-          setFeedback("Treino concluído! Excelente trabalho.");
-          speak("Treino concluído! Excelente trabalho.");
+          setFeedback("Fim.");
+          speak("Fim.");
           stopAnalysis(finalAvg);
         }
       }
-    } else if (timeLeft === 0 && exerciseState === 'rest') {
-      // Start next series
-      const nextRep = repCount + 1;
-      const firstPhase = config.phases[0];
-      const firstDuration = config.durations[0];
-      const firstMsg = `Série ${nextRep}: ${config.narration[firstPhase]}`;
-
-      setRepCount(nextRep);
-      setExerciseState(firstPhase);
-      setTimeLeft(firstDuration);
-      setFeedback(firstMsg);
-      speak(firstMsg);
     }
   }, [timeLeft, exerciseState, repCount, setManualProgress, stopAnalysis, config]);
 
@@ -238,7 +226,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       <div className="flex flex-col items-center space-y-8 flex-grow">
         <div className="text-center max-w-md">
           <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">
-            {exerciseState === 'idle' ? "Checklist de Preparação" : config.title}
+            {exerciseState === 'idle' ? "Checklist" : config.title}
           </h3>
           <p className="text-lg text-foreground mb-8 leading-relaxed">{feedback}</p>
           
@@ -257,8 +245,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
                 <div className={cn(
                   "h-48 w-48 rounded-full border-8 flex flex-col items-center justify-center transition-all duration-500 shadow-2xl",
                   exerciseState === 'inhale' ? "border-primary bg-primary/10 scale-110" : 
+                  exerciseState === 'hold' ? "border-yellow-500 bg-yellow-500/10 scale-105" :
                   exerciseState === 'exhale' ? "border-accent bg-accent/10 scale-105" :
-                  exerciseState === 'suspend' ? "border-yellow-500 bg-yellow-500/10 scale-100" :
                   "border-destructive bg-destructive/10 scale-95"
                 )}>
                   <span className="text-6xl font-black text-foreground">{timeLeft}s</span>
@@ -280,7 +268,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           <CardHeader className="p-0 pb-4">
             <CardTitle className="text-accent flex items-center gap-2 text-lg">
               <Activity className="h-5 w-5" />
-              Monitor de Apoio (SOVT)
+              Monitor de Apoio
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 space-y-6">

@@ -21,7 +21,7 @@ export interface SessionSummary extends PerformanceInsight {
   isBreathing?: boolean;
 }
 
-export type BreathingPhase = 'inhale' | 'suspend' | 'exhale' | 'rest' | 'idle';
+export type BreathingPhase = 'inhale' | 'hold' | 'suspend' | 'exhale' | 'rest' | 'idle';
 export type ConservatoryModule = 'farinelli' | 'sovt' | 'panting' | 'alexander' | 'pitch-calibration' | 'none';
 export type CalibrationSubModule = 
   | 'laser-attack' | 'drone-sustain' | 'blind-tuning' 
@@ -172,7 +172,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       }
       
       setSessionSummary(summary);
-      // SHORT-CIRCUIT: Close the overlay immediately to show the summary modal
       setIsOverlayOpen(false);
       return { summary, history: pitchHistory };
     }
@@ -198,7 +197,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setStabilityScore(100);
     setManualProgress(0);
 
-    // Initialize Audio
     if (song.audioUrl) {
       const audio = new Audio(song.audioUrl);
       audio.volume = 0.5;
@@ -228,7 +226,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
             const elapsed = (Date.now() - startTime) / 1000;
             setCurrentTime(elapsed);
             
-            // Only auto-stop if not a breathing exercise
             if (!isBreathing && elapsed >= duration) {
               stopAnalysis();
             }
