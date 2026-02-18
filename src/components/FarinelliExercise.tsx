@@ -77,7 +77,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
   const [timeLeft, setTimeLeft] = useState(0);
   const [feedback, setFeedback] = useState(config.checklist);
-  const [repCount, setRepCount] = useState(1);
+  const [repCount, setRepCount] = useState(0);
   const [isActive, setIsActive] = useState(true);
 
   // Refs for Audio Engine
@@ -111,40 +111,66 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       analyser.fftSize = 256;
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-      // PHASE 1: INHALE (4 seconds)
-      setExerciseState('inhale');
-      setTimeLeft(4);
-      setFeedback("Inspire profundamente pelo nariz...");
-      speak("Inspire profundamente pelo nariz...");
+      const runCircuit = async (currentRep: number) => {
+        if (currentRep > 3 || !isActive) {
+          setExerciseState('idle');
+          setFeedback("Treino concluído! Excelente trabalho.");
+          speak("Treino concluído! Excelente trabalho.");
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+          }
+          return;
+        }
 
-      setTimeout(() => {
-        // PHASE 2: EXHALE & MEASURE (10 seconds)
+        setRepCount(currentRep);
+
+        // Phase 1: Inhale
+        setExerciseState('inhale');
+        setTimeLeft(4);
+        setFeedback(`Série ${currentRep}/3: Inspire profundamente...`);
+        speak("Inspire.");
+        await new Promise(resolve => setTimeout(resolve, 4000));
+
+        // Phase 2: Suspend
+        setExerciseState('suspend');
+        setTimeLeft(4);
+        setFeedback("Segure o ar...");
+        speak("Segure.");
+        await new Promise(resolve => setTimeout(resolve, 4000));
+
+        // Phase 3: Exhale
         setExerciseState('exhale');
         setTimeLeft(10);
-        setFeedback("Solte o ar num som de 'Sssss' constante!");
-        speak("Solte o ar num som de 'Sssss' constante!");
-        stabilityRef.current = 100;
-        setStabilityScore(100);
-
+        setFeedback("Solte o ar (Sssss) constante!");
+        speak("Solte.");
+        
         const checkStability = () => {
-          if (exerciseState === 'idle') return;
+          if (exerciseState !== 'exhale') return;
           analyser.getByteFrequencyData(dataArray);
           const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
-          
-          // Stability Logic: Compare current volume with a target (e.g., 20)
-          // If volume fluctuates too much, decrease stability
           const diff = Math.abs(volume - 20); 
-          if (diff > 5 && volume > 2) { // Only penalize if there's actual sound
-            stabilityRef.current = Math.max(0, stabilityRef.current - 1);
+          if (diff > 5 && volume > 2) {
+            stabilityRef.current = Math.max(0, stabilityRef.current - 0.5);
             setStabilityScore(stabilityRef.current);
           }
-          
           if (timeLeft > 0) {
             requestAnimationFrame(checkStability);
           }
         };
         checkStability();
-      }, 4000);
+        await new Promise(resolve => setTimeout(resolve, 10000));
+
+        // Phase 4: Rest
+        setExerciseState('rest');
+        setTimeLeft(5);
+        setFeedback("Descanse e prepare-se para a próxima série...");
+        speak("Descanse.");
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        runCircuit(currentRep + 1);
+      };
+
+      runCircuit(1);
 
     } catch (err) {
       console.error("Mic error:", err);
@@ -157,18 +183,12 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     if (timeLeft > 0 && isActive) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (timeLeft === 0 && exerciseState === 'exhale') {
-      setExerciseState('idle');
-      setFeedback("Exercício concluído! Excelente trabalho.");
-      speak("Exercício concluído! Excelente trabalho.");
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
     }
-  }, [timeLeft, isActive, exerciseState]);
+  }, [timeLeft, isActive]);
 
   useEffect(() => {
     return () => {
+      setIsActive(false);
       if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
       if (audioContextRef.current) audioContextRef.current.close();
     };
@@ -199,12 +219,22 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
                 <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping" />
                 <div className={cn(
                   "h-48 w-48 rounded-full border-8 flex flex-col items-center justify-center transition-all duration-500 shadow-2xl",
-                  exerciseState === 'inhale' ? "border-primary bg-primary/10 scale-110" : "border-destructive bg-destructive/10 scale-95"
+                  exerciseState === 'inhale' ? "border-primary bg-primary/10 scale-110" : 
+                  exerciseState === 'exhale' ? "border-accent bg-accent/10 scale-105" :
+                  exerciseState === 'suspend' ? "border-yellow-500 bg-yellow-500/10 scale-100" :
+                  "border-destructive bg-destructive/10 scale-95"
                 )}>
                   <span className="text-6xl font-black text-foreground">{timeLeft}s</span>
-                  <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{exerciseState}</span>
+                  <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    {config.labels[exerciseState]}
+                  </span>
                 </div>
               </div>
+              {repCount > 0 && (
+                <p className="text-sm font-bold text-primary uppercase tracking-widest">
+                  Série {repCount} de 3
+                </p>
+              )}
             </div>
           )}
         </div>
