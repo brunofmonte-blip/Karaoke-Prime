@@ -71,7 +71,7 @@ const moduleConfigs: Record<ConservatoryModule, {
 
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const config = moduleConfigs[moduleType];
-  const { setStabilityScore, stabilityScore } = useVocalSandbox();
+  const { setStabilityScore, stabilityScore, stopAnalysis } = useVocalSandbox();
   
   // Engine States
   const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
@@ -116,6 +116,10 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           setExerciseState('idle');
           setFeedback("Treino concluído! Excelente trabalho.");
           speak("Treino concluído! Excelente trabalho.");
+          
+          // Trigger manual stop with final stability score
+          stopAnalysis(stabilityRef.current);
+          
           if (streamRef.current) {
             streamRef.current.getTracks().forEach(track => track.stop());
           }

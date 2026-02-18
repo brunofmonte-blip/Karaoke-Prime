@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ChevronRight, BookOpen, Lightbulb, Target, Clock, Zap, ShieldCheck, TrendingUp } from 'lucide-react';
+import { CheckCircle, ChevronRight, BookOpen, Lightbulb, Target, Clock, Zap, ShieldCheck, TrendingUp, Wind } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useUserProfile } from '@/hooks/use-user-profile';
@@ -21,6 +21,7 @@ const PerformanceSummaryModal: React.FC = () => {
   const currentLevel = profile?.academy_level ?? 0;
   const currentXp = profile?.xp ?? 0;
 
+  const isBreathing = sessionSummary?.isBreathing;
   const finalScore = sessionSummary?.pitchAccuracy || 0;
   const rhythmPrecision = sessionSummary?.rhythmPrecision || 0;
   const vocalStability = sessionSummary?.vocalStability || 0;
@@ -42,7 +43,6 @@ const PerformanceSummaryModal: React.FC = () => {
         let newLevel = currentLevel;
         
         // Check if this session unlocks the next level
-        // Logic: If score meets requirement and user is at the previous level
         if (recommendedLesson && finalScore >= recommendedLesson.required_score) {
           newLevel = currentLevel + 1;
           toast.success(`PARABÉNS! Você subiu para o Nível ${newLevel} da Academy!`, {
@@ -82,18 +82,24 @@ const PerformanceSummaryModal: React.FC = () => {
         "glass-pillar bg-card/80 backdrop-blur-xl"
       )}>
         <DialogHeader className="text-center">
-          <CheckCircle className="h-12 w-12 text-primary mx-auto mb-4 icon-neon-glow" />
+          {isBreathing ? (
+            <Wind className="h-12 w-12 text-primary mx-auto mb-4 icon-neon-glow" />
+          ) : (
+            <CheckCircle className="h-12 w-12 text-primary mx-auto mb-4 icon-neon-glow" />
+          )}
           <DialogTitle className="text-3xl font-bold text-primary neon-blue-glow">
             Resumo de Performance
           </DialogTitle>
           <p className="text-muted-foreground mt-1">
-            Sua sessão vocal está completa. Confira suas métricas.
+            {isBreathing ? "Seu treino de fôlego está completo." : "Sua sessão vocal está completa."}
           </p>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
           <div className="text-center p-4 bg-card/50 rounded-xl border border-border/50">
-            <p className="text-xl text-muted-foreground">Precisão Geral do Tom</p>
+            <p className="text-xl text-muted-foreground">
+              {isBreathing ? "Estabilidade do Fôlego" : "Precisão Geral do Tom"}
+            </p>
             <p className="text-6xl font-extrabold text-accent neon-gold-glow mt-1">
               {finalScore.toFixed(1)}%
             </p>
@@ -103,23 +109,25 @@ const PerformanceSummaryModal: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
-              <Target className="h-5 w-5 text-primary mx-auto mb-1" />
-              <p className="text-xs text-muted-foreground">Ritmo</p>
-              <p className="font-semibold text-foreground">{rhythmPrecision.toFixed(1)}%</p>
+          {!isBreathing && (
+            <div className="grid grid-cols-3 gap-4">
+              <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
+                <Target className="h-5 w-5 text-primary mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">Ritmo</p>
+                <p className="font-semibold text-foreground">{rhythmPrecision.toFixed(1)}%</p>
+              </div>
+              <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
+                <Zap className="h-5 w-5 text-primary mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">Estabilidade</p>
+                <p className="font-semibold text-foreground">{vocalStability.toFixed(1)}%</p>
+              </div>
+              <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
+                <Clock className="h-5 w-5 text-primary mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">Duração</p>
+                <p className="font-semibold text-foreground">{durationSeconds}s</p>
+              </div>
             </div>
-            <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
-              <Zap className="h-5 w-5 text-primary mx-auto mb-1" />
-              <p className="text-xs text-muted-foreground">Estabilidade</p>
-              <p className="font-semibold text-foreground">{vocalStability.toFixed(1)}%</p>
-            </div>
-            <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
-              <Clock className="h-5 w-5 text-primary mx-auto mb-1" />
-              <p className="text-xs text-muted-foreground">Duração</p>
-              <p className="font-semibold text-foreground">{durationSeconds}s</p>
-            </div>
-          </div>
+          )}
 
           <div className="p-4 bg-accent/10 border border-accent/50 rounded-xl">
             <h4 className="text-lg font-bold text-accent flex items-center mb-2">

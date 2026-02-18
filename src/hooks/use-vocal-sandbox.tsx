@@ -18,6 +18,7 @@ export interface ChartDataItem {
 export interface SessionSummary extends PerformanceInsight {
   durationSeconds: number;
   songId: string; 
+  isBreathing?: boolean;
 }
 
 export type BreathingPhase = 'inhale' | 'suspend' | 'exhale' | 'rest' | 'idle';
@@ -34,7 +35,7 @@ interface VocalSandboxContextType {
   closeOverlay: () => void;
   isAnalyzing: boolean;
   startAnalysis: (song: PublicDomainSong, isDuelMode: boolean, module?: ConservatoryModule, subModule?: CalibrationSubModule) => Promise<void>;
-  stopAnalysis: () => { summary: SessionSummary, history: ChartDataItem[] } | null;
+  stopAnalysis: (customScore?: number) => { summary: SessionSummary, history: ChartDataItem[] } | null;
   pitchData: number; 
   pitchDataHz: number;
   pitchHistory: ChartDataItem[];
@@ -110,8 +111,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setSensitivity, 
   } = useAudioAnalyzer();
   
-  const stopAnalysis = useCallback(() => {
+  const stopAnalysis = useCallback((customScore?: number) => {
     stopAudio();
+    const isBreathing = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander';
+    
     setBreathingPhase('idle');
     setBreathingProgress(0);
     setIsAirflowLow(false);
@@ -139,22 +142,37 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       audioRef.current = null;
     }
     
-    if (pitchHistory.length > 0 && sessionStartTimeRef.current && currentSong) {
+    if (sessionStartTimeRef.current && currentSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
-      const insight = runScoringEngine(pitchHistory, currentSong);
       
-      const summary: SessionSummary = {
-        ...insight,
-        durationSeconds: durationSeconds,
-        songId: currentSong.id, 
-      };
+      let summary: SessionSummary;
+      
+      if (isBreathing && customScore !== undefined) {
+        summary = {
+          pitchAccuracy: customScore,
+          rhythmPrecision: 100,
+          vocalStability: customScore,
+          improvementTips: ["Excelente controle de fôlego!", "Mantenha a postura para melhores resultados."],
+          durationSeconds: durationSeconds,
+          songId: currentSong.id,
+          isBreathing: true
+        };
+      } else {
+        const insight = runScoringEngine(pitchHistory, currentSong);
+        summary = {
+          ...insight,
+          durationSeconds: durationSeconds,
+          songId: currentSong.id,
+          isBreathing: false
+        };
+      }
       
       setSessionSummary(summary);
       return { summary, history: pitchHistory };
     }
     
     return null;
-  }, [stopAudio, pitchHistory, currentSong]);
+  }, [stopAudio, pitchHistory, currentSong, activeModule]);
 
   const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, module: ConservatoryModule = 'none', subModule: CalibrationSubModule = 'none') => {
     if (isAnalyzing || countdown !== null) return;
@@ -180,7 +198,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       audioRef.current = audio;
     }
 
-    const duration = module === 'pitch-calibration' ? 60 : 60; 
+    const isBreathing = module === 'farinelli' || module === 'sovt' || module === 'panting' || module === 'alexander';
+    const duration = isBreathing ? 9999 : (module === 'pitch-calibration' ? 60 : 60); 
     setTotalDuration(duration);
 
     setCountdown(3);
@@ -202,7 +221,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
             const elapsed = (Date.now() - startTime) / 1000;
             setCurrentTime(elapsed);
             
-            if (elapsed >= duration) {
+            // Only auto-stop if not a breathing exercise
+            if (!isBreathing && elapsed >= duration) {
               stopAnalysis();
             }
           }, 50);
