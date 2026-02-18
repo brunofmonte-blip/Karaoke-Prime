@@ -155,34 +155,30 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
   };
 
-  // Robust State Machine Effect
+  // EFFECT 1: THE TICKER (Pure Clock)
   useEffect(() => {
     if (exerciseState === 'idle') return;
+    if (timeLeft <= 0) return;
 
     const timer = setTimeout(() => {
-      if (timeLeft > 0) {
-        setTimeLeft(prev => prev - 1);
-      } else {
-        // TRANSITION LOGIC (When Time hits 0)
-        if (exerciseState === 'inhale') {
-          // Check if we have a suspend phase in config
-          if (config.phases.includes('suspend')) {
-            setExerciseState('suspend');
-            setTimeLeft(4);
-            const msg = "Segure o ar...";
-            setFeedback(msg);
-            speak(msg);
-          } else {
-            setExerciseState('exhale');
-            setTimeLeft(10);
-            stabilityRef.current = 100; 
-            setStabilityScore(100);
-            const msg = "Solte o ar num som de Sssss constante!";
-            setFeedback(msg);
-            speak(msg);
-          }
-        }
-        else if (exerciseState === 'suspend') {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [timeLeft, exerciseState]);
+
+  // EFFECT 2: THE PHASE MANAGER (Only acts when the Ticker hits 0)
+  useEffect(() => {
+    if (timeLeft === 0 && exerciseState !== 'idle') {
+      // TRANSITION LOGIC
+      if (exerciseState === 'inhale') {
+        if (config.phases.includes('suspend')) {
+          setExerciseState('suspend');
+          setTimeLeft(4);
+          const msg = "Segure o ar...";
+          setFeedback(msg);
+          speak(msg);
+        } else {
           setExerciseState('exhale');
           setTimeLeft(10);
           stabilityRef.current = 100; 
@@ -191,38 +187,45 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           setFeedback(msg);
           speak(msg);
         }
-        else if (exerciseState === 'exhale') {
-          accumulatedScoreRef.current += stabilityRef.current;
-          const totalSeries = 3;
-          setManualProgress(Math.floor((repCount / totalSeries) * 100));
+      }
+      else if (exerciseState === 'suspend') {
+        setExerciseState('exhale');
+        setTimeLeft(10);
+        stabilityRef.current = 100; 
+        setStabilityScore(100);
+        const msg = "Solte o ar num som de Sssss constante!";
+        setFeedback(msg);
+        speak(msg);
+      }
+      else if (exerciseState === 'exhale') {
+        accumulatedScoreRef.current += stabilityRef.current;
+        const totalSeries = 3;
+        setManualProgress(Math.floor((repCount / totalSeries) * 100));
 
-          if (repCount < totalSeries) {
-            setExerciseState('rest');
-            setTimeLeft(5);
-            const msg = "Descanse e prepare-se para a próxima série...";
-            setFeedback(msg);
-            speak(msg);
-          } else {
-            // Finished
-            const finalAvg = accumulatedScoreRef.current / totalSeries;
-            setExerciseState('idle');
-            setFeedback("Treino concluído! Excelente trabalho.");
-            speak("Treino concluído! Excelente trabalho.");
-            stopAnalysis(finalAvg);
-          }
-        }
-        else if (exerciseState === 'rest') {
-          setRepCount(prev => prev + 1);
-          setExerciseState('inhale');
-          setTimeLeft(4);
-          const msg = `Série ${repCount + 1}: Inspire profundamente...`;
+        if (repCount < totalSeries) {
+          setExerciseState('rest');
+          setTimeLeft(5);
+          const msg = "Descanse e prepare-se para a próxima série...";
           setFeedback(msg);
           speak(msg);
+        } else {
+          // Finished
+          const finalAvg = accumulatedScoreRef.current / totalSeries;
+          setExerciseState('idle');
+          setFeedback("Treino concluído! Excelente trabalho.");
+          speak("Treino concluído! Excelente trabalho.");
+          stopAnalysis(finalAvg);
         }
       }
-    }, 1000);
-
-    return () => clearTimeout(timer);
+      else if (exerciseState === 'rest') {
+        setRepCount(prev => prev + 1);
+        setExerciseState('inhale');
+        setTimeLeft(4);
+        const msg = `Série ${repCount + 1}: Inspire profundamente...`;
+        setFeedback(msg);
+        speak(msg);
+      }
+    }
   }, [timeLeft, exerciseState, repCount, setManualProgress, stopAnalysis, config.phases]);
 
   useEffect(() => {
