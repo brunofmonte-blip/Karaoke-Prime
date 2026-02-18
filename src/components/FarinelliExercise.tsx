@@ -2,13 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Wind, Pause, Play, AlertCircle, Volume2, Activity, CheckCircle2 } from 'lucide-react';
+import { Wind, Pause, Play, AlertCircle, Volume2, Activity, CheckCircle2, Mic } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ConservatoryModule } from '@/hooks/use-vocal-sandbox';
+import { ConservatoryModule, useVocalSandbox, BreathingPhase } from '@/hooks/use-vocal-sandbox';
 import InstructorAvatar from './InstructorAvatar';
-
-type Phase = 'inhale' | 'suspend' | 'exhale' | 'rest';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface FarinelliExerciseProps {
   moduleType: ConservatoryModule;
@@ -17,10 +16,10 @@ interface FarinelliExerciseProps {
 const moduleConfigs: Record<ConservatoryModule, { 
   title: string, 
   music: string, 
-  phases: Phase[], 
+  phases: BreathingPhase[], 
   durations: number[],
-  labels: Record<Phase, string>,
-  narration: Record<Phase, string>,
+  labels: Record<string, string>,
+  narration: Record<string, string>,
   checklist: string
 }> = {
   farinelli: {
@@ -28,8 +27,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     phases: ['inhale', 'suspend', 'exhale'],
     durations: [4, 4, 4],
-    labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA' },
-    narration: { inhale: 'Inspira profundamente, expandindo o diafragma.', suspend: 'Segura o ar com o core engajado.', exhale: 'Expira de forma controlada.', rest: 'Pausa' },
+    labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA', idle: 'PRONTO' },
+    narration: { inhale: 'Inspira profundamente, expandindo o diafragma.', suspend: 'Segura o ar com o core engajado.', exhale: 'Expira de forma controlada.', rest: 'Pausa', idle: '' },
     checklist: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta e os ombros relaxados.'
   },
   sovt: {
@@ -37,8 +36,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
     phases: ['inhale', 'exhale'],
     durations: [4, 8],
-    labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '' },
-    narration: { inhale: 'Inspira pelo nariz, relaxando os ombros.', exhale: 'Expira criando bolhas constantes no canudo.', suspend: '', rest: '' },
+    labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '', idle: 'PRONTO' },
+    narration: { inhale: 'Inspira pelo nariz, relaxando os ombros.', exhale: 'Expira criando bolhas constantes no canudo.', suspend: '', rest: '', idle: '' },
     checklist: 'Antes de começarmos, separe seu canudo e seu copo d\'água. Clique em "Estou Pronto" para iniciar.'
   },
   panting: {
@@ -46,8 +45,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     phases: ['inhale', 'suspend', 'exhale'],
     durations: [4, 4, 4],
-    labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA' },
-    narration: { inhale: 'Inspira e expande as costelas.', suspend: 'Mantém o suporte abdominal.', exhale: 'Solta o ar com apoio constante.', rest: 'Pausa' },
+    labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA', idle: 'PRONTO' },
+    narration: { inhale: 'Inspira e expande as costelas.', suspend: 'Mantém o suporte abdominal.', exhale: 'Solta o ar com apoio constante.', rest: 'Pausa', idle: '' },
     checklist: 'Foco no diafragma. Separe um livro pesado para o biofeedback abdominal. Clique em "Estou Pronto" para iniciar.'
   },
   alexander: {
@@ -55,8 +54,8 @@ const moduleConfigs: Record<ConservatoryModule, {
     music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     phases: ['inhale', 'suspend', 'exhale', 'rest'],
     durations: [6, 2, 6, 2],
-    labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE' },
-    narration: { inhale: 'Expanda as costelas lateralmente.', suspend: 'Mantenha a expansão sem tensão.', exhale: 'Solte o ar devagar, alongando a coluna.', rest: 'Relaxe os ombros' },
+    labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE', idle: 'PRONTO' },
+    narration: { inhale: 'Expanda as costelas lateralmente.', suspend: 'Mantenha a expansão sem tensão.', exhale: 'Solte o ar devagar, alongando a coluna.', rest: 'Relaxe os ombros', idle: '' },
     checklist: 'Alinhamento total. Relaxe o pescoço e alongue a coluna para ressonância máxima.'
   },
   none: {
@@ -64,24 +63,28 @@ const moduleConfigs: Record<ConservatoryModule, {
     music: '',
     phases: [],
     durations: [],
-    labels: { inhale: '', suspend: '', exhale: '', rest: '' },
-    narration: { inhale: '', suspend: '', exhale: '', rest: '' },
+    labels: { inhale: '', suspend: '', exhale: '', rest: '', idle: '' },
+    narration: { inhale: '', suspend: '', exhale: '', rest: '', idle: '' },
     checklist: ''
   }
 };
 
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const config = moduleConfigs[moduleType];
-  const [phaseIndex, setPhaseIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(config.durations[0] || 4);
+  const { setStabilityScore, stabilityScore } = useVocalSandbox();
+  
+  // Engine States
+  const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [feedback, setFeedback] = useState(config.checklist);
   const [repCount, setRepCount] = useState(1);
   const [isActive, setIsActive] = useState(true);
-  const [isReady, setIsReady] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const currentPhase = config.phases[phaseIndex];
-  const currentDuration = config.durations[phaseIndex];
+  // Refs for Audio Engine
+  const streamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const stabilityRef = useRef(100);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const speak = (text: string) => {
     if ('speechSynthesis' in window && isActive) {
@@ -97,142 +100,145 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
   };
 
-  useEffect(() => {
-    if (!isReady && config.checklist) {
-      const timer = setTimeout(() => speak(config.checklist), 500);
-      return () => clearTimeout(timer);
+  const startExercise = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = audioContextRef.current.createAnalyser();
+      const microphone = audioContextRef.current.createMediaStreamSource(stream);
+      microphone.connect(analyser);
+      analyser.fftSize = 256;
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      // PHASE 1: INHALE (4 seconds)
+      setExerciseState('inhale');
+      setTimeLeft(4);
+      setFeedback("Inspire profundamente pelo nariz...");
+      speak("Inspire profundamente pelo nariz...");
+
+      setTimeout(() => {
+        // PHASE 2: EXHALE & MEASURE (10 seconds)
+        setExerciseState('exhale');
+        setTimeLeft(10);
+        setFeedback("Solte o ar num som de 'Sssss' constante!");
+        speak("Solte o ar num som de 'Sssss' constante!");
+        stabilityRef.current = 100;
+        setStabilityScore(100);
+
+        const checkStability = () => {
+          if (exerciseState === 'idle') return;
+          analyser.getByteFrequencyData(dataArray);
+          const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
+          
+          // Stability Logic: Compare current volume with a target (e.g., 20)
+          // If volume fluctuates too much, decrease stability
+          const diff = Math.abs(volume - 20); 
+          if (diff > 5 && volume > 2) { // Only penalize if there's actual sound
+            stabilityRef.current = Math.max(0, stabilityRef.current - 1);
+            setStabilityScore(stabilityRef.current);
+          }
+          
+          if (timeLeft > 0) {
+            requestAnimationFrame(checkStability);
+          }
+        };
+        checkStability();
+      }, 4000);
+
+    } catch (err) {
+      console.error("Mic error:", err);
+      setFeedback("Erro: Microfone necessário para o exercício.");
     }
-  }, [isReady, config.checklist]);
-
-  useEffect(() => {
-    if (countdown !== null) {
-      if (countdown > 0) {
-        speak(countdown.toString());
-        const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-        return () => clearTimeout(timer);
-      } else {
-        speak("O exercício começa agora!");
-        setCountdown(null);
-      }
-    }
-  }, [countdown]);
-
-  useEffect(() => {
-    if (!isReady || countdown !== null || !isActive) {
-      if (audioRef.current) audioRef.current.pause();
-      return;
-    }
-
-    if (audioRef.current && audioRef.current.paused && config.music) {
-      audioRef.current.play().catch(() => {});
-    }
-
-    if (timeLeft === currentDuration) {
-      speak(config.narration[currentPhase]);
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          const nextIndex = (phaseIndex + 1) % config.phases.length;
-          if (nextIndex === 0) setRepCount(r => r + 1);
-          setPhaseIndex(nextIndex);
-          return config.durations[nextIndex];
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [phaseIndex, isActive, config, currentPhase, currentDuration, countdown, isReady]);
-
-  const progress = ((currentDuration - timeLeft) / currentDuration) * 100;
-
-  const handleReady = () => {
-    setIsReady(true);
-    setCountdown(3);
   };
 
-  if (!isReady) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-8 py-12 animate-in fade-in duration-500">
-        <InstructorAvatar phase="rest" moduleType={moduleType} />
-        <div className="text-center max-w-md">
-          <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">Checklist de Preparação</h3>
-          <p className="text-lg text-foreground mb-8 leading-relaxed">{config.checklist}</p>
-          <Button 
-            onClick={handleReady}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-12 py-6 text-xl font-bold shadow-lg shadow-primary/30"
-          >
-            <CheckCircle2 className="h-6 w-6 mr-2" />
-            ESTOU PRONTO
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // Helper hook for the countdown timer
+  useEffect(() => {
+    if (timeLeft > 0 && isActive) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (timeLeft === 0 && exerciseState === 'exhale') {
+      setExerciseState('idle');
+      setFeedback("Exercício concluído! Excelente trabalho.");
+      speak("Exercício concluído! Excelente trabalho.");
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    }
+  }, [timeLeft, isActive, exerciseState]);
+
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
+      if (audioContextRef.current) audioContextRef.current.close();
+    };
+  }, []);
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8">
-      {config.music && <audio ref={audioRef} src={config.music} loop hidden />}
-
-      <InstructorAvatar phase={currentPhase} moduleType={moduleType} />
+    <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8 w-full">
+      <InstructorAvatar phase={exerciseState === 'idle' ? 'rest' : exerciseState} moduleType={moduleType} />
 
       <div className="flex flex-col items-center space-y-8 flex-grow">
-        <div className="text-center">
-          <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-1 uppercase tracking-widest">
-            {config.title}
+        <div className="text-center max-w-md">
+          <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">
+            {exerciseState === 'idle' ? "Checklist de Preparação" : config.title}
           </h3>
-          <p className="text-sm text-muted-foreground">Repetição: {repCount} | Fase: {config.labels[currentPhase]}</p>
-        </div>
-
-        <div className="relative flex items-center justify-center">
-          <div className={cn(
-            "absolute inset-0 rounded-full border-4 border-primary/20 animate-ping",
-            (!isActive || countdown !== null) && "animate-none"
-          )} />
+          <p className="text-lg text-foreground mb-8 leading-relaxed">{feedback}</p>
           
-          <div className={cn(
-            "h-64 w-64 rounded-full border-8 flex flex-col items-center justify-center transition-all duration-500 shadow-2xl",
-            countdown !== null ? "border-muted bg-muted/10" :
-            currentPhase === 'inhale' ? "border-primary bg-primary/10 scale-110" :
-            currentPhase === 'suspend' ? "border-accent bg-accent/10 scale-105" :
-            currentPhase === 'exhale' ? "border-destructive bg-destructive/10 scale-95" :
-            "border-muted bg-muted/10 scale-100"
-          )}>
-            <span className="text-6xl font-black text-foreground mb-2">
-              {countdown !== null ? countdown : timeLeft}
-            </span>
-            <span className={cn(
-              "text-xl font-bold uppercase tracking-tighter text-center px-4",
-              countdown !== null ? "text-muted-foreground" :
-              currentPhase === 'inhale' ? "text-primary" :
-              currentPhase === 'suspend' ? "text-accent" :
-              currentPhase === 'exhale' ? "text-destructive" :
-              "text-muted-foreground"
-            )}>
-              {countdown !== null ? "PREPARE-SE" : config.labels[currentPhase]}
-            </span>
-          </div>
+          {exerciseState === 'idle' ? (
+            <Button 
+              onClick={startExercise}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-12 py-6 text-xl font-bold shadow-lg shadow-primary/30"
+            >
+              <CheckCircle2 className="h-6 w-6 mr-2" />
+              ESTOU PRONTO
+            </Button>
+          ) : (
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping" />
+                <div className={cn(
+                  "h-48 w-48 rounded-full border-8 flex flex-col items-center justify-center transition-all duration-500 shadow-2xl",
+                  exerciseState === 'inhale' ? "border-primary bg-primary/10 scale-110" : "border-destructive bg-destructive/10 scale-95"
+                )}>
+                  <span className="text-6xl font-black text-foreground">{timeLeft}s</span>
+                  <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{exerciseState}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="w-full max-w-md space-y-2">
-          <Progress value={countdown !== null ? 0 : progress} className="h-2" />
-          <div className="flex justify-between text-xs font-bold text-muted-foreground uppercase">
-            <span>Início</span>
-            <span className="flex items-center gap-1">
-              <Volume2 className="h-3 w-3" /> Guia de Voz Ativo
-            </span>
-            <span>Troca</span>
-          </div>
-        </div>
-
-        <div className="flex gap-4">
-          <Button variant="outline" onClick={() => setIsActive(!isActive)} className="rounded-xl border-2 border-primary/50">
-            {isActive ? <Pause className="h-5 w-5 mr-2" /> : <Play className="h-5 w-5 mr-2" />}
-            {isActive ? "Pausar" : "Retomar"}
-          </Button>
-        </div>
+        {/* Monitor de Apoio Integrated */}
+        <Card className="glass-pillar border-2 border-accent/50 p-6 w-full max-w-sm">
+          <CardHeader className="p-0 pb-4">
+            <CardTitle className="text-accent flex items-center gap-2 text-lg">
+              <Activity className="h-5 w-5" />
+              Monitor de Apoio (SOVT)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 space-y-6">
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Estabilidade do Sopro</p>
+              <div className="relative h-24 w-24 mx-auto">
+                <div className="absolute inset-0 rounded-full border-4 border-border/30" />
+                <div 
+                  className={cn(
+                    "absolute inset-0 rounded-full border-4 transition-all duration-300",
+                    stabilityScore > 70 ? "border-primary" : stabilityScore > 40 ? "border-accent" : "border-destructive"
+                  )}
+                  style={{ 
+                    clipPath: `inset(${100 - stabilityScore}% 0 0 0)`,
+                    filter: 'drop-shadow(0 0 8px currentColor)'
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl font-black">{stabilityScore.toFixed(0)}%</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

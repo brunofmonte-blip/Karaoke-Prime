@@ -20,7 +20,7 @@ export interface SessionSummary extends PerformanceInsight {
   songId: string; 
 }
 
-export type BreathingPhase = 'inhale' | 'suspend' | 'exhale' | 'rest';
+export type BreathingPhase = 'inhale' | 'suspend' | 'exhale' | 'rest' | 'idle';
 export type ConservatoryModule = 'farinelli' | 'sovt' | 'panting' | 'alexander' | 'pitch-calibration' | 'none';
 export type CalibrationSubModule = 
   | 'laser-attack' | 'drone-sustain' | 'blind-tuning' 
@@ -60,6 +60,7 @@ interface VocalSandboxContextType {
   breathingProgress: number; 
   isAirflowLow: boolean;
   stabilityScore: number; 
+  setStabilityScore: (score: number) => void;
   activeModule: ConservatoryModule;
   activeSubModule: CalibrationSubModule;
 }
@@ -86,7 +87,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [activeModule, setActiveModule] = useState<ConservatoryModule>('none');
   const [activeSubModule, setActiveSubModule] = useState<CalibrationSubModule>('none');
   
-  const [breathingPhase, setBreathingPhase] = useState<BreathingPhase>('none');
+  const [breathingPhase, setBreathingPhase] = useState<BreathingPhase>('idle');
   const [breathingProgress, setBreathingProgress] = useState(0);
   const [isAirflowLow, setIsAirflowLow] = useState(false);
   const [stabilityScore, setStabilityScore] = useState(100);
@@ -111,7 +112,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   
   const stopAnalysis = useCallback(() => {
     stopAudio();
-    setBreathingPhase('none');
+    setBreathingPhase('idle');
     setBreathingProgress(0);
     setIsAirflowLow(false);
     setStabilityScore(100);
@@ -276,6 +277,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         breathingProgress,
         isAirflowLow,
         stabilityScore,
+        setStabilityScore,
         activeModule,
         activeSubModule,
       }}
