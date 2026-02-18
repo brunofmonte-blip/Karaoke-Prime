@@ -47,13 +47,18 @@ export default function Duel() {
     let audioContext: AudioContext | null = null;
     let animationFrameId: number;
 
-    if (!isConfiguring && cameraEnabled && userVideoRef.current) {
-      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    // Run if we are in the Arena (not configuring)
+    if (!isConfiguring) {
+      // ALWAYS request audio. Conditionally request video.
+      navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
         .then((s) => {
           stream = s;
-          if (userVideoRef.current) userVideoRef.current.srcObject = s;
           
-          // REWIRE AUDIO TO SCORING ENGINE
+          // 1. ATTACH VIDEO (if enabled and ref exists)
+          if (cameraEnabled && userVideoRef.current) {
+            userVideoRef.current.srcObject = s;
+          }
+          // 2. SETUP AUDIO SCORING ENGINE (Always runs)
           audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
           const analyser = audioContext.createAnalyser();
           const microphone = audioContext.createMediaStreamSource(stream);
@@ -387,15 +392,19 @@ export default function Duel() {
       {/* FINISH SCREEN */}
       {isFinished && (
         <div 
-          className="absolute inset-0 z-[110] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 bg-cover bg-center"
+          className="absolute inset-0 z-[110] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500"
           style={{ 
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('${
+            backgroundImage: `url('${
               duelMode === 'duet' 
                 ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
                 : (isUserWinning 
                   ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
                   : "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop")
-            }')` 
+            }')`,
+            backgroundSize: 'cover', 
+            backgroundPosition: 'center', 
+            backgroundColor: 'rgba(0,0,0,0.85)', 
+            backgroundBlendMode: 'overlay' 
           }}
         >
           <div className="max-w-2xl w-full text-center space-y-8 relative z-10">
