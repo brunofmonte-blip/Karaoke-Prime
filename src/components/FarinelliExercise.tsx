@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Wind, Pause, Play, AlertCircle, Volume2, Activity, CheckCircle2, Mic } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -15,7 +15,6 @@ interface FarinelliExerciseProps {
 
 const moduleConfigs: Record<ConservatoryModule, { 
   title: string, 
-  music: string, 
   phases: BreathingPhase[], 
   durations: number[],
   labels: Record<string, string>,
@@ -24,7 +23,6 @@ const moduleConfigs: Record<ConservatoryModule, {
 }> = {
   farinelli: {
     title: 'Breathing Gym',
-    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     phases: ['inhale', 'suspend', 'exhale'],
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA (Ssss)', rest: 'PAUSA', idle: 'PRONTO' },
@@ -33,7 +31,6 @@ const moduleConfigs: Record<ConservatoryModule, {
   },
   sovt: {
     title: 'Método Arnold Jacobs',
-    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
     phases: ['inhale', 'exhale'],
     durations: [4, 8],
     labels: { inhale: 'INSPIRA', exhale: 'BOLHAS CONSTANTES', suspend: '', rest: '', idle: 'PRONTO' },
@@ -42,7 +39,6 @@ const moduleConfigs: Record<ConservatoryModule, {
   },
   panting: {
     title: 'Appoggio Clássico',
-    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     phases: ['inhale', 'suspend', 'exhale'],
     durations: [4, 4, 4],
     labels: { inhale: 'INSPIRA', suspend: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA', idle: 'PRONTO' },
@@ -51,16 +47,22 @@ const moduleConfigs: Record<ConservatoryModule, {
   },
   alexander: {
     title: 'Técnica de Alexander',
-    music: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     phases: ['inhale', 'suspend', 'exhale', 'rest'],
     durations: [6, 2, 6, 2],
     labels: { inhale: 'EXPANDA', suspend: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE', idle: 'PRONTO' },
     narration: { inhale: 'Expanda as costelas lateralmente.', suspend: 'Mantenha a expansão sem tensão.', exhale: 'Solte o ar devagar, alongando a coluna.', rest: 'Relaxe os ombros', idle: '' },
     checklist: 'Alinhamento total. Relaxe o pescoço e alongue a coluna para ressonância máxima.'
   },
+  'pitch-calibration': {
+    title: 'Calibração de Tom',
+    phases: ['inhale', 'exhale'],
+    durations: [2, 10],
+    labels: { inhale: 'PREPARE', exhale: 'CANTE', suspend: '', rest: '', idle: 'PRONTO' },
+    narration: { inhale: 'Prepare a nota.', exhale: 'Cante mantendo o centro do afinador.', suspend: '', rest: '', idle: '' },
+    checklist: 'Foco na precisão tonal. Mantenha a nota no centro absoluto.'
+  },
   none: {
     title: 'Treinamento Vocal',
-    music: '',
     phases: [],
     durations: [],
     labels: { inhale: '', suspend: '', exhale: '', rest: '', idle: '' },
@@ -70,7 +72,7 @@ const moduleConfigs: Record<ConservatoryModule, {
 };
 
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
-  const config = moduleConfigs[moduleType];
+  const config = useMemo(() => moduleConfigs[moduleType], [moduleType]);
   const { setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
   // Engine States
@@ -111,7 +113,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     analyserRef.current.getByteFrequencyData(dataArray);
     const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
 
-    // Use stateRef to check current phase without triggering re-renders
     if (stateRef.current === 'exhale') {
       if (volume < 5) {
         stabilityRef.current = Math.max(0, stabilityRef.current - 0.5);
@@ -119,7 +120,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         stabilityRef.current = Math.max(0, stabilityRef.current - 0.2);
       }
       
-      // Only update state if the integer value changed to minimize renders
       const newScore = Math.floor(stabilityRef.current);
       if (newScore !== stabilityScore) {
         setStabilityScore(newScore);
@@ -140,13 +140,15 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       microphone.connect(analyserRef.current);
       analyserRef.current.fftSize = 256;
 
-      // Trigger first state
+      const firstPhase = config.phases[0];
+      const firstDuration = config.durations[0];
+      const firstMsg = `Série 1: ${config.narration[firstPhase]}`;
+
       setRepCount(1);
-      setExerciseState('inhale');
-      setTimeLeft(4);
-      const msg = "Série 1: Inspire profundamente...";
-      setFeedback(msg);
-      speak(msg);
+      setExerciseState(firstPhase);
+      setTimeLeft(firstDuration);
+      setFeedback(firstMsg);
+      speak(firstMsg);
       
       checkAudioLevel();
     } catch (err) {
@@ -155,7 +157,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
   };
 
-  // EFFECT 1: THE TICKER (Pure Clock)
   useEffect(() => {
     if (exerciseState === 'idle') return;
     if (timeLeft <= 0) return;
@@ -167,37 +168,28 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     return () => clearTimeout(timer);
   }, [timeLeft, exerciseState]);
 
-  // EFFECT 2: THE PHASE MANAGER (Only acts when the Ticker hits 0)
   useEffect(() => {
     if (timeLeft === 0 && exerciseState !== 'idle') {
-      // TRANSITION LOGIC
-      if (exerciseState === 'inhale') {
-        if (config.phases.includes('suspend')) {
-          setExerciseState('suspend');
-          setTimeLeft(4);
-          const msg = "Segure o ar...";
-          setFeedback(msg);
-          speak(msg);
-        } else {
-          setExerciseState('exhale');
-          setTimeLeft(10);
-          stabilityRef.current = 100; 
+      const currentPhaseIndex = config.phases.indexOf(exerciseState);
+      const nextPhaseIndex = currentPhaseIndex + 1;
+
+      if (nextPhaseIndex < config.phases.length) {
+        // Transition to next phase in the same series
+        const nextPhase = config.phases[nextPhaseIndex];
+        const nextDuration = config.durations[nextPhaseIndex];
+        const nextMsg = config.narration[nextPhase];
+
+        setExerciseState(nextPhase);
+        setTimeLeft(nextDuration);
+        setFeedback(nextMsg);
+        speak(nextMsg);
+
+        if (nextPhase === 'exhale') {
+          stabilityRef.current = 100;
           setStabilityScore(100);
-          const msg = "Solte o ar num som de Sssss constante!";
-          setFeedback(msg);
-          speak(msg);
         }
-      }
-      else if (exerciseState === 'suspend') {
-        setExerciseState('exhale');
-        setTimeLeft(10);
-        stabilityRef.current = 100; 
-        setStabilityScore(100);
-        const msg = "Solte o ar num som de Sssss constante!";
-        setFeedback(msg);
-        speak(msg);
-      }
-      else if (exerciseState === 'exhale') {
+      } else {
+        // Series completed
         accumulatedScoreRef.current += stabilityRef.current;
         const totalSeries = 3;
         setManualProgress(Math.floor((repCount / totalSeries) * 100));
@@ -209,7 +201,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           setFeedback(msg);
           speak(msg);
         } else {
-          // Finished
           const finalAvg = accumulatedScoreRef.current / totalSeries;
           setExerciseState('idle');
           setFeedback("Treino concluído! Excelente trabalho.");
@@ -217,16 +208,20 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           stopAnalysis(finalAvg);
         }
       }
-      else if (exerciseState === 'rest') {
-        setRepCount(prev => prev + 1);
-        setExerciseState('inhale');
-        setTimeLeft(4);
-        const msg = `Série ${repCount + 1}: Inspire profundamente...`;
-        setFeedback(msg);
-        speak(msg);
-      }
+    } else if (timeLeft === 0 && exerciseState === 'rest') {
+      // Start next series
+      const nextRep = repCount + 1;
+      const firstPhase = config.phases[0];
+      const firstDuration = config.durations[0];
+      const firstMsg = `Série ${nextRep}: ${config.narration[firstPhase]}`;
+
+      setRepCount(nextRep);
+      setExerciseState(firstPhase);
+      setTimeLeft(firstDuration);
+      setFeedback(firstMsg);
+      speak(firstMsg);
     }
-  }, [timeLeft, exerciseState, repCount, setManualProgress, stopAnalysis, config.phases]);
+  }, [timeLeft, exerciseState, repCount, setManualProgress, stopAnalysis, config]);
 
   useEffect(() => {
     return () => {
@@ -281,7 +276,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           )}
         </div>
 
-        {/* Monitor de Apoio Integrated */}
         <Card className="glass-pillar border-2 border-accent/50 p-6 w-full max-w-sm">
           <CardHeader className="p-0 pb-4">
             <CardTitle className="text-accent flex items-center gap-2 text-lg">
