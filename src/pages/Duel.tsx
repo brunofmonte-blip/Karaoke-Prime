@@ -47,18 +47,17 @@ export default function Duel() {
     let audioContext: AudioContext | null = null;
     let animationFrameId: number;
 
-    // Run if we are in the Arena (not configuring)
     if (!isConfiguring) {
-      // ALWAYS request audio. Conditionally request video.
       navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
         .then((s) => {
           stream = s;
           
-          // 1. ATTACH VIDEO (if enabled and ref exists)
+          // SAFE VIDEO ATTACHMENT
           if (cameraEnabled && userVideoRef.current) {
             userVideoRef.current.srcObject = s;
           }
-          // 2. SETUP AUDIO SCORING ENGINE (Always runs)
+
+          // SETUP AUDIO SCORING ENGINE
           audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
           const analyser = audioContext.createAnalyser();
           const microphone = audioContext.createMediaStreamSource(stream);
@@ -69,7 +68,7 @@ export default function Duel() {
           const checkVolume = () => {
             analyser.getByteFrequencyData(dataArray);
             const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-            micVolumeRef.current = average; // Feeds the scoring interval
+            micVolumeRef.current = average;
             animationFrameId = requestAnimationFrame(checkVolume);
           };
           checkVolume();
@@ -87,20 +86,19 @@ export default function Duel() {
     };
   }, [isConfiguring, cameraEnabled]);
 
-  // AI BOSS SCORING LOGIC (Strict 15-second delay)
+  // AI BOSS SCORING LOGIC
   useEffect(() => {
     let bossInterval: NodeJS.Timeout;
     let delayTimeout: NodeJS.Timeout;
 
     if (!isConfiguring && !isFinished && !isPaused) {
-      // Wait 15 seconds for the song intro to finish
       delayTimeout = setTimeout(() => {
         bossInterval = setInterval(() => {
           setAiScore(prev => prev + Math.floor(Math.random() * 50) + 50);
-          setAiFeedback(Math.random() > 0.5 ? "PERFECT!" : "GOOD!");
+          setAiFeedback(Math.random() > 0.5 ? "PERFECT!" : "Ótima energia!");
           setTimeout(() => setAiFeedback(""), 1000);
         }, 2000);
-      }, 15000); // 15s delay
+      }, 15000);
     }
 
     return () => {
@@ -109,7 +107,7 @@ export default function Duel() {
     };
   }, [isConfiguring, isFinished, isPaused]);
 
-  // USER SCORING LOGIC (Strict 15-second delay)
+  // USER SCORING LOGIC
   useEffect(() => {
     let userInterval: NodeJS.Timeout;
     let delayTimeout: NodeJS.Timeout;
@@ -122,7 +120,7 @@ export default function Duel() {
             if (accuracy > 0.7) {
               setUserScore(s => s + 100); setUserCombo(c => c + 1); setUserFeedback("PERFECT!");
             } else if (accuracy > 0.4) {
-              setUserScore(s => s + 50); setUserCombo(0); setUserFeedback("GOOD!");
+              setUserScore(s => s + 50); setUserCombo(0); setUserFeedback("Ótima energia!");
             } else {
               setUserCombo(0); setUserFeedback("MISS");
             }
@@ -262,7 +260,7 @@ export default function Duel() {
               </div>
             </div>
 
-            {/* USER VIDEO CIRCLE - SAFE RENDER */}
+            {/* USER VIDEO CIRCLE */}
             {!isConfiguring && cameraEnabled && !isFinished && (
               <div className="absolute bottom-24 left-8 md:bottom-1/3 md:left-16 w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-cyan-500 overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.6)] z-50 bg-black">
                 <video ref={userVideoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
@@ -347,7 +345,7 @@ export default function Duel() {
                   </div>
                 </div>
 
-                {/* CAMERA TOGGLE (CONFIG) */}
+                {/* CAMERA TOGGLE */}
                 <div className="space-y-4">
                   <label className="text-xs font-bold text-primary uppercase tracking-widest">Câmera ao Vivo</label>
                   <Button 
@@ -392,17 +390,14 @@ export default function Duel() {
       {/* FINISH SCREEN */}
       {isFinished && (
         <div className="absolute inset-0 z-[110] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 bg-black overflow-hidden">
-          <img 
-            src={
-              duelMode === 'duet' 
-                ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
-                : (isUserWinning 
-                  ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
-                  : "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop")
-            } 
-            alt="Show Background" 
-            className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" 
-          />
+          {duelMode === 'duet' ? (
+            <img src="https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop" alt="Duet Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
+          ) : userScore > aiScore ? (
+            <img src="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000&auto=format&fit=crop" alt="Victory Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
+          ) : (
+            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop" alt="Defeat Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
+          )}
+          
           <div className="max-w-2xl w-full text-center space-y-8 relative z-10">
             <div className={cn(
               "text-5xl md:text-7xl font-black italic tracking-tighter mb-4 drop-shadow-2xl",
@@ -439,7 +434,7 @@ export default function Duel() {
                 Ir para a Academy
               </Button>
               <Button variant="outline" className="h-14 px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm" onClick={() => navigate("/library")}>
-                Voltar à Biblioteca
+                VOLTAR AO PALCO
               </Button>
             </div>
           </div>
