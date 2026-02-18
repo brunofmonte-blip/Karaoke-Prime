@@ -172,6 +172,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       }
       
       setSessionSummary(summary);
+      // SHORT-CIRCUIT: Close the overlay immediately to show the summary modal
+      setIsOverlayOpen(false);
       return { summary, history: pitchHistory };
     }
     
