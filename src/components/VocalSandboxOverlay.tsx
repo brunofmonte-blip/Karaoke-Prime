@@ -35,13 +35,15 @@ const VocalSandboxOverlay: React.FC = () => {
     breathingProgress,
     isAirflowLow,
     stabilityScore,
+    manualProgress,
     activeModule,
     activeSubModule,
   } = useVocalSandbox();
   
-  const progressValue = (currentTime / totalDuration) * 100;
   const isBreathingExercise = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander';
   const isPitchCalibration = activeModule === 'pitch-calibration';
+  
+  const progressValue = isBreathingExercise ? manualProgress : (currentTime / totalDuration) * 100;
 
   if (!isOverlayOpen || !currentSong) {
     return null;

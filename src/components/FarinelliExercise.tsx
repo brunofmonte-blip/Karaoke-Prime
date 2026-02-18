@@ -71,7 +71,7 @@ const moduleConfigs: Record<ConservatoryModule, {
 
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const config = moduleConfigs[moduleType];
-  const { setStabilityScore, stabilityScore, stopAnalysis } = useVocalSandbox();
+  const { setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
   // Engine States
   const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
@@ -91,7 +91,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       const voices = window.speechSynthesis.getVoices();
-      const ptBrVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Daniel') || v.name.includes('Male') || v.name.includes('Google')));
+      const ptBrVoice = voices.find(v => v.lang='pt-BR' && (v.name.includes('Daniel') || v.name.includes('Male') || v.name.includes('Google')));
       if (ptBrVoice) utterance.voice = ptBrVoice;
       utterance.lang = 'pt-BR';
       utterance.rate = 0.9; 
@@ -116,6 +116,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           setExerciseState('idle');
           setFeedback("Treino concluído! Excelente trabalho.");
           speak("Treino concluído! Excelente trabalho.");
+          
+          setManualProgress(100);
           
           // Trigger manual stop with final stability score
           stopAnalysis(stabilityRef.current);
@@ -163,6 +165,9 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         };
         checkStability();
         await new Promise(resolve => setTimeout(resolve, 10000));
+
+        // Update progress after each set
+        setManualProgress(currentRep * 33.33);
 
         // Phase 4: Rest
         setExerciseState('rest');

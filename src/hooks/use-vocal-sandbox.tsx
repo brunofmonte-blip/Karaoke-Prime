@@ -62,6 +62,8 @@ interface VocalSandboxContextType {
   isAirflowLow: boolean;
   stabilityScore: number; 
   setStabilityScore: (score: number) => void;
+  manualProgress: number;
+  setManualProgress: (progress: number) => void;
   activeModule: ConservatoryModule;
   activeSubModule: CalibrationSubModule;
 }
@@ -92,6 +94,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [breathingProgress, setBreathingProgress] = useState(0);
   const [isAirflowLow, setIsAirflowLow] = useState(false);
   const [stabilityScore, setStabilityScore] = useState(100);
+  const [manualProgress, setManualProgress] = useState(0);
   
   const historyCounter = useRef(0);
   const sessionStartTimeRef = useRef<number | null>(null);
@@ -119,6 +122,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setBreathingProgress(0);
     setIsAirflowLow(false);
     setStabilityScore(100);
+    setManualProgress(0);
     setActiveModule('none');
     setActiveSubModule('none');
 
@@ -190,6 +194,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     sessionStartTimeRef.current = null; 
     setCurrentTime(0);
     setStabilityScore(100);
+    setManualProgress(0);
 
     // Initialize Audio
     if (song.audioUrl) {
@@ -298,6 +303,8 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         isAirflowLow,
         stabilityScore,
         setStabilityScore,
+        manualProgress,
+        setManualProgress,
         activeModule,
         activeSubModule,
       }}
