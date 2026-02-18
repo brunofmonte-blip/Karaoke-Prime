@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Music, ChevronRight, Pause, RotateCcw } from "lucide-react";
+import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Music, ChevronRight, Pause, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+
+const API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
 
 export default function SongPlayer() {
   const navigate = useNavigate();
@@ -12,6 +15,9 @@ export default function SongPlayer() {
   const [isFinished, setIsFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [isLoadingRecs, setIsLoadingRecs] = useState(false);
+  
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -19,13 +25,6 @@ export default function SongPlayer() {
   const [combo, setCombo] = useState(0);
   const [feedback, setFeedback] = useState("");
   const micVolumeRef = useRef(0);
-
-  // RECOMMENDATION ENGINE (Mock data)
-  const RECOMMENDED_SONGS = [
-    { title: "O Xote das Meninas", artist: "Luiz Gonzaga", thumb: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=300&auto=format&fit=crop" },
-    { title: "Anunciação", artist: "Alceu Valença", thumb: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=300&auto=format&fit=crop" },
-    { title: "A Vida do Viajante", artist: "Luiz Gonzaga", thumb: "https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?q=80&w=300&auto=format&fit=crop" }
-  ];
 
   // YOUTUBE CONTROLS VIA POSTMESSAGE
   const handlePause = () => {
@@ -74,6 +73,30 @@ export default function SongPlayer() {
       route: "/academy"
     };
   };
+
+  // FETCH DYNAMIC RECOMMENDATIONS
+  useEffect(() => {
+    if (isFinished) {
+      const fetchRecs = async () => {
+        setIsLoadingRecs(true);
+        try {
+          const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=3&q=karaoke+hits&type=video&key=${API_KEY}`
+          );
+          const data = await response.json();
+          if (data.items) {
+            setRecommendations(data.items);
+          }
+        } catch (error) {
+          console.error("Failed to fetch recommendations:", error);
+          toast.error("Não foi possível carregar recomendações.");
+        } finally {
+          setIsLoadingRecs(false);
+        }
+      };
+      fetchRecs();
+    }
+  }, [isFinished]);
 
   // CAMERA & MIC INIT
   useEffect(() => {
@@ -313,24 +336,34 @@ export default function SongPlayer() {
                 <h3 className="text-2xl font-bold text-white">Recomendações para você</h3>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {RECOMMENDED_SONGS.map((song, idx) => (
-                  <div key={idx} className="group bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-yellow-500/50 transition-all cursor-pointer shadow-lg hover:shadow-yellow-500/10">
-                    <div className="h-40 w-full overflow-hidden">
-                      <img src={song.thumb} alt={song.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-70 group-hover:opacity-100" />
-                    </div>
-                    <div className="p-5 flex justify-between items-center">
-                      <div>
-                        <h4 className="font-bold text-lg text-white group-hover:text-yellow-400 transition-colors">{song.title}</h4>
-                        <p className="text-sm text-gray-400">{song.artist}</p>
+              {isLoadingRecs ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {recommendations.map((video, idx) => (
+                    <div 
+                      key={idx} 
+                      className="group bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-yellow-500/50 transition-all cursor-pointer shadow-lg hover:shadow-yellow-500/10"
+                      onClick={() => navigate(`/song/${video.id.videoId}`)}
+                    >
+                      <div className="h-40 w-full overflow-hidden">
+                        <img src={video.snippet.thumbnails.high.url} alt={video.snippet.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-70 group-hover:opacity-100" />
                       </div>
-                      <Button size="icon" variant="ghost" className="rounded-full bg-white/5 group-hover:bg-yellow-500 group-hover:text-black">
-                        <Play className="w-4 h-4" />
-                      </Button>
+                      <div className="p-5 flex justify-between items-center">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-lg text-white group-hover:text-yellow-400 transition-colors truncate">{video.snippet.title}</h4>
+                          <p className="text-sm text-gray-400 truncate">{video.snippet.channelTitle}</p>
+                        </div>
+                        <Button size="icon" variant="ghost" className="rounded-full bg-white/5 group-hover:bg-yellow-500 group-hover:text-black ml-2 flex-shrink-0">
+                          <Play className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* FOOTER ACTION */}

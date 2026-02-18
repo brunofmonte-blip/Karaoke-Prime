@@ -191,7 +191,9 @@ export default function Duel() {
           {!isConfiguring && (
             <div className="flex items-center gap-3 px-4 py-1 bg-red-600/20 border border-red-600/50 rounded-full">
               <Radio className="h-4 w-4 text-red-500 animate-pulse" />
-              <span className="text-xs font-black text-red-500 uppercase tracking-widest">LIVE: VOCÊ VS {opponentName.toUpperCase()}</span>
+              <span className="text-xs font-black text-red-500 uppercase tracking-widest">
+                {duelMode === 'duet' ? "LIVE: DUETO EM SINTONIA" : `LIVE: VOCÊ VS ${opponentName.toUpperCase()}`}
+              </span>
             </div>
           )}
         </div>
@@ -208,17 +210,33 @@ export default function Duel() {
         )}
       </div>
 
+      {/* DUET COMBINED SCORE DISPLAY */}
+      {!isConfiguring && !isFinished && duelMode === 'duet' && (
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-5">
+          <div className="bg-purple-600/80 border border-purple-400/50 backdrop-blur-md px-8 py-3 rounded-2xl flex flex-col items-center shadow-[0_0_30px_rgba(147,51,234,0.4)]">
+            <span className="text-xs font-bold text-purple-200 tracking-widest uppercase">Pontuação da Dupla</span>
+            <span className="text-4xl font-black text-white font-mono leading-none">{(userScore + aiScore).toLocaleString()}</span>
+          </div>
+        </div>
+      )}
+
       {/* MAIN DUEL AREA */}
       <div className="flex-grow flex relative">
         {!isConfiguring && !isFinished && (
           <>
-            <div className={cn("flex-1 flex flex-col items-center justify-center transition-all duration-500 border-r border-white/10", isUserWinning ? "bg-cyan-950/10" : "bg-black/40")}>
+            <div className={cn(
+              "flex-1 flex flex-col items-center justify-center transition-all duration-500 border-r border-white/10", 
+              duelMode === 'duet' ? "bg-purple-950/5" : (isUserWinning ? "bg-cyan-950/10" : "bg-black/40")
+            )}>
               <div className="mb-8 flex flex-col items-center z-10">
                 <p className="text-6xl font-black text-white drop-shadow-lg">{userScore.toLocaleString()}</p>
                 <p className="text-cyan-400 font-bold text-lg mt-2 h-8">{userFeedback}</p>
               </div>
             </div>
-            <div className={cn("flex-1 flex flex-col items-center justify-center transition-all duration-500", !isUserWinning ? "bg-red-950/10" : "bg-black/40")}>
+            <div className={cn(
+              "flex-1 flex flex-col items-center justify-center transition-all duration-500", 
+              duelMode === 'duet' ? "bg-purple-950/5" : (!isUserWinning ? "bg-red-950/10" : "bg-black/40")
+            )}>
               <div className="mb-8 flex flex-col items-center z-10">
                 <p className="text-6xl font-black text-white drop-shadow-lg">{aiScore.toLocaleString()}</p>
                 <p className="text-red-400 font-bold text-lg mt-2 h-8">{aiFeedback}</p>
@@ -371,30 +389,46 @@ export default function Duel() {
         <div 
           className="absolute inset-0 z-[110] bg-gray-950 flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 bg-cover bg-center"
           style={{ 
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url(${isUserWinning 
-              ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
-              : "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop"})` 
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url(${
+              duelMode === 'duet' 
+                ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
+                : (isUserWinning 
+                  ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
+                  : "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop")
+            })` 
           }}
         >
           <div className="max-w-2xl w-full text-center space-y-8 relative z-10">
             <div className={cn(
               "text-5xl md:text-7xl font-black italic tracking-tighter mb-4 drop-shadow-2xl",
-              isUserWinning ? "text-cyan-400" : "text-red-500"
+              duelMode === 'duet' ? "text-purple-400" : (isUserWinning ? "text-cyan-400" : "text-red-500")
             )}>
-              {isUserWinning ? "PARABÉNS PELO SHOW!" : "HOJE O SHOW NÃO FOI BOM!!!"}
+              {duelMode === 'duet' ? "SHOW DA DUPLA!" : (isUserWinning ? "PARABÉNS PELO SHOW!" : "HOJE O SHOW NÃO FOI BOM!!!")}
             </div>
+            
             <div className="bg-black/60 backdrop-blur-md border border-white/10 p-8 rounded-3xl shadow-2xl">
-              <div className="flex justify-around mb-8">
-                <div className="text-center">
-                  <p className="text-gray-400 text-sm uppercase font-bold mb-1">Seu Score</p>
-                  <p className="text-4xl font-black text-white">{userScore.toLocaleString()}</p>
+              {duelMode === 'duet' ? (
+                <div className="space-y-4">
+                  <p className="text-gray-300 text-lg">Vocês cantaram em perfeita sintonia e somaram pontos incríveis!</p>
+                  <div className="text-center">
+                    <p className="text-gray-400 text-sm uppercase font-bold mb-1">Pontuação Total</p>
+                    <p className="text-6xl font-black text-white">{(userScore + aiScore).toLocaleString()}</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-gray-400 text-sm uppercase font-bold mb-1">{opponentName}</p>
-                  <p className="text-4xl font-black text-white">{aiScore.toLocaleString()}</p>
+              ) : (
+                <div className="flex justify-around mb-8">
+                  <div className="text-center">
+                    <p className="text-gray-400 text-sm uppercase font-bold mb-1">Seu Score</p>
+                    <p className="text-4xl font-black text-white">{userScore.toLocaleString()}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-gray-400 text-sm uppercase font-bold mb-1">{opponentName}</p>
+                    <p className="text-4xl font-black text-white">{aiScore.toLocaleString()}</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
+            
             <div className="flex gap-4 justify-center">
               <Button className="h-14 px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20" onClick={() => navigate("/academy")}>
                 Ir para a Academy
