@@ -357,12 +357,26 @@ const Duel = () => {
                 <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
             </div>
          )}
-        <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-12 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-purple-500 overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.6)] z-20 bg-black flex items-center justify-center relative">
-             <div className="absolute inset-0 bg-purple-900/50 mix-blend-overlay z-10"></div>
-             <Users className="w-16 h-16 text-purple-300 z-0 opacity-80" />
-            <div className="absolute bottom-0 left-0 right-0 h-1/2 flex items-end justify-center gap-1 p-4 z-20 opacity-70">
+        {/* OPPONENT VISUAL (Center Right) */}
+        <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-12 w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-purple-500 overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.6)] z-40 bg-black flex items-center justify-center animate-in fade-in zoom-in duration-500">
+            {/* Purple Overlay */}
+            <div className="absolute inset-0 bg-purple-900/40 z-10"></div>
+            
+            {/* Avatar Icon */}
+            <Users className="w-16 h-16 md:w-20 md:h-20 text-purple-300 z-20 opacity-90" />
+            
+            {/* AI Audio Equalizer Effect */}
+            <div className="absolute bottom-4 left-0 right-0 h-1/3 flex items-end justify-center gap-[2px] md:gap-1 px-4 z-20 opacity-80">
                 {[...Array(5)].map((_, i) => (
-                    <div key={i} className="w-2 bg-purple-400 animate-pulse" style={{ height: `${Math.random() * 100}%`, animationDelay: `${i * 0.1}s`, animationDuration: '0.8s' }}></div>
+                    <div 
+                        key={i} 
+                        className="w-2 md:w-3 bg-purple-400 animate-pulse" 
+                        style={{ 
+                            height: `${Math.random() * 100}%`, 
+                            animationDelay: `${i * 0.15}s`, 
+                            animationDuration: '0.6s' 
+                        }}>
+                    </div>
                 ))}
             </div>
         </div>
