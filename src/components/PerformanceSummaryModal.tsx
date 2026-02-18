@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ChevronRight, BookOpen, Lightbulb, Target, Clock, Zap, ShieldCheck, TrendingUp, Wind } from 'lucide-react';
+import { CheckCircle, ChevronRight, BookOpen, Lightbulb, Target, Clock, Zap, ShieldCheck, TrendingUp, Wind, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useUserProfile } from '@/hooks/use-user-profile';
@@ -98,20 +98,44 @@ const PerformanceSummaryModal: React.FC = () => {
         </DialogHeader>
         
         <div className="space-y-4 py-4">
-          <div className="text-center p-4 bg-card/50 rounded-xl border border-border/50">
-            <p className="text-xl text-muted-foreground">
-              {isBreathing ? "Tempo de Sustentação" : "Precisão Geral do Tom"}
-            </p>
-            <p className="text-6xl font-extrabold text-accent neon-gold-glow mt-1">
-              {isBreathing ? `${durationSeconds}s` : `${finalScore.toFixed(1)}%`}
-            </p>
-            <div className="flex items-center justify-center mt-3 text-green-400 font-semibold">
-              <TrendingUp className="h-4 w-4 mr-1" />
+          {/* Main Score Area */}
+          <div className="text-center p-6 bg-card/50 rounded-xl border border-border/50">
+            {isBreathing ? (
+              <>
+                <p className="text-xl text-muted-foreground font-medium">Tempo de Sustentação</p>
+                <p className="text-6xl font-extrabold text-accent neon-gold-glow mt-2">
+                  {durationSeconds} <span className="text-2xl">segundos</span>
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-xl text-muted-foreground font-medium">Precisão Geral do Tom</p>
+                <p className="text-6xl font-extrabold text-accent neon-gold-glow mt-2">
+                  {finalScore.toFixed(1)}%
+                </p>
+              </>
+            )}
+            <div className="flex items-center justify-center mt-4 text-green-400 font-bold">
+              <TrendingUp className="h-5 w-5 mr-2" />
               +{xpGained} XP Ganho
             </div>
           </div>
 
-          {!isBreathing ? (
+          {/* Secondary Metrics Area */}
+          {isBreathing ? (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-primary/10 border border-primary/30 rounded-xl text-center">
+                <Activity className="h-5 w-5 text-primary mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground uppercase font-black tracking-widest">Estabilidade</p>
+                <p className="text-xl font-bold text-foreground">{finalScore.toFixed(1)}%</p>
+              </div>
+              <div className="p-4 bg-primary/10 border border-primary/30 rounded-xl text-center">
+                <Target className="h-5 w-5 text-primary mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground uppercase font-black tracking-widest">Séries</p>
+                <p className="text-xl font-bold text-foreground">3 / 3</p>
+              </div>
+            </div>
+          ) : (
             <div className="grid grid-cols-3 gap-4">
               <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
                 <Target className="h-5 w-5 text-primary mx-auto mb-1" />
@@ -129,22 +153,9 @@ const PerformanceSummaryModal: React.FC = () => {
                 <p className="font-semibold text-foreground">{durationSeconds}s</p>
               </div>
             </div>
-          ) : (
-            <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Zap className="h-6 w-6 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold">Estabilidade Média</p>
-                  <p className="text-lg font-bold text-foreground">{finalScore.toFixed(1)}%</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground uppercase font-bold">Séries</p>
-                <p className="text-lg font-bold text-foreground">3 / 3</p>
-              </div>
-            </div>
           )}
 
+          {/* Feedback Area */}
           <div className="p-4 bg-accent/10 border border-accent/50 rounded-xl">
             <h4 className="text-lg font-bold text-accent flex items-center mb-2">
               <Lightbulb className="h-5 w-5 mr-2 amazon-gold-glow" /> Observação de Melhoria
@@ -163,6 +174,7 @@ const PerformanceSummaryModal: React.FC = () => {
             </ul>
           </div>
 
+          {/* Next Lesson Area */}
           {recommendedLesson && (
             <div className="p-4 bg-primary/10 border border-primary/50 rounded-xl">
               <h4 className="text-lg font-bold text-primary flex items-center mb-1">
@@ -179,7 +191,7 @@ const PerformanceSummaryModal: React.FC = () => {
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-8 py-3 shadow-lg shadow-primary/30"
         >
           Ir para a Academia
-          <ChevronRight className="h-4 w-4 mr-2" />
+          <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
       </DialogContent>
     </Dialog>
