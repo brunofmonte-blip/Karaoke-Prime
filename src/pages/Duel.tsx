@@ -278,7 +278,7 @@ const Duel = () => {
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden flex flex-col">
         <header className="fixed top-0 left-0 right-0 z-40 p-4 md:p-6 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
-            <div className="flex flex-col items-start pointer-events-auto">
+            <div className="flex flex-col items-start pointer-events-auto mt-16 md:mt-24 ml-2 md:ml-4">
                 <div className="flex items-center gap-3 mb-2 bg-black/40 backdrop-blur-md p-2 pr-4 rounded-full border border-cyan-500/30">
                     <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)]">
                         <Mic className="text-black w-5 h-5 animate-pulse" />
@@ -311,7 +311,7 @@ const Duel = () => {
                     </Button>
                 </div>
             </div>
-            <div className="flex flex-col items-end pointer-events-auto">
+            <div className="flex flex-col items-end pointer-events-auto mt-16 md:mt-24 mr-2 md:mr-4">
                  <div className="flex items-center gap-3 mb-2 bg-black/40 backdrop-blur-md p-2 pl-4 rounded-full border border-purple-500/30 flex-row-reverse">
                     <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.5)]">
                         <Users className="text-white w-5 h-5" />
