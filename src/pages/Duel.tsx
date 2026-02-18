@@ -181,7 +181,7 @@ const Duel = () => {
         
         <div className="bg-gray-900/80 p-8 rounded-3xl border border-gray-700 shadow-2xl max-w-md w-full z-20 relative backdrop-blur-xl animate-in zoom-in-95">
             <h1 className="text-3xl font-black text-center mb-8 tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 flex items-center justify-center gap-3">
-                <Swords /> Configurar Duelo
+                <Swords /> CONFIGURAR DUELO
             </h1>
             
             <div className="space-y-6">

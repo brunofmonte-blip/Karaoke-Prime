@@ -118,12 +118,13 @@ export default function SongPlayer() {
           const analyser = audioCtx.createAnalyser();
           const source = audioCtx.createMediaStreamSource(s);
           source.connect(analyser);
+          analyser.fftSize = 256;
           const dataArray = new Uint8Array(analyser.frequencyBinCount);
           
           const updateVolume = () => {
             analyser.getByteFrequencyData(dataArray);
-            const sum = dataArray.reduce((a, b) => a + b, 0);
-            micVolumeRef.current = sum / dataArray.length;
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            micVolumeRef.current = average;
             animationId = requestAnimationFrame(updateVolume);
           };
           updateVolume();
@@ -144,19 +145,22 @@ export default function SongPlayer() {
     let clearFeedback: NodeJS.Timeout;
     if (isPlaying && !isFinished && !isPaused) {
       interval = setInterval(() => {
-        if (micVolumeRef.current > 10) {
+        if (micVolumeRef.current > 2) {
+          const points = Math.floor(micVolumeRef.current * 3) + Math.floor(Math.random() * 50);
+          setScore(prev => prev + points);
+          
           const accuracy = Math.random();
           if (accuracy > 0.7) {
-            setScore(s => s + 100); setCombo(c => c + 1); setFeedback("PERFECT!");
+            setCombo(c => c + 1); setFeedback("PERFECT!");
           } else if (accuracy > 0.4) {
-            setScore(s => s + 50); setCombo(0); setFeedback("GOOD!");
+            setCombo(0); setFeedback("GOOD!");
           } else {
             setCombo(0); setFeedback("MISS");
           }
           clearTimeout(clearFeedback);
           clearFeedback = setTimeout(() => setFeedback(""), 800);
         } else { setFeedback(""); }
-      }, 2000);
+      }, 1000);
     }
     return () => { clearInterval(interval); clearTimeout(clearFeedback); };
   }, [isPlaying, isFinished, isPaused]);
@@ -274,7 +278,7 @@ export default function SongPlayer() {
 
       {/* USER VIDEO CIRCLE */}
       {isPlaying && !isFinished && cameraEnabled && (
-        <div className="absolute bottom-10 left-10 w-40 h-40 md:w-48 md:h-48 rounded-full border-2 border-cyan-400 overflow-hidden shadow-lg z-50 bg-black animate-in fade-in zoom-in">
+        <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-2 border-cyan-400 overflow-hidden shadow-lg z-50 bg-black animate-in fade-in zoom-in">
           <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
         </div>
       )}
