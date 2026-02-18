@@ -78,26 +78,48 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const [timeLeft, setTimeLeft] = useState(0);
   const [feedback, setFeedback] = useState(config.checklist);
   const [repCount, setRepCount] = useState(0);
-  const [isActive, setIsActive] = useState(true);
 
-  // Refs for Audio Engine
+  // Refs for Audio Engine & State Machine
   const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationRef = useRef<number>();
   const stabilityRef = useRef(100);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastVolumeRef = useRef(0);
+  const accumulatedScoreRef = useRef(0);
 
   const speak = (text: string) => {
-    if ('speechSynthesis' in window && isActive) {
+    if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      const voices = window.speechSynthesis.getVoices();
-      const ptBrVoice = voices.find(v => v.lang='pt-BR' && (v.name.includes('Daniel') || v.name.includes('Male') || v.name.includes('Google')));
-      if (ptBrVoice) utterance.voice = ptBrVoice;
       utterance.lang = 'pt-BR';
-      utterance.rate = 0.9; 
-      utterance.pitch = 1.0; 
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     }
+  };
+
+  const checkAudioLevel = () => {
+    if (!analyserRef.current) return;
+    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
+    analyserRef.current.getByteFrequencyData(dataArray);
+    const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
+
+    // Use functional update to get latest state without closure issues
+    setExerciseState(currentState => {
+      if (currentState === 'exhale') {
+        if (volume < 5) {
+          stabilityRef.current = Math.max(0, stabilityRef.current - 0.5);
+        } else if (Math.abs(volume - lastVolumeRef.current) > 15) {
+          stabilityRef.current = Math.max(0, stabilityRef.current - 0.2);
+        }
+        setStabilityScore(Math.floor(stabilityRef.current));
+      }
+      return currentState;
+    });
+
+    lastVolumeRef.current = volume;
+    animationRef.current = requestAnimationFrame(checkAudioLevel);
   };
 
   const startExercise = async () => {
@@ -105,99 +127,88 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const analyser = audioContextRef.current.createAnalyser();
+      analyserRef.current = audioContextRef.current.createAnalyser();
       const microphone = audioContextRef.current.createMediaStreamSource(stream);
-      microphone.connect(analyser);
-      analyser.fftSize = 256;
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      microphone.connect(analyserRef.current);
+      analyserRef.current.fftSize = 256;
 
-      const runCircuit = async (currentRep: number) => {
-        if (currentRep > 3 || !isActive) {
-          setExerciseState('idle');
-          setFeedback("Treino concluído! Excelente trabalho.");
-          speak("Treino concluído! Excelente trabalho.");
-          
-          setManualProgress(100);
-          
-          // Trigger manual stop with final stability score
-          stopAnalysis(stabilityRef.current);
-          
-          if (streamRef.current) {
-            streamRef.current.getTracks().forEach(track => track.stop());
-          }
-          return;
-        }
-
-        setRepCount(currentRep);
-
-        // Phase 1: Inhale
-        setExerciseState('inhale');
-        setTimeLeft(4);
-        setFeedback(`Série ${currentRep}/3: Inspire profundamente...`);
-        speak("Inspire.");
-        await new Promise(resolve => setTimeout(resolve, 4000));
-
-        // Phase 2: Suspend
-        setExerciseState('suspend');
-        setTimeLeft(4);
-        setFeedback("Segure o ar...");
-        speak("Segure.");
-        await new Promise(resolve => setTimeout(resolve, 4000));
-
-        // Phase 3: Exhale
-        setExerciseState('exhale');
-        setTimeLeft(10);
-        setFeedback("Solte o ar (Sssss) constante!");
-        speak("Solte.");
-        
-        const checkStability = () => {
-          if (exerciseState !== 'exhale') return;
-          analyser.getByteFrequencyData(dataArray);
-          const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
-          const diff = Math.abs(volume - 20); 
-          if (diff > 5 && volume > 2) {
-            stabilityRef.current = Math.max(0, stabilityRef.current - 0.5);
-            setStabilityScore(stabilityRef.current);
-          }
-          if (timeLeft > 0) {
-            requestAnimationFrame(checkStability);
-          }
-        };
-        checkStability();
-        await new Promise(resolve => setTimeout(resolve, 10000));
-
-        // Update progress after each set
-        setManualProgress(currentRep * 33.33);
-
-        // Phase 4: Rest
-        setExerciseState('rest');
-        setTimeLeft(5);
-        setFeedback("Descanse e prepare-se para a próxima série...");
-        speak("Descanse.");
-        await new Promise(resolve => setTimeout(resolve, 5000));
-
-        runCircuit(currentRep + 1);
-      };
-
-      runCircuit(1);
-
+      // Trigger first state
+      setRepCount(1);
+      setExerciseState('inhale');
+      setTimeLeft(4);
+      const msg = "Série 1: Inspire profundamente...";
+      setFeedback(msg);
+      speak(msg);
+      
+      checkAudioLevel();
     } catch (err) {
       console.error("Mic error:", err);
-      setFeedback("Erro: Microfone necessário para o exercício.");
+      setFeedback("Erro: Microfone necessário!");
     }
   };
 
-  // Helper hook for the countdown timer
+  // State Machine Effect
   useEffect(() => {
-    if (timeLeft > 0 && isActive) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
+    if (exerciseState === 'idle') return;
+
+    let timer: NodeJS.Timeout;
+
+    if (timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
+    } else {
+      // TRANSITION LOGIC (When Time hits 0)
+      if (exerciseState === 'inhale') {
+        setExerciseState('suspend');
+        setTimeLeft(4);
+        const msg = "Segure o ar...";
+        setFeedback(msg);
+        speak(msg);
+      }
+      else if (exerciseState === 'suspend') {
+        setExerciseState('exhale');
+        setTimeLeft(10);
+        stabilityRef.current = 100; 
+        setStabilityScore(100);
+        const msg = "Solte o ar num som de Sssss constante!";
+        setFeedback(msg);
+        speak(msg);
+      }
+      else if (exerciseState === 'exhale') {
+        accumulatedScoreRef.current += stabilityRef.current;
+        const totalSeries = 3;
+        setManualProgress(Math.floor((repCount / totalSeries) * 100));
+
+        if (repCount < totalSeries) {
+          setExerciseState('rest');
+          setTimeLeft(5);
+          const msg = "Descanse e prepare-se para a próxima série...";
+          setFeedback(msg);
+          speak(msg);
+        } else {
+          // Finished
+          const finalAvg = accumulatedScoreRef.current / totalSeries;
+          setExerciseState('idle');
+          setFeedback("Treino concluído! Excelente trabalho.");
+          speak("Treino concluído! Excelente trabalho.");
+          stopAnalysis(finalAvg);
+        }
+      }
+      else if (exerciseState === 'rest') {
+        setRepCount(prev => prev + 1);
+        setExerciseState('inhale');
+        setTimeLeft(4);
+        const msg = `Série ${repCount + 1}: Inspire profundamente...`;
+        setFeedback(msg);
+        speak(msg);
+      }
     }
-  }, [timeLeft, isActive]);
+
+    return () => clearTimeout(timer);
+  }, [timeLeft, exerciseState, repCount, setManualProgress, stopAnalysis]);
 
   useEffect(() => {
     return () => {
-      setIsActive(false);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
       if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
       if (audioContextRef.current) audioContextRef.current.close();
     };
