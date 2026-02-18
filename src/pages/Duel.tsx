@@ -15,6 +15,8 @@ import { toast } from "sonner";
 
 const API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
 
+const missFeedbacks = ["Quase!", "Atenção à nota!", "Respira fundo!", "Concentra!", "Segura o tom!"];
+
 export default function Duel() {
   const navigate = useNavigate();
   const [isConfiguring, setIsConfiguring] = useState(true);
@@ -23,7 +25,7 @@ export default function Duel() {
   const [activeVideoId, setActiveVideoId] = useState("");
   
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const userVideoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const micVolumeRef = useRef(0);
 
   // Search & Config State
@@ -41,46 +43,54 @@ export default function Duel() {
   const [aiScore, setAiScore] = useState(0);
   const [aiFeedback, setAiFeedback] = useState("");
 
-  // CAMERA & MIC INIT (Only runs inside the Arena)
+  // ROBUST MEDIA & AUDIO INIT
   useEffect(() => {
+    let isMounted = true; // Guard against unmounted state updates
     let stream: MediaStream | null = null;
     let audioContext: AudioContext | null = null;
     let animationFrameId: number;
 
-    // ONLY try to get media if we are NOT configuring
-    if (!isConfiguring) {
-      navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
-        .then((s) => {
-          stream = s;
-          
-          // SAFE CHECK BEFORE ASSIGNMENT
-          if (cameraEnabled && userVideoRef && userVideoRef.current) {
-            userVideoRef.current.srcObject = s;
-          }
+    const initMedia = async () => {
+      if (isConfiguring) return;
+      try {
+        // ALWAYS ask for audio. Conditionally ask for video.
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled });
+        
+        if (!isMounted) return; // Stop if component unmounted during await
 
-          // SETUP AUDIO SCORING ENGINE
-          audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-          const analyser = audioContext.createAnalyser();
-          const microphone = audioContext.createMediaStreamSource(stream);
-          microphone.connect(analyser);
-          analyser.fftSize = 256;
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
-          
-          const checkVolume = () => {
-            analyser.getByteFrequencyData(dataArray);
-            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-            micVolumeRef.current = average;
-            animationFrameId = requestAnimationFrame(checkVolume);
-          };
-          checkVolume();
-        })
-        .catch(err => {
-          console.error("Media access error:", err);
+        // 1. SAFELY ATTACH VIDEO
+        if (cameraEnabled && videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+
+        // 2. SETUP AUDIO SCORING
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        const microphone = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
+        analyser.fftSize = 256;
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        const checkVolume = () => {
+          if (!isMounted) return;
+          analyser.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+          micVolumeRef.current = average;
+          animationFrameId = requestAnimationFrame(checkVolume);
+        };
+        checkVolume();
+      } catch (err) {
+        console.error("Media access error:", err);
+        if (isMounted) {
           toast.error("Erro ao acessar microfone/câmera.");
-        });
-    }
+        }
+      }
+    };
+
+    initMedia();
 
     return () => {
+      isMounted = false; // Mark as unmounted
       if (stream) stream.getTracks().forEach(track => track.stop());
       if (audioContext && audioContext.state !== 'closed') audioContext.close();
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
@@ -123,7 +133,8 @@ export default function Duel() {
             } else if (accuracy > 0.4) {
               setUserScore(s => s + 50); setUserCombo(0); setUserFeedback("Ótima energia!");
             } else {
-              setUserCombo(0); setUserFeedback("Atenção!"); // Fixed "SENHORITA" bug
+              setUserCombo(0); 
+              setUserFeedback(missFeedbacks[Math.floor(Math.random() * missFeedbacks.length)]);
             }
             setTimeout(() => setUserFeedback(""), 1000);
           }
@@ -264,7 +275,7 @@ export default function Duel() {
             {/* USER VIDEO CIRCLE */}
             {!isConfiguring && cameraEnabled && !isFinished && (
               <div className="absolute bottom-24 left-8 md:bottom-1/3 md:left-16 w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-cyan-500 overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.6)] z-50 bg-black">
-                <video ref={userVideoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
+                <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
               </div>
             )}
           </>
@@ -394,10 +405,13 @@ export default function Duel() {
           {/* EXACT REPLACEMENT FOR DUET END SCREEN */}
           {duelMode === 'duet' ? (
             <div 
-              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center' }} 
-              className="absolute inset-0 z-[9999] flex items-center justify-center"
+              style={{ 
+                background: "url('https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop') no-repeat center center / cover !important",
+                backgroundColor: "transparent !important"
+              }}
+              className="absolute inset-0 z-[9999] flex items-center justify-center overflow-hidden"
             >
-              <div className="absolute inset-0 bg-black/85 z-0 backdrop-blur-sm"></div>
+              <div className="absolute inset-0 bg-black/80 z-0 backdrop-blur-sm"></div>
               <div className="relative z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
                 <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-8 italic tracking-widest uppercase drop-shadow-2xl">
                   SHOW DA DUPLA!
