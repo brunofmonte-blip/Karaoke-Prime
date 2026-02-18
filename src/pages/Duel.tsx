@@ -132,91 +132,23 @@ const Duel = () => {
     iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
   };
 
-  if (isConfiguring) {
-    return (
-      <div
-        className="min-h-screen text-white flex items-center justify-center p-4"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2000&auto=format&fit=crop')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
-        <img src="https://cdn-icons-png.flaticon.com/512/27/27130.png" alt="Mic Left" className="absolute left-10 bottom-0 h-3/4 object-contain opacity-80 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)] hidden md:block z-10 pointer-events-none invert" />
-        <img src="https://cdn-icons-png.flaticon.com/512/27/27130.png" alt="Mic Right" className="absolute right-10 bottom-0 h-3/4 object-contain opacity-80 drop-shadow-[0_0_30px_rgba(6,182,212,0.6)] hidden md:block z-10 pointer-events-none invert scale-x-[-1]" />
-        
-        <div className="bg-gray-900/80 p-8 rounded-3xl border border-gray-700 shadow-2xl max-w-md w-full z-20 relative backdrop-blur-xl animate-in zoom-in-95">
-            <h1 className="text-3xl font-black text-center mb-8 tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 flex items-center justify-center gap-3">
-                <Swords /> Configurar Duelo
-            </h1>
-            
-            <div className="space-y-6">
-                <div>
-                  <label className="text-sm text-gray-400 font-bold uppercase mb-2 block flex items-center gap-2"><Music className="w-4 h-4"/> 1. Escolher Música</label>
-                  <div className="flex gap-2 mb-2">
-                    <Input placeholder="Buscar no YouTube..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-black/50 border-gray-700 text-white" />
-                    <Button variant="outline" className="border-cyan-500 text-cyan-400" onClick={async () => {
-                      if(!searchQuery) return;
-                      try {
-                        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=4&q=${encodeURIComponent(searchQuery + ' karaoke')}&type=video&key=AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs`);
-                        const data = await res.json();
-                        setSearchResults(data.items || []);
-                      } catch(e) { console.error(e); }
-                    }}>Buscar</Button>
-                  </div>
-                  {searchResults.length > 0 && (
-                    <div className="bg-black/80 border border-gray-700 rounded-xl p-2 max-h-40 overflow-y-auto flex flex-col gap-2 mb-2">
-                      {searchResults.map((vid) => (
-                        <div key={vid.id.videoId} className="flex items-center gap-2 p-2 hover:bg-gray-800 cursor-pointer rounded-lg" onClick={() => { setSelectedVideoId(vid.id.videoId); setSongTitle(vid.snippet.title); setSearchResults([]); }}>
-                          <img src={vid.snippet.thumbnails.default.url} alt="thumb" className="w-12 h-12 object-cover rounded" />
-                          <span className="text-xs text-white truncate">{vid.snippet.title}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <div className="text-xs text-cyan-400">Selecionada: {songTitle}</div>
-                </div>
-                <div>
-                    <label className="text-sm text-gray-400 font-bold uppercase mb-2 block flex items-center gap-2"><Users className="w-4 h-4"/> 2. Nome do Oponente (IA ou Amigo)</label>
-                    <Input 
-                        placeholder="Digite o nome..." 
-                        className="bg-black/50 border-gray-700 text-white placeholder:text-gray-600"
-                        value={opponentName}
-                        onChange={(e) => setOpponentName(e.target.value)}
-                    />
-                </div>
-                <div>
-                    <label className="text-sm text-gray-400 font-bold uppercase mb-2 block flex items-center gap-2"><Trophy className="w-4 h-4"/> 3. Modo de Jogo</label>
-                    <div className="flex bg-black/50 p-1 rounded-xl border border-gray-700 relative">
-                        <div className={`absolute top-1 bottom-1 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 transition-all duration-300 ${gameMode === 'competitivo' ? 'left-1 w-[calc(50%-4px)]' : 'left-[calc(50%+4px)] w-[calc(50%-8px)]'}`}></div>
-                        <button onClick={() => setGameMode('competitivo')} className={`flex-1 text-center py-2 rounded-lg font-bold relative z-10 transition-colors ${gameMode === 'competitivo' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>
-                            Competitivo (VS)
-                        </button>
-                        <button onClick={() => setGameMode('dueto')} className={`flex-1 text-center py-2 rounded-lg font-bold relative z-10 transition-colors ${gameMode === 'dueto' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>
-                            Dueto (Coop)
-                        </button>
-                    </div>
-                </div>
-                <div>
-                    <label className="text-sm text-gray-400 font-bold uppercase mb-2 block flex items-center gap-2"><Camera className="w-4 h-4"/> 4. Câmera</label>
-                    <Button 
-                        variant="outline" 
-                        onClick={() => setCameraEnabled(!cameraEnabled)}
-                        className={`w-full border-cyan-500 py-6 text-lg ${cameraEnabled ? 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30' : 'bg-transparent text-gray-400 hover:bg-gray-800/50 hover:text-white'}`}
-                    >
-                        {cameraEnabled ? "📷 Câmera ATIVADA" : "📷 Câmera DESATIVADA"}
-                    </Button>
-                </div>
-                
-                {feedback && <p className="text-red-400 text-center font-bold animate-pulse">{feedback}</p>}
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-black py-6 text-xl rounded-2xl shadow-lg shadow-purple-500/20 transition-transform hover:scale-105" onClick={handleStartStage}>
-                    ENTRAR NO PALCO
-                </Button>
-            </div>
-        </div>
-      </div>
-    );
-  }
+  const getDuetFeedbackMessage = (score: number) => {
+    if (score <= 500) return "Ei Dupla, o que aconteceu? O microfone estava desligado ou foi desespero mesmo? Tem que melhorar muito!";
+    if (score <= 1000) return "Olha... a amizade de vocês é linda, mas a afinação tirou férias. Bora treinar na Academy urgentemente!";
+    if (score <= 2000) return "Pelo menos vocês têm atitude! Faltou só acertar o tom, a letra e o ritmo. Que tal mais um ensaio antes da turnê?";
+    if (score <= 3000) return "Foi... uma experiência artística diferente! Os vizinhos devem estar confusos, mas a gente aplaude a coragem.";
+    if (score <= 4000) return "Já dá para cantar no chuveiro em dupla! Estão no caminho, mas o palco principal ainda precisa esperar um pouquinho.";
+    if (score <= 5000) return "Ok, ok, estamos aquecendo! Algumas notas fugiram, mas a sintonia de vocês está começando a aparecer.";
+    if (score <= 6000) return "Nada mal! Vocês não vão passar fome fazendo serenata, mas ainda não dá pra largar o emprego atual.";
+    if (score <= 7000) return "Aí sim! Já podem se inscrever no show de talentos do bairro. Estão pegando o jeito da coisa!";
+    if (score <= 8000) return "Bela performance! Se ensaiarem só mais um pouquinho, já podem começar a cobrar ingresso pros amigos.";
+    if (score <= 9000) return "Que dupla! Entregaram carisma, afinação e show! O produtor musical do app já tá de olho em vocês.";
+    if (score <= 10000) return "Uau! Vocês têm certeza de que não formam uma dupla famosa disfarçada usando nosso app?";
+    if (score <= 11000) return "Espetáculo! A plateia virtual está de pé aplaudindo. Química perfeita e vozes incríveis!";
+    if (score <= 12000) return "Alô, gravadoras? Temos um fenômeno aqui! Vocês nasceram para cantar juntos. Que show absoluto!";
+    if (score <= 14999) return "Lendários! Vocês quebraram o termômetro do talento. Chitãozinho e Xororó que se cuidem!";
+    return "Dupla, sensacional! Vocês estão prontos para o sucesso mundial! O Grammy já é de vocês!";
+  };
 
   if (isFinished) {
     if (gameMode === 'dueto') {
@@ -233,7 +165,9 @@ const Duel = () => {
                     SHOW DA DUPLA!
                 </h1>
                 <div className="bg-black/50 border border-purple-500/30 p-10 rounded-3xl backdrop-blur-md mb-8 max-w-2xl w-full shadow-[0_0_40px_rgba(168,85,247,0.4)]">
-                    <p className="text-gray-300 text-lg md:text-xl mb-6 font-medium tracking-wide">Vocês cantaram em perfeita sintonia e somaram pontos incríveis!</p>
+                    <p className="text-gray-300 text-lg md:text-xl mb-6 font-medium tracking-wide">
+                      {getDuetFeedbackMessage(userScore + aiScore)}
+                    </p>
                     <h3 className="text-gray-500 tracking-widest text-sm mb-2 uppercase font-bold">Pontuação Total</h3>
                     <p className="text-6xl md:text-8xl font-black text-white drop-shadow-lg">{userScore + aiScore}</p>
                 </div>
