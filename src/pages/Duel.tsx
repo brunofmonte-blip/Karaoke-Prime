@@ -47,13 +47,14 @@ export default function Duel() {
     let audioContext: AudioContext | null = null;
     let animationFrameId: number;
 
+    // ONLY try to get media if we are NOT configuring
     if (!isConfiguring) {
       navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
         .then((s) => {
           stream = s;
           
-          // SAFE VIDEO ATTACHMENT
-          if (cameraEnabled && userVideoRef.current) {
+          // SAFE CHECK BEFORE ASSIGNMENT
+          if (cameraEnabled && userVideoRef && userVideoRef.current) {
             userVideoRef.current.srcObject = s;
           }
 
@@ -122,7 +123,7 @@ export default function Duel() {
             } else if (accuracy > 0.4) {
               setUserScore(s => s + 50); setUserCombo(0); setUserFeedback("Ótima energia!");
             } else {
-              setUserCombo(0); setUserFeedback("MISS");
+              setUserCombo(0); setUserFeedback("Atenção!"); // Fixed "SENHORITA" bug
             }
             setTimeout(() => setUserFeedback(""), 1000);
           }
@@ -390,54 +391,72 @@ export default function Duel() {
       {/* FINISH SCREEN */}
       {isFinished && (
         <div className="absolute inset-0 z-[110] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 bg-black overflow-hidden">
+          {/* EXACT REPLACEMENT FOR DUET END SCREEN */}
           {duelMode === 'duet' ? (
-            <img src="https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop" alt="Duet Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
-          ) : userScore > aiScore ? (
-            <img src="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000&auto=format&fit=crop" alt="Victory Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
+            <div 
+              style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center' }} 
+              className="absolute inset-0 z-[9999] flex items-center justify-center"
+            >
+              <div className="absolute inset-0 bg-black/85 z-0 backdrop-blur-sm"></div>
+              <div className="relative z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
+                <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-8 italic tracking-widest uppercase drop-shadow-2xl">
+                  SHOW DA DUPLA!
+                </h1>
+                <div className="bg-black/40 border border-gray-800 p-10 rounded-3xl backdrop-blur-md mb-8 max-w-2xl w-full mx-4 shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+                  <p className="text-gray-300 text-lg md:text-xl mb-6 font-medium tracking-wide">Vocês cantaram em perfeita sintonia e somaram pontos incríveis!</p>
+                  <h3 className="text-gray-500 tracking-widest text-sm mb-2 uppercase font-bold">Pontuação Total</h3>
+                  <p className="text-6xl md:text-7xl font-black text-white drop-shadow-lg">{userScore + aiScore}</p>
+                </div>
+                <div className="flex gap-4">
+                  <Button className="px-8 py-6 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl text-lg transition-transform hover:scale-105" onClick={() => navigate("/academy")}>
+                    Ir para a Academy
+                  </Button>
+                  <Button variant="outline" className="px-8 py-6 bg-transparent border-gray-600 text-white hover:bg-white/10 font-bold rounded-xl text-lg transition-transform hover:scale-105" onClick={() => navigate("/library")}>
+                    Voltar ao Palco
+                  </Button>
+                </div>
+              </div>
+            </div>
           ) : (
-            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop" alt="Defeat Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
-          )}
-          
-          <div className="max-w-2xl w-full text-center space-y-8 relative z-10">
-            <div className={cn(
-              "text-5xl md:text-7xl font-black italic tracking-tighter mb-4 drop-shadow-2xl",
-              duelMode === 'duet' ? "text-purple-400" : (isUserWinning ? "text-cyan-400" : "text-red-500")
-            )}>
-              {duelMode === 'duet' ? "SHOW DA DUPLA!" : (isUserWinning ? "PARABÉNS PELO SHOW!" : "HOJE O SHOW NÃO FOI BOM!!!")}
-            </div>
-            
-            <div className="bg-black/60 backdrop-blur-md border border-white/10 p-8 rounded-3xl shadow-2xl">
-              {duelMode === 'duet' ? (
-                <div className="space-y-4">
-                  <p className="text-gray-300 text-lg">Vocês cantaram em perfeita sintonia e somaram pontos incríveis!</p>
-                  <div className="text-center">
-                    <p className="text-gray-400 text-sm uppercase font-bold mb-1">Pontuação Total</p>
-                    <p className="text-6xl font-black text-white">{(userScore + aiScore).toLocaleString()}</p>
-                  </div>
-                </div>
+            <>
+              {userScore > aiScore ? (
+                <img src="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000&auto=format&fit=crop" alt="Victory Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
               ) : (
-                <div className="flex justify-around mb-8">
-                  <div className="text-center">
-                    <p className="text-gray-400 text-sm uppercase font-bold mb-1">Seu Score</p>
-                    <p className="text-4xl font-black text-white">{userScore.toLocaleString()}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-gray-400 text-sm uppercase font-bold mb-1">{opponentName}</p>
-                    <p className="text-4xl font-black text-white">{aiScore.toLocaleString()}</p>
+                <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop" alt="Defeat Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
+              )}
+              
+              <div className="max-w-2xl w-full text-center space-y-8 relative z-10">
+                <div className={cn(
+                  "text-5xl md:text-7xl font-black italic tracking-tighter mb-4 drop-shadow-2xl",
+                  isUserWinning ? "text-cyan-400" : "text-red-500"
+                )}>
+                  {isUserWinning ? "PARABÉNS PELO SHOW!" : "HOJE O SHOW NÃO FOI BOM!!!"}
+                </div>
+                
+                <div className="bg-black/60 backdrop-blur-md border border-white/10 p-8 rounded-3xl shadow-2xl">
+                  <div className="flex justify-around mb-8">
+                    <div className="text-center">
+                      <p className="text-gray-400 text-sm uppercase font-bold mb-1">Seu Score</p>
+                      <p className="text-4xl font-black text-white">{userScore.toLocaleString()}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-gray-400 text-sm uppercase font-bold mb-1">{opponentName}</p>
+                      <p className="text-4xl font-black text-white">{aiScore.toLocaleString()}</p>
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-            
-            <div className="flex gap-4 justify-center">
-              <Button className="h-14 px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20" onClick={() => navigate("/academy")}>
-                Ir para a Academy
-              </Button>
-              <Button variant="outline" className="h-14 px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm" onClick={() => navigate("/library")}>
-                VOLTAR AO PALCO
-              </Button>
-            </div>
-          </div>
+                
+                <div className="flex gap-4 justify-center">
+                  <Button className="h-14 px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20" onClick={() => navigate("/academy")}>
+                    Ir para a Academy
+                  </Button>
+                  <Button variant="outline" className="h-14 px-8 border-white/20 text-white hover:bg-white/10 backdrop-blur-sm" onClick={() => navigate("/library")}>
+                    VOLTAR AO PALCO
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
