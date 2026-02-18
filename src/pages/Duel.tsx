@@ -43,27 +43,29 @@ export default function Duel() {
   const [aiScore, setAiScore] = useState(0);
   const [aiFeedback, setAiFeedback] = useState("");
 
-  // ROBUST MEDIA & AUDIO INIT
+  // AUDIO & VIDEO ENGINE
   useEffect(() => {
-    let isMounted = true; // Guard against unmounted state updates
     let stream: MediaStream | null = null;
     let audioContext: AudioContext | null = null;
     let animationFrameId: number;
 
-    const initMedia = async () => {
-      if (isConfiguring) return;
-      try {
-        // ALWAYS ask for audio. Conditionally ask for video.
-        stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled });
-        
-        if (!isMounted) return; // Stop if component unmounted during await
+    // STOP EXECUTION IF STILL IN CONFIG SCREEN
+    if (isConfiguring) return;
 
-        // 1. SAFELY ATTACH VIDEO
+    const startEngine = async () => {
+      try {
+        // Only ask for video if cameraEnabled is true
+        stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: true, 
+          video: cameraEnabled 
+        });
+        
+        // Attach video safely
         if (cameraEnabled && videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-
-        // 2. SETUP AUDIO SCORING
+        
+        // Audio Scoring Engine
         audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         const analyser = audioContext.createAnalyser();
         const microphone = audioContext.createMediaStreamSource(stream);
@@ -72,25 +74,20 @@ export default function Duel() {
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         
         const checkVolume = () => {
-          if (!isMounted) return;
           analyser.getByteFrequencyData(dataArray);
           const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
           micVolumeRef.current = average;
           animationFrameId = requestAnimationFrame(checkVolume);
         };
         checkVolume();
-      } catch (err) {
-        console.error("Media access error:", err);
-        if (isMounted) {
-          toast.error("Erro ao acessar microfone/câmera.");
-        }
+      } catch (error) {
+        console.error("Engine start failed:", error);
       }
     };
 
-    initMedia();
+    startEngine();
 
     return () => {
-      isMounted = false; // Mark as unmounted
       if (stream) stream.getTracks().forEach(track => track.stop());
       if (audioContext && audioContext.state !== 'closed') audioContext.close();
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
@@ -403,23 +400,30 @@ export default function Duel() {
       {isFinished && (
         <div className="absolute inset-0 z-[110] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 bg-black overflow-hidden">
           {/* EXACT REPLACEMENT FOR DUET END SCREEN */}
-          {duelMode === 'duet' ? (
-            <div 
-              style={{ 
-                background: "url('https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop') no-repeat center center / cover !important",
-                backgroundColor: "transparent !important"
-              }}
-              className="absolute inset-0 z-[9999] flex items-center justify-center overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-black/80 z-0 backdrop-blur-sm"></div>
-              <div className="relative z-10 flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
+          {duelMode === 'duet' && (
+            <div className="absolute inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-transparent">
+              {/* PHYSICAL IMAGE FORCED TO THE BACK */}
+              <img 
+                src="https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop" 
+                alt="Show da Dupla" 
+                className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
+              />
+              {/* DARK OVERLAY */}
+              <div className="absolute inset-0 bg-black/70 z-10 backdrop-blur-sm"></div>
+              
+              {/* ACTUAL CONTENT */}
+              <div className="relative z-20 flex flex-col items-center text-center px-4 animate-in fade-in zoom-in duration-500">
                 <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-8 italic tracking-widest uppercase drop-shadow-2xl">
                   SHOW DA DUPLA!
                 </h1>
-                <div className="bg-black/40 border border-gray-800 p-10 rounded-3xl backdrop-blur-md mb-8 max-w-2xl w-full mx-4 shadow-[0_0_40px_rgba(0,0,0,0.8)]">
-                  <p className="text-gray-300 text-lg md:text-xl mb-6 font-medium tracking-wide">Vocês cantaram em perfeita sintonia e somaram pontos incríveis!</p>
+                <div className="bg-black/50 border border-purple-500/30 p-10 rounded-3xl backdrop-blur-md mb-8 max-w-2xl w-full mx-4 shadow-[0_0_40px_rgba(168,85,247,0.4)]">
+                  <p className="text-gray-300 text-lg md:text-xl mb-6 font-medium tracking-wide">
+                    Vocês cantaram em perfeita sintonia e somaram pontos incríveis!
+                  </p>
                   <h3 className="text-gray-500 tracking-widest text-sm mb-2 uppercase font-bold">Pontuação Total</h3>
-                  <p className="text-6xl md:text-7xl font-black text-white drop-shadow-lg">{userScore + aiScore}</p>
+                  <p className="text-6xl md:text-8xl font-black text-white drop-shadow-lg">
+                    {userScore + aiScore}
+                  </p>
                 </div>
                 <div className="flex gap-4">
                   <Button className="px-8 py-6 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-xl text-lg transition-transform hover:scale-105" onClick={() => navigate("/academy")}>
@@ -431,7 +435,9 @@ export default function Duel() {
                 </div>
               </div>
             </div>
-          ) : (
+          )}
+
+          {duelMode !== 'duet' && (
             <>
               {userScore > aiScore ? (
                 <img src="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000&auto=format&fit=crop" alt="Victory Background" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
