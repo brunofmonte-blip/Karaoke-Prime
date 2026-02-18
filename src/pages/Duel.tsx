@@ -387,15 +387,15 @@ export default function Duel() {
       {/* FINISH SCREEN */}
       {isFinished && (
         <div 
-          className="absolute inset-0 z-[110] bg-gray-950 flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 bg-cover bg-center"
+          className="absolute inset-0 z-[110] flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 bg-cover bg-center"
           style={{ 
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url(${
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('${
               duelMode === 'duet' 
                 ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
                 : (isUserWinning 
                   ? "https://images.unsplash.com/photo-1516450360452-631a4530d335?q=80&w=2000&auto=format&fit=crop"
                   : "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop")
-            })` 
+            }')` 
           }}
         >
           <div className="max-w-2xl w-full text-center space-y-8 relative z-10">
