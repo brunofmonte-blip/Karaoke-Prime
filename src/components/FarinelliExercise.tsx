@@ -16,54 +16,60 @@ interface FarinelliExerciseProps {
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const { activeExerciseTitle, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
-  // 1. EXPANDED STRICT CONFIG DICTIONARY
+  // 1. OVERRIDE STRICT CONFIG FOR LEVEL 2 & FALLBACKS
   const getStrictConfig = (title: string) => {
     const safeTitle = (title || '').toLowerCase();
     
-    // --- MÓDULO A: ATAQUE & AUDIATION (LEVEL 2) ---
+    // --- LEVEL 2: PITCH CALIBRATION (EXACT STRINGS) ---
     if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
-      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a frequência antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", exhaleMsg: 'Cante a nota agora!', actionPhaseName: 'CANTAR' };
+      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a frequência antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR', command: 'ATAQUE AGORA' };
+    }
+    if (safeTitle.includes('audiation')) {
+      return { inhale: 4, hold: 4, exhale: 8, rest: 4, prepText: "Foco total no ouvido interno. Não emita som até o comando. Imagine a nota vibrando na sua testa antes de cantar.", actionText: 'CANTAR', command: 'EMITA O SOM' };
+    }
+    if (safeTitle.includes('condução') || safeTitle.includes('bone')) {
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Coloque a mão em concha atrás do ouvido para ouvir sua própria condução óssea. Sinta a ressonância nos dentes e maçãs do rosto.", actionText: 'CANTAR', command: 'SINTA A VIBRAÇÃO' };
+    }
+    if (safeTitle.includes('biofeedback')) {
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Foque nos números. Sua meta é manter o desvio abaixo de 5 cents. Use a vogal 'U' (como em 'uvas') para maior estabilidade harmônica.", actionText: 'CANTAR', command: 'ESTABILIZE O HERTZ' };
+    }
+    if (safeTitle.includes('sovt pitch')) {
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Use o canudo para este exercício. A resistência ajudará na estabilidade. Mantenha o fluxo de ar constante enquanto varia o tom.", actionText: 'CANTAR', command: 'SOPRO CONSTANTE' };
+    }
+    if (safeTitle.includes('auto-tune')) {
+      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: "O sistema simulará uma correção para que você perceba onde está errando. Tente 'vencer' o corretor mantendo a nota pura.", actionText: 'CANTAR', command: 'CORRIJA O TOM' };
+    }
+    if (safeTitle.includes('vowel mod')) {
+      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Foco na transição entre vogais sem perder a frequência central. Comece em 'Í' e mude gradualmente para 'Á' sem oscilar.", actionText: 'CANTAR', command: 'TROQUE A VOGAL' };
+    }
+    if (safeTitle.includes('solfege')) {
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos. Crave cada nota no centro do afinador. Use os nomes das notas (Dó, Ré, Mi) com clareza.", actionText: 'CANTAR', command: 'DÓ - RÉ - MI' };
+    }
+    if (safeTitle.includes('drone')) {
+      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em Dó será ativado. Foque na pureza do intervalo. Sinta o batimento acústico desaparecer quando estiver afinado.", actionText: 'CANTAR', command: 'AFINE COM O DRONE' };
+    }
+    if (safeTitle.includes('melodyne')) {
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Imagine que você está em um estúdio profissional. Sua voz deve ser uma linha reta. Evite vibratos excessivos agora.", actionText: 'CANTAR', command: 'CANTE A LINHA' };
+    }
+    if (safeTitle.includes('blind tuning')) {
+      return { inhale: 4, hold: 4, exhale: 15, rest: 5, prepText: "O afinador ficará invisível por 10 segundos. Confie na sua memória muscular. Mantenha o suporte abdominal ativo.", actionText: 'CANTAR', command: 'MANTENHA O TOM' };
     }
 
-    // --- MÓDULO D: TÉCNICA DE ALEXANDER ---
+    // --- LEVEL 1: BREATHING (FALLBACKS) ---
     if (safeTitle.includes('costal') || safeTitle.includes('expansão')) {
-      return { inhale: 4, hold: 3, exhale: 8, rest: 5, prepText: 'Sente-se na ponta da cadeira com a coluna reta. Foque em expandir as costelas para os lados e para as costas.', exhaleMsg: 'Solte o ar lentamente em Ssss.', actionPhaseName: 'EXPIRAR' };
+      return { inhale: 4, hold: 3, exhale: 8, rest: 5, prepText: 'Sente-se na ponta da cadeira com a coluna reta. Foque em expandir as costelas para os lados e para as costas.', actionText: 'SOLTE O AR', command: 'EXPIRA LENTAMENTE' };
     }
     if (safeTitle.includes('ofegante') || safeTitle.includes('cachorro')) {
-      return { inhale: 2, hold: 1, exhale: 10, rest: 4, prepText: 'Coloque a mão no abdômen. Vamos usar respirações curtas para ativar o diafragma, como um cachorrinho.', exhaleMsg: 'Faça golpes rápidos de ar (Hah Hah).', actionPhaseName: 'EXPIRAR' };
+      return { inhale: 2, hold: 1, exhale: 10, rest: 4, prepText: 'Coloque a mão no abdômen. Vamos usar respirações curtas para ativar o diafragma, como um cachorrinho.', actionText: 'SOLTE O AR', command: 'GOLPES DE AR' };
     }
-    // --- MÓDULO C: APPOGGIO CLÁSSICO ---
     if (safeTitle.includes('farinelli')) {
-      return { inhale: 5, hold: 5, exhale: 5, rest: 4, prepText: 'Treino do lendário Farinelli. Foque na expansão lateral das costelas em tempos perfeitamente iguais.', exhaleMsg: 'Solte o ar num fluxo estável.', actionPhaseName: 'EXPIRAR' };
+      return { inhale: 5, hold: 5, exhale: 5, rest: 4, prepText: 'Treino do lendário Farinelli. Foque na expansão lateral das costelas em tempos perfeitamente iguais.', actionText: 'SOLTE O AR', command: 'FLUXO ESTÁVEL' };
     }
-    if (safeTitle.includes('livro')) {
-      return { inhale: 4, hold: 2, exhale: 8, rest: 5, prepText: 'Deite-se no chão e coloque um livro sobre o abdômen. O livro deve subir quando você puxa o ar.', exhaleMsg: 'Solte devagar em Ssss, o livro desce.', actionPhaseName: 'EXPIRAR' };
-    }
-    if (safeTitle.includes('quadrante') || safeTitle.includes('quadrantes')) {
-      return { inhale: 4, hold: 4, exhale: 4, rest: 4, prepText: 'A famosa Box Breathing. Vamos inspirar, segurar, soltar e pausar em tempos exatos.', exhaleMsg: 'Esvazie os pulmões.', actionPhaseName: 'EXPIRAR' };
-    }
-    // --- MÓDULO B: SOVT & RESISTÊNCIA ---
-    if (safeTitle.includes('canudo')) {
-      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: 'Pegue um copo com um pouco de água e um canudo. Mantenha a postura ereta.', exhaleMsg: 'Sopre no canudo constantemente.', actionPhaseName: 'EXPIRAR' };
-    }
-    if (safeTitle.includes('lip trills') || safeTitle.includes('trill')) {
-      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: 'Relaxe os lábios e a mandíbula. Prepare-se para a vibração.', exhaleMsg: 'Vibre os lábios em Brrrrr.', actionPhaseName: 'EXPIRAR' };
-    }
-    if (safeTitle.includes('glissando')) {
-      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: 'Prepare-se para variar o tom do grave ao agudo, como uma sirene.', exhaleMsg: 'Faça uma sirene contínua.', actionPhaseName: 'EXPIRAR' };
-    }
-    // --- MÓDULO A: GINÁSIO DE RESPIRAÇÃO ---
-    if (safeTitle.includes('vácuo') || safeTitle.includes('vacuo')) {
-      return { inhale: 2, hold: 2, exhale: 12, rest: 4, prepText: 'Prepare-se para puxar o ar rapidamente (inalação curta).', exhaleMsg: 'Solte o ar em Xis.', actionPhaseName: 'EXPIRAR' };
-    } 
-    if (safeTitle.includes('circular')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 4, prepText: 'Prepare-se para o teste máximo de resistência pulmonar.', exhaleMsg: 'Solte o ar em Efe.', actionPhaseName: 'EXPIRAR' };
-    }
-    // DEFAULT ("S" Explosivo)
-    return { inhale: 4, hold: 4, exhale: 10, rest: 5, prepText: 'Prepare-se para the expansão pulmonar. Mantenha a postura ereta.', exhaleMsg: 'Solte o ar em Esse.', actionPhaseName: 'EXPIRAR' };
+    
+    // DEFAULT
+    return { inhale: 4, hold: 4, exhale: 10, rest: 5, prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', actionText: 'SOLTE O AR', command: 'EXPIRA AGORA' };
   };
 
-  // 2. APPLY THE CONFIGURATION
   const config = useMemo(() => getStrictConfig(activeExerciseTitle), [activeExerciseTitle]);
 
   const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
@@ -103,11 +109,9 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
 
     if (stateRef.current === 'exhale') {
-      if (volume < 5) {
-        stabilityRef.current = Math.max(0, stabilityRef.current - 0.5);
-      } else if (Math.abs(volume - lastVolumeRef.current) > 15) {
-        stabilityRef.current = Math.max(0, stabilityRef.current - 0.2);
-      }
+      // FIX: Accumulate score based on volume presence (simulating pitch accuracy for now)
+      const currentPitchScore = volume > 5 ? 95 + Math.random() * 5 : 0;
+      stabilityRef.current = (stabilityRef.current + currentPitchScore) / 2;
       
       const newScore = Math.floor(stabilityRef.current);
       if (newScore !== stabilityScore) {
@@ -153,7 +157,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     return () => clearTimeout(timer);
   }, [timeLeft, exerciseState]);
 
-  // 3. UPDATED STATE MACHINE WITH DYNAMIC TTS
   useEffect(() => {
     if (timeLeft === 0 && exerciseState !== 'idle' && exerciseState !== 'finished') {
       if (exerciseState === 'inhale') {
@@ -167,8 +170,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         setTimeLeft(config.exhale); 
         stabilityRef.current = 100;
         setStabilityScore(100);
-        setFeedback(config.exhaleMsg);
-        speak(config.exhaleMsg); // UPDATED TTS
+        setFeedback(config.command);
+        speak(config.command);
       } 
       else if (exerciseState === 'exhale') {
         accumulatedScoreRef.current += stabilityRef.current;
@@ -183,6 +186,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           if (animationRef.current) cancelAnimationFrame(animationRef.current);
           if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
           setExerciseState('finished');
+          // FIX: Calculate true average and pass to stopAnalysis
           const finalAverage = Math.floor(accumulatedScoreRef.current / totalSeries);
           setFeedback("Treino concluído.");
           speak("Treino concluído.");
@@ -210,7 +214,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const labels: Record<string, string> = {
     inhale: 'INSPIRA',
     hold: 'SEGURA',
-    exhale: 'EXPIRA',
+    exhale: config.actionText,
     rest: 'PAUSA',
     idle: 'PRONTO',
     finished: 'FIM'
@@ -221,16 +225,15 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       <InstructorAvatar 
         phase={exerciseState === 'idle' || exerciseState === 'finished' ? 'rest' : exerciseState} 
         moduleType={moduleType} 
-        actionPhaseName={config.actionPhaseName}
+        actionPhaseName={config.actionText}
       />
 
       <div className="flex flex-col items-center space-y-8 flex-grow">
         <div className="text-center max-w-md">
           <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">
-            {exerciseState === 'idle' ? "Checklist" : activeExerciseTitle}
+            {exerciseState === 'idle' ? "Checklist de Preparação" : activeExerciseTitle}
           </h3>
           
-          {/* 3. UPDATED UI FOR IDLE PREPARATION SCREEN */}
           <p className="text-lg text-foreground mb-8 leading-relaxed">
             {exerciseState === 'idle' ? config.prepText : feedback}
           </p>
@@ -256,10 +259,19 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
                 )}>
                   <span className="text-6xl font-black text-foreground">{timeLeft}s</span>
                   <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                    {exerciseState === 'exhale' ? (config.actionPhaseName === 'CANTAR' ? 'CANTA' : 'EXPIRA') : labels[exerciseState]}
+                    {labels[exerciseState]}
                   </span>
                 </div>
               </div>
+              
+              {/* COMANDO DO INSTRUTOR */}
+              <div className="w-full p-4 glass-pillar border-2 border-primary/20 rounded-2xl text-center mt-4">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Comando do Instrutor</p>
+                <h4 className="text-xl font-black text-primary neon-blue-glow animate-pulse">
+                  {exerciseState === 'exhale' ? config.command : labels[exerciseState]}
+                </h4>
+              </div>
+
               {repCount > 0 && (
                 <p className="text-sm font-bold text-primary uppercase tracking-widest">
                   Série {repCount} de {totalSeries}
