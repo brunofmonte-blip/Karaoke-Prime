@@ -85,7 +85,7 @@ const AcademyModuleMenu: React.FC<{ level: number }> = ({ level }) => {
 
     const exerciseSong = publicDomainLibrary.find(s => s.genre === 'Vocal Exercises') || publicDomainLibrary[0];
     
-    startAnalysis(exerciseSong, false, exercise.type);
+    startAnalysis(exerciseSong, false, exercise.type, 'none', exercise.title);
     openOverlay();
   };
 

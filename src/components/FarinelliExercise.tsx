@@ -13,14 +13,42 @@ interface FarinelliExerciseProps {
   moduleType: ConservatoryModule;
 }
 
-const moduleConfigs: Record<ConservatoryModule, { 
-  title: string, 
-  phases: BreathingPhase[], 
-  durations: number[],
-  labels: Record<string, string>,
-  narration: Record<string, string>,
-  checklist: string
-}> = {
+interface ExerciseConfig {
+  title: string;
+  phases: BreathingPhase[];
+  durations: number[];
+  labels: Record<string, string>;
+  narration: Record<string, string>;
+  checklist: string;
+}
+
+const moduleConfigs: Record<string, ExerciseConfig> = {
+  // Module A: Breathing Gym Sub-Exercises
+  's-explosivo': {
+    title: '"S" Explosivo vs. Linear',
+    phases: ['inhale', 'hold', 'exhale', 'rest'],
+    durations: [2, 1, 10, 2],
+    labels: { inhale: 'INSPIRA', hold: 'TRAVA', exhale: 'S-S-S-S', rest: 'PAUSA', idle: 'PRONTO' },
+    narration: { inhale: 'Inspira rápido.', hold: 'Trava.', exhale: 'S-S-S explosivo.', rest: 'Pausa.', idle: '' },
+    checklist: 'Foco no ataque abdominal. O som do "S" deve ser cortante e rítmico.'
+  },
+  'vacuo': {
+    title: 'Inalação de Vácuo',
+    phases: ['inhale', 'hold', 'exhale', 'rest'],
+    durations: [8, 4, 4, 4],
+    labels: { inhale: 'VÁCUO', hold: 'EXPANDA', exhale: 'SOLTA', rest: 'PAUSA', idle: 'PRONTO' },
+    narration: { inhale: 'Inalação lenta de vácuo.', hold: 'Expanda as costelas.', exhale: 'Solta o ar.', rest: 'Pausa.', idle: '' },
+    checklist: 'Imagine que está sugando o ar por um canudo muito fino. Sinta a expansão lateral.'
+  },
+  'circular': {
+    title: 'Respiração Circular',
+    phases: ['inhale', 'hold', 'exhale', 'rest'],
+    durations: [4, 0, 4, 0],
+    labels: { inhale: 'INSPIRA', hold: 'FLUXO', exhale: 'EXPIRA', rest: 'FLUXO', idle: 'PRONTO' },
+    narration: { inhale: 'Inspira pelo nariz.', hold: 'Sem pausa.', exhale: 'Solta pela boca.', rest: 'Sem pausa.', idle: '' },
+    checklist: 'Mantenha o fluxo contínuo. Não trave a glote em nenhum momento.'
+  },
+  // Generic Module Fallbacks
   farinelli: {
     title: 'Breathing Gym',
     phases: ['inhale', 'hold', 'exhale', 'rest'],
@@ -60,21 +88,24 @@ const moduleConfigs: Record<ConservatoryModule, {
     labels: { inhale: 'PREPARE', hold: 'FOCO', exhale: 'CANTE', rest: 'PAUSA', idle: 'PRONTO' },
     narration: { inhale: 'Prepare.', hold: 'Foco.', exhale: 'Cante.', rest: 'Pausa.', idle: '' },
     checklist: 'Foco na precisão tonal. Mantenha a nota no centro.'
-  },
-  none: {
-    title: 'Treinamento Vocal',
-    phases: [],
-    durations: [],
-    labels: { inhale: '', hold: '', exhale: '', rest: '', idle: '' },
-    narration: { inhale: '', hold: '', exhale: '', rest: '', idle: '' },
-    checklist: ''
   }
 };
 
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
-  const config = useMemo(() => moduleConfigs[moduleType], [moduleType]);
-  const { setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
+  const { activeExerciseTitle, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
+  const config = useMemo(() => {
+    // Aggressive targeting: check specific exercise title first
+    const normalizedTitle = activeExerciseTitle.toLowerCase();
+    
+    if (normalizedTitle.includes('explosivo')) return moduleConfigs['s-explosivo'];
+    if (normalizedTitle.includes('vácuo') || normalizedTitle.includes('vacuo')) return moduleConfigs['vacuo'];
+    if (normalizedTitle.includes('circular')) return moduleConfigs['circular'];
+    
+    // Fallback to generic module config
+    return moduleConfigs[moduleType] || moduleConfigs['farinelli'];
+  }, [moduleType, activeExerciseTitle]);
+
   const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
   const [timeLeft, setTimeLeft] = useState(0);
   const [feedback, setFeedback] = useState(config.checklist);

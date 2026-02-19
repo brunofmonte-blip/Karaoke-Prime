@@ -34,7 +34,7 @@ interface VocalSandboxContextType {
   openOverlay: () => void;
   closeOverlay: () => void;
   isAnalyzing: boolean;
-  startAnalysis: (song: PublicDomainSong, isDuelMode: boolean, module?: ConservatoryModule, subModule?: CalibrationSubModule) => Promise<void>;
+  startAnalysis: (song: PublicDomainSong, isDuelMode: boolean, module?: ConservatoryModule, subModule?: CalibrationSubModule, exerciseTitle?: string) => Promise<void>;
   stopAnalysis: (customScore?: number) => { summary: SessionSummary, history: ChartDataItem[] } | null;
   pitchData: number; 
   pitchDataHz: number;
@@ -66,6 +66,7 @@ interface VocalSandboxContextType {
   setManualProgress: (progress: number) => void;
   activeModule: ConservatoryModule;
   activeSubModule: CalibrationSubModule;
+  activeExerciseTitle: string;
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
@@ -89,6 +90,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [unlockedBadges, setUnlockedBadges] = useState<BadgeId[]>([]); 
   const [activeModule, setActiveModule] = useState<ConservatoryModule>('none');
   const [activeSubModule, setActiveSubModule] = useState<CalibrationSubModule>('none');
+  const [activeExerciseTitle, setActiveExerciseTitle] = useState<string>('');
   
   const [breathingPhase, setBreathingPhase] = useState<BreathingPhase>('idle');
   const [breathingProgress, setBreathingProgress] = useState(0);
@@ -125,6 +127,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setManualProgress(0);
     setActiveModule('none');
     setActiveSubModule('none');
+    setActiveExerciseTitle('');
 
     if (stabilityToastRef.current) {
       toast.dismiss(stabilityToastRef.current);
@@ -179,12 +182,13 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     return null;
   }, [stopAudio, pitchHistory, currentSong, activeModule]);
 
-  const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, module: ConservatoryModule = 'none', subModule: CalibrationSubModule = 'none') => {
+  const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, module: ConservatoryModule = 'none', subModule: CalibrationSubModule = 'none', exerciseTitle: string = '') => {
     if (isAnalyzing || countdown !== null) return;
     
     setCurrentSong(song);
     setActiveModule(module);
     setActiveSubModule(subModule);
+    setActiveExerciseTitle(exerciseTitle);
     await mockDownloadSong(song); 
 
     setPitchHistory([]);
@@ -306,6 +310,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         setManualProgress,
         activeModule,
         activeSubModule,
+        activeExerciseTitle,
       }}
     >
       {children}
