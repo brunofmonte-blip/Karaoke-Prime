@@ -6,13 +6,22 @@ interface InstructorAvatarProps {
   phase?: BreathingPhase;
   moduleType?: ConservatoryModule;
   subModule?: CalibrationSubModule;
+  actionPhaseName?: string;
 }
 
-export default function InstructorAvatar({ phase = 'idle', moduleType = 'none', subModule = 'none' }: InstructorAvatarProps) {
+export default function InstructorAvatar({ 
+  phase = 'idle', 
+  moduleType = 'none', 
+  subModule = 'none',
+  actionPhaseName 
+}: InstructorAvatarProps) {
   const isExhaling = phase === 'exhale';
   const isInhaling = phase === 'inhale';
   const isSuspending = phase === 'suspend';
   const isResting = phase === 'rest';
+
+  // Determine the display name for the action phase (exhale/sing)
+  const displayActionName = actionPhaseName || (moduleType === 'pitch-calibration' ? 'CANTAR' : 'EXPIRAR');
 
   return (
     <div className="relative w-48 h-64 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-700">
@@ -56,13 +65,13 @@ export default function InstructorAvatar({ phase = 'idle', moduleType = 'none', 
 
       {/* Status Badge */}
       <div className="mt-6 bg-primary/20 text-primary text-[10px] font-black px-6 py-2 rounded-full border border-primary/40 uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(0,168,225,0.3)] backdrop-blur-md">
-        {phase === 'idle' ? 'AI VOCAL COACH' : `PHASE: ${phase.toUpperCase()}`}
+        {phase === 'idle' ? 'AI VOCAL COACH' : `FASE: ${isExhaling ? displayActionName : phase.toUpperCase()}`}
       </div>
       
       {/* Active Indicator */}
       <div className="mt-3 flex items-center gap-2">
         <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-          {isInhaling ? "Inhaling Oxygen..." : isExhaling ? "Measuring Airflow..." : "Neural Engine Active"}
+          {isInhaling ? "Inhaling Oxygen..." : isExhaling ? (moduleType === 'pitch-calibration' ? "Analyzing Pitch..." : "Measuring Airflow...") : "Neural Engine Active"}
         </span>
       </div>
     </div>
