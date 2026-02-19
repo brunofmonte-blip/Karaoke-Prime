@@ -84,10 +84,10 @@ const AcademyLevel2Menu: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
       {modules.map((module) => (
         <Card key={module.id} className={cn(
-          "glass-pillar border-2 transition-all duration-300",
+          "glass-pillar border-2 transition-all duration-300 h-fit",
           expandedModule === module.id ? "border-accent shadow-lg shadow-accent/20" : "border-primary/30 hover:border-primary/70"
         )}>
           <CardHeader className="pb-2 cursor-pointer" onClick={() => setExpandedModule(expandedModule === module.id ? null : module.id)}>

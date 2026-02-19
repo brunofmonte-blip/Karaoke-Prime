@@ -61,6 +61,17 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       return { inhale: 4, hold: 4, exhale: 15, rest: 5, prepText: "O afinador ficará invisível por 10 segundos na nota RÉ (D4). Confie na sua memória muscular e suporte abdominal.", actionText: 'CANTAR AAAAA', command: 'MANTENHA O TOM', isLegato: true };
     }
 
+    // --- LEVEL 3: MODULE A (Pulso & Divisão) ---
+    if (safeTitle.includes('metrônomo humano')) {
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Sinta o pulso. Sua meta é manter a nota DÓ (C4) em ataques curtos e precisos seguindo o metrônomo visual.", actionText: 'CANTAR DÓ-DÓ-DÓ', command: 'SIGA O PULSO', isLegato: false };
+    }
+    if (safeTitle.includes('divisão binária')) {
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Divida o tempo. Cante colcheias precisas na nota RÉ (D4). Foque na subdivisão exata do tempo.", actionText: 'CANTAR RÉ-RÉ-RÉ-RÉ', command: 'DIVIDA O TEMPO', isLegato: false };
+    }
+    if (safeTitle.includes('síncope básica')) {
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Desloque o acento. Cante a nota MI (E4) no contratempo. Sinta o deslocamento rítmico.", actionText: 'CANTAR MI (OFF-BEAT)', command: 'SÍNCOPE AGORA', isLegato: false };
+    }
+
     // --- LEVEL 1: BREATHING (FALLBACKS) ---
     if (safeTitle.includes('costal') || safeTitle.includes('expansão')) {
       return { inhale: 4, hold: 3, exhale: 8, rest: 5, prepText: 'Sente-se na ponta da cadeira com a coluna reta. Foque em expandir as costelas para os lados e para as costas.', actionText: 'SOLTAR SSSSS', command: 'EXPIRA LENTAMENTE', isLegato: true };
