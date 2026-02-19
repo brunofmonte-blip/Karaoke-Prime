@@ -20,6 +20,16 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const getStrictConfig = (title: string) => {
     const safeTitle = (title || '').toLowerCase();
     
+    // --- MÓDULO C: APPOGGIO CLÁSSICO ---
+    if (safeTitle.includes('farinelli')) {
+      return { inhale: 5, hold: 5, exhale: 5, rest: 4, prepText: 'Treino do lendário Farinelli. Foque na expansão lateral das costelas em tempos perfeitamente iguais.', exhaleMsg: 'Solte o ar num fluxo estável.' };
+    }
+    if (safeTitle.includes('livro')) {
+      return { inhale: 4, hold: 2, exhale: 8, rest: 5, prepText: 'Deite-se no chão e coloque um livro sobre o abdômen. O livro deve subir quando você puxa o ar.', exhaleMsg: 'Solte devagar em Ssss, o livro desce.' };
+    }
+    if (safeTitle.includes('quadrante') || safeTitle.includes('quadrantes')) {
+      return { inhale: 4, hold: 4, exhale: 4, rest: 4, prepText: 'A famosa Box Breathing. Vamos inspirar, segurar, soltar e pausar em tempos exatos.', exhaleMsg: 'Esvazie os pulmões.' };
+    }
     // --- MÓDULO B: SOVT & RESISTÊNCIA ---
     if (safeTitle.includes('canudo')) {
       return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: 'Pegue um copo com um pouco de água e um canudo. Mantenha a postura ereta.', exhaleMsg: 'Sopre no canudo constantemente.' };
