@@ -16,7 +16,7 @@ interface FarinelliExerciseProps {
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const { activeExerciseTitle, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
-  // 1. STABLE CONFIG: Removed all dynamic parts and ghost intervals
+  // 1. STABLE CONFIG: Finalized with Module D didactic strings
   const getStrictConfig = (title: string) => {
     const safeTitle = (title || '').toLowerCase();
     

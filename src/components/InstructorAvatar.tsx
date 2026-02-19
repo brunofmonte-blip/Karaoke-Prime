@@ -71,7 +71,7 @@ export default function InstructorAvatar({
       {/* Active Indicator */}
       <div className="mt-3 flex items-center gap-2">
         <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-          {isInhaling ? "Inhaling Oxygen..." : isExhaling ? (moduleType === 'pitch-calibration' ? "Analyzing Pitch..." : "Measuring Airflow...") : "Neural Engine Active"}
+          {isInhaling ? "Inhaling Oxygen..." : isExhaling ? "Analyzing Pitch..." : "Neural Engine Active"}
         </span>
       </div>
     </div>
