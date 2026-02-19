@@ -20,7 +20,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const getStrictConfig = (title: string) => {
     const safeTitle = (title || '').toLowerCase();
     
-    // --- LEVEL 2: PITCH CALIBRATION (EXACT STRINGS) ---
+    // --- LEVEL 2: MODULE A (Ataque & Audiation) ---
     if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
       return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR', command: 'ATAQUE AGORA' };
     }
@@ -30,6 +30,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     if (safeTitle.includes('condução') || safeTitle.includes('bone')) {
       return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Coloque a mão em concha atrás do ouvido. Cante a nota MI (E4) em 'Mmmmm' (boca fechada) e sinta a vibração nos ossos da face.", actionText: 'CANTAR', command: 'SINTA A VIBRAÇÃO' };
     }
+
+    // --- LEVEL 2: MODULE B (Biofeedback e Sintonia) ---
     if (safeTitle.includes('biofeedback')) {
       return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Foque nos números. Sua meta é manter a nota FÁ (F4) com desvio abaixo de 5 cents. Use a vogal 'U' para maior estabilidade.", actionText: 'CANTAR', command: 'ESTABILIZE O HERTZ' };
     }
@@ -39,6 +41,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     if (safeTitle.includes('auto-tune')) {
       return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: "O sistema simulará uma correção na nota LÁ (A4). Tente 'vencer' o corretor mantendo a nota pura.", actionText: 'CANTAR', command: 'CORRIJA O TOM' };
     }
+
+    // --- LEVEL 2: MODULE C & D (Ressonância & Estúdio) ---
     if (safeTitle.includes('vowel mod')) {
       return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR', command: 'TROQUE A VOGAL' };
     }
