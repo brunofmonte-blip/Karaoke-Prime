@@ -16,21 +16,29 @@ interface FarinelliExerciseProps {
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const { activeExerciseTitle, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
-  // 1. CREATE THE OVERRIDE FUNCTION
+  // 1. EXPANDED STRICT CONFIG DICTIONARY
   const getStrictConfig = (title: string) => {
     const safeTitle = (title || '').toLowerCase();
     
-    // 1. INALAÇÃO DE VÁCUO
-    if (safeTitle.includes('vácuo') || safeTitle.includes('vacuo')) {
-      return { inhale: 2, hold: 2, exhale: 12, rest: 4, sound: 'Shhhh', spoken: 'Xis' };
-    } 
-    // 2. RESPIRAÇÃO CIRCULAR
-    if (safeTitle.includes('circular')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 4, sound: 'Fffff', spoken: 'Efe' };
+    // --- MÓDULO B: SOVT & RESISTÊNCIA ---
+    if (safeTitle.includes('canudo')) {
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: 'Pegue um copo com um pouco de água e um canudo. Mantenha a postura ereta.', exhaleMsg: 'Sopre no canudo constantemente.' };
     }
-    
-    // 3. "S" EXPLOSIVO (DEFAULT)
-    return { inhale: 4, hold: 4, exhale: 10, rest: 5, sound: 'Sssss', spoken: 'Esse' };
+    if (safeTitle.includes('lip trills') || safeTitle.includes('trill')) {
+      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: 'Relaxe os lábios e a mandíbula. Prepare-se para a vibração.', exhaleMsg: 'Vibre os lábios em Brrrrr.' };
+    }
+    if (safeTitle.includes('glissando')) {
+      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: 'Prepare-se para variar o tom do grave ao agudo, como uma sirene.', exhaleMsg: 'Faça uma sirene contínua.' };
+    }
+    // --- MÓDULO A: GINÁSIO DE RESPIRAÇÃO ---
+    if (safeTitle.includes('vácuo') || safeTitle.includes('vacuo')) {
+      return { inhale: 2, hold: 2, exhale: 12, rest: 4, prepText: 'Prepare-se para puxar o ar rapidamente (inalação curta).', exhaleMsg: 'Solte o ar em Xis.' };
+    } 
+    if (safeTitle.includes('circular')) {
+      return { inhale: 4, hold: 2, exhale: 15, rest: 4, prepText: 'Prepare-se para o teste máximo de resistência pulmonar.', exhaleMsg: 'Solte o ar em Efe.' };
+    }
+    // DEFAULT ("S" Explosivo)
+    return { inhale: 4, hold: 4, exhale: 10, rest: 5, prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', exhaleMsg: 'Solte o ar em Esse.' };
   };
 
   // 2. APPLY THE CONFIGURATION
@@ -89,7 +97,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     animationRef.current = requestAnimationFrame(checkAudioLevel);
   };
 
-  // 4. HARD-WIRE THE START BUTTON
   const startExercise = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -102,7 +109,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
 
       setRepCount(1);
       setExerciseState('inhale');
-      setTimeLeft(config.inhale); // STRICT OVERRIDE
+      setTimeLeft(config.inhale); 
       setFeedback("Inspire.");
       speak("Inspire.");
       
@@ -124,22 +131,22 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     return () => clearTimeout(timer);
   }, [timeLeft, exerciseState]);
 
-  // 3. HARD-WIRE THE STATE MACHINE
+  // 3. UPDATED STATE MACHINE WITH DYNAMIC TTS
   useEffect(() => {
     if (timeLeft === 0 && exerciseState !== 'idle' && exerciseState !== 'finished') {
       if (exerciseState === 'inhale') {
         setExerciseState('hold');
-        setTimeLeft(config.hold); // STRICT OVERRIDE
+        setTimeLeft(config.hold); 
         setFeedback("Segure.");
         speak("Segure.");
       }
       else if (exerciseState === 'hold') {
         setExerciseState('exhale');
-        setTimeLeft(config.exhale); // STRICT OVERRIDE
+        setTimeLeft(config.exhale); 
         stabilityRef.current = 100;
         setStabilityScore(100);
-        setFeedback(`Solte em ${config.sound}.`);
-        speak(`Solte em ${config.spoken}.`);
+        setFeedback(config.exhaleMsg);
+        speak(config.exhaleMsg); // UPDATED TTS
       } 
       else if (exerciseState === 'exhale') {
         accumulatedScoreRef.current += stabilityRef.current;
@@ -147,7 +154,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         
         if (repCount < totalSeries) {
           setExerciseState('rest');
-          setTimeLeft(config.rest); // STRICT OVERRIDE
+          setTimeLeft(config.rest); 
           setFeedback("Descanse.");
           speak("Descanse.");
         } else {
@@ -163,7 +170,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       else if (exerciseState === 'rest') {
         setRepCount(prev => prev + 1);
         setExerciseState('inhale');
-        setTimeLeft(config.inhale); // STRICT OVERRIDE
+        setTimeLeft(config.inhale); 
         setFeedback("Inspire.");
         speak("Inspire.");
       }
@@ -196,8 +203,10 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">
             {exerciseState === 'idle' ? "Checklist" : activeExerciseTitle}
           </h3>
+          
+          {/* 3. UPDATED UI FOR IDLE PREPARATION SCREEN */}
           <p className="text-lg text-foreground mb-8 leading-relaxed">
-            {exerciseState === 'idle' ? "Prepare-se para o treinamento de fôlego. Mantenha a postura ereta." : feedback}
+            {exerciseState === 'idle' ? config.prepText : feedback}
           </p>
           
           {exerciseState === 'idle' ? (
