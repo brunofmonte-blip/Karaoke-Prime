@@ -44,10 +44,10 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
 
     // --- LEVEL 2: MODULE C (Ressonância & Teoria) ---
     if (safeTitle.includes('vowel mod')) {
-      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR AAAAA-OOOOO', command: 'TROQUE A VOGAL', isLegato: true };
+      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR Í → Á', command: 'TROQUE A VOGAL', isLegato: true, part1: 'ÍÍÍÍÍ', part2: 'ÁÁÁÁÁ' };
     }
     if (safeTitle.includes('solfege')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR DÓ-RÉ-MI', command: 'DÓ - RÉ - MI', isLegato: true };
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR DÓ-RÉ-MI', command: 'DÓ - RÉ - MI', isLegato: true, part1: 'DÓ-RÉ', part2: 'MIIIII' };
     }
 
     // --- LEVEL 2: MODULE D (Estúdio & Performance) ---
@@ -295,7 +295,25 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
               <div className="w-full p-4 glass-pillar border-2 border-primary/20 rounded-2xl text-center mt-4">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Comando do Instrutor</p>
                 <h4 className="text-xl font-black text-primary neon-blue-glow animate-pulse">
-                  {exerciseState === 'exhale' ? config.command : labels[exerciseState]}
+                  {exerciseState === 'exhale' ? (
+                    config.isLegato && (config as any).part1 ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <span className={cn(
+                          "transition-colors duration-300",
+                          (timeLeft / config.exhale) > 0.5 ? "text-accent neon-gold-glow" : "text-foreground"
+                        )}>
+                          {(config as any).part1}
+                        </span>
+                        <span className="text-muted-foreground">→</span>
+                        <span className={cn(
+                          "transition-colors duration-300",
+                          (timeLeft / config.exhale) <= 0.5 ? "text-accent neon-gold-glow" : "text-muted-foreground"
+                        )}>
+                          {(config as any).part2}
+                        </span>
+                      </div>
+                    ) : config.command
+                  ) : labels[exerciseState]}
                 </h4>
                 
                 {/* SUSTAIN UI BANNER */}
