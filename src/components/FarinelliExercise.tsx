@@ -20,6 +20,13 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   const getStrictConfig = (title: string) => {
     const safeTitle = (title || '').toLowerCase();
     
+    // --- MÓDULO D: TÉCNICA DE ALEXANDER ---
+    if (safeTitle.includes('costal') || safeTitle.includes('expansão')) {
+      return { inhale: 4, hold: 3, exhale: 8, rest: 5, prepText: 'Sente-se na ponta da cadeira com a coluna reta. Foque em expandir as costelas para os lados e para as costas.', exhaleMsg: 'Solte o ar lentamente em Ssss.' };
+    }
+    if (safeTitle.includes('ofegante') || safeTitle.includes('cachorro')) {
+      return { inhale: 2, hold: 1, exhale: 10, rest: 4, prepText: 'Coloque a mão no abdômen. Vamos usar respirações curtas para ativar o diafragma, como um cachorrinho.', exhaleMsg: 'Faça golpes rápidos de ar (Hah Hah).' };
+    }
     // --- MÓDULO C: APPOGGIO CLÁSSICO ---
     if (safeTitle.includes('farinelli')) {
       return { inhale: 5, hold: 5, exhale: 5, rest: 4, prepText: 'Treino do lendário Farinelli. Foque na expansão lateral das costelas em tempos perfeitamente iguais.', exhaleMsg: 'Solte o ar num fluxo estável.' };
