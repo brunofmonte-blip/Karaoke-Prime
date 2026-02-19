@@ -13,103 +13,34 @@ interface FarinelliExerciseProps {
   moduleType: ConservatoryModule;
 }
 
-interface ExerciseConfig {
-  title: string;
-  phases: BreathingPhase[];
-  durations: number[];
-  labels: Record<string, string>;
-  narration: Record<string, string>;
-  checklist: string;
-}
-
-const moduleConfigs: Record<string, ExerciseConfig> = {
-  // Module A: Breathing Gym Sub-Exercises
-  's-explosivo': {
-    title: '"S" Explosivo vs. Linear',
-    phases: ['inhale', 'hold', 'exhale', 'rest'],
-    durations: [2, 1, 10, 2],
-    labels: { inhale: 'INSPIRA', hold: 'TRAVA', exhale: 'S-S-S-S', rest: 'PAUSA', idle: 'PRONTO' },
-    narration: { inhale: 'Inspira rápido.', hold: 'Trava.', exhale: 'S-S-S explosivo.', rest: 'Pausa.', idle: '' },
-    checklist: 'Foco no ataque abdominal. O som do "S" deve ser cortante e rítmico.'
-  },
-  'vacuo': {
-    title: 'Inalação de Vácuo',
-    phases: ['inhale', 'hold', 'exhale', 'rest'],
-    durations: [8, 4, 4, 4],
-    labels: { inhale: 'VÁCUO', hold: 'EXPANDA', exhale: 'SOLTA', rest: 'PAUSA', idle: 'PRONTO' },
-    narration: { inhale: 'Inalação lenta de vácuo.', hold: 'Expanda as costelas.', exhale: 'Solta o ar.', rest: 'Pausa.', idle: '' },
-    checklist: 'Imagine que está sugando o ar por um canudo muito fino. Sinta a expansão lateral.'
-  },
-  'circular': {
-    title: 'Respiração Circular',
-    phases: ['inhale', 'hold', 'exhale', 'rest'],
-    durations: [4, 0, 4, 0],
-    labels: { inhale: 'INSPIRA', hold: 'FLUXO', exhale: 'EXPIRA', rest: 'FLUXO', idle: 'PRONTO' },
-    narration: { inhale: 'Inspira pelo nariz.', hold: 'Sem pausa.', exhale: 'Solta pela boca.', rest: 'Sem pausa.', idle: '' },
-    checklist: 'Mantenha o fluxo contínuo. Não trave a glote em nenhum momento.'
-  },
-  // Generic Module Fallbacks
-  farinelli: {
-    title: 'Breathing Gym',
-    phases: ['inhale', 'hold', 'exhale', 'rest'],
-    durations: [4, 4, 4, 4],
-    labels: { inhale: 'INSPIRA', hold: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA', idle: 'PRONTO' },
-    narration: { inhale: 'Inspira.', hold: 'Segura.', exhale: 'Solta.', rest: 'Pausa.', idle: '' },
-    checklist: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.'
-  },
-  sovt: {
-    title: 'Método Arnold Jacobs',
-    phases: ['inhale', 'hold', 'exhale', 'rest'],
-    durations: [4, 2, 8, 2],
-    labels: { inhale: 'INSPIRA', hold: 'TRAVA', exhale: 'BOLHAS', rest: 'PAUSA', idle: 'PRONTO' },
-    narration: { inhale: 'Inspira.', hold: 'Trava.', exhale: 'Bolhas.', rest: 'Pausa.', idle: '' },
-    checklist: 'Separe seu canudo e copo d\'água. Foco no fluxo constante.'
-  },
-  panting: {
-    title: 'Appoggio Clássico',
-    phases: ['inhale', 'hold', 'exhale', 'rest'],
-    durations: [2, 2, 2, 2],
-    labels: { inhale: 'INSPIRA', hold: 'SEGURA', exhale: 'EXPIRA', rest: 'PAUSA', idle: 'PRONTO' },
-    narration: { inhale: 'Inspira.', hold: 'Segura.', exhale: 'Solta.', rest: 'Pausa.', idle: '' },
-    checklist: 'Foco no diafragma. Use o livro para biofeedback abdominal.'
-  },
-  alexander: {
-    title: 'Técnica de Alexander',
-    phases: ['inhale', 'hold', 'exhale', 'rest'],
-    durations: [6, 2, 6, 2],
-    labels: { inhale: 'EXPANDA', hold: 'MANTENHA', exhale: 'SOLTE', rest: 'RELAXE', idle: 'PRONTO' },
-    narration: { inhale: 'Expanda.', hold: 'Mantenha.', exhale: 'Solte.', rest: 'Relaxe.', idle: '' },
-    checklist: 'Alinhamento total. Relaxe o pescoço e alongue a coluna.'
-  },
-  'pitch-calibration': {
-    title: 'Calibração de Tom',
-    phases: ['inhale', 'hold', 'exhale', 'rest'],
-    durations: [2, 1, 10, 2],
-    labels: { inhale: 'PREPARE', hold: 'FOCO', exhale: 'CANTE', rest: 'PAUSA', idle: 'PRONTO' },
-    narration: { inhale: 'Prepare.', hold: 'Foco.', exhale: 'Cante.', rest: 'Pausa.', idle: '' },
-    checklist: 'Foco na precisão tonal. Mantenha a nota no centro.'
-  }
-};
-
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const { activeExerciseTitle, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
-  const config = useMemo(() => {
-    // Aggressive targeting: check specific exercise title first
-    const normalizedTitle = activeExerciseTitle.toLowerCase();
+  // 1. CREATE THE OVERRIDE FUNCTION
+  const getStrictConfig = (title: string) => {
+    const safeTitle = (title || '').toLowerCase();
     
-    if (normalizedTitle.includes('explosivo')) return moduleConfigs['s-explosivo'];
-    if (normalizedTitle.includes('vácuo') || normalizedTitle.includes('vacuo')) return moduleConfigs['vacuo'];
-    if (normalizedTitle.includes('circular')) return moduleConfigs['circular'];
+    // 1. INALAÇÃO DE VÁCUO
+    if (safeTitle.includes('vácuo') || safeTitle.includes('vacuo')) {
+      return { inhale: 2, hold: 2, exhale: 12, rest: 4, sound: 'Shhhh', spoken: 'Xis' };
+    } 
+    // 2. RESPIRAÇÃO CIRCULAR
+    if (safeTitle.includes('circular')) {
+      return { inhale: 4, hold: 2, exhale: 15, rest: 4, sound: 'Fffff', spoken: 'Efe' };
+    }
     
-    // Fallback to generic module config
-    return moduleConfigs[moduleType] || moduleConfigs['farinelli'];
-  }, [moduleType, activeExerciseTitle]);
+    // 3. "S" EXPLOSIVO (DEFAULT)
+    return { inhale: 4, hold: 4, exhale: 10, rest: 5, sound: 'Sssss', spoken: 'Esse' };
+  };
+
+  // 2. APPLY THE CONFIGURATION
+  const config = useMemo(() => getStrictConfig(activeExerciseTitle), [activeExerciseTitle]);
 
   const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
   const [timeLeft, setTimeLeft] = useState(0);
-  const [feedback, setFeedback] = useState(config.checklist);
+  const [feedback, setFeedback] = useState('');
   const [repCount, setRepCount] = useState(0);
+  const totalSeries = 3;
 
   const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -158,6 +89,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     animationRef.current = requestAnimationFrame(checkAudioLevel);
   };
 
+  // 4. HARD-WIRE THE START BUTTON
   const startExercise = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -168,15 +100,11 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       microphone.connect(analyserRef.current);
       analyserRef.current.fftSize = 256;
 
-      const firstPhase = config.phases[0];
-      const firstDuration = config.durations[0];
-      const firstMsg = config.narration[firstPhase];
-
       setRepCount(1);
-      setExerciseState(firstPhase);
-      setTimeLeft(firstDuration);
-      setFeedback(firstMsg);
-      speak(firstMsg);
+      setExerciseState('inhale');
+      setTimeLeft(config.inhale); // STRICT OVERRIDE
+      setFeedback("Inspire.");
+      speak("Inspire.");
       
       checkAudioLevel();
     } catch (err) {
@@ -186,7 +114,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   };
 
   useEffect(() => {
-    if (exerciseState === 'idle') return;
+    if (exerciseState === 'idle' || exerciseState === 'finished') return;
     if (timeLeft <= 0) return;
 
     const timer = setTimeout(() => {
@@ -196,51 +124,51 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     return () => clearTimeout(timer);
   }, [timeLeft, exerciseState]);
 
+  // 3. HARD-WIRE THE STATE MACHINE
   useEffect(() => {
-    if (timeLeft === 0 && exerciseState !== 'idle') {
-      const currentPhaseIndex = config.phases.indexOf(exerciseState);
-      const nextPhaseIndex = currentPhaseIndex + 1;
-
-      if (nextPhaseIndex < config.phases.length) {
-        const nextPhase = config.phases[nextPhaseIndex];
-        const nextDuration = config.durations[nextPhaseIndex];
-        const nextMsg = config.narration[nextPhase];
-
-        setExerciseState(nextPhase);
-        setTimeLeft(nextDuration);
-        setFeedback(nextMsg);
-        speak(nextMsg);
-
-        if (nextPhase === 'exhale') {
-          stabilityRef.current = 100;
-          setStabilityScore(100);
-        }
-      } else {
+    if (timeLeft === 0 && exerciseState !== 'idle' && exerciseState !== 'finished') {
+      if (exerciseState === 'inhale') {
+        setExerciseState('hold');
+        setTimeLeft(config.hold); // STRICT OVERRIDE
+        setFeedback("Segure.");
+        speak("Segure.");
+      }
+      else if (exerciseState === 'hold') {
+        setExerciseState('exhale');
+        setTimeLeft(config.exhale); // STRICT OVERRIDE
+        stabilityRef.current = 100;
+        setStabilityScore(100);
+        setFeedback(`Solte em ${config.sound}.`);
+        speak(`Solte em ${config.spoken}.`);
+      } 
+      else if (exerciseState === 'exhale') {
         accumulatedScoreRef.current += stabilityRef.current;
-        const totalSeries = 3;
         setManualProgress(Math.floor((repCount / totalSeries) * 100));
-
+        
         if (repCount < totalSeries) {
-          const nextRep = repCount + 1;
-          const firstPhase = config.phases[0];
-          const firstDuration = config.durations[0];
-          const firstMsg = config.narration[firstPhase];
-
-          setRepCount(nextRep);
-          setExerciseState(firstPhase);
-          setTimeLeft(firstDuration);
-          setFeedback(firstMsg);
-          speak(firstMsg);
+          setExerciseState('rest');
+          setTimeLeft(config.rest); // STRICT OVERRIDE
+          setFeedback("Descanse.");
+          speak("Descanse.");
         } else {
-          const finalAvg = accumulatedScoreRef.current / totalSeries;
-          setExerciseState('idle');
-          setFeedback("Fim.");
-          speak("Fim.");
-          stopAnalysis(finalAvg);
+          if (animationRef.current) cancelAnimationFrame(animationRef.current);
+          if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
+          setExerciseState('finished');
+          const finalAverage = Math.floor(accumulatedScoreRef.current / totalSeries);
+          setFeedback("Treino concluído.");
+          speak("Treino concluído.");
+          stopAnalysis(finalAverage);
         }
+      } 
+      else if (exerciseState === 'rest') {
+        setRepCount(prev => prev + 1);
+        setExerciseState('inhale');
+        setTimeLeft(config.inhale); // STRICT OVERRIDE
+        setFeedback("Inspire.");
+        speak("Inspire.");
       }
     }
-  }, [timeLeft, exerciseState, repCount, setManualProgress, stopAnalysis, config]);
+  }, [timeLeft, exerciseState, repCount, config, setManualProgress, stopAnalysis, setStabilityScore]);
 
   useEffect(() => {
     return () => {
@@ -250,16 +178,27 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     };
   }, []);
 
+  const labels: Record<string, string> = {
+    inhale: 'INSPIRA',
+    hold: 'SEGURA',
+    exhale: 'EXPIRA',
+    rest: 'PAUSA',
+    idle: 'PRONTO',
+    finished: 'FIM'
+  };
+
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center gap-8 py-8 w-full">
-      <InstructorAvatar phase={exerciseState === 'idle' ? 'rest' : exerciseState} moduleType={moduleType} />
+      <InstructorAvatar phase={exerciseState === 'idle' || exerciseState === 'finished' ? 'rest' : exerciseState} moduleType={moduleType} />
 
       <div className="flex flex-col items-center space-y-8 flex-grow">
         <div className="text-center max-w-md">
           <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">
-            {exerciseState === 'idle' ? "Checklist" : config.title}
+            {exerciseState === 'idle' ? "Checklist" : activeExerciseTitle}
           </h3>
-          <p className="text-lg text-foreground mb-8 leading-relaxed">{feedback}</p>
+          <p className="text-lg text-foreground mb-8 leading-relaxed">
+            {exerciseState === 'idle' ? "Prepare-se para o treinamento de fôlego. Mantenha a postura ereta." : feedback}
+          </p>
           
           {exerciseState === 'idle' ? (
             <Button 
@@ -282,13 +221,13 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
                 )}>
                   <span className="text-6xl font-black text-foreground">{timeLeft}s</span>
                   <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                    {config.labels[exerciseState]}
+                    {labels[exerciseState]}
                   </span>
                 </div>
               </div>
               {repCount > 0 && (
                 <p className="text-sm font-bold text-primary uppercase tracking-widest">
-                  Série {repCount} de 3
+                  Série {repCount} de {totalSeries}
                 </p>
               )}
             </div>
