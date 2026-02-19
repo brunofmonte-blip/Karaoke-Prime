@@ -46,7 +46,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR', command: 'DÓ - RÉ - MI' };
     }
     if (safeTitle.includes('drone')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver perfeitamente afinado.", actionText: 'CANTAR', command: 'AFINE COM O DRONE' };
+      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver afinado.", actionText: 'CANTAR', command: 'AFINE COM O DRONE' };
     }
     if (safeTitle.includes('melodyne')) {
       return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Imagine que você está em um estúdio. Sua voz deve ser uma linha reta na nota DÓ (C4). Evite vibratos agora.", actionText: 'CANTAR', command: 'CANTE A LINHA' };

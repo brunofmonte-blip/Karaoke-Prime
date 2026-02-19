@@ -28,7 +28,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Mentalize a nota e atinja o centro instantaneamente.',
     commands: ['MENTALIZE A NOTA', 'ATAQUE AGORA', 'MANTENHA O CENTRO'],
     narration: ['Mentalize a frequência.', 'Ataque agora!', 'Crave o centro da nota.'],
-    prepText: "Prepare-se para o ataque de precisão. Mentalize a frequência antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.",
+    prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.",
     actionPhaseName: 'CANTAR'
   },
   'audiation': {
@@ -36,7 +36,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Treine seu ouvido interno para prever a nota.',
     commands: ['OUÇA INTERNAMENTE', 'CANTE A MENTE', 'EMITA O SOM'],
     narration: ['Ouça a nota internamente.', 'Cante apenas na mente.', 'Agora, emita o som com precisão.'],
-    prepText: "Foco total no ouvido interno. Não emita som até o comando. Imagine a nota vibrando na sua testa antes de cantar.",
+    prepText: "Foco total no ouvido interno. Mentalize a nota RÉ (D4) vibrando na sua testa. Não emita som até o comando.",
     actionPhaseName: 'CANTAR'
   },
   'bone-conduction': {
@@ -44,7 +44,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Sinta a vibração interna para calibração física.',
     commands: ['MÃO NO OUVIDO', 'SINTA A VIBRAÇÃO', 'AFINE INTERNAMENTE'],
     narration: ['Coloque a mão atrás do ouvido.', 'Sinta a vibração nos ossos da face.', 'Afine baseado na ressonância interna.'],
-    prepText: "Coloque a mão em concha atrás do ouvido para ouvir sua própria condução óssea. Sinta a ressonância nos dentes e maçãs do rosto.",
+    prepText: "Coloque a mão em concha atrás do ouvido. Cante a nota MI (E4) em 'Mmmmm' (boca fechada) e sinta a vibração nos ossos da face.",
     actionPhaseName: 'CANTAR'
   },
   'biofeedback': {
@@ -52,7 +52,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'A ciência exata da sua frequência vocal.',
     commands: ['OBSERVE O HERTZ', 'AJUSTE OS CENTS', 'ESTABILIZE'],
     narration: ['Observe a frequência em Hertz.', 'Ajuste os centésimos de semitom.', 'Estabilize no centro absoluto.'],
-    prepText: "Foque nos números. Sua meta é manter o desvio abaixo de 5 cents. Use a vogal 'U' (como em 'uvas') para maior estabilidade harmônica.",
+    prepText: "Foque nos números. Sua meta é manter a nota FÁ (F4) com desvio abaixo de 5 cents. Use a vogal 'U' para maior estabilidade.",
     actionPhaseName: 'CANTAR'
   },
   'sovt-pitch': {
@@ -60,7 +60,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Controle de tom com resistência de fluxo.',
     commands: ['SOPRO CONSTANTE', 'GLISSANDO LEVE', 'FOCO NO TOM'],
     narration: ['Mantenha o sopro constante.', 'Faça um glissando leve.', 'Foque na estabilidade do tom.'],
-    prepText: "Use o canudo para este exercício. A resistência ajudará na estabilidade. Mantenha o fluxo de ar constante enquanto varia o tom.",
+    prepText: "Use o canudo. Mantenha a nota SOL (G4) constante enquanto varia levemente a pressão do ar.",
     actionPhaseName: 'CANTAR'
   },
   'autotune-realtime': {
@@ -68,7 +68,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Simulação de correção para percepção de erro.',
     commands: ['OUÇA O DESVIO', 'CORRIJA O TOM', 'SINTA A TRAVA'],
     narration: ['Ouça o desvio da nota.', 'Corrija o tom instantaneamente.', 'Sinta a trava da afinação perfeita.'],
-    prepText: "O sistema simulará uma correção para que você perceba onde está errando. Tente 'vencer' o corretor mantendo a nota pura.",
+    prepText: "O sistema simulará uma correção na nota LÁ (A4). Tente 'vencer' o corretor mantendo a nota pura.",
     actionPhaseName: 'CANTAR'
   },
   'vowel-mod': {
@@ -76,7 +76,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Mantenha a afinação ao trocar de vogal.',
     commands: ['VOGAL A', 'VOGAL O', 'MANTENHA O TOM'],
     narration: ['Cante a vogal A.', 'Troque para a vogal O sem mudar o tom.', 'Mantenha a afinação perfeita.'],
-    prepText: "Foco na transição entre vogais sem perder a frequência central. Comece em 'Í' e mude gradualmente para 'Á' sem oscilar.",
+    prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.",
     actionPhaseName: 'CANTAR'
   },
   'solfege': {
@@ -84,7 +84,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Treinamento de intervalos clássicos.',
     commands: ['DÓ', 'RÉ', 'MI'],
     narration: ['Cante o Dó.', 'Suba para o Ré.', 'Atinga o Mi com precisão.'],
-    prepText: "Intervalos diatônicos. Crave cada nota no centro do afinador. Use os nomes das notas (Dó, Ré, Mi) com clareza.",
+    prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.",
     actionPhaseName: 'CANTAR'
   },
   'drone-sustain': {
@@ -92,7 +92,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Mantenha estabilidade absoluta contra a nota pedal.',
     commands: ['OUÇA O DRONE', 'SINTA A VIBRAÇÃO', 'ESTABILIZE'],
     narration: ['Ouça a nota pedal.', 'Sinta a vibração da nota.', 'Estabilize sua voz contra o drone.'],
-    prepText: "O drone em Dó será ativado. Foque na pureza do intervalo. Sinta o batimento acústico desaparecer quando estiver afinado.",
+    prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver afinado.",
     actionPhaseName: 'CANTAR'
   },
   'melodyne-analysis': {
@@ -100,7 +100,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Análise visual de estúdio da sua linha vocal.',
     commands: ['CANTE A LINHA', 'VEJA O GRÁFICO', 'CORRIJA A CURVA'],
     narration: ['Cante a linha melódica.', 'Veja o gráfico de pitch.', 'Corrija a curva da sua voz.'],
-    prepText: "Imagine que você está em um estúdio profissional. Sua voz deve ser uma linha reta. Evite vibratos excessivos agora.",
+    prepText: "Imagine que você está em um estúdio. Sua voz deve ser uma linha reta na nota DÓ (C4). Evite vibratos agora.",
     actionPhaseName: 'CANTAR'
   },
   'blind-tuning': {
@@ -108,7 +108,7 @@ const subModuleConfigs: Record<CalibrationSubModule, {
     description: 'Mantenha o tom enquanto o afinador desaparece.',
     commands: ['FOCO NO TOM', 'AFINADOR OCULTO', 'MOMENTO DA VERDADE'],
     narration: ['Foque no centro do tom.', 'O afinador irá desaparecer agora. Mantenha!', 'O afinador voltou. Confira sua precisão.'],
-    prepText: "O afinador ficará invisível por 10 segundos. Confie na sua memória muscular. Mantenha o suporte abdominal ativo.",
+    prepText: "O afinador ficará invisível por 10 segundos na nota RÉ (D4). Confie na sua memória muscular e suporte abdominal.",
     actionPhaseName: 'CANTAR'
   },
   'none': {
