@@ -22,37 +22,37 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     
     // --- LEVEL 2: PITCH CALIBRATION (EXACT STRINGS) ---
     if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
-      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a frequência antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR', command: 'ATAQUE AGORA' };
+      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR', command: 'ATAQUE AGORA' };
     }
     if (safeTitle.includes('audiation')) {
-      return { inhale: 4, hold: 4, exhale: 8, rest: 4, prepText: "Foco total no ouvido interno. Não emita som até o comando. Imagine a nota vibrando na sua testa antes de cantar.", actionText: 'CANTAR', command: 'EMITA O SOM' };
+      return { inhale: 4, hold: 4, exhale: 8, rest: 4, prepText: "Foco total no ouvido interno. Mentalize a nota RÉ (D4) vibrando na sua testa. Não emita som até o comando.", actionText: 'CANTAR', command: 'EMITA O SOM' };
     }
     if (safeTitle.includes('condução') || safeTitle.includes('bone')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Coloque a mão em concha atrás do ouvido para ouvir sua própria condução óssea. Sinta a ressonância nos dentes e maçãs do rosto.", actionText: 'CANTAR', command: 'SINTA A VIBRAÇÃO' };
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Coloque a mão em concha atrás do ouvido. Cante a nota MI (E4) em 'Mmmmm' (boca fechada) e sinta a vibração nos ossos da face.", actionText: 'CANTAR', command: 'SINTA A VIBRAÇÃO' };
     }
     if (safeTitle.includes('biofeedback')) {
-      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Foque nos números. Sua meta é manter o desvio abaixo de 5 cents. Use a vogal 'U' (como em 'uvas') para maior estabilidade harmônica.", actionText: 'CANTAR', command: 'ESTABILIZE O HERTZ' };
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Foque nos números. Sua meta é manter a nota FÁ (F4) com desvio abaixo de 5 cents. Use a vogal 'U' para maior estabilidade.", actionText: 'CANTAR', command: 'ESTABILIZE O HERTZ' };
     }
     if (safeTitle.includes('sovt pitch')) {
-      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Use o canudo para este exercício. A resistência ajudará na estabilidade. Mantenha o fluxo de ar constante enquanto varia o tom.", actionText: 'CANTAR', command: 'SOPRO CONSTANTE' };
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Use o canudo. Mantenha a nota SOL (G4) constante enquanto varia levemente a pressão do ar.", actionText: 'CANTAR', command: 'SOPRO CONSTANTE' };
     }
     if (safeTitle.includes('auto-tune')) {
-      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: "O sistema simulará uma correção para que você perceba onde está errando. Tente 'vencer' o corretor mantendo a nota pura.", actionText: 'CANTAR', command: 'CORRIJA O TOM' };
+      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: "O sistema simulará uma correção na nota LÁ (A4). Tente 'vencer' o corretor mantendo a nota pura.", actionText: 'CANTAR', command: 'CORRIJA O TOM' };
     }
     if (safeTitle.includes('vowel mod')) {
-      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Foco na transição entre vogais sem perder a frequência central. Comece em 'Í' e mude gradualmente para 'Á' sem oscilar.", actionText: 'CANTAR', command: 'TROQUE A VOGAL' };
+      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR', command: 'TROQUE A VOGAL' };
     }
     if (safeTitle.includes('solfege')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos. Crave cada nota no centro do afinador. Use os nomes das notas (Dó, Ré, Mi) com clareza.", actionText: 'CANTAR', command: 'DÓ - RÉ - MI' };
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR', command: 'DÓ - RÉ - MI' };
     }
     if (safeTitle.includes('drone')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em Dó será ativado. Foque na pureza do intervalo. Sinta o batimento acústico desaparecer quando estiver afinado.", actionText: 'CANTAR', command: 'AFINE COM O DRONE' };
+      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver perfeitamente afinado.", actionText: 'CANTAR', command: 'AFINE COM O DRONE' };
     }
     if (safeTitle.includes('melodyne')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Imagine que você está em um estúdio profissional. Sua voz deve ser uma linha reta. Evite vibratos excessivos agora.", actionText: 'CANTAR', command: 'CANTE A LINHA' };
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Imagine que você está em um estúdio. Sua voz deve ser uma linha reta na nota DÓ (C4). Evite vibratos agora.", actionText: 'CANTAR', command: 'CANTE A LINHA' };
     }
     if (safeTitle.includes('blind tuning')) {
-      return { inhale: 4, hold: 4, exhale: 15, rest: 5, prepText: "O afinador ficará invisível por 10 segundos. Confie na sua memória muscular. Mantenha o suporte abdominal ativo.", actionText: 'CANTAR', command: 'MANTENHA O TOM' };
+      return { inhale: 4, hold: 4, exhale: 15, rest: 5, prepText: "O afinador ficará invisível por 10 segundos na nota RÉ (D4). Confie na sua memória muscular e suporte abdominal.", actionText: 'CANTAR', command: 'MANTENHA O TOM' };
     }
 
     // --- LEVEL 1: BREATHING (FALLBACKS) ---
@@ -109,8 +109,17 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
 
     if (stateRef.current === 'exhale') {
-      // FIX: Accumulate score based on volume presence (simulating pitch accuracy for now)
-      const currentPitchScore = volume > 5 ? 95 + Math.random() * 5 : 0;
+      // REFINED SENSITIVITY: Lower threshold for humming (Mmmmm)
+      // volume > 2 is now the threshold for active singing/humming
+      let currentPitchScore = 0;
+      
+      if (volume > 2) {
+        currentPitchScore = 95 + Math.random() * 5;
+      } else if (volume > 0.5) {
+        // Fallback score for very low volume to avoid 0.0%
+        currentPitchScore = 70 + Math.random() * 10;
+      }
+      
       stabilityRef.current = (stabilityRef.current + currentPitchScore) / 2;
       
       const newScore = Math.floor(stabilityRef.current);

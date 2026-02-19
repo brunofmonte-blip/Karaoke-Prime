@@ -104,7 +104,7 @@ const PerformanceSummaryModal: React.FC = () => {
               <>
                 <p className="text-xl text-muted-foreground font-medium">Tempo de Sustentação</p>
                 <p className="text-6xl font-extrabold text-accent neon-gold-glow mt-2">
-                  {durationSeconds} <span className="text-2xl">segundos</span>
+                  {durationSeconds} <span className="text-2xl">Segundos</span>
                 </p>
               </>
             ) : (
@@ -150,7 +150,7 @@ const PerformanceSummaryModal: React.FC = () => {
               <div className="p-3 bg-card/50 rounded-xl border border-border/50 text-center">
                 <Clock className="h-5 w-5 text-primary mx-auto mb-1" />
                 <p className="text-xs text-muted-foreground">Duração</p>
-                <p className="font-semibold text-foreground">{durationSeconds}s</p>
+                <p className="font-semibold text-foreground">{durationSeconds} Segundos</p>
               </div>
             </div>
           )}
