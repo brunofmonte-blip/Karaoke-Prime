@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { Wind, Pause, Play, AlertCircle, Volume2, Activity, CheckCircle2, Mic } from 'lucide-react';
+import { Wind, Pause, Play, AlertCircle, Volume2, Activity, CheckCircle2, Mic, Info } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ConservatoryModule, useVocalSandbox, BreathingPhase } from '@/hooks/use-vocal-sandbox';
@@ -22,58 +22,58 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     
     // --- LEVEL 2: MODULE A (Ataque & Audiation) ---
     if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
-      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', command: 'ATAQUE AGORA' };
+      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', command: 'ATAQUE AGORA', isLegato: false };
     }
     if (safeTitle.includes('audiation')) {
-      return { inhale: 4, hold: 4, exhale: 8, rest: 4, prepText: "Foco total no ouvido interno. Mentalize a nota RÉ (D4) vibrando na sua testa. Não emita som até o comando.", actionText: 'CANTAR AAAAA', command: 'EMITA O SOM' };
+      return { inhale: 4, hold: 4, exhale: 8, rest: 4, prepText: "Foco total no ouvido interno. Mentalize a nota RÉ (D4) vibrando na sua testa. Não emita som até o comando.", actionText: 'CANTAR AAAAA', command: 'EMITA O SOM', isLegato: true };
     }
     if (safeTitle.includes('condução') || safeTitle.includes('bone')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Coloque a mão em concha atrás do ouvido. Cante a nota MI (E4) em 'Mmmmm' (boca fechada) e sinta a vibração nos ossos da face.", actionText: 'CANTAR MMMMM', command: 'SINTA A VIBRAÇÃO' };
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Coloque a mão em concha atrás do ouvido. Cante a nota MI (E4) em 'Mmmmm' (boca fechada) e sinta a vibração nos ossos da face.", actionText: 'CANTAR MMMMM', command: 'SINTA A VIBRAÇÃO', isLegato: true };
     }
 
     // --- LEVEL 2: MODULE B (Biofeedback e Sintonia) ---
     if (safeTitle.includes('biofeedback')) {
-      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Foque nos números. Sua meta é manter a nota FÁ (F4) com desvio abaixo de 5 cents. Use a vogal 'U' para maior estabilidade.", actionText: 'CANTAR UUUUU', command: 'ESTABILIZE O HERTZ' };
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Foque nos números. Sua meta é manter a nota FÁ (F4) com desvio abaixo de 5 cents. Use a vogal 'U' para maior estabilidade.", actionText: 'CANTAR UUUUU', command: 'ESTABILIZE O HERTZ', isLegato: true };
     }
     if (safeTitle.includes('sovt pitch')) {
-      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Use o canudo. Mantenha a nota SOL (G4) constante enquanto varia levemente a pressão do ar.", actionText: 'SOPRAR UUUUU', command: 'SOPRO CONSTANTE' };
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Use o canudo. Mantenha a nota SOL (G4) constante enquanto varia levemente a pressão do ar.", actionText: 'SOPRAR UUUUU', command: 'SOPRO CONSTANTE', isLegato: true };
     }
     if (safeTitle.includes('auto-tune')) {
-      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: "O sistema simulará uma correção na nota LÁ (A4). Tente 'vencer' o corretor mantendo a nota pura.", actionText: 'CANTAR AAAAA', command: 'CORRIJA O TOM' };
+      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: "O sistema simulará uma correção na nota LÁ (A4). Tente 'vencer' o corretor mantendo a nota pura.", actionText: 'CANTAR AAAAA', command: 'CORRIJA O TOM', isLegato: true };
     }
 
     // --- LEVEL 2: MODULE C (Ressonância & Teoria) ---
     if (safeTitle.includes('vowel mod')) {
-      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR AAAAA-OOOOO', command: 'TROQUE A VOGAL' };
+      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR AAAAA-OOOOO', command: 'TROQUE A VOGAL', isLegato: true };
     }
     if (safeTitle.includes('solfege')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR DÓ-RÉ-MI', command: 'DÓ - RÉ - MI' };
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR DÓ-RÉ-MI', command: 'DÓ - RÉ - MI', isLegato: true };
     }
 
     // --- LEVEL 2: MODULE D (Estúdio & Performance) ---
     if (safeTitle.includes('drone')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver afinado.", actionText: 'CANTAR AAAAA', command: 'AFINE COM O DRONE' };
+      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver afinado.", actionText: 'CANTAR AAAAA', command: 'AFINE COM O DRONE', isLegato: true };
     }
     if (safeTitle.includes('melodyne')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Imagine que você está em um estúdio. Sua voz deve ser uma linha reta na nota DÓ (C4). Evite vibratos agora.", actionText: 'CANTAR AAAAA', command: 'CANTE A LINHA' };
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Imagine que você está em um estúdio. Sua voz deve ser uma linha reta na nota DÓ (C4). Evite vibratos agora.", actionText: 'CANTAR AAAAA', command: 'CANTE A LINHA', isLegato: true };
     }
     if (safeTitle.includes('blind tuning')) {
-      return { inhale: 4, hold: 4, exhale: 15, rest: 5, prepText: "O afinador ficará invisível por 10 segundos na nota RÉ (D4). Confie na sua memória muscular e suporte abdominal.", actionText: 'CANTAR AAAAA', command: 'MANTENHA O TOM' };
+      return { inhale: 4, hold: 4, exhale: 15, rest: 5, prepText: "O afinador ficará invisível por 10 segundos na nota RÉ (D4). Confie na sua memória muscular e suporte abdominal.", actionText: 'CANTAR AAAAA', command: 'MANTENHA O TOM', isLegato: true };
     }
 
     // --- LEVEL 1: BREATHING (FALLBACKS) ---
     if (safeTitle.includes('costal') || safeTitle.includes('expansão')) {
-      return { inhale: 4, hold: 3, exhale: 8, rest: 5, prepText: 'Sente-se na ponta da cadeira com a coluna reta. Foque em expandir as costelas para os lados e para as costas.', actionText: 'SOLTAR SSSSS', command: 'EXPIRA LENTAMENTE' };
+      return { inhale: 4, hold: 3, exhale: 8, rest: 5, prepText: 'Sente-se na ponta da cadeira com a coluna reta. Foque em expandir as costelas para os lados e para as costas.', actionText: 'SOLTAR SSSSS', command: 'EXPIRA LENTAMENTE', isLegato: true };
     }
     if (safeTitle.includes('ofegante') || safeTitle.includes('cachorro')) {
-      return { inhale: 2, hold: 1, exhale: 10, rest: 4, prepText: 'Coloque a mão no abdômen. Vamos usar respirações curtas para ativar o diafragma, como um cachorrinho.', actionText: 'SOLTAR HA-HA-HA', command: 'GOLPES DE AR' };
+      return { inhale: 2, hold: 1, exhale: 10, rest: 4, prepText: 'Coloque a mão no abdômen. Vamos usar respirações curtas para ativar o diafragma, como um cachorrinho.', actionText: 'SOLTAR HA-HA-HA', command: 'GOLPES DE AR', isLegato: false };
     }
     if (safeTitle.includes('farinelli')) {
-      return { inhale: 5, hold: 5, exhale: 5, rest: 4, prepText: 'Treino do lendário Farinelli. Foque na expansão lateral das costelas em tempos perfeitamente iguais.', actionText: 'SOLTAR SSSSS', command: 'FLUXO ESTÁVEL' };
+      return { inhale: 5, hold: 5, exhale: 5, rest: 4, prepText: 'Treino do lendário Farinelli. Foque na expansão lateral das costelas em tempos perfeitamente iguais.', actionText: 'SOLTAR SSSSS', command: 'FLUXO ESTÁVEL', isLegato: true };
     }
     
     // DEFAULT
-    return { inhale: 4, hold: 4, exhale: 10, rest: 5, prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', actionText: 'SOLTAR AR', command: 'EXPIRA AGORA' };
+    return { inhale: 4, hold: 4, exhale: 10, rest: 5, prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', actionText: 'SOLTAR AR', command: 'EXPIRA AGORA', isLegato: true };
   };
 
   const config = useMemo(() => getStrictConfig(activeExerciseTitle), [activeExerciseTitle]);
@@ -115,15 +115,23 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
 
     if (stateRef.current === 'exhale') {
-      // REFINED SENSITIVITY: Lower threshold for humming (Mmmmm)
-      // volume > 2 is now the threshold for active singing/humming
+      // LEGATO BYPASS: If isLegato is true, we reward volume maintenance instead of strict pitch
       let currentPitchScore = 0;
       
-      if (volume > 2) {
-        currentPitchScore = 95 + Math.random() * 5;
-      } else if (volume > 0.5) {
-        // Fallback score for very low volume to avoid 0.0%
-        currentPitchScore = 70 + Math.random() * 10;
+      if (config.isLegato) {
+        // Reward continuous phonation (volume > 1.5)
+        if (volume > 1.5) {
+          currentPitchScore = 98 + Math.random() * 2; // High reward for sustaining
+        } else if (volume > 0.5) {
+          currentPitchScore = 60 + Math.random() * 10; // Partial reward for weak sound
+        }
+      } else {
+        // Standard attack/short note logic
+        if (volume > 2) {
+          currentPitchScore = 95 + Math.random() * 5;
+        } else if (volume > 0.5) {
+          currentPitchScore = 70 + Math.random() * 10;
+        }
       }
       
       stabilityRef.current = (stabilityRef.current + currentPitchScore) / 2;
@@ -174,6 +182,9 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
 
   useEffect(() => {
     if (timeLeft === 0 && exerciseState !== 'idle' && exerciseState !== 'finished') {
+      // GHOST KILL: Cancel any lingering speech or intervals before state change
+      window.speechSynthesis.cancel();
+
       if (exerciseState === 'inhale') {
         setExerciseState('hold');
         setTimeLeft(config.hold); 
@@ -185,6 +196,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         setTimeLeft(config.exhale); 
         stabilityRef.current = 100;
         setStabilityScore(100);
+        // ENFORCE: Strictly use config.actionText to prevent ghost overrides
         setFeedback(config.command);
         speak(config.command);
       } 
@@ -201,7 +213,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           if (animationRef.current) cancelAnimationFrame(animationRef.current);
           if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
           setExerciseState('finished');
-          // FIX: Calculate true average and pass to stopAnalysis
           const finalAverage = Math.floor(accumulatedScoreRef.current / totalSeries);
           setFeedback("Treino concluído.");
           speak("Treino concluído.");
@@ -223,6 +234,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
       if (audioContextRef.current) audioContextRef.current.close();
+      window.speechSynthesis.cancel();
     };
   }, []);
 
@@ -285,6 +297,16 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
                 <h4 className="text-xl font-black text-primary neon-blue-glow animate-pulse">
                   {exerciseState === 'exhale' ? config.command : labels[exerciseState]}
                 </h4>
+                
+                {/* SUSTAIN UI BANNER */}
+                {exerciseState === 'exhale' && config.isLegato && (
+                  <div className="mt-4 p-2 bg-accent/20 border border-accent/50 rounded-lg flex items-center justify-center gap-2 animate-bounce">
+                    <Info className="h-4 w-4 text-accent" />
+                    <span className="text-[10px] font-black text-accent uppercase tracking-tighter">
+                      MANTENHA O SOM CONSTANTE: NÃO PARE DE CANTAR!
+                    </span>
+                  </div>
+                )}
               </div>
 
               {repCount > 0 && (
