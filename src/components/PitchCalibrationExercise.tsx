@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Target, Zap, AlertCircle, Volume2, Activity, CheckCircle2, Music, Headphones, BarChart3, Mic2 } from 'lucide-react';
+import { Target, Zap, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CalibrationSubModule } from '@/hooks/use-vocal-sandbox';
 import InstructorAvatar from './InstructorAvatar';
@@ -15,109 +15,97 @@ interface PitchCalibrationExerciseProps {
   currentTime: number;
 }
 
+// Standardized Config: Removed arrays to prevent ghost switching
 const subModuleConfigs: Record<CalibrationSubModule, { 
   title: string, 
   description: string,
-  commands: string[],
-  narration: string[],
+  command: string,
   prepText: string,
-  actionPhaseName: string
+  actionText: string
 }> = {
   'laser-attack': {
     title: 'Ataque Laser & Audiation',
     description: 'Mentalize a nota e atinja o centro instantaneamente.',
-    commands: ['MENTALIZE A NOTA', 'ATAQUE AGORA', 'MANTENHA O CENTRO'],
-    narration: ['Mentalize a frequência.', 'Ataque agora!', 'Crave o centro da nota.'],
+    command: 'ATAQUE AGORA',
     prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR PÁ!'
   },
   'audiation': {
     title: 'Audiation (Mentalization)',
     description: 'Treine seu ouvido interno para prever a nota.',
-    commands: ['OUÇA INTERNAMENTE', 'CANTE A MENTE', 'EMITA O SOM'],
-    narration: ['Ouça a nota internamente.', 'Cante apenas na mente.', 'Agora, emita o som com precisão.'],
+    command: 'EMITA O SOM',
     prepText: "Foco total no ouvido interno. Mentalize a nota RÉ (D4) vibrando na sua testa. Não emita som até o comando.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR AAAAA'
   },
   'bone-conduction': {
     title: 'Condução Óssea',
     description: 'Sinta a vibração interna para calibração física.',
-    commands: ['MÃO NO OUVIDO', 'SINTA A VIBRAÇÃO', 'AFINE INTERNAMENTE'],
-    narration: ['Coloque a mão atrás do ouvido.', 'Sinta a vibração nos ossos da face.', 'Afine baseado na ressonância interna.'],
+    command: 'SINTA A VIBRAÇÃO',
     prepText: "Coloque a mão em concha atrás do ouvido. Cante a nota MI (E4) em 'Mmmmm' (boca fechada) e sinta a vibração nos ossos da face.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR MMMMM'
   },
   'biofeedback': {
     title: 'Biofeedback (Hertz/Cents)',
     description: 'A ciência exata da sua frequência vocal.',
-    commands: ['OBSERVE O HERTZ', 'AJUSTE OS CENTS', 'ESTABILIZE'],
-    narration: ['Observe a frequência em Hertz.', 'Ajuste os centésimos de semitom.', 'Estabilize no centro absoluto.'],
+    command: 'ESTABILIZE O HERTZ',
     prepText: "Foque nos números. Sua meta é manter a nota FÁ (F4) com desvio abaixo de 5 cents. Use a vogal 'U' para maior estabilidade.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR UUUUU'
   },
   'sovt-pitch': {
     title: 'SOVT Pitch Control',
     description: 'Controle de tom com resistência de fluxo.',
-    commands: ['SOPRO CONSTANTE', 'GLISSANDO LEVE', 'FOCO NO TOM'],
-    narration: ['Mantenha o sopro constante.', 'Faça um glissando leve.', 'Foque na estabilidade do tom.'],
+    command: 'SOPRO CONSTANTE',
     prepText: "Use o canudo. Mantenha a nota SOL (G4) constante enquanto varia levemente a pressão do ar.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'SOPRAR UUUUU'
   },
   'autotune-realtime': {
     title: 'Auto-Tune Real-Time',
     description: 'Simulação de correção para percepção de erro.',
-    commands: ['OUÇA O DESVIO', 'CORRIJA O TOM', 'SINTA A TRAVA'],
-    narration: ['Ouça o desvio da nota.', 'Corrija o tom instantaneamente.', 'Sinta a trava da afinação perfeita.'],
+    command: 'CORRIJA O TOM',
     prepText: "O sistema simulará uma correção na nota LÁ (A4). Tente 'vencer' o corretor mantendo a nota pura.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR AAAAA'
   },
   'vowel-mod': {
     title: 'Vowel Modification',
     description: 'Mantenha a afinação ao trocar de vogal.',
-    commands: ['VOGAL A', 'VOGAL O', 'MANTENHA O TOM'],
-    narration: ['Cante a vogal A.', 'Troque para a vogal O sem mudar o tom.', 'Mantenha a afinação perfeita.'],
+    command: 'TROQUE A VOGAL',
     prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR AAAAA-OOOOO'
   },
   'solfege': {
     title: 'Solfège (Do-Re-Mi)',
     description: 'Treinamento de intervalos clássicos.',
-    commands: ['DÓ', 'RÉ', 'MI'],
-    narration: ['Cante o Dó.', 'Suba para o Ré.', 'Atinga o Mi com precisão.'],
+    command: 'DÓ - RÉ - MI',
     prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR DÓ-RÉ-MI'
   },
   'drone-sustain': {
     title: 'Sustentação em Drone',
     description: 'Mantenha estabilidade absoluta contra a nota pedal.',
-    commands: ['OUÇA O DRONE', 'SINTA A VIBRAÇÃO', 'ESTABILIZE'],
-    narration: ['Ouça a nota pedal.', 'Sinta a vibração da nota.', 'Estabilize sua voz contra o drone.'],
+    command: 'AFINE COM O DRONE',
     prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver afinado.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR AAAAA'
   },
   'melodyne-analysis': {
     title: 'Melodyne Analysis',
     description: 'Análise visual de estúdio da sua linha vocal.',
-    commands: ['CANTE A LINHA', 'VEJA O GRÁFICO', 'CORRIJA A CURVA'],
-    narration: ['Cante a linha melódica.', 'Veja o gráfico de pitch.', 'Corrija a curva da sua voz.'],
+    command: 'CANTE A LINHA',
     prepText: "Imagine que você está em um estúdio. Sua voz deve ser uma linha reta na nota DÓ (C4). Evite vibratos agora.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR AAAAA'
   },
   'blind-tuning': {
     title: 'Teste de Blind Tuning',
     description: 'Mantenha o tom enquanto o afinador desaparece.',
-    commands: ['FOCO NO TOM', 'AFINADOR OCULTO', 'MOMENTO DA VERDADE'],
-    narration: ['Foque no centro do tom.', 'O afinador irá desaparecer agora. Mantenha!', 'O afinador voltou. Confira sua precisão.'],
+    command: 'MANTENHA O TOM',
     prepText: "O afinador ficará invisível por 10 segundos na nota RÉ (D4). Confie na sua memória muscular e suporte abdominal.",
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR AAAAA'
   },
   'none': {
     title: 'Calibração de Tom',
     description: '',
-    commands: [],
-    narration: [],
+    command: 'CANTAR',
     prepText: '',
-    actionPhaseName: 'CANTAR'
+    actionText: 'CANTAR'
   }
 };
 
@@ -125,15 +113,11 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
   const config = subModuleConfigs[subModule];
   const [isReady, setIsReady] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [commandIndex, setCommandIndex] = useState(0);
 
   const speak = (text: string) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      const voices = window.speechSynthesis.getVoices();
-      const ptBrVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Daniel') || v.name.includes('Male')));
-      if (ptBrVoice) utterance.voice = ptBrVoice;
       utterance.lang = 'pt-BR';
       utterance.rate = 0.9;
       utterance.pitch = 1.05;
@@ -155,23 +139,13 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
         const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
         return () => clearTimeout(timer);
       } else {
-        speak("Calibração iniciada!");
+        speak(config.command);
         setCountdown(null);
       }
     }
-  }, [countdown]);
+  }, [countdown, config.command]);
 
   const isTunerVisible = subModule !== 'blind-tuning' || (currentTime < 10 || currentTime > 20);
-
-  useEffect(() => {
-    if (isReady && countdown === null) {
-      const newIndex = Math.floor(currentTime / 10) % config.commands.length;
-      if (newIndex !== commandIndex) {
-        setCommandIndex(newIndex);
-        speak(config.narration[newIndex]);
-      }
-    }
-  }, [currentTime, isReady, countdown, config, commandIndex]);
 
   const handleReady = () => {
     setIsReady(true);
@@ -186,7 +160,7 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
   if (!isReady) {
     return (
       <div className="flex flex-col items-center justify-center gap-8 py-12 animate-in fade-in duration-500">
-        <InstructorAvatar phase="rest" moduleType="pitch-calibration" subModule={subModule} actionPhaseName={config.actionPhaseName} />
+        <InstructorAvatar phase="rest" moduleType="pitch-calibration" subModule={subModule} actionPhaseName={config.actionText} />
         <div className="text-center max-w-md">
           <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-4 uppercase tracking-widest">{config.title}</h3>
           <p className="text-lg text-foreground mb-8 leading-relaxed">{config.prepText}</p>
@@ -208,7 +182,7 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
         phase={frequency > 0 ? 'exhale' : 'rest'} 
         moduleType="pitch-calibration" 
         subModule={subModule} 
-        actionPhaseName={config.actionPhaseName}
+        actionPhaseName={config.actionText}
       />
 
       <div className="flex flex-col items-center space-y-8 flex-grow w-full max-w-2xl">
@@ -226,7 +200,7 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
         <div className="w-full p-6 glass-pillar border-2 border-primary/20 rounded-2xl text-center">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Comando do Instrutor</p>
           <h4 className="text-2xl font-black text-primary neon-blue-glow animate-pulse">
-            {config.commands[commandIndex]}
+            {frequency > 0 ? config.command : "AGUARDANDO VOZ..."}
           </h4>
         </div>
       </div>

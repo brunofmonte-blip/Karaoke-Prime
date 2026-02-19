@@ -119,6 +119,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const stopAnalysis = useCallback((customScore?: number) => {
     stopAudio();
     const isBreathing = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander';
+    const isPitchCalibration = activeModule === 'pitch-calibration';
     
     setBreathingPhase('idle');
     setBreathingProgress(0);
@@ -154,15 +155,16 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       let summary: SessionSummary;
       
-      if (isBreathing && customScore !== undefined) {
+      // STANDARDIZATION: Skip Sandbox for Breathing and Calibration modules
+      if ((isBreathing || isPitchCalibration) && customScore !== undefined) {
         summary = {
           pitchAccuracy: customScore,
           rhythmPrecision: 100,
           vocalStability: customScore,
-          improvementTips: ["Excelente controle de fôlego!", "Mantenha a postura para melhores resultados."],
+          improvementTips: ["Excelente controle!", "Mantenha a prática diária para melhores resultados."],
           durationSeconds: durationSeconds,
           songId: currentSong.id,
-          isBreathing: true
+          isBreathing: isBreathing
         };
       } else {
         const insight = runScoringEngine(pitchHistory, currentSong);
@@ -175,10 +177,11 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       }
       
       setSessionSummary(summary);
-      setIsOverlayOpen(false);
+      setIsOverlayOpen(false); // Close Sandbox immediately
       return { summary, history: pitchHistory };
     }
     
+    setIsOverlayOpen(false);
     return null;
   }, [stopAudio, pitchHistory, currentSong, activeModule]);
 
