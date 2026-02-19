@@ -22,7 +22,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     
     // --- MÓDULO A: ATAQUE & AUDIATION (LEVEL 2) ---
     if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
-      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: 'Mentalize a nota e atinja o centro instantaneamente. Foco em intonação pura.', exhaleMsg: 'Cante a nota agora!', actionPhaseName: 'CANTAR' };
+      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a frequência antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", exhaleMsg: 'Cante a nota agora!', actionPhaseName: 'CANTAR' };
     }
 
     // --- MÓDULO D: TÉCNICA DE ALEXANDER ---
