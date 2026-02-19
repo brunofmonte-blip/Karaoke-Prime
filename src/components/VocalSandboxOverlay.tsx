@@ -40,7 +40,7 @@ const VocalSandboxOverlay: React.FC = () => {
     activeSubModule,
   } = useVocalSandbox();
   
-  const isBreathingExercise = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander';
+  const isBreathingExercise = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander' || activeModule === 'rhythm';
   const isPitchCalibration = activeModule === 'pitch-calibration';
   
   const progressValue = isBreathingExercise ? manualProgress : (currentTime / totalDuration) * 100;

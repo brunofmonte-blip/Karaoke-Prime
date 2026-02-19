@@ -22,7 +22,7 @@ export interface SessionSummary extends PerformanceInsight {
 }
 
 export type BreathingPhase = 'inhale' | 'hold' | 'suspend' | 'exhale' | 'rest' | 'idle';
-export type ConservatoryModule = 'farinelli' | 'sovt' | 'panting' | 'alexander' | 'pitch-calibration' | 'none';
+export type ConservatoryModule = 'farinelli' | 'sovt' | 'panting' | 'alexander' | 'pitch-calibration' | 'rhythm' | 'none';
 export type CalibrationSubModule = 
   | 'laser-attack' | 'drone-sustain' | 'blind-tuning' 
   | 'bone-conduction' | 'audiation' | 'biofeedback' 
@@ -118,7 +118,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   
   const stopAnalysis = useCallback((customScore?: number) => {
     stopAudio();
-    const isBreathing = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander';
+    const isBreathing = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander' || activeModule === 'rhythm';
     const isPitchCalibration = activeModule === 'pitch-calibration';
     
     setBreathingPhase('idle');
@@ -210,7 +210,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       audioRef.current = audio;
     }
 
-    const isBreathing = module === 'farinelli' || module === 'sovt' || module === 'panting' || module === 'alexander';
+    const isBreathing = module === 'farinelli' || module === 'sovt' || module === 'panting' || module === 'alexander' || module === 'rhythm';
     const duration = isBreathing ? 9999 : (module === 'pitch-calibration' ? 60 : 60); 
     setTotalDuration(duration);
 

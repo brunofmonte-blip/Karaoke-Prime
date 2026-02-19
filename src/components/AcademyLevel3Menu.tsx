@@ -80,8 +80,8 @@ const AcademyLevel3Menu: React.FC = () => {
 
   const handleStartExercise = (exercise: Exercise) => {
     const exerciseSong = publicDomainLibrary.find(s => s.id === 'pd-23') || publicDomainLibrary[0];
-    // For Level 3, we use a generic rhythm exercise module
-    startAnalysis(exerciseSong, false, 'none', 'none', exercise.title);
+    // CRITICAL FIX: Use 'rhythm' module to trigger the guided engine instead of the sandbox
+    startAnalysis(exerciseSong, false, 'rhythm', 'none', exercise.title);
     openOverlay();
   };
 

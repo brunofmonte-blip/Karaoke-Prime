@@ -62,14 +62,14 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
 
     // --- LEVEL 3: MODULE A (Pulso & Divisão) ---
-    if (safeTitle.includes('metrônomo humano')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Sinta o pulso. Sua meta é manter a nota DÓ (C4) em ataques curtos e precisos seguindo o metrônomo visual.", actionText: 'CANTAR DÓ-DÓ-DÓ', command: 'SIGA O PULSO', isLegato: false };
+    if (safeTitle.includes('metrônomo humano') || safeTitle.includes('metronomo humano')) {
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Sinta o pulso. Sua meta é manter a nota DÓ (C4) em ataques curtos e precisos seguindo o metrônomo visual.", actionText: 'MARQUE O TEMPO (PÁ - PÁ - PÁ)', command: 'SIGA O PULSO', isLegato: false };
     }
-    if (safeTitle.includes('divisão binária')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Divida o tempo. Cante colcheias precisas na nota RÉ (D4). Foque na subdivisão exata do tempo.", actionText: 'CANTAR RÉ-RÉ-RÉ-RÉ', command: 'DIVIDA O TEMPO', isLegato: false };
+    if (safeTitle.includes('divisão binária') || safeTitle.includes('divisao binaria')) {
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Divida o tempo. Cante colcheias precisas na nota RÉ (D4). Foque na subdivisão exata do tempo.", actionText: 'MARQUE O TEMPO (PÁ-PÁ-PÁ-PÁ)', command: 'DIVIDA O TEMPO', isLegato: false };
     }
-    if (safeTitle.includes('síncope básica')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Desloque o acento. Cante a nota MI (E4) no contratempo. Sinta o deslocamento rítmico.", actionText: 'CANTAR MI (OFF-BEAT)', command: 'SÍNCOPE AGORA', isLegato: false };
+    if (safeTitle.includes('síncope básica') || safeTitle.includes('sincope basica')) {
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Desloque o acento. Cante a nota MI (E4) no contratempo. Sinta o deslocamento rítmico.", actionText: 'MARQUE O TEMPO (OFF-BEAT)', command: 'SÍNCOPE AGORA', isLegato: false };
     }
 
     // --- LEVEL 1: BREATHING (FALLBACKS) ---
