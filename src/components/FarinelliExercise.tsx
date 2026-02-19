@@ -22,56 +22,58 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     
     // --- LEVEL 2: MODULE A (Ataque & Audiation) ---
     if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
-      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR', command: 'ATAQUE AGORA' };
+      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', command: 'ATAQUE AGORA' };
     }
     if (safeTitle.includes('audiation')) {
-      return { inhale: 4, hold: 4, exhale: 8, rest: 4, prepText: "Foco total no ouvido interno. Mentalize a nota RÉ (D4) vibrando na sua testa. Não emita som até o comando.", actionText: 'CANTAR', command: 'EMITA O SOM' };
+      return { inhale: 4, hold: 4, exhale: 8, rest: 4, prepText: "Foco total no ouvido interno. Mentalize a nota RÉ (D4) vibrando na sua testa. Não emita som até o comando.", actionText: 'CANTAR AAAAA', command: 'EMITA O SOM' };
     }
     if (safeTitle.includes('condução') || safeTitle.includes('bone')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Coloque a mão em concha atrás do ouvido. Cante a nota MI (E4) em 'Mmmmm' (boca fechada) e sinta a vibração nos ossos da face.", actionText: 'CANTAR', command: 'SINTA A VIBRAÇÃO' };
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Coloque a mão em concha atrás do ouvido. Cante a nota MI (E4) em 'Mmmmm' (boca fechada) e sinta a vibração nos ossos da face.", actionText: 'CANTAR MMMMM', command: 'SINTA A VIBRAÇÃO' };
     }
 
     // --- LEVEL 2: MODULE B (Biofeedback e Sintonia) ---
     if (safeTitle.includes('biofeedback')) {
-      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Foque nos números. Sua meta é manter a nota FÁ (F4) com desvio abaixo de 5 cents. Use a vogal 'U' para maior estabilidade.", actionText: 'CANTAR', command: 'ESTABILIZE O HERTZ' };
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Foque nos números. Sua meta é manter a nota FÁ (F4) com desvio abaixo de 5 cents. Use a vogal 'U' para maior estabilidade.", actionText: 'CANTAR UUUUU', command: 'ESTABILIZE O HERTZ' };
     }
     if (safeTitle.includes('sovt pitch')) {
-      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Use o canudo. Mantenha a nota SOL (G4) constante enquanto varia levemente a pressão do ar.", actionText: 'CANTAR', command: 'SOPRO CONSTANTE' };
+      return { inhale: 3, hold: 2, exhale: 15, rest: 5, prepText: "Use o canudo. Mantenha a nota SOL (G4) constante enquanto varia levemente a pressão do ar.", actionText: 'SOPRAR UUUUU', command: 'SOPRO CONSTANTE' };
     }
     if (safeTitle.includes('auto-tune')) {
-      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: "O sistema simulará uma correção na nota LÁ (A4). Tente 'vencer' o corretor mantendo a nota pura.", actionText: 'CANTAR', command: 'CORRIJA O TOM' };
+      return { inhale: 3, hold: 2, exhale: 12, rest: 4, prepText: "O sistema simulará uma correção na nota LÁ (A4). Tente 'vencer' o corretor mantendo a nota pura.", actionText: 'CANTAR AAAAA', command: 'CORRIJA O TOM' };
     }
 
-    // --- LEVEL 2: MODULE C & D (Ressonância & Estúdio) ---
+    // --- LEVEL 2: MODULE C (Ressonância & Teoria) ---
     if (safeTitle.includes('vowel mod')) {
-      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR', command: 'TROQUE A VOGAL' };
+      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR AAAAA-OOOOO', command: 'TROQUE A VOGAL' };
     }
     if (safeTitle.includes('solfege')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR', command: 'DÓ - RÉ - MI' };
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR DÓ-RÉ-MI', command: 'DÓ - RÉ - MI' };
     }
+
+    // --- LEVEL 2: MODULE D (Estúdio & Performance) ---
     if (safeTitle.includes('drone')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver afinado.", actionText: 'CANTAR', command: 'AFINE COM O DRONE' };
+      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "O drone em DÓ (C4) será ativado. Sinta o batimento acústico desaparecer quando estiver afinado.", actionText: 'CANTAR AAAAA', command: 'AFINE COM O DRONE' };
     }
     if (safeTitle.includes('melodyne')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Imagine que você está em um estúdio. Sua voz deve ser uma linha reta na nota DÓ (C4). Evite vibratos agora.", actionText: 'CANTAR', command: 'CANTE A LINHA' };
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Imagine que você está em um estúdio. Sua voz deve ser uma linha reta na nota DÓ (C4). Evite vibratos agora.", actionText: 'CANTAR AAAAA', command: 'CANTE A LINHA' };
     }
     if (safeTitle.includes('blind tuning')) {
-      return { inhale: 4, hold: 4, exhale: 15, rest: 5, prepText: "O afinador ficará invisível por 10 segundos na nota RÉ (D4). Confie na sua memória muscular e suporte abdominal.", actionText: 'CANTAR', command: 'MANTENHA O TOM' };
+      return { inhale: 4, hold: 4, exhale: 15, rest: 5, prepText: "O afinador ficará invisível por 10 segundos na nota RÉ (D4). Confie na sua memória muscular e suporte abdominal.", actionText: 'CANTAR AAAAA', command: 'MANTENHA O TOM' };
     }
 
     // --- LEVEL 1: BREATHING (FALLBACKS) ---
     if (safeTitle.includes('costal') || safeTitle.includes('expansão')) {
-      return { inhale: 4, hold: 3, exhale: 8, rest: 5, prepText: 'Sente-se na ponta da cadeira com a coluna reta. Foque em expandir as costelas para os lados e para as costas.', actionText: 'SOLTE O AR', command: 'EXPIRA LENTAMENTE' };
+      return { inhale: 4, hold: 3, exhale: 8, rest: 5, prepText: 'Sente-se na ponta da cadeira com a coluna reta. Foque em expandir as costelas para os lados e para as costas.', actionText: 'SOLTAR SSSSS', command: 'EXPIRA LENTAMENTE' };
     }
     if (safeTitle.includes('ofegante') || safeTitle.includes('cachorro')) {
-      return { inhale: 2, hold: 1, exhale: 10, rest: 4, prepText: 'Coloque a mão no abdômen. Vamos usar respirações curtas para ativar o diafragma, como um cachorrinho.', actionText: 'SOLTE O AR', command: 'GOLPES DE AR' };
+      return { inhale: 2, hold: 1, exhale: 10, rest: 4, prepText: 'Coloque a mão no abdômen. Vamos usar respirações curtas para ativar o diafragma, como um cachorrinho.', actionText: 'SOLTAR HA-HA-HA', command: 'GOLPES DE AR' };
     }
     if (safeTitle.includes('farinelli')) {
-      return { inhale: 5, hold: 5, exhale: 5, rest: 4, prepText: 'Treino do lendário Farinelli. Foque na expansão lateral das costelas em tempos perfeitamente iguais.', actionText: 'SOLTE O AR', command: 'FLUXO ESTÁVEL' };
+      return { inhale: 5, hold: 5, exhale: 5, rest: 4, prepText: 'Treino do lendário Farinelli. Foque na expansão lateral das costelas em tempos perfeitamente iguais.', actionText: 'SOLTAR SSSSS', command: 'FLUXO ESTÁVEL' };
     }
     
     // DEFAULT
-    return { inhale: 4, hold: 4, exhale: 10, rest: 5, prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', actionText: 'SOLTE O AR', command: 'EXPIRA AGORA' };
+    return { inhale: 4, hold: 4, exhale: 10, rest: 5, prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', actionText: 'SOLTAR AR', command: 'EXPIRA AGORA' };
   };
 
   const config = useMemo(() => getStrictConfig(activeExerciseTitle), [activeExerciseTitle]);
