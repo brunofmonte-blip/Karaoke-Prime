@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { Wind, Pause, Play, AlertCircle, Volume2, Activity, CheckCircle2, Mic, Info } from 'lucide-react';
+import { Wind, Pause, Play, AlertCircle, Volume2, Activity, CheckCircle2, Mic, Info, Timer } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ConservatoryModule, useVocalSandbox, BreathingPhase } from '@/hooks/use-vocal-sandbox';
@@ -70,6 +70,39 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
     if (safeTitle.includes('síncope básica') || safeTitle.includes('sincope basica')) {
       return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Desloque o acento. Cante a nota MI (E4) no contratempo. Sinta o deslocamento rítmico.", actionText: 'MARQUE O TEMPO (OFF-BEAT)', command: 'SÍNCOPE AGORA', isLegato: false };
+    }
+
+    // --- LEVEL 3: MODULE B (Phrasing & Ataque) ---
+    if (safeTitle.includes('atraso intencional')) {
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Cante a nota RÉ (D4) levemente atrás do pulso. Sinta a tensão rítmica criada pelo atraso proposital.", actionText: 'MARQUE O TEMPO (LAY BACK)', command: 'CANTE ATRÁS DO PULSO', isLegato: true };
+    }
+    if (safeTitle.includes('antecipação') || safeTitle.includes('antecipacao')) {
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Ataque a nota MI (E4) milissegundos antes do pulso. Crie urgência rítmica sem acelerar o BPM.", actionText: 'MARQUE O TEMPO (ON TOP)', command: 'ANTECIPE O ATAQUE', isLegato: false };
+    }
+    if (safeTitle.includes('legato rítmico') || safeTitle.includes('legato ritmico')) {
+      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Mantenha o fluxo de ar constante enquanto marca as divisões rítmicas apenas com a articulação da língua.", actionText: 'MARQUE O TEMPO (LEGATO)', command: 'FLUXO RÍTMICO', isLegato: true };
+    }
+
+    // --- LEVEL 3: MODULE C (Groove & Swing) ---
+    if (safeTitle.includes('swing feel')) {
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Sinta o balanço do jazz. A primeira nota é longa, a segunda é curta. 'Doo-dah, doo-dah'.", actionText: 'MARQUE O TEMPO (SWING)', command: 'SINTA O SWING', isLegato: false };
+    }
+    if (safeTitle.includes('micro-timing')) {
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Ajustes milimétricos. Tente manter a nota FÁ (F4) exatamente no centro do click visual.", actionText: 'MARQUE O TEMPO (CENTERED)', command: 'PRECISÃO ABSOLUTA', isLegato: false };
+    }
+    if (safeTitle.includes('estabilidade de bpm') || safeTitle.includes('estabilidade de bpm')) {
+      return { inhale: 4, hold: 2, exhale: 20, rest: 5, prepText: "Mantenha o pulso constante por 20 segundos sem a ajuda do metrônomo visual após o início.", actionText: 'MARQUE O TEMPO (STEADY)', command: 'MANTENHA O BPM', isLegato: false };
+    }
+
+    // --- LEVEL 3: MODULE D (Performance Rítmica) ---
+    if (safeTitle.includes('sync com banda')) {
+      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Imagine a bateria e o baixo. Sua voz deve 'encaixar' no bolso (pocket) da música.", actionText: 'MARQUE O TEMPO (IN THE POCKET)', command: 'SYNC COM A BANDA', isLegato: true };
+    }
+    if (safeTitle.includes('polirritmia vocal')) {
+      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Desafio final. Cante 3 notas contra 2 pulsos do metrônomo. Independência rítmica total.", actionText: 'MARQUE O TEMPO (3 CONTRA 2)', command: 'POLIRRITMIA AGORA', isLegato: false };
+    }
+    if (safeTitle.includes('teste de click final')) {
+      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Avaliação final de ritmo. O click vai falhar propositalmente; você deve manter o tempo.", actionText: 'MARQUE O TEMPO (FINAL TEST)', command: 'PROVE SEU RITMO', isLegato: false };
     }
 
     // --- LEVEL 1: BREATHING (FALLBACKS) ---
@@ -332,13 +365,15 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         <Card className="glass-pillar border-2 border-accent/50 p-6 w-full max-w-sm">
           <CardHeader className="p-0 pb-4">
             <CardTitle className="text-accent flex items-center gap-2 text-lg">
-              <Activity className="h-5 w-5" />
-              Monitor de Apoio
+              {moduleType === 'rhythm' ? <Timer className="h-5 w-5" /> : <Activity className="h-5 w-5" />}
+              {moduleType === 'rhythm' ? "Monitor de Ritmo" : "Monitor de Apoio"}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 space-y-6">
             <div className="text-center">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Estabilidade do Sopro</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">
+                {moduleType === 'rhythm' ? "Precisão Rítmica" : "Estabilidade do Sopro"}
+              </p>
               <div className="relative h-24 w-24 mx-auto">
                 <div className="absolute inset-0 rounded-full border-4 border-border/30" />
                 <div 
