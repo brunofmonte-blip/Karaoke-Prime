@@ -16,7 +16,7 @@ interface FarinelliExerciseProps {
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const { activeExerciseTitle, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
-  // 1. OVERRIDE STRICT CONFIG FOR LEVEL 2 & FALLBACKS
+  // 1. STABLE CONFIG: Removed all dynamic parts and ghost intervals
   const getStrictConfig = (title: string) => {
     const safeTitle = (title || '').toLowerCase();
     
@@ -44,10 +44,10 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
 
     // --- LEVEL 2: MODULE C (Ressonância & Teoria) ---
     if (safeTitle.includes('vowel mod')) {
-      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR Í → Á', command: 'TROQUE A VOGAL', isLegato: true, part1: 'ÍÍÍÍÍ', part2: 'ÁÁÁÁÁ' };
+      return { inhale: 3, hold: 1, exhale: 12, rest: 4, prepText: "Cante a nota SI (B4). Comece em 'Í' e mude gradualmente para 'Á' sem oscilar a frequência.", actionText: 'CANTAR Í → Á', command: 'TROQUE A VOGAL', isLegato: true };
     }
     if (safeTitle.includes('solfege')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR DÓ-RÉ-MI', command: 'DÓ - RÉ - MI', isLegato: true, part1: 'DÓ-RÉ', part2: 'MIIIII' };
+      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Intervalos diatônicos (Dó-Ré-Mi). Crave cada nota no centro do afinador usando os nomes das notas.", actionText: 'CANTAR DÓ-RÉ-MI', command: 'DÓ - RÉ - MI', isLegato: true };
     }
 
     // --- LEVEL 2: MODULE D (Estúdio & Performance) ---
@@ -115,33 +115,26 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
 
     if (stateRef.current === 'exhale') {
-      // LEGATO BYPASS: If isLegato is true, we reward volume maintenance instead of strict pitch
       let currentPitchScore = 0;
-      
       if (config.isLegato) {
-        // Reward continuous phonation (volume > 1.5)
         if (volume > 1.5) {
-          currentPitchScore = 98 + Math.random() * 2; // High reward for sustaining
+          currentPitchScore = 98 + Math.random() * 2;
         } else if (volume > 0.5) {
-          currentPitchScore = 60 + Math.random() * 10; // Partial reward for weak sound
+          currentPitchScore = 60 + Math.random() * 10;
         }
       } else {
-        // Standard attack/short note logic
         if (volume > 2) {
           currentPitchScore = 95 + Math.random() * 5;
         } else if (volume > 0.5) {
           currentPitchScore = 70 + Math.random() * 10;
         }
       }
-      
       stabilityRef.current = (stabilityRef.current + currentPitchScore) / 2;
-      
       const newScore = Math.floor(stabilityRef.current);
       if (newScore !== stabilityScore) {
         setStabilityScore(newScore);
       }
     }
-
     lastVolumeRef.current = volume;
     animationRef.current = requestAnimationFrame(checkAudioLevel);
   };
@@ -161,7 +154,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       setTimeLeft(config.inhale); 
       setFeedback("Inspire.");
       speak("Inspire.");
-      
       checkAudioLevel();
     } catch (err) {
       console.error("Mic error:", err);
@@ -172,17 +164,14 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   useEffect(() => {
     if (exerciseState === 'idle' || exerciseState === 'finished') return;
     if (timeLeft <= 0) return;
-
     const timer = setTimeout(() => {
       setTimeLeft(prev => prev - 1);
     }, 1000);
-
     return () => clearTimeout(timer);
   }, [timeLeft, exerciseState]);
 
   useEffect(() => {
     if (timeLeft === 0 && exerciseState !== 'idle' && exerciseState !== 'finished') {
-      // GHOST KILL: Cancel any lingering speech or intervals before state change
       window.speechSynthesis.cancel();
 
       if (exerciseState === 'inhale') {
@@ -196,7 +185,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         setTimeLeft(config.exhale); 
         stabilityRef.current = 100;
         setStabilityScore(100);
-        // ENFORCE: Strictly use config.actionText to prevent ghost overrides
         setFeedback(config.command);
         speak(config.command);
       } 
@@ -210,8 +198,11 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           setFeedback("Descanse.");
           speak("Descanse.");
         } else {
+          // CRITICAL CLEANUP: Stop all processes before finishing
           if (animationRef.current) cancelAnimationFrame(animationRef.current);
           if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
+          window.speechSynthesis.cancel();
+          
           setExerciseState('finished');
           const finalAverage = Math.floor(accumulatedScoreRef.current / totalSeries);
           setFeedback("Treino concluído.");
@@ -291,32 +282,23 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
                 </div>
               </div>
               
-              {/* COMANDO DO INSTRUTOR */}
               <div className="w-full p-4 glass-pillar border-2 border-primary/20 rounded-2xl text-center mt-4">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Comando do Instrutor</p>
                 <h4 className="text-xl font-black text-primary neon-blue-glow animate-pulse">
                   {exerciseState === 'exhale' ? (
-                    config.isLegato && (config as any).part1 ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <span className={cn(
-                          "transition-colors duration-300",
-                          (timeLeft / config.exhale) > 0.5 ? "text-accent neon-gold-glow" : "text-foreground"
-                        )}>
-                          {(config as any).part1}
-                        </span>
-                        <span className="text-muted-foreground">→</span>
-                        <span className={cn(
-                          "transition-colors duration-300",
-                          (timeLeft / config.exhale) <= 0.5 ? "text-accent neon-gold-glow" : "text-muted-foreground"
-                        )}>
-                          {(config as any).part2}
-                        </span>
-                      </div>
-                    ) : config.command
-                  ) : labels[exerciseState]}
+                    <div className="flex flex-col items-center">
+                      <span className="text-accent neon-gold-glow text-3xl font-black uppercase tracking-tighter">
+                        {config.actionText}
+                      </span>
+                      <span className="text-primary text-sm font-bold mt-2 animate-pulse">
+                        {config.command}
+                      </span>
+                    </div>
+                  ) : (
+                    labels[exerciseState]
+                  )}
                 </h4>
                 
-                {/* SUSTAIN UI BANNER */}
                 {exerciseState === 'exhale' && config.isLegato && (
                   <div className="mt-4 p-2 bg-accent/20 border border-accent/50 rounded-lg flex items-center justify-center gap-2 animate-bounce">
                     <Info className="h-4 w-4 text-accent" />
