@@ -8,16 +8,14 @@ import { Button } from '@/components/ui/button';
 import { ConservatoryModule, useVocalSandbox, BreathingPhase } from '@/hooks/use-vocal-sandbox';
 import InstructorAvatar from './InstructorAvatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { level3Modules, Exercise } from './AcademyLevel3Menu';
+import { level3Modules } from './AcademyLevel3Menu';
+import { level5Modules } from './AcademyLevel5Menu';
 
 interface FarinelliExerciseProps {
   moduleType: ConservatoryModule;
 }
 
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
-  // Force workspace refresh and verify mounting
-  console.log('Main Engine Mounted - Root Data Binding Enforced');
-
   const { activeExerciseTitle, activeExerciseId, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
   const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -28,7 +26,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     const safeTitle = normalize(lesson.title || '');
     const safeId = (lesson.id || '').toLowerCase();
     
-    // --- DYNAMIC LOOKUP FROM ROOT DATA (Level 3) ---
+    // --- DYNAMIC LOOKUP FROM LEVEL 3 ---
     for (const module of level3Modules) {
       const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
       if (found && found.prepText) {
@@ -39,18 +37,31 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           rest: found.rest ?? 4,
           prepText: found.prepText,
           actionText: found.actionText ?? 'CANTAR',
-          holdText: found.holdText ?? 'SEGURA',
+          holdText: 'SEGURA',
           command: found.command ?? 'AGORA',
           isLegato: found.isLegato ?? false
         };
       }
     }
 
-    // --- NÍVEL 2 - MÓDULO A: ATAQUE & AUDIATION (Fallback for now) ---
-    if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
-      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', holdText: 'MENTALIZE A NOTA', command: 'ATAQUE AGORA', isLegato: false };
+    // --- DYNAMIC LOOKUP FROM LEVEL 5 ---
+    for (const module of level5Modules) {
+      const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
+      if (found && found.prepText) {
+        return {
+          inhale: found.inhale ?? 4,
+          hold: found.hold ?? 2,
+          exhale: found.exhale ?? 12,
+          rest: found.rest ?? 4,
+          prepText: found.prepText,
+          actionText: found.actionText ?? 'CANTAR',
+          holdText: 'SEGURA',
+          command: found.command ?? 'ATAQUE AGORA',
+          isLegato: found.isLegato ?? true
+        };
+      }
     }
-    
+
     return getDefaultConfig();
   };
 
@@ -90,7 +101,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
       utterance.rate = 1.1;
-      utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -104,23 +114,14 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     if (stateRef.current === 'exhale') {
       let currentPitchScore = 0;
       if (config.isLegato) {
-        if (volume > 1.5) {
-          currentPitchScore = 98 + Math.random() * 2;
-        } else if (volume > 0.5) {
-          currentPitchScore = 60 + Math.random() * 10;
-        }
+        if (volume > 1.5) currentPitchScore = 98 + Math.random() * 2;
+        else if (volume > 0.5) currentPitchScore = 60 + Math.random() * 10;
       } else {
-        if (volume > 2) {
-          currentPitchScore = 95 + Math.random() * 5;
-        } else if (volume > 0.5) {
-          currentPitchScore = 70 + Math.random() * 10;
-        }
+        if (volume > 2) currentPitchScore = 95 + Math.random() * 5;
+        else if (volume > 0.5) currentPitchScore = 70 + Math.random() * 10;
       }
       stabilityRef.current = (stabilityRef.current + currentPitchScore) / 2;
-      const newScore = Math.floor(stabilityRef.current);
-      if (newScore !== stabilityScore) {
-        setStabilityScore(newScore);
-      }
+      setStabilityScore(Math.floor(stabilityRef.current));
     }
     lastVolumeRef.current = volume;
     animationRef.current = requestAnimationFrame(checkAudioLevel);
@@ -151,9 +152,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
   useEffect(() => {
     if (exerciseState === 'idle' || exerciseState === 'finished') return;
     if (timeLeft <= 0) return;
-    const timer = setTimeout(() => {
-      setTimeLeft(prev => prev - 1);
-    }, 1000);
+    const timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
     return () => clearTimeout(timer);
   }, [timeLeft, exerciseState]);
 
@@ -171,7 +170,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           setExerciseState('exhale');
           setTimeLeft(config.exhale); 
           stabilityRef.current = 100;
-          setStabilityScore(100);
           setFeedback(config.command);
           speak(config.command);
         }
@@ -180,7 +178,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         setExerciseState('exhale');
         setTimeLeft(config.exhale); 
         stabilityRef.current = 100;
-        setStabilityScore(100);
         setFeedback(config.command);
         speak(config.command);
       } 
@@ -196,8 +193,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         } else {
           if (animationRef.current) cancelAnimationFrame(animationRef.current);
           if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
-          window.speechSynthesis.cancel();
-          
           setExerciseState('finished');
           const finalAverage = Math.floor(accumulatedScoreRef.current / totalSeries);
           setFeedback("Treino concluído.");
@@ -213,16 +208,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         speak("Inspire.");
       }
     }
-  }, [timeLeft, exerciseState, repCount, config, setManualProgress, stopAnalysis, setStabilityScore]);
-
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-      if (streamRef.current) streamRef.current.getTracks().forEach(track => track.stop());
-      if (audioContextRef.current) audioContextRef.current.close();
-      window.speechSynthesis.cancel();
-    };
-  }, []);
+  }, [timeLeft, exerciseState, repCount, config, setManualProgress, stopAnalysis]);
 
   const labels: Record<string, string> = {
     inhale: 'INSPIRA',
@@ -248,7 +234,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
           </h3>
           
           <p className="text-gray-300 text-center max-w-md mx-auto mb-8 text-sm md:text-base leading-relaxed">
-            {exerciseState === 'idle' ? (config?.prepText || "Instrução não encontrada. Por favor, reinicie a lição.") : feedback}
+            {exerciseState === 'idle' ? (config?.prepText || "Instrução não encontrada.") : feedback}
           </p>
           
           {exerciseState === 'idle' ? (
@@ -280,18 +266,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
               <div className="w-full p-4 glass-pillar border-2 border-primary/20 rounded-2xl text-center mt-4">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Comando do Instrutor</p>
                 <h4 className="text-xl font-black text-primary neon-blue-glow animate-pulse">
-                  {exerciseState === 'exhale' ? (
-                    <div className="flex flex-col items-center">
-                      <span className="text-accent neon-gold-glow text-3xl font-black uppercase tracking-tighter">
-                        {config.actionText}
-                      </span>
-                      <span className="text-primary text-sm font-bold mt-2 animate-pulse">
-                        {config.command}
-                      </span>
-                    </div>
-                  ) : (
-                    labels[exerciseState]
-                  )}
+                  {exerciseState === 'exhale' ? config.actionText : labels[exerciseState]}
                 </h4>
               </div>
 
@@ -307,15 +282,13 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         <Card className="glass-pillar border-2 border-accent/50 p-6 w-full max-w-sm">
           <CardHeader className="p-0 pb-4">
             <CardTitle className="text-accent flex items-center gap-2 text-lg">
-              {moduleType === 'rhythm' ? <Timer className="h-5 w-5" /> : <Activity className="h-5 w-5" />}
-              {moduleType === 'rhythm' ? "Monitor de Ritmo" : "Monitor de Apoio"}
+              <Activity className="h-5 w-5" />
+              Monitor de Apoio
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 space-y-6">
             <div className="text-center">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">
-                {moduleType === 'rhythm' ? "Precisão Rítmica" : "Estabilidade do Sopro"}
-              </p>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Estabilidade do Sopro</p>
               <div className="relative h-24 w-24 mx-auto">
                 <div className="absolute inset-0 rounded-full border-4 border-border/30" />
                 <div 

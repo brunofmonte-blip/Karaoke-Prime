@@ -9,6 +9,7 @@ import InstructorAvatar from './InstructorAvatar';
 import PitchTuner from './PitchTuner';
 import { toast } from 'sonner';
 import { level4Modules } from './AcademyLevel4Menu';
+import { level5Modules } from './AcademyLevel5Menu';
 
 interface PitchCalibrationExerciseProps {
   subModule: CalibrationSubModule;
@@ -27,7 +28,7 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
     const safeTitle = normalize(activeExerciseTitle || '');
     const safeId = (activeExerciseId || '').toLowerCase();
 
-    // --- DYNAMIC LOOKUP FROM LEVEL 4 ROOT DATA ---
+    // --- DYNAMIC LOOKUP FROM LEVEL 4 ---
     for (const module of level4Modules) {
       const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
       if (found && found.prepText) {
@@ -41,12 +42,25 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
       }
     }
 
-    // Fallback for generic calibration
+    // --- DYNAMIC LOOKUP FROM LEVEL 5 ---
+    for (const module of level5Modules) {
+      const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
+      if (found && found.prepText) {
+        return {
+          title: found.title,
+          description: module.description,
+          command: found.command || 'ESTABILIZE AGORA',
+          prepText: found.prepText,
+          actionText: found.actionText || 'CANTAR'
+        };
+      }
+    }
+
     return {
       title: 'Calibração de Tom',
       description: 'Ajuste sua frequência vocal com precisão.',
       command: 'CANTAR',
-      prepText: 'Prepare-se para a calibração. Mentalize a nota alvo antes de emitir o som.',
+      prepText: 'Prepare-se para a calibração.',
       actionText: 'CANTAR'
     };
   }, [activeExerciseTitle, activeExerciseId]);
@@ -57,7 +71,6 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'pt-BR';
       utterance.rate = 0.9;
-      utterance.pitch = 1.05;
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -88,7 +101,7 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
     setIsReady(true);
     setCountdown(3);
     toast.info("Dica de Ouro", {
-      description: "Não treine calibração por mais de 15 minutos. O ouvido precisa de descanso.",
+      description: "Não treine calibração por mais de 15 minutos.",
       duration: 6000,
       icon: <AlertCircle className="h-5 w-5 text-accent" />
     });
@@ -139,9 +152,6 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
           <h4 className="text-2xl font-black text-primary neon-blue-glow animate-pulse">
             {config.actionText}
           </h4>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">
-            {frequency > 0 ? "VOZ ATIVA - ANALISANDO..." : "AGUARDANDO VOZ..."}
-          </p>
         </div>
       </div>
     </div>
