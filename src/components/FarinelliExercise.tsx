@@ -74,6 +74,38 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       };
     }
 
+    // --- NÍVEL 3 - MÓDULO C: GROOVE & SWING ---
+    if (safeTitle.includes('swing') || safeId.includes('l3-c1') || safeId === '7') {
+      return { 
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Sinta o balanço! O Swing não é reto. Imagine um "pulo" entre as notas. Cante "Doo-Bah" com o "Bah" levemente atrasado, criando o balanço clássico do Jazz.', 
+        actionText: 'CANTE COM SWING (Doo-Bah)', 
+        holdText: 'SINTA O BALANÇO', 
+        command: 'SWING AGORA',
+        isLegato: true 
+      };
+    }
+    if (safeTitle.includes('micro-timing') || safeTitle.includes('microtiming') || safeId.includes('l3-c2') || safeId === '8') {
+      return { 
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Precisão milimétrica. Tente encaixar a sílaba "Ti" exatamente no centro do clique. O objetivo é reduzir o desvio rítmico para quase zero.', 
+        actionText: 'CANTE NO CENTRO (Ti-Ti-Ti)', 
+        holdText: 'FOCO NO CLICK', 
+        command: 'PRECISÃO MÁXIMA',
+        isLegato: false 
+      };
+    }
+    if (safeTitle.includes('estabilidade de bpm') || safeTitle.includes('bpm') || safeId.includes('l3-c3') || safeId === '9') {
+      return { 
+        inhale: 4, hold: 0, exhale: 20, rest: 5, 
+        prepText: 'Teste de resistência rítmica. Mantenha o pulso constante por 20 segundos sem o auxílio do metrônomo visual. Confie no seu relógio interno.', 
+        actionText: 'MANTENHA O BPM (Pá-Pá-Pá)', 
+        holdText: 'RELÓGIO INTERNO', 
+        command: 'RESISTÊNCIA RÍTMICA',
+        isLegato: false 
+      };
+    }
+
     // --- NÍVEL 2 - MÓDULO A: ATAQUE & AUDIATION ---
     if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
       return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', holdText: 'MENTALIZE A NOTA', command: 'ATAQUE AGORA', isLegato: false };
