@@ -5,16 +5,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Timer, Music, Zap, PlayCircle, ChevronRight, Activity, BarChart3, Layers, Disc } from 'lucide-react';
-import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+import { useVocalSandbox, CalibrationSubModule } from '@/hooks/use-vocal-sandbox';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 
-interface Exercise {
+export interface Exercise {
   id: string;
   title: string;
   icon: React.ElementType;
+  prepText?: string;
+  actionText?: string;
+  exhale?: number;
+  inhale?: number;
+  hold?: number;
+  rest?: number;
+  command?: string;
+  isLegato?: boolean;
 }
 
-interface Module {
+export interface Module {
   id: string;
   title: string;
   description: string;
@@ -23,7 +31,7 @@ interface Module {
   exercises: Exercise[];
 }
 
-const modules: Module[] = [
+export const level3Modules: Module[] = [
   {
     id: 'L3-A',
     title: 'Módulo A: Pulso & Divisão',
@@ -31,9 +39,36 @@ const modules: Module[] = [
     icon: Timer,
     prescription: 'Foco em Precisão de Click',
     exercises: [
-      { id: 'l3-a1', title: '1. Metrônomo Humano', icon: Activity },
-      { id: 'l3-a2', title: '2. Divisão Binária', icon: Layers },
-      { id: 'l3-a3', title: '3. Síncope Básica', icon: Zap }
+      { 
+        id: 'l3-a1', 
+        title: '1. Metrônomo Humano', 
+        icon: Activity,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Sinta o pulso. Ouça o clique do metrônomo e marque o tempo forte emitindo um "Pá" exato em cada batida.', 
+        actionText: 'MARQUE O TEMPO (PÁ - PÁ - PÁ)', 
+        command: 'SIGA O PULSO', 
+        isLegato: false 
+      },
+      { 
+        id: 'l3-a2', 
+        title: '2. Divisão Binária', 
+        icon: Layers,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Vamos dividir o tempo ao meio (colcheias). Para cada clique, você emitirá dois sons iguais (Pá-Pá).', 
+        actionText: 'DIVIDA: (1 e 2 e 3 e 4 e)', 
+        command: 'DIVIDA O TEMPO', 
+        isLegato: false 
+      },
+      { 
+        id: 'l3-a3', 
+        title: '3. Síncope Básica', 
+        icon: Zap,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'O contratempo é cantar no "silêncio". Imagine o tique-taque de um relógio: NÃO cante no "Tique", cante no espaço vazio entre as batidas. Espere o clique e emita o som "Pá!".', 
+        actionText: 'CANTE NO ESPAÇO: ( ...Pá! ...Pá! )', 
+        command: 'SÍNCOPE AGORA',
+        isLegato: false 
+      }
     ]
   },
   {
@@ -43,9 +78,36 @@ const modules: Module[] = [
     icon: Music,
     prescription: 'Foco em Intencionalidade',
     exercises: [
-      { id: 'l3-b1', title: '4. Atraso Intencional', icon: Disc },
-      { id: 'l3-b2', title: '5. Antecipação', icon: Zap },
-      { id: 'l3-b3', title: '6. Legato Rítmico', icon: Activity }
+      { 
+        id: 'l3-b1', 
+        title: '4. Atraso Intencional', 
+        icon: Disc,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'O famoso Layback. Tente cantar a sílaba "Tá" uma fração de segundo DEPOIS do clique do metrônomo. O clique bate, você responde logo em seguida, criando uma sensação de relaxamento.', 
+        actionText: 'CANTE ATRASADO (Layback)', 
+        command: 'CANTE ATRÁS DO PULSO',
+        isLegato: true 
+      },
+      { 
+        id: 'l3-b2', 
+        title: '5. Antecipação', 
+        icon: Zap,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Ataque agressivo (Push). Cante a sílaba "Tá" uma fração de segundo ANTES do clique. Você deve "puxar" a música, antecipando a batida do metrônomo.', 
+        actionText: 'CANTE ANTECIPADO (Push)', 
+        command: 'ANTECIPE O ATAQUE',
+        isLegato: false 
+      },
+      { 
+        id: 'l3-b3', 
+        title: '6. Legato Rítmico', 
+        icon: Activity,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Conecte as notas sem perder o balanço. Cante "Du-Ba-Du-Ba" emendando as sílabas continuamente, mas cravando as mudanças exatamente no compasso.', 
+        actionText: 'CANTE CONECTADO (Du-Ba-Du-Ba)', 
+        command: 'FLUXO RÍTMICO',
+        isLegato: true 
+      }
     ]
   },
   {
@@ -55,9 +117,36 @@ const modules: Module[] = [
     icon: Disc,
     prescription: 'Foco em Micro-timing',
     exercises: [
-      { id: 'l3-c1', title: '7. Swing Feel', icon: Music },
-      { id: 'l3-c2', title: '8. Micro-timing', icon: BarChart3 },
-      { id: 'l3-c3', title: '9. Estabilidade de BPM', icon: Timer }
+      { 
+        id: 'l3-c1', 
+        title: '7. Swing Feel', 
+        icon: Music,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Sinta o balanço! O Swing não é reto. Imagine um "pulo" entre as notas. Cante "Doo-Bah" com o "Bah" levemente atrasado, criando o balanço clássico do Jazz.', 
+        actionText: 'CANTE COM SWING (Doo-Bah)', 
+        command: 'SWING AGORA',
+        isLegato: true 
+      },
+      { 
+        id: 'l3-c2', 
+        title: '8. Micro-timing', 
+        icon: BarChart3,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Precisão milimétrica. Tente encaixar a sílaba "Ti" exatamente no centro do clique. O objetivo é reduzir o desvio rítmico para quase zero.', 
+        actionText: 'CANTE NO CENTRO (Ti-Ti-Ti)', 
+        command: 'PRECISÃO MÁXIMA',
+        isLegato: false 
+      },
+      { 
+        id: 'l3-c3', 
+        title: '9. Estabilidade de BPM', 
+        icon: Timer,
+        inhale: 4, hold: 0, exhale: 20, rest: 5, 
+        prepText: 'Teste de resistência rítmica. Mantenha o pulso constante por 20 segundos sem o auxílio do metrônomo visual. Confie no seu relógio interno.', 
+        actionText: 'MANTENHA O BPM SOZINHO', 
+        command: 'RESISTÊNCIA RÍTMICA',
+        isLegato: false 
+      }
     ]
   },
   {
@@ -67,9 +156,36 @@ const modules: Module[] = [
     icon: Layers,
     prescription: 'Foco em Sincronia de Banda',
     exercises: [
-      { id: 'l3-d1', title: '10. Sync com Banda', icon: Disc },
-      { id: 'l3-d2', title: '11. Polirritmia Vocal', icon: Layers },
-      { id: 'l3-d3', title: '12. Teste de Click Final', icon: Timer }
+      { 
+        id: 'l3-d1', 
+        title: '10. Sync com Banda', 
+        icon: Disc,
+        inhale: 4, hold: 0, exhale: 20, rest: 5, 
+        prepText: "Imagine a bateria e o baixo tocando. Você é o vocalista principal. Encaixe as sílabas 'Pá-Pá' exatas nos espaços da banda imaginária.", 
+        actionText: "CANTE COM A BANDA (Pá - Pá)", 
+        command: 'SINCRONIA DE PALCO',
+        isLegato: true 
+      },
+      { 
+        id: 'l3-d2', 
+        title: '11. Polirritmia Vocal', 
+        icon: Layers,
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: "Desafio cerebral! O metrônomo toca em 4 tempos, mas você vai cantar em grupos de 3 (Tercinas). Acentue a primeira sílaba: TA-ki-ta, TA-ki-ta.", 
+        actionText: "CANTE 3 CONTRA 4 (TA-ki-ta)", 
+        command: 'POLIRRITMIA VOCAL',
+        isLegato: false 
+      },
+      { 
+        id: 'l3-d3', 
+        title: '12. Teste de Click Final', 
+        icon: Timer,
+        inhale: 4, hold: 0, exhale: 20, rest: 5, 
+        prepText: "O Chefão do Nível 3! O clique vai mudar de velocidade, balançar e sumir. Use sua precisão, layback e estabilidade para não se perder.", 
+        actionText: "MANTENHA O RITMO MESTRE", 
+        command: 'PROVA DE MAESTRIA',
+        isLegato: false 
+      }
     ]
   }
 ];
@@ -86,7 +202,7 @@ const AcademyLevel3Menu: React.FC = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {modules.map((module) => (
+      {level3Modules.map((module) => (
         <Card key={module.id} className={cn(
           "glass-pillar border-2 transition-all duration-300 h-fit",
           expandedModule === module.id ? "border-accent shadow-lg shadow-accent/20" : "border-primary/30 hover:border-primary/70"

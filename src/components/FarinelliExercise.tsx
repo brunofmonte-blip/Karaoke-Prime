@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ConservatoryModule, useVocalSandbox, BreathingPhase } from '@/hooks/use-vocal-sandbox';
 import InstructorAvatar from './InstructorAvatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { level3Modules, Exercise } from './AcademyLevel3Menu';
 
 interface FarinelliExerciseProps {
   moduleType: ConservatoryModule;
@@ -15,7 +16,7 @@ interface FarinelliExerciseProps {
 
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   // Force workspace refresh and verify mounting
-  console.log('Main Engine Mounted - Level 3 Config Check');
+  console.log('Main Engine Mounted - Root Data Binding Enforced');
 
   const { activeExerciseTitle, activeExerciseId, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
@@ -27,79 +28,25 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     const safeTitle = normalize(lesson.title || '');
     const safeId = (lesson.id || '').toLowerCase();
     
-    // --- NÍVEL 3 - MÓDULO A: PULSO & DIVISÃO ---
-    if (safeId === 'l3-a1' || safeId === '1' || safeTitle.includes('metronomo') || safeTitle.includes('humano')) {
-      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Sinta o pulso. Ouça o clique do metrônomo e marque o tempo forte emitindo um "Pá" exato em cada batida.', actionText: 'MARQUE O TEMPO (PÁ - PÁ - PÁ)', holdText: 'PREPARE O PULSO', command: 'SIGA O PULSO', isLegato: false };
-    }
-    if (safeId === 'l3-a2' || safeId === '2' || safeTitle.includes('binaria') || safeTitle.includes('divisao')) {
-      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Vamos dividir o tempo ao meio (colcheias). Para cada clique, você emitirá dois sons iguais (Pá-Pá).', actionText: 'DIVIDA: (1 e 2 e 3 e 4 e)', holdText: 'OUÇA A DIVISÃO', command: 'DIVIDA O TEMPO', isLegato: false };
-    }
-    if (safeId === 'l3-a3' || safeId === '3' || safeTitle.includes('sincope')) {
-      return { 
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'O contratempo é cantar no "silêncio". Imagine o tique-taque de um relógio: NÃO cante no "Tique", cante no espaço vazio entre as batidas. Espere o clique e emita o som "Pá!".', 
-        actionText: 'CANTE NO ESPAÇO: ( ...Pá! ...Pá! )', 
-        holdText: 'SINTA O CONTRATEMPO', 
-        command: 'SÍNCOPE AGORA',
-        isLegato: false 
-      };
-    }
-
-    // --- NÍVEL 3 - MÓDULO B: FRASEAMENTO & ATAQUE ---
-    if (safeId === 'l3-b1' || safeId === '4' || safeTitle.includes('atraso') || safeTitle.includes('layback')) {
-      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'O famoso Layback. Tente cantar a sílaba "Tá" uma fração de segundo DEPOIS do clique do metrônomo. O clique bate, você responde logo em seguida, criando uma sensação de relaxamento.', actionText: 'CANTE ATRASADO (Layback)', holdText: 'SINTA O TEMPO', command: 'CANTE ATRÁS DO PULSO', isLegato: true };
-    }
-    if (safeId === 'l3-b2' || safeId === '5' || safeTitle.includes('antecipacao') || safeTitle.includes('antecipação')) {
-      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Ataque agressivo (Push). Cante a sílaba "Tá" uma fração de segundo ANTES do clique. Você deve "puxar" a música, antecipando a batida do metrônomo.', actionText: 'CANTE ANTECIPADO (Push)', holdText: 'SINTA O TEMPO', command: 'ANTECIPE O ATAQUE', isLegato: false };
-    }
-    if (safeId === 'l3-b3' || safeId === '6' || safeTitle.includes('legato ritmico') || safeTitle.includes('ritmico')) {
-      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Conecte as notas sem perder o balanço. Cante "Du-Ba-Du-Ba" emendando as sílabas continuamente, mas cravando as mudanças exatamente no compasso.', actionText: 'CANTE CONECTADO (Du-Ba-Du-Ba)', holdText: 'PREPARE O SWING', command: 'FLUXO RÍTMICO', isLegato: true };
+    // --- DYNAMIC LOOKUP FROM ROOT DATA (Level 3) ---
+    for (const module of level3Modules) {
+      const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
+      if (found && found.prepText) {
+        return {
+          inhale: found.inhale ?? 4,
+          hold: found.hold ?? 0,
+          exhale: found.exhale ?? 16,
+          rest: found.rest ?? 4,
+          prepText: found.prepText,
+          actionText: found.actionText ?? 'CANTAR',
+          holdText: found.holdText ?? 'SEGURA',
+          command: found.command ?? 'AGORA',
+          isLegato: found.isLegato ?? false
+        };
+      }
     }
 
-    // --- NÍVEL 3 - MÓDULO C: GROOVE & SWING ---
-    if (safeId === 'l3-c1' || safeId === '7' || safeTitle.includes('swing')) {
-      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Sinta o balanço! O Swing não é reto. Imagine um "pulo" entre as notas. Cante "Doo-Bah" com o "Bah" levemente atrasado, criando o balanço clássico do Jazz.', actionText: 'CANTE COM SWING (Doo-Bah)', holdText: 'SINTA O BALANÇO', command: 'SWING AGORA', isLegato: true };
-    }
-    if (safeId === 'l3-c2' || safeId === '8' || safeTitle.includes('micro-timing') || safeTitle.includes('microtiming')) {
-      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Precisão milimétrica. Tente encaixar a sílaba "Ti" exatamente no centro do clique. O objetivo é reduzir o desvio rítmico para quase zero.', actionText: 'CANTE NO CENTRO (Ti-Ti-Ti)', holdText: 'FOCO NO CLICK', command: 'PRECISÃO MÁXIMA', isLegato: false };
-    }
-    if (safeId === 'l3-c3' || safeId === '9' || safeTitle.includes('estabilidade de bpm') || safeTitle.includes('bpm')) {
-      return { inhale: 4, hold: 0, exhale: 20, rest: 5, prepText: 'Teste de resistência rítmica. Mantenha o pulso constante por 20 segundos sem o auxílio do metrônomo visual. Confie no seu relógio interno.', actionText: 'MANTENHA O BPM SOZINHO', holdText: 'RELÓGIO INTERNO', command: 'RESISTÊNCIA RÍTMICA', isLegato: false };
-    }
-
-    // --- NÍVEL 3 - MÓDULO D: PERFORMANCE RÍTMICA ---
-    if (safeId === 'l3-d1' || safeId === '10' || safeTitle.includes('sync com banda') || safeTitle.includes('sincronia')) {
-      return { 
-        inhale: 4, hold: 0, exhale: 20, rest: 5, 
-        prepText: 'Sincronia total. Imagine que você está no palco com uma banda completa. O metrônomo vai sumir e você deve manter o "groove" apenas sentindo a pulsação interna.', 
-        actionText: 'CANTE COM A BANDA (Pá-Pá-Pá)', 
-        holdText: 'SINTA A BANDA', 
-        command: 'SINCRONIA DE PALCO',
-        isLegato: true 
-      };
-    }
-    if (safeId === 'l3-d2' || safeId === '11' || safeTitle.includes('polirritmia')) {
-      return { 
-        inhale: 4, hold: 0, exhale: 20, rest: 5, 
-        prepText: 'Desafio cerebral. Vamos cantar em 3 contra 2. Enquanto o pulso bate em 2, você deve dividir sua voz em 3 tempos iguais. Concentração máxima.', 
-        actionText: 'POLIRRITMIA (3 contra 2)', 
-        holdText: 'DIVISÃO COMPLEXA', 
-        command: 'POLIRRITMIA VOCAL',
-        isLegato: false 
-      };
-    }
-    if (safeId === 'l3-d3' || safeId === '12' || safeTitle.includes('teste de click final') || safeTitle.includes('click final')) {
-      return { 
-        inhale: 4, hold: 0, exhale: 30, rest: 5, 
-        prepText: 'O teste final de maestria rítmica. 30 segundos de precisão absoluta. Sem ajudas visuais, sem oscilações. Prove que seu metrônomo interno é perfeito.', 
-        actionText: 'TESTE DE CLICK FINAL', 
-        holdText: 'FOCO ABSOLUTO', 
-        command: 'PROVA DE MAESTRIA',
-        isLegato: false 
-      };
-    }
-
-    // --- NÍVEL 2 - MÓDULO A: ATAQUE & AUDIATION ---
+    // --- NÍVEL 2 - MÓDULO A: ATAQUE & AUDIATION (Fallback for now) ---
     if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
       return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', holdText: 'MENTALIZE A NOTA', command: 'ATAQUE AGORA', isLegato: false };
     }
