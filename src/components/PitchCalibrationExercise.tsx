@@ -137,8 +137,11 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
         <div className="w-full p-6 glass-pillar border-2 border-primary/20 rounded-2xl text-center">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Comando do Instrutor</p>
           <h4 className="text-2xl font-black text-primary neon-blue-glow animate-pulse">
-            {frequency > 0 ? config.actionText : "AGUARDANDO VOZ..."}
+            {config.actionText}
           </h4>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-2">
+            {frequency > 0 ? "VOZ ATIVA - ANALISANDO..." : "AGUARDANDO VOZ..."}
+          </p>
         </div>
       </div>
     </div>

@@ -73,8 +73,8 @@ export const level4Modules: Module[] = [
         title: '3. Sirene de Cabeça', 
         icon: Music,
         inhale: 4, hold: 0, exhale: 15, rest: 4, 
-        prepText: 'Deslize das notas médias para as agudas em "U". Sinta o som subir para trás do nariz e topo da cabeça.', 
-        actionText: 'DESLIZE: UUUUUUUU', 
+        prepText: "Use a voz de cabeça. Cante a vogal 'U' suavemente, deslizando do grave para o agudo contínuo, imitando a sirene de uma ambulância.", 
+        actionText: "SIRENE (Uuuu)", 
         command: 'SUBA O TOM',
         isLegato: true 
       },
@@ -83,8 +83,8 @@ export const level4Modules: Module[] = [
         title: '4. Falsete Sustentado', 
         icon: Disc,
         inhale: 4, hold: 2, exhale: 12, rest: 4, 
-        prepText: 'Mantenha uma nota aguda em falsete puro. O objetivo é a estabilidade sem tensão na garganta.', 
-        actionText: 'CANTAR UUUU (FALSETE)', 
+        prepText: "Encontre o seu limite confortável no agudo. Cante e sustente a nota em falsete, deixando bastante ar passar pelas cordas vocais.", 
+        actionText: "SUSTENTE O FALSETE", 
         command: 'MANTENHA LEVE',
         isLegato: true 
       }
@@ -102,8 +102,8 @@ export const level4Modules: Module[] = [
         title: '5. O "Nhey" de Conexão', 
         icon: Mic2,
         inhale: 4, hold: 0, exhale: 12, rest: 4, 
-        prepText: 'Use a fonética "Nhey" para conectar o peito à cabeça. O som deve ser anasalado e "feio" para garantir a conexão.', 
-        actionText: 'CANTAR: NHEY NHEY NHEY', 
+        prepText: "Vamos usar a 'Voz de Bruxa' (Pharyngeal). Cante a sílaba 'Nhey' com um som anasalado e exagerado para conectar o peito à cabeça sem quebrar a voz.", 
+        actionText: "CANTE ANASALADO (NHEY)", 
         command: 'CONECTE OS REGISTROS',
         isLegato: false 
       },
@@ -112,8 +112,8 @@ export const level4Modules: Module[] = [
         title: '6. Escala de Passaggio', 
         icon: BarChart3,
         inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'Suba e desça uma escala de 5 notas atravessando sua quebra vocal. Tente não mudar a intensidade do som.', 
-        actionText: 'ESCALA: DÓ-RÉ-MI-FÁ-SOL', 
+        prepText: "Navegue pela ponte vocal. Suba e desça a escala mantendo o mesmo volume, misturando o peito e a cabeça na sua zona de quebra (Mix).", 
+        actionText: "ESCALA MIX", 
         command: 'ATRAVESSE A QUEBRA',
         isLegato: true 
       }
@@ -131,8 +131,8 @@ export const level4Modules: Module[] = [
         title: '7. Messa di Voce', 
         icon: Activity,
         inhale: 4, hold: 2, exhale: 20, rest: 5, 
-        prepText: 'Comece uma nota bem baixinho (piano), aumente até o máximo (forte) e diminua novamente sem perder a afinação.', 
-        actionText: 'CRESCENDO & DIMINUENDO', 
+        prepText: "O teste supremo de controle. Inicie a nota bem baixinho (pianissimo), aumente o volume até o máximo (fortissimo) e volte a diminuir sem desafinar.", 
+        actionText: "CRESCENDO E DECRESCENDO", 
         command: 'CONTROLE O VOLUME',
         isLegato: true 
       }
