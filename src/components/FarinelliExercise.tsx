@@ -16,12 +16,15 @@ interface FarinelliExerciseProps {
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
   const { activeExerciseTitle, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
-  // 1. STRICT CONFIGURATION BINDING
+  // Helper for normalization (strips accents and diacritics)
+  const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  // 1. STRICT CONFIGURATION BINDING WITH NORMALIZATION
   const getStrictConfig = (title: string) => {
-    const safeTitle = (title || '').toLowerCase();
+    const nTitle = normalize(title || '');
     
-    // --- LEVEL 3: MODULE A (Pulso & Divisão) - ENFORCED PARAMETERS ---
-    if (safeTitle.includes('metrônomo humano') || safeTitle.includes('metronomo humano')) {
+    // --- LEVEL 3: MODULE A (Pulso & Divisão) ---
+    if (nTitle.includes('metronomo humano')) {
       return { 
         inhale: 4, hold: 2, exhale: 16, rest: 4, 
         prepText: "Sinta o pulso. Sua meta é manter a nota DÓ (C4) em ataques curtos e precisos seguindo o metrônomo visual por 16 segundos.", 
@@ -30,7 +33,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         isLegato: false 
       };
     }
-    if (safeTitle.includes('divisão binária') || safeTitle.includes('divisao binaria')) {
+    if (nTitle.includes('divisao binaria')) {
       return { 
         inhale: 4, hold: 2, exhale: 12, rest: 4, 
         prepText: "Divida o tempo. Cante colcheias precisas na nota RÉ (D4) por 12 segundos. Foque na subdivisão exata do tempo.", 
@@ -39,7 +42,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         isLegato: false 
       };
     }
-    if (safeTitle.includes('síncope básica') || safeTitle.includes('sincope basica')) {
+    if (nTitle.includes('sincope basica')) {
       return { 
         inhale: 4, hold: 2, exhale: 10, rest: 4, 
         prepText: "Desloque o acento. Cante a nota MI (E4) no contratempo por 10 segundos. Sinta o deslocamento rítmico.", 
@@ -50,45 +53,51 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
 
     // --- LEVEL 3: MODULE B (Phrasing & Ataque) ---
-    if (safeTitle.includes('atraso intencional')) {
+    if (nTitle.includes('atraso intencional')) {
       return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Cante a nota RÉ (D4) levemente atrás do pulso. Sinta a tensão rítmica criada pelo atraso proposital.", actionText: 'MARQUE O TEMPO (LAY BACK)', command: 'CANTE ATRÁS DO PULSO', isLegato: true };
     }
-    if (safeTitle.includes('antecipação') || safeTitle.includes('antecipacao')) {
+    if (nTitle.includes('antecipacao')) {
       return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Ataque a nota MI (E4) milissegundos antes do pulso. Crie urgência rítmica sem acelerar o BPM.", actionText: 'MARQUE O TEMPO (ON TOP)', command: 'ANTECIPE O ATAQUE', isLegato: false };
     }
-    if (safeTitle.includes('legato rítmico') || safeTitle.includes('legato ritmico')) {
+    if (nTitle.includes('legato ritmico')) {
       return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Mantenha o fluxo de ar constante enquanto marca as divisões rítmicas apenas com a articulação da língua.", actionText: 'MARQUE O TEMPO (LEGATO)', command: 'FLUXO RÍTMICO', isLegato: true };
     }
 
     // --- LEVEL 3: MODULE C (Groove & Swing) ---
-    if (safeTitle.includes('swing feel')) {
+    if (nTitle.includes('swing feel')) {
       return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Sinta o balanço do jazz. A primeira nota é longa, a segunda é curta. 'Doo-dah, doo-dah'.", actionText: 'MARQUE O TEMPO (SWING)', command: 'SINTA O SWING', isLegato: false };
     }
-    if (safeTitle.includes('micro-timing')) {
+    if (nTitle.includes('micro-timing')) {
       return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Ajustes milimétricos. Tente manter a nota FÁ (F4) exatamente no centro do click visual.", actionText: 'MARQUE O TEMPO (CENTERED)', command: 'PRECISÃO ABSOLUTA', isLegato: false };
     }
-    if (safeTitle.includes('estabilidade de bpm')) {
+    if (nTitle.includes('estabilidade de bpm')) {
       return { inhale: 4, hold: 2, exhale: 20, rest: 5, prepText: "Mantenha o pulso constante por 20 segundos sem a ajuda do metrônomo visual após o início.", actionText: 'MARQUE O TEMPO (STEADY)', command: 'MANTENHA O BPM', isLegato: false };
     }
 
     // --- LEVEL 3: MODULE D (Performance Rítmica) ---
-    if (safeTitle.includes('sync com banda')) {
+    if (nTitle.includes('sync com banda')) {
       return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Imagine a bateria e o baixo. Sua voz deve 'encaixar' no bolso (pocket) da música.", actionText: 'MARQUE O TEMPO (IN THE POCKET)', command: 'SYNC COM A BANDA', isLegato: true };
     }
-    if (safeTitle.includes('polirritmia vocal')) {
+    if (nTitle.includes('polirritmia vocal')) {
       return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Desafio final. Cante 3 notas contra 2 pulsos do metrônomo. Independência rítmica total.", actionText: 'MARQUE O TEMPO (3 CONTRA 2)', command: 'POLIRRITMIA AGORA', isLegato: false };
     }
-    if (safeTitle.includes('teste de click final')) {
+    if (nTitle.includes('teste de click final')) {
       return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Avaliação final de ritmo. O click vai falhar propositalmente; você deve manter o tempo.", actionText: 'MARQUE O TEMPO (FINAL TEST)', command: 'PROVE SEU RITMO', isLegato: false };
     }
 
     // --- LEVEL 2: MODULE A (Ataque & Audiation) ---
-    if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
+    if (nTitle.includes('laser') || nTitle.includes('ataque')) {
       return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', command: 'ATAQUE AGORA', isLegato: false };
     }
     
-    // DEFAULT FALLBACK
-    return { inhale: 4, hold: 4, exhale: 10, rest: 5, prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', actionText: 'SOLTAR AR', command: 'EXPIRA AGORA', isLegato: true };
+    // DEFAULT FALLBACK (Strictly defined to avoid bleeding)
+    return { 
+      inhale: 4, hold: 4, exhale: 10, rest: 5, 
+      prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', 
+      actionText: 'SOLTAR AR', 
+      command: 'EXPIRA AGORA', 
+      isLegato: true 
+    };
   };
 
   const config = useMemo(() => getStrictConfig(activeExerciseTitle), [activeExerciseTitle]);
@@ -266,7 +275,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
             {exerciseState === 'idle' ? "Checklist de Preparação" : activeExerciseTitle}
           </h3>
           
-          {/* BINDING PREPARATION TEXT STRICTLY TO CONFIG */}
+          {/* BINDING PREPARATION TEXT STRICTLY TO CONFIG - NO FALLBACKS */}
           <p className="text-lg text-foreground mb-8 leading-relaxed">
             {exerciseState === 'idle' ? config.prepText : feedback}
           </p>
@@ -326,7 +335,6 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
 
         <Card className="glass-pillar border-2 border-accent/50 p-6 w-full max-w-sm">
           <CardHeader className="p-0 pb-4">
-            {/* FIX THE MONITOR LABEL: DYNAMIC TEXT BASED ON LEVEL/MODULE */}
             <CardTitle className="text-accent flex items-center gap-2 text-lg">
               {moduleType === 'rhythm' ? <Timer className="h-5 w-5" /> : <Activity className="h-5 w-5" />}
               {moduleType === 'rhythm' ? "Monitor de Ritmo" : "Monitor de Apoio"}
