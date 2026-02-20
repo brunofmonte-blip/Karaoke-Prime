@@ -42,15 +42,36 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       };
     }
 
-    // --- NÍVEL 3 - MÓDULO B: PHRASING & ATAQUE ---
-    if (safeTitle.includes('atraso') || safeId.includes('l3-b1')) {
-      return { inhale: 4, hold: 0, exhale: 12, rest: 4, prepText: "Cante a nota RÉ (D4) levemente atrás do pulso. Sinta a tensão rítmica criada pelo atraso proposital.", actionText: 'MARQUE O TEMPO (LAY BACK)', holdText: 'SINTA O ATRASO', command: 'CANTE ATRÁS DO PULSO', isLegato: true };
+    // --- NÍVEL 3 - MÓDULO B: FRASEAMENTO & ATAQUE ---
+    if (safeTitle.includes('atraso') || safeTitle.includes('layback') || safeId.includes('l3-b1') || safeId === '4') {
+      return { 
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'O famoso Layback. Tente cantar a sílaba "Tá" uma fração de segundo DEPOIS do clique do metrônomo. O clique bate, você responde logo em seguida, criando uma sensação de relaxamento.', 
+        actionText: 'CANTE ATRASADO (Layback)', 
+        holdText: 'SINTA O TEMPO', 
+        command: 'CANTE ATRÁS DO PULSO',
+        isLegato: true 
+      };
     }
-    if (safeTitle.includes('antecipacao') || safeId.includes('l3-b2')) {
-      return { inhale: 4, hold: 0, exhale: 10, rest: 4, prepText: "Ataque a nota MI (E4) milissegundos antes do pulso. Crie urgência rítmica sem acelerar o BPM.", actionText: 'MARQUE O TEMPO (ON TOP)', holdText: 'ANTECIPE', command: 'ANTECIPE O ATAQUE', isLegato: false };
+    if (safeTitle.includes('antecipacao') || safeTitle.includes('antecipação') || safeId.includes('l3-b2') || safeId === '5') {
+      return { 
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Ataque agressivo (Push). Cante a sílaba "Tá" uma fração de segundo ANTES do clique. Você deve "puxar" a música, antecipando a batida do metrônomo.', 
+        actionText: 'CANTE ANTECIPADO (Push)', 
+        holdText: 'SINTA O TEMPO', 
+        command: 'ANTECIPE O ATAQUE',
+        isLegato: false 
+      };
     }
-    if (safeTitle.includes('legato') || safeId.includes('l3-b3')) {
-      return { inhale: 4, hold: 0, exhale: 15, rest: 5, prepText: "Mantenha o fluxo de ar constante enquanto marca as divisões rítmicas apenas com a articulação da língua.", actionText: 'MARQUE O TEMPO (LEGATO)', holdText: 'FLUXO CONSTANTE', command: 'FLUXO RÍTMICO', isLegato: true };
+    if (safeTitle.includes('legato ritmico') || safeTitle.includes('ritmico') || safeId.includes('l3-b3') || safeId === '6') {
+      return { 
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'Conecte as notas sem perder o balanço. Cante "Du-Ba-Du-Ba" emendando as sílabas continuamente, mas cravando as mudanças exatamente no compasso.', 
+        actionText: 'CANTE CONECTADO (Du-Ba-Du-Ba)', 
+        holdText: 'PREPARE O SWING', 
+        command: 'FLUXO RÍTMICO',
+        isLegato: true 
+      };
     }
 
     // --- NÍVEL 2 - MÓDULO A: ATAQUE & AUDIATION ---
