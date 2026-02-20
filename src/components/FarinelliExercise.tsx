@@ -69,13 +69,34 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
 
     // --- NÍVEL 3 - MÓDULO D: PERFORMANCE RÍTMICA ---
     if (safeId === 'l3-d1' || safeId === '10' || safeTitle.includes('sync com banda') || safeTitle.includes('sincronia')) {
-      return { inhale: 4, hold: 0, exhale: 20, rest: 5, prepText: 'Sincronia total. Imagine que você está no palco com uma banda completa. O metrônomo vai sumir e você deve manter o "groove" apenas sentindo a pulsação interna.', actionText: 'CANTE COM A BANDA (Pá-Pá-Pá)', holdText: 'SINTA A BANDA', command: 'SINCRONIA DE PALCO', isLegato: true };
+      return { 
+        inhale: 4, hold: 0, exhale: 20, rest: 5, 
+        prepText: 'Sincronia total. Imagine que você está no palco com uma banda completa. O metrônomo vai sumir e você deve manter o "groove" apenas sentindo a pulsação interna.', 
+        actionText: 'CANTE COM A BANDA (Pá-Pá-Pá)', 
+        holdText: 'SINTA A BANDA', 
+        command: 'SINCRONIA DE PALCO',
+        isLegato: true 
+      };
     }
     if (safeId === 'l3-d2' || safeId === '11' || safeTitle.includes('polirritmia')) {
-      return { inhale: 4, hold: 0, exhale: 20, rest: 5, prepText: 'Desafio cerebral. Vamos cantar em 3 contra 2. Enquanto o pulso bate em 2, você deve dividir sua voz em 3 tempos iguais. Concentração máxima.', actionText: 'POLIRRITMIA (3 contra 2)', holdText: 'DIVISÃO COMPLEXA', command: 'POLIRRITMIA VOCAL', isLegato: false };
+      return { 
+        inhale: 4, hold: 0, exhale: 20, rest: 5, 
+        prepText: 'Desafio cerebral. Vamos cantar em 3 contra 2. Enquanto o pulso bate em 2, você deve dividir sua voz em 3 tempos iguais. Concentração máxima.', 
+        actionText: 'POLIRRITMIA (3 contra 2)', 
+        holdText: 'DIVISÃO COMPLEXA', 
+        command: 'POLIRRITMIA VOCAL',
+        isLegato: false 
+      };
     }
     if (safeId === 'l3-d3' || safeId === '12' || safeTitle.includes('teste de click final') || safeTitle.includes('click final')) {
-      return { inhale: 4, hold: 0, exhale: 30, rest: 5, prepText: 'O teste final de maestria rítmica. 30 segundos de precisão absoluta. Sem ajudas visuais, sem oscilações. Prove que seu metrônomo interno é perfeito.', actionText: 'TESTE DE CLICK FINAL', holdText: 'FOCO ABSOLUTO', command: 'PROVA DE MAESTRIA', isLegato: false };
+      return { 
+        inhale: 4, hold: 0, exhale: 30, rest: 5, 
+        prepText: 'O teste final de maestria rítmica. 30 segundos de precisão absoluta. Sem ajudas visuais, sem oscilações. Prove que seu metrônomo interno é perfeito.', 
+        actionText: 'TESTE DE CLICK FINAL', 
+        holdText: 'FOCO ABSOLUTO', 
+        command: 'PROVA DE MAESTRIA',
+        isLegato: false 
+      };
     }
 
     // --- NÍVEL 2 - MÓDULO A: ATAQUE & AUDIATION ---
