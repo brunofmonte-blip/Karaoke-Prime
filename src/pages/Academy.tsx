@@ -5,6 +5,7 @@ import LessonCard from '@/components/LessonCard';
 import AcademyModuleMenu from '@/components/AcademyModuleMenu';
 import AcademyLevel2Menu from '@/components/AcademyLevel2Menu';
 import AcademyLevel3Menu from '@/components/AcademyLevel3Menu';
+import AcademyLevel4Menu from '@/components/AcademyLevel4Menu';
 import InstructorAvatar from '@/components/InstructorAvatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -139,14 +140,18 @@ const Academy = () => {
               <div className="col-span-full">
                 <AcademyLevel3Menu />
               </div>
+            ) : selectedLevel === 4 ? (
+              <div className="col-span-full">
+                <AcademyLevel4Menu />
+              </div>
             ) : (
               academyLessons.map((lesson) => (
                 <div 
                   key={lesson.level} 
-                  onClick={() => (lesson.level === 1 || lesson.level === 2 || lesson.level === 3) && setSelectedLevel(lesson.level)}
+                  onClick={() => (lesson.level >= 1 && lesson.level <= 4) && setSelectedLevel(lesson.level)}
                   className={cn(
                     "transition-transform duration-300",
-                    (lesson.level === 1 || lesson.level === 2 || lesson.level === 3) && "cursor-pointer hover:scale-[1.02]"
+                    (lesson.level >= 1 && lesson.level <= 4) && "cursor-pointer hover:scale-[1.02]"
                   )}
                 >
                   <LessonCard lesson={lesson} isAdminMode={isAdminMode} />
