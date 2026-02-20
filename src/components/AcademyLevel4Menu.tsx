@@ -44,8 +44,8 @@ export const level4Modules: Module[] = [
         title: '1. Ressonância Torácica', 
         icon: Activity,
         inhale: 4, hold: 2, exhale: 12, rest: 4, 
-        prepText: 'Sinta a vibração no peito. Cante a nota SOL (G3) com a vogal "Ó" bem aberta, focando na profundidade do som.', 
-        actionText: 'CANTAR ÓÓÓÓ (PEITO)', 
+        prepText: "Sinta a vibração no peito. Cante uma nota grave e confortável na sua extensão usando a sílaba 'Buh'. Mantenha o som encorpado e relaxado.", 
+        actionText: "CANTE GRAVE (BUH)", 
         command: 'FOCO NO PEITO', 
         isLegato: true 
       },
@@ -54,8 +54,8 @@ export const level4Modules: Module[] = [
         title: '2. Ataque Glótico Suave', 
         icon: Zap,
         inhale: 4, hold: 0, exhale: 10, rest: 4, 
-        prepText: 'Treino de fechamento cordal. Emita sons curtos e firmes em "Á", garantindo que a voz não escape com ar.', 
-        actionText: 'ATAQUE: Á - Á - Á', 
+        prepText: "Evite raspar a garganta no início da nota. Inicie a nota grave com extrema suavidade, quase como um suspiro usando a sílaba 'Ah'.", 
+        actionText: "ATAQUE SUAVE (AH)", 
         command: 'ATAQUE FIRME', 
         isLegato: false 
       }
