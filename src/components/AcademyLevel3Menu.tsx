@@ -31,9 +31,9 @@ const modules: Module[] = [
     icon: Timer,
     prescription: 'Foco em Precisão de Click',
     exercises: [
-      { id: 'human-metronome', title: '1. Metrônomo Humano', icon: Activity },
-      { id: 'binary-division', title: '2. Divisão Binária', icon: Layers },
-      { id: 'basic-syncopation', title: '3. Síncope Básica', icon: Zap }
+      { id: 'l3-a1', title: '1. Metrônomo Humano', icon: Activity },
+      { id: 'l3-a2', title: '2. Divisão Binária', icon: Layers },
+      { id: 'l3-a3', title: '3. Síncope Básica', icon: Zap }
     ]
   },
   {
@@ -43,9 +43,9 @@ const modules: Module[] = [
     icon: Music,
     prescription: 'Foco em Intencionalidade',
     exercises: [
-      { id: 'intentional-delay', title: '4. Atraso Intencional', icon: Disc },
-      { id: 'anticipation', title: '5. Antecipação', icon: Zap },
-      { id: 'rhythmic-legato', title: '6. Legato Rítmico', icon: Activity }
+      { id: 'l3-b1', title: '4. Atraso Intencional', icon: Disc },
+      { id: 'l3-b2', title: '5. Antecipação', icon: Zap },
+      { id: 'l3-b3', title: '6. Legato Rítmico', icon: Activity }
     ]
   },
   {
@@ -55,9 +55,9 @@ const modules: Module[] = [
     icon: Disc,
     prescription: 'Foco em Micro-timing',
     exercises: [
-      { id: 'swing-feel', title: '7. Swing Feel', icon: Music },
-      { id: 'micro-timing', title: '8. Micro-timing', icon: BarChart3 },
-      { id: 'bpm-stability', title: '9. Estabilidade de BPM', icon: Timer }
+      { id: 'l3-c1', title: '7. Swing Feel', icon: Music },
+      { id: 'l3-c2', title: '8. Micro-timing', icon: BarChart3 },
+      { id: 'l3-c3', title: '9. Estabilidade de BPM', icon: Timer }
     ]
   },
   {
@@ -67,9 +67,9 @@ const modules: Module[] = [
     icon: Layers,
     prescription: 'Foco em Sincronia de Banda',
     exercises: [
-      { id: 'band-sync', title: '10. Sync com Banda', icon: Disc },
-      { id: 'vocal-poly', title: '11. Polirritmia Vocal', icon: Layers },
-      { id: 'click-test', title: '12. Teste de Click Final', icon: Timer }
+      { id: 'l3-d1', title: '10. Sync com Banda', icon: Disc },
+      { id: 'l3-d2', title: '11. Polirritmia Vocal', icon: Layers },
+      { id: 'l3-d3', title: '12. Teste de Click Final', icon: Timer }
     ]
   }
 ];
@@ -80,8 +80,7 @@ const AcademyLevel3Menu: React.FC = () => {
 
   const handleStartExercise = (exercise: Exercise) => {
     const exerciseSong = publicDomainLibrary.find(s => s.id === 'pd-23') || publicDomainLibrary[0];
-    // CRITICAL FIX: Use 'rhythm' module to trigger the guided engine instead of the sandbox
-    startAnalysis(exerciseSong, false, 'rhythm', 'none', exercise.title);
+    startAnalysis(exerciseSong, false, 'rhythm', 'none', exercise.title, exercise.id);
     openOverlay();
   };
 

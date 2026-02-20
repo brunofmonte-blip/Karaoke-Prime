@@ -34,7 +34,7 @@ interface VocalSandboxContextType {
   openOverlay: () => void;
   closeOverlay: () => void;
   isAnalyzing: boolean;
-  startAnalysis: (song: PublicDomainSong, isDuelMode: boolean, module?: ConservatoryModule, subModule?: CalibrationSubModule, exerciseTitle?: string) => Promise<void>;
+  startAnalysis: (song: PublicDomainSong, isDuelMode: boolean, module?: ConservatoryModule, subModule?: CalibrationSubModule, exerciseTitle?: string, exerciseId?: string) => Promise<void>;
   stopAnalysis: (customScore?: number) => { summary: SessionSummary, history: ChartDataItem[] } | null;
   pitchData: number; 
   pitchDataHz: number;
@@ -67,6 +67,7 @@ interface VocalSandboxContextType {
   activeModule: ConservatoryModule;
   activeSubModule: CalibrationSubModule;
   activeExerciseTitle: string;
+  activeExerciseId: string;
 }
 
 const VocalSandboxContext = createContext<VocalSandboxContextType | undefined>(undefined);
@@ -91,6 +92,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [activeModule, setActiveModule] = useState<ConservatoryModule>('none');
   const [activeSubModule, setActiveSubModule] = useState<CalibrationSubModule>('none');
   const [activeExerciseTitle, setActiveExerciseTitle] = useState<string>('');
+  const [activeExerciseId, setActiveExerciseId] = useState<string>('');
   
   const [breathingPhase, setBreathingPhase] = useState<BreathingPhase>('idle');
   const [breathingProgress, setBreathingProgress] = useState(0);
@@ -129,6 +131,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setActiveModule('none');
     setActiveSubModule('none');
     setActiveExerciseTitle('');
+    setActiveExerciseId('');
 
     if (stabilityToastRef.current) {
       toast.dismiss(stabilityToastRef.current);
@@ -155,7 +158,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       let summary: SessionSummary;
       
-      // STANDARDIZATION: Skip Sandbox for Breathing and Calibration modules
       if ((isBreathing || isPitchCalibration) && customScore !== undefined) {
         summary = {
           pitchAccuracy: customScore,
@@ -177,7 +179,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       }
       
       setSessionSummary(summary);
-      setIsOverlayOpen(false); // Close Sandbox immediately
+      setIsOverlayOpen(false); 
       return { summary, history: pitchHistory };
     }
     
@@ -185,13 +187,14 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     return null;
   }, [stopAudio, pitchHistory, currentSong, activeModule]);
 
-  const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, module: ConservatoryModule = 'none', subModule: CalibrationSubModule = 'none', exerciseTitle: string = '') => {
+  const startAnalysis = useCallback(async (song: PublicDomainSong, isDuelMode: boolean, module: ConservatoryModule = 'none', subModule: CalibrationSubModule = 'none', exerciseTitle: string = '', exerciseId: string = '') => {
     if (isAnalyzing || countdown !== null) return;
     
     setCurrentSong(song);
     setActiveModule(module);
     setActiveSubModule(subModule);
     setActiveExerciseTitle(exerciseTitle);
+    setActiveExerciseId(exerciseId);
     await mockDownloadSong(song); 
 
     setPitchHistory([]);
@@ -314,6 +317,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         activeModule,
         activeSubModule,
         activeExerciseTitle,
+        activeExerciseId,
       }}
     >
       {children}

@@ -14,93 +14,56 @@ interface FarinelliExerciseProps {
 }
 
 const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => {
-  const { activeExerciseTitle, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
+  const { activeExerciseTitle, activeExerciseId, setStabilityScore, stabilityScore, stopAnalysis, setManualProgress } = useVocalSandbox();
   
-  // Helper for normalization (strips accents and diacritics)
   const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-  // 1. STRICT CONFIGURATION BINDING WITH NORMALIZATION
-  const getStrictConfig = (title: string) => {
-    const nTitle = normalize(title || '');
+  const getStrictConfig = (lesson: { title: string, id: string }) => {
+    if (!lesson.title && !lesson.id) return getDefaultConfig();
     
-    // --- LEVEL 3: MODULE A (Pulso & Divisão) ---
-    if (nTitle.includes('metronomo humano')) {
-      return { 
-        inhale: 4, hold: 2, exhale: 16, rest: 4, 
-        prepText: "Sinta o pulso. Sua meta é manter a nota DÓ (C4) em ataques curtos e precisos seguindo o metrônomo visual por 16 segundos.", 
-        actionText: 'MARQUE O TEMPO (PÁ - PÁ - PÁ)', 
-        command: 'SIGA O PULSO', 
-        isLegato: false 
-      };
+    const safeTitle = normalize(lesson.title || '');
+    const safeId = (lesson.id || '').toLowerCase();
+    
+    // --- NÍVEL 3 - MÓDULO A: PULSO & DIVISÃO ---
+    if (safeTitle.includes('metronomo') || safeTitle.includes('humano') || safeId.includes('l3-a1')) {
+      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Sinta o pulso. Ouça o clique do metrônomo e marque o tempo forte emitindo um "Pá" exato em cada batida.', actionText: 'MARQUE O TEMPO (PÁ - PÁ - PÁ)', holdText: 'PREPARE O PULSO', command: 'SIGA O PULSO', isLegato: false };
     }
-    if (nTitle.includes('divisao binaria')) {
-      return { 
-        inhale: 4, hold: 2, exhale: 12, rest: 4, 
-        prepText: "Divida o tempo. Cante colcheias precisas na nota RÉ (D4) por 12 segundos. Foque na subdivisão exata do tempo.", 
-        actionText: 'MARQUE O TEMPO (PÁ-PÁ-PÁ-PÁ)', 
-        command: 'DIVIDA O TEMPO', 
-        isLegato: false 
-      };
+    if (safeTitle.includes('binaria') || safeTitle.includes('divisao') || safeId.includes('l3-a2')) {
+      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Vamos dividir o tempo ao meio (colcheias). Para cada clique, você emitirá dois sons iguais (Pá-Pá).', actionText: 'DIVIDA: (1 e 2 e 3 e 4 e)', holdText: 'OUÇA A DIVISÃO', command: 'DIVIDA O TEMPO', isLegato: false };
     }
-    if (nTitle.includes('sincope basica')) {
-      return { 
-        inhale: 4, hold: 2, exhale: 10, rest: 4, 
-        prepText: "Desloque o acento. Cante a nota MI (E4) no contratempo por 10 segundos. Sinta o deslocamento rítmico.", 
-        actionText: 'MARQUE O TEMPO (OFF-BEAT)', 
-        command: 'SÍNCOPE AGORA', 
-        isLegato: false 
-      };
+    if (safeTitle.includes('sincope') || safeId.includes('l3-a3')) {
+      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'A arte do contratempo! O clique marca a cabeça do tempo, você deve cantar exatamente no intervalo vazio.', actionText: 'CANTE NO CONTRATEMPO ( e Pá! e Pá! )', holdText: 'SINTA O GROOVE', command: 'SÍNCOPE AGORA', isLegato: false };
     }
 
-    // --- LEVEL 3: MODULE B (Phrasing & Ataque) ---
-    if (nTitle.includes('atraso intencional')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Cante a nota RÉ (D4) levemente atrás do pulso. Sinta a tensão rítmica criada pelo atraso proposital.", actionText: 'MARQUE O TEMPO (LAY BACK)', command: 'CANTE ATRÁS DO PULSO', isLegato: true };
+    // --- NÍVEL 3 - MÓDULO B: PHRASING & ATAQUE ---
+    if (safeTitle.includes('atraso') || safeId.includes('l3-b1')) {
+      return { inhale: 4, hold: 0, exhale: 12, rest: 4, prepText: "Cante a nota RÉ (D4) levemente atrás do pulso. Sinta a tensão rítmica criada pelo atraso proposital.", actionText: 'MARQUE O TEMPO (LAY BACK)', holdText: 'SINTA O ATRASO', command: 'CANTE ATRÁS DO PULSO', isLegato: true };
     }
-    if (nTitle.includes('antecipacao')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Ataque a nota MI (E4) milissegundos antes do pulso. Crie urgência rítmica sem acelerar o BPM.", actionText: 'MARQUE O TEMPO (ON TOP)', command: 'ANTECIPE O ATAQUE', isLegato: false };
+    if (safeTitle.includes('antecipacao') || safeId.includes('l3-b2')) {
+      return { inhale: 4, hold: 0, exhale: 10, rest: 4, prepText: "Ataque a nota MI (E4) milissegundos antes do pulso. Crie urgência rítmica sem acelerar o BPM.", actionText: 'MARQUE O TEMPO (ON TOP)', holdText: 'ANTECIPE', command: 'ANTECIPE O ATAQUE', isLegato: false };
     }
-    if (nTitle.includes('legato ritmico')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Mantenha o fluxo de ar constante enquanto marca as divisões rítmicas apenas com a articulação da língua.", actionText: 'MARQUE O TEMPO (LEGATO)', command: 'FLUXO RÍTMICO', isLegato: true };
-    }
-
-    // --- LEVEL 3: MODULE C (Groove & Swing) ---
-    if (nTitle.includes('swing feel')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Sinta o balanço do jazz. A primeira nota é longa, a segunda é curta. 'Doo-dah, doo-dah'.", actionText: 'MARQUE O TEMPO (SWING)', command: 'SINTA O SWING', isLegato: false };
-    }
-    if (nTitle.includes('micro-timing')) {
-      return { inhale: 4, hold: 2, exhale: 10, rest: 4, prepText: "Ajustes milimétricos. Tente manter a nota FÁ (F4) exatamente no centro do click visual.", actionText: 'MARQUE O TEMPO (CENTERED)', command: 'PRECISÃO ABSOLUTA', isLegato: false };
-    }
-    if (nTitle.includes('estabilidade de bpm')) {
-      return { inhale: 4, hold: 2, exhale: 20, rest: 5, prepText: "Mantenha o pulso constante por 20 segundos sem a ajuda do metrônomo visual após o início.", actionText: 'MARQUE O TEMPO (STEADY)', command: 'MANTENHA O BPM', isLegato: false };
+    if (safeTitle.includes('legato') || safeId.includes('l3-b3')) {
+      return { inhale: 4, hold: 0, exhale: 15, rest: 5, prepText: "Mantenha o fluxo de ar constante enquanto marca as divisões rítmicas apenas com a articulação da língua.", actionText: 'MARQUE O TEMPO (LEGATO)', holdText: 'FLUXO CONSTANTE', command: 'FLUXO RÍTMICO', isLegato: true };
     }
 
-    // --- LEVEL 3: MODULE D (Performance Rítmica) ---
-    if (nTitle.includes('sync com banda')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Imagine a bateria e o baixo. Sua voz deve 'encaixar' no bolso (pocket) da música.", actionText: 'MARQUE O TEMPO (IN THE POCKET)', command: 'SYNC COM A BANDA', isLegato: true };
-    }
-    if (nTitle.includes('polirritmia vocal')) {
-      return { inhale: 4, hold: 2, exhale: 12, rest: 4, prepText: "Desafio final. Cante 3 notas contra 2 pulsos do metrônomo. Independência rítmica total.", actionText: 'MARQUE O TEMPO (3 CONTRA 2)', command: 'POLIRRITMIA AGORA', isLegato: false };
-    }
-    if (nTitle.includes('teste de click final')) {
-      return { inhale: 4, hold: 2, exhale: 15, rest: 5, prepText: "Avaliação final de ritmo. O click vai falhar propositalmente; você deve manter o tempo.", actionText: 'MARQUE O TEMPO (FINAL TEST)', command: 'PROVE SEU RITMO', isLegato: false };
-    }
-
-    // --- LEVEL 2: MODULE A (Ataque & Audiation) ---
-    if (nTitle.includes('laser') || nTitle.includes('ataque')) {
-      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', command: 'ATAQUE AGORA', isLegato: false };
+    // --- NÍVEL 2 - MÓDULO A: ATAQUE & AUDIATION ---
+    if (safeTitle.includes('laser') || safeTitle.includes('ataque')) {
+      return { inhale: 3, hold: 2, exhale: 10, rest: 4, prepText: "Prepare-se para o ataque de precisão. Mentalize a nota DÓ (C4) antes de emitir o som. Use a fonética 'PÁ' para um ataque seco e imediato.", actionText: 'CANTAR PÁ!', holdText: 'MENTALIZE A NOTA', command: 'ATAQUE AGORA', isLegato: false };
     }
     
-    // DEFAULT FALLBACK (Strictly defined to avoid bleeding)
-    return { 
-      inhale: 4, hold: 4, exhale: 10, rest: 5, 
-      prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', 
-      actionText: 'SOLTAR AR', 
-      command: 'EXPIRA AGORA', 
-      isLegato: true 
-    };
+    return getDefaultConfig();
   };
 
-  const config = useMemo(() => getStrictConfig(activeExerciseTitle), [activeExerciseTitle]);
+  const getDefaultConfig = () => ({ 
+    inhale: 4, hold: 4, exhale: 10, rest: 5, 
+    prepText: 'Prepare-se para a expansão pulmonar. Mantenha a postura ereta.', 
+    actionText: 'SOLTAR AR', 
+    holdText: 'SEGURA',
+    command: 'EXPIRA AGORA', 
+    isLegato: true 
+  });
+
+  const config = useMemo(() => getStrictConfig({ title: activeExerciseTitle, id: activeExerciseId }), [activeExerciseTitle, activeExerciseId]);
 
   const [exerciseState, setExerciseState] = useState<BreathingPhase>('idle');
   const [timeLeft, setTimeLeft] = useState(0);
@@ -199,10 +162,19 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       window.speechSynthesis.cancel();
 
       if (exerciseState === 'inhale') {
-        setExerciseState('hold');
-        setTimeLeft(config.hold); 
-        setFeedback("Segure.");
-        speak("Segure.");
+        if (config.hold > 0) {
+          setExerciseState('hold');
+          setTimeLeft(config.hold); 
+          setFeedback("Segure.");
+          speak("Segure.");
+        } else {
+          setExerciseState('exhale');
+          setTimeLeft(config.exhale); 
+          stabilityRef.current = 100;
+          setStabilityScore(100);
+          setFeedback(config.command);
+          speak(config.command);
+        }
       }
       else if (exerciseState === 'hold') {
         setExerciseState('exhale');
@@ -254,7 +226,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
 
   const labels: Record<string, string> = {
     inhale: 'INSPIRA',
-    hold: 'SEGURA',
+    hold: config.holdText || 'SEGURA',
     exhale: config.actionText,
     rest: 'PAUSA',
     idle: 'PRONTO',
@@ -275,9 +247,8 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
             {exerciseState === 'idle' ? "Checklist de Preparação" : activeExerciseTitle}
           </h3>
           
-          {/* BINDING PREPARATION TEXT STRICTLY TO CONFIG - NO FALLBACKS */}
-          <p className="text-lg text-foreground mb-8 leading-relaxed">
-            {exerciseState === 'idle' ? config.prepText : feedback}
+          <p className="text-gray-300 text-center max-w-md mx-auto mb-8 text-sm md:text-base leading-relaxed">
+            {exerciseState === 'idle' ? (config?.prepText || "Instrução não encontrada. Por favor, reinicie a lição.") : feedback}
           </p>
           
           {exerciseState === 'idle' ? (
