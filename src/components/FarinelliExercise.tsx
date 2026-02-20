@@ -32,7 +32,14 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
       return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Vamos dividir o tempo ao meio (colcheias). Para cada clique, você emitirá dois sons iguais (Pá-Pá).', actionText: 'DIVIDA: (1 e 2 e 3 e 4 e)', holdText: 'OUÇA A DIVISÃO', command: 'DIVIDA O TEMPO', isLegato: false };
     }
     if (safeTitle.includes('sincope') || safeId.includes('l3-a3')) {
-      return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'A arte do contratempo! O clique marca a cabeça do tempo, você deve cantar exatamente no intervalo vazio.', actionText: 'CANTE NO CONTRATEMPO ( e Pá! e Pá! )', holdText: 'SINTA O GROOVE', command: 'SÍNCOPE AGORA', isLegato: false };
+      return { 
+        inhale: 4, hold: 0, exhale: 16, rest: 4, 
+        prepText: 'O contratempo é cantar no "silêncio". Imagine o tique-taque de um relógio: NÃO cante no "Tique", cante no espaço vazio entre as batidas. Espere o clique e emita o som "Pá!".', 
+        actionText: 'CANTE NO ESPAÇO: ( ...Pá! ...Pá! )', 
+        holdText: 'SINTA O CONTRATEMPO', 
+        command: 'SÍNCOPE AGORA',
+        isLegato: false 
+      };
     }
 
     // --- NÍVEL 3 - MÓDULO B: PHRASING & ATAQUE ---
