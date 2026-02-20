@@ -43,16 +43,16 @@ export const level5Modules: Module[] = [
         id: 'l5-a1', 
         title: '1. Ajuste Fino de Sustentação', 
         icon: Activity,
-        prepText: "Mantenha a nota alvo com o mínimo de oscilação possível. O objetivo é manter o ponteiro do afinador exatamente no centro por 10 segundos.", 
-        actionText: "SUSTENTAÇÃO LASER", 
+        prepText: "Sustente a nota e olhe para o afinador. Seu objetivo é manter a barra cravada no centro (0 centavos) sem oscilar.", 
+        actionText: "CRAVE A NOTA (0 CENTS)", 
         command: 'ESTABILIZE AGORA' 
       },
       { 
         id: 'l5-a2', 
         title: '2. Bending (Deslize de Afinação)', 
         icon: Zap,
-        prepText: "Inicie a nota meio tom abaixo e deslize suavemente para cima até atingir a nota alvo, focando na precisão do ponto de chegada.", 
-        actionText: "DESLIZE PARA O ALVO", 
+        prepText: "Comece a nota ligeiramente abaixo do tom (flat) e deslize suavemente para cima até cravar no centro exato.", 
+        actionText: "DESLIZE PARA O CENTRO", 
         command: 'DESLIZE E CRAVE' 
       }
     ]
@@ -68,15 +68,15 @@ export const level5Modules: Module[] = [
         id: 'l5-b1', 
         title: '3. Saltos de Terça e Quinta', 
         icon: Music,
-        prepText: "Alterne entre a tônica e a terça/quinta. O ataque da nota superior deve ser limpo, sem 'escorregar' para a nota.", 
-        actionText: "SALTO INTERVÁLICO", 
+        prepText: "Precisão cirúrgica. Cante a nota base e salte para a terça e para a quinta, cravando o tom imediatamente sem 'escorregar' até a nota.", 
+        actionText: "CRAVE O SALTO", 
         command: 'ATAQUE O INTERVALO' 
       },
       { 
         id: 'l5-b2', 
         title: '4. Oitavas Precisas', 
         icon: Disc,
-        prepText: "Salte uma oitava completa. Mantenha a mesma pressão de ar para garantir que a nota aguda não soe gritada ou fraca.", 
+        prepText: "O grande salto. Vá da nota grave para a mesma nota uma oitava acima. Mantenha o apoio e acerte o alvo em cheio.", 
         actionText: "SALTO DE OITAVA", 
         command: 'CRAVE A OITAVA' 
       }
@@ -93,16 +93,16 @@ export const level5Modules: Module[] = [
         id: 'l5-c1', 
         title: '5. Corridas Curtas (Runs)', 
         icon: Activity,
-        prepText: "Execute uma sequência rápida de 3 a 5 notas. Cada nota deve ser distinta e afinada, sem soar como um borrão sonoro.", 
-        actionText: "CORRIDA RÁPIDA", 
+        prepText: "Agilidade vocal. Cante uma sequência rápida de 3 a 5 notas descendentes. Mantenha cada nota clara e definida, sem embolar.", 
+        actionText: "MELISMA CURTO (RUNS)", 
         command: 'AGILIDADE AGORA' 
       },
       { 
         id: 'l5-c2', 
         title: '6. Agilidade Pentatônica', 
         icon: BarChart3,
-        prepText: "Navegue pela escala pentatônica em velocidade moderada. Foque na clareza de cada degrau da escala.", 
-        actionText: "FLUXO PENTATÔNICO", 
+        prepText: "Suba e desça a escala pentatônica rapidamente. O afinador vai testar se o centro tonal da sua voz se mantém estável na agilidade.", 
+        actionText: "ESCALA RÁPIDA", 
         command: 'MANTENHA A CLAREZA' 
       }
     ]
@@ -118,16 +118,16 @@ export const level5Modules: Module[] = [
         id: 'l5-d1', 
         title: '7. Teste de Afinação Cega', 
         icon: Target,
-        prepText: "O afinador visual desaparecerá por alguns segundos. Confie no seu ouvido interno para manter a nota estável.", 
-        actionText: "AFINAÇÃO CEGA", 
+        prepText: "O afinador visual vai sumir! Sustente a nota confiando apenas no seu ouvido interno. Ao final, veja o seu desvio de centavos.", 
+        actionText: "SUSTENTE ÀS CEGAS", 
         command: 'CONFIE NO OUVIDO' 
       },
       { 
         id: 'l5-d2', 
         title: '8. Afinação sob Dinâmica', 
         icon: Disc,
-        prepText: "Altere o volume de suave para forte enquanto mantém a mesma nota. Não deixe o aumento de pressão subir a afinação.", 
-        actionText: "DINÂMICA ESTÁVEL", 
+        prepText: "O volume muda a pressão de ar. Cante a nota baixinho, aumente o volume e diminuia novamente, mantendo a afinação cravada no centro.", 
+        actionText: "MANTENHA O TOM (DINÂMICA)", 
         command: 'VOLUME VS TOM' 
       }
     ]
