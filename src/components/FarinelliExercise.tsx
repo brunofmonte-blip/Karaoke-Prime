@@ -25,13 +25,13 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     const safeId = (lesson.id || '').toLowerCase();
     
     // --- NÍVEL 3 - MÓDULO A: PULSO & DIVISÃO ---
-    if (safeTitle.includes('metronomo') || safeTitle.includes('humano') || safeId.includes('l3-a1')) {
+    if (safeId === 'l3-a1' || safeId === '1' || safeTitle.includes('metronomo') || safeTitle.includes('humano')) {
       return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Sinta o pulso. Ouça o clique do metrônomo e marque o tempo forte emitindo um "Pá" exato em cada batida.', actionText: 'MARQUE O TEMPO (PÁ - PÁ - PÁ)', holdText: 'PREPARE O PULSO', command: 'SIGA O PULSO', isLegato: false };
     }
-    if (safeTitle.includes('binaria') || safeTitle.includes('divisao') || safeId.includes('l3-a2')) {
+    if (safeId === 'l3-a2' || safeId === '2' || safeTitle.includes('binaria') || safeTitle.includes('divisao')) {
       return { inhale: 4, hold: 0, exhale: 16, rest: 4, prepText: 'Vamos dividir o tempo ao meio (colcheias). Para cada clique, você emitirá dois sons iguais (Pá-Pá).', actionText: 'DIVIDA: (1 e 2 e 3 e 4 e)', holdText: 'OUÇA A DIVISÃO', command: 'DIVIDA O TEMPO', isLegato: false };
     }
-    if (safeTitle.includes('sincope') || safeId.includes('l3-a3')) {
+    if (safeId === 'l3-a3' || safeId === '3' || safeTitle.includes('sincope')) {
       return { 
         inhale: 4, hold: 0, exhale: 16, rest: 4, 
         prepText: 'O contratempo é cantar no "silêncio". Imagine o tique-taque de um relógio: NÃO cante no "Tique", cante no espaço vazio entre as batidas. Espere o clique e emita o som "Pá!".', 
@@ -43,7 +43,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
 
     // --- NÍVEL 3 - MÓDULO B: FRASEAMENTO & ATAQUE ---
-    if (safeTitle.includes('atraso') || safeTitle.includes('layback') || safeId.includes('l3-b1') || safeId === '4') {
+    if (safeId === 'l3-b1' || safeId === '4' || safeTitle.includes('atraso') || safeTitle.includes('layback')) {
       return { 
         inhale: 4, hold: 0, exhale: 16, rest: 4, 
         prepText: 'O famoso Layback. Tente cantar a sílaba "Tá" uma fração de segundo DEPOIS do clique do metrônomo. O clique bate, você responde logo em seguida, criando uma sensação de relaxamento.', 
@@ -53,7 +53,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         isLegato: true 
       };
     }
-    if (safeTitle.includes('antecipacao') || safeTitle.includes('antecipação') || safeId.includes('l3-b2') || safeId === '5') {
+    if (safeId === 'l3-b2' || safeId === '5' || safeTitle.includes('antecipacao') || safeTitle.includes('antecipação')) {
       return { 
         inhale: 4, hold: 0, exhale: 16, rest: 4, 
         prepText: 'Ataque agressivo (Push). Cante a sílaba "Tá" uma fração de segundo ANTES do clique. Você deve "puxar" a música, antecipando a batida do metrônomo.', 
@@ -63,7 +63,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         isLegato: false 
       };
     }
-    if (safeTitle.includes('legato ritmico') || safeTitle.includes('ritmico') || safeId.includes('l3-b3') || safeId === '6') {
+    if (safeId === 'l3-b3' || safeId === '6' || safeTitle.includes('legato ritmico') || safeTitle.includes('ritmico')) {
       return { 
         inhale: 4, hold: 0, exhale: 16, rest: 4, 
         prepText: 'Conecte as notas sem perder o balanço. Cante "Du-Ba-Du-Ba" emendando as sílabas continuamente, mas cravando as mudanças exatamente no compasso.', 
@@ -75,7 +75,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
     }
 
     // --- NÍVEL 3 - MÓDULO C: GROOVE & SWING ---
-    if (safeTitle.includes('swing') || safeId.includes('l3-c1') || safeId === '7') {
+    if (safeId === 'l3-c1' || safeId === '7' || safeTitle.includes('swing')) {
       return { 
         inhale: 4, hold: 0, exhale: 16, rest: 4, 
         prepText: 'Sinta o balanço! O Swing não é reto. Imagine um "pulo" entre as notas. Cante "Doo-Bah" com o "Bah" levemente atrasado, criando o balanço clássico do Jazz.', 
@@ -85,7 +85,7 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         isLegato: true 
       };
     }
-    if (safeTitle.includes('micro-timing') || safeTitle.includes('microtiming') || safeId.includes('l3-c2') || safeId === '8') {
+    if (safeId === 'l3-c2' || safeId === '8' || safeTitle.includes('micro-timing') || safeTitle.includes('microtiming')) {
       return { 
         inhale: 4, hold: 0, exhale: 16, rest: 4, 
         prepText: 'Precisão milimétrica. Tente encaixar a sílaba "Ti" exatamente no centro do clique. O objetivo é reduzir o desvio rítmico para quase zero.', 
@@ -95,11 +95,11 @@ const FarinelliExercise: React.FC<FarinelliExerciseProps> = ({ moduleType }) => 
         isLegato: false 
       };
     }
-    if (safeTitle.includes('estabilidade de bpm') || safeTitle.includes('bpm') || safeId.includes('l3-c3') || safeId === '9') {
+    if (safeId === 'l3-c3' || safeId === '9' || safeTitle.includes('estabilidade de bpm') || safeTitle.includes('bpm')) {
       return { 
         inhale: 4, hold: 0, exhale: 20, rest: 5, 
         prepText: 'Teste de resistência rítmica. Mantenha o pulso constante por 20 segundos sem o auxílio do metrônomo visual. Confie no seu relógio interno.', 
-        actionText: 'MANTENHA O BPM (Pá-Pá-Pá)', 
+        actionText: 'MANTENHA O BPM SOZINHO', 
         holdText: 'RELÓGIO INTERNO', 
         command: 'RESISTÊNCIA RÍTMICA',
         isLegato: false 
