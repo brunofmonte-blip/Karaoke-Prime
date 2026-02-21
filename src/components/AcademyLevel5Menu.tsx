@@ -93,16 +93,16 @@ export const level5Modules: Module[] = [
         id: 'l5-c1', 
         title: '5. Corridas Curtas (Runs)', 
         icon: Activity,
-        prepText: "Agilidade vocal. Cante uma sequência rápida de 3 a 5 notas descendentes. Mantenha cada nota clara e definida, sem embolar.", 
-        actionText: "MELISMA CURTO (RUNS)", 
+        prepText: "Como descer uma escada correndo! Cante uma sequência rápida de 3 a 5 notas de cima para baixo. O segredo é manter cada nota clara e separada, sem embolar o som.", 
+        actionText: "CORRIDA VOCAL RÁPIDA (RUNS)", 
         command: 'AGILIDADE AGORA' 
       },
       { 
         id: 'l5-c2', 
         title: '6. Agilidade Pentatônica', 
         icon: BarChart3,
-        prepText: "Suba e desça a escala pentatônica rapidamente. O afinador vai testar se o centro tonal da sua voz se mantém estável na agilidade.", 
-        actionText: "ESCALA RÁPIDA", 
+        prepText: "Hora da agilidade! Suba e desça uma escala musical bem rápido. O afinador vai avaliar se você consegue manter a precisão de cada nota mesmo cantando em alta velocidade.", 
+        actionText: "AGILIDADE MÁXIMA", 
         command: 'MANTENHA A CLAREZA' 
       }
     ]
