@@ -35,8 +35,8 @@ const LessonCard: React.FC<LessonCardProps> = ({ lesson, isAdminMode = false }) 
       return;
     }
     
-    // Levels 1, 2, 3, 4, and 5 have dedicated Module Menus, so we don't start analysis here
-    if (lesson.level >= 1 && lesson.level <= 5) {
+    // Levels 1-6 have dedicated Module Menus, so we don't start analysis here
+    if (lesson.level >= 1 && lesson.level <= 6) {
       return;
     }
 
