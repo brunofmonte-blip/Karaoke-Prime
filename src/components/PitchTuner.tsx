@@ -39,7 +39,7 @@ const PitchTuner: React.FC<PitchTunerProps> = ({ frequency, isVisible = true }) 
       isLaser ? "border-accent shadow-lg shadow-accent/30" : "border-primary/30"
     )}>
       {/* Cent Scale */}
-      <div className="absolute top-4 left-0 right-0 px-8 flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+      <div className="absolute top-4 left-0 right-0 px-8 flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest notranslate" translate="no">
         <span>-50</span>
         <span>0</span>
         <span>+50</span>
@@ -67,9 +67,9 @@ const PitchTuner: React.FC<PitchTunerProps> = ({ frequency, isVisible = true }) 
           <>
             <div className="flex items-center justify-center gap-2">
               <span className={cn(
-                "text-5xl font-black tracking-tighter",
+                "text-5xl font-black tracking-tighter notranslate",
                 isLaser ? "text-accent neon-gold-glow" : "text-foreground"
-              )}>
+              )} translate="no">
                 {noteData.note}
               </span>
               {isLaser && <Zap className="h-6 w-6 text-accent amazon-gold-glow animate-bounce" />}
@@ -77,9 +77,9 @@ const PitchTuner: React.FC<PitchTunerProps> = ({ frequency, isVisible = true }) 
             <div className="flex items-center justify-center gap-4 mt-1">
               <span className="text-xs font-bold text-muted-foreground">{frequency.toFixed(1)} Hz</span>
               <span className={cn(
-                "text-xs font-bold",
+                "text-xs font-bold notranslate",
                 isLaser ? "text-accent" : noteData.cents > 0 ? "text-destructive" : "text-primary"
-              )}>
+              )} translate="no">
                 {noteData.cents > 0 ? `+${noteData.cents}` : noteData.cents} cents
               </span>
             </div>

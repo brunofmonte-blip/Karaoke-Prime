@@ -44,7 +44,7 @@ export const level5Modules: Module[] = [
         title: '1. Ajuste Fino de Sustentação', 
         icon: Activity,
         prepText: "Sustente a nota e olhe para o afinador. Seu objetivo é manter a barra cravada no centro (0 cents) sem oscilar.", 
-        actionText: "CRAVE A NOTA (0 CENTS)", 
+        actionText: "ACERTE O CENTRO (0 CENTS)", 
         command: 'ESTABILIZE AGORA' 
       },
       { 
@@ -52,7 +52,7 @@ export const level5Modules: Module[] = [
         title: '2. Bending (Deslize de Afinação)', 
         icon: Zap,
         prepText: "Comece a nota ligeiramente abaixo do tom (flat) e deslize suavemente para cima até cravar no centro exato.", 
-        actionText: "CRAVE A NOTA NO CENTRO", 
+        actionText: "ACERTE O CENTRO DA NOTA", 
         command: 'DESLIZE E CRAVE' 
       }
     ]
