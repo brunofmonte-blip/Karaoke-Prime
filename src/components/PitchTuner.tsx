@@ -80,7 +80,7 @@ const PitchTuner: React.FC<PitchTunerProps> = ({ frequency, isVisible = true }) 
                 "text-xs font-bold",
                 isLaser ? "text-accent" : noteData.cents > 0 ? "text-destructive" : "text-primary"
               )}>
-                {noteData.cents > 0 ? `+${noteData.cents}` : noteData.cents} Cents
+                {noteData.cents > 0 ? `+${noteData.cents}` : noteData.cents} cents
               </span>
             </div>
           </>

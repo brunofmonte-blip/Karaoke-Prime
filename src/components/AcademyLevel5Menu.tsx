@@ -35,7 +35,7 @@ export const level5Modules: Module[] = [
   {
     id: 'L5-A',
     title: 'Módulo A: Micro-Afinação',
-    description: 'Ajuste fino. Zerando o desvio de centavos (cents).',
+    description: 'Ajuste fino. Zerando o desvio de cents.',
     icon: Target,
     prescription: 'Precisão < 2 Cents',
     exercises: [
@@ -43,7 +43,7 @@ export const level5Modules: Module[] = [
         id: 'l5-a1', 
         title: '1. Ajuste Fino de Sustentação', 
         icon: Activity,
-        prepText: "Sustente a nota e olhe para o afinador. Seu objetivo é manter a barra cravada no centro (0 centavos) sem oscilar.", 
+        prepText: "Sustente a nota e olhe para o afinador. Seu objetivo é manter a barra cravada no centro (0 cents) sem oscilar.", 
         actionText: "CRAVE A NOTA (0 CENTS)", 
         command: 'ESTABILIZE AGORA' 
       },
@@ -52,7 +52,7 @@ export const level5Modules: Module[] = [
         title: '2. Bending (Deslize de Afinação)', 
         icon: Zap,
         prepText: "Comece a nota ligeiramente abaixo do tom (flat) e deslize suavemente para cima até cravar no centro exato.", 
-        actionText: "DESLIZE PARA O CENTRO", 
+        actionText: "CRAVE A NOTA NO CENTRO", 
         command: 'DESLIZE E CRAVE' 
       }
     ]
@@ -77,7 +77,7 @@ export const level5Modules: Module[] = [
         title: '4. Oitavas Precisas', 
         icon: Disc,
         prepText: "O grande salto. Vá da nota grave para a mesma nota uma oitava acima. Mantenha o apoio e acerte o alvo em cheio.", 
-        actionText: "SALTO DE OITAVA", 
+        actionText: "CRAVE A OITAVA", 
         command: 'CRAVE A OITAVA' 
       }
     ]
@@ -118,7 +118,7 @@ export const level5Modules: Module[] = [
         id: 'l5-d1', 
         title: '7. Teste de Afinação Cega', 
         icon: Target,
-        prepText: "O afinador visual vai sumir! Sustente a nota confiando apenas no seu ouvido interno. Ao final, veja o seu desvio de centavos.", 
+        prepText: "O afinador visual vai sumir! Sustente a nota confiando apenas no seu ouvido interno. Ao final, veja o seu desvio de cents.", 
         actionText: "SUSTENTE ÀS CEGAS", 
         command: 'CONFIE NO OUVIDO' 
       },
@@ -127,7 +127,7 @@ export const level5Modules: Module[] = [
         title: '8. Afinação sob Dinâmica', 
         icon: Disc,
         prepText: "O volume muda a pressão de ar. Cante a nota baixinho, aumente o volume e diminuia novamente, mantendo a afinação cravada no centro.", 
-        actionText: "MANTENHA O TOM (DINÂMICA)", 
+        actionText: "CRAVE O TOM (DINÂMICA)", 
         command: 'VOLUME VS TOM' 
       }
     ]
