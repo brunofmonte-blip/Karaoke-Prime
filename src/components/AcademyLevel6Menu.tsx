@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, BarChart3, Layers, Disc, Wind, Waves } from 'lucide-react';
+import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, BarChart3, Layers, Disc, Wind, Waves, Timer } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 
