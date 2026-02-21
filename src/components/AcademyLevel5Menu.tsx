@@ -68,7 +68,7 @@ export const level5Modules: Module[] = [
         id: 'l5-b1', 
         title: '3. Saltos de Terça e Quinta', 
         icon: Music,
-        prepText: "Precisão cirúrgica. Cante a nota base e salte para a terça e para a quinta, cravando o tom imediatamente sem 'escorregar' até a nota.", 
+        prepText: "Hora de pular degraus! Cante a nota base e dê saltos rápidos para notas mais agudas (como subir 3 ou 5 degraus de uma vez). Tente acertar a nova nota de primeira, sem escorregar a voz!", 
         actionText: "CRAVE O SALTO", 
         command: 'ATAQUE O INTERVALO' 
       },
@@ -76,8 +76,8 @@ export const level5Modules: Module[] = [
         id: 'l5-b2', 
         title: '4. Oitavas Precisas', 
         icon: Disc,
-        prepText: "O grande salto. Vá da nota grave para a mesma nota uma oitava acima. Mantenha o apoio e acerte o alvo em cheio.", 
-        actionText: "CRAVE A OITAVA", 
+        prepText: "O grande salto! Cante uma nota grave e pule direto para a mesma nota, só que bem mais aguda (uma oitava). Mantenha o apoio da barriga e acerte o alvo em cheio.", 
+        actionText: "CRAVE O SALTO (OITAVA)", 
         command: 'CRAVE A OITAVA' 
       }
     ]
