@@ -38,17 +38,17 @@ export const level6Modules: Module[] = [
         id: 'l6-a1', 
         title: '1. Sirene de Oscilação', 
         icon: Activity,
-        prepText: "Encontre a oscilação natural. Cante uma nota confortável e tente 'balançar' a voz levemente para cima e para baixo, como uma sirene bem lenta e curta.", 
-        actionText: "OSCILAÇÃO NATURAL", 
-        command: 'INICIE A OSCILAÇÃO' 
+        prepText: "Hora de soltar a voz! Brinque de sirene, subindo e descendo o tom levemente para encontrar a oscilação natural da sua garganta, sem forçar.", 
+        actionText: "OSCILE LEVEMENTE", 
+        command: 'OSCILE LEVEMENTE' 
       },
       { 
         id: 'l6-a2', 
         title: '2. Pulsação Diafragmática', 
         icon: Wind,
-        prepText: "Vibrato vem do suporte. Use pequenos impulsos do diafragma para gerar a pulsação na nota sustentada, sem usar os músculos do pescoço.", 
-        actionText: "PULSAÇÃO CONTROLADA", 
-        command: 'PULSE COM O SUPORTE' 
+        prepText: "Sinta a pulsação na barriga! Cante a nota e faça leves empurrões com o diafragma (como uma risada 'ha-ha-ha' contínua) para gerar o vibrato.", 
+        actionText: "PULSE A NOTA", 
+        command: 'PULSE A NOTA' 
       }
     ]
   },
@@ -63,16 +63,16 @@ export const level6Modules: Module[] = [
         id: 'l6-b1', 
         title: '3. Ondas Lentas (Slow)', 
         icon: Music,
-        prepText: "Controle a velocidade. Tente manter um vibrato bem largo e lento, como ondas calmas no mar. Foque na constância do ritmo.", 
+        prepText: "Vamos controlar as ondas! Faça um vibrato de forma bem lenta e exagerada. Controle o movimento de sobe e desce da nota no seu próprio ritmo.", 
         actionText: "VIBRATO LENTO", 
-        command: 'MANTENHA O RITMO' 
+        command: 'VIBRATO LENTO' 
       },
       { 
         id: 'l6-b2', 
         title: '4. Aceleração Gradual', 
         icon: Zap,
-        prepText: "Treino de agilidade. Comece com um vibrato lento e vá acelerando a oscilação gradualmente até atingir um vibrato vibrante e rápido.", 
-        actionText: "ACELERAÇÃO DE ONDAS", 
+        prepText: "Comece devagar e acelere! Inicie a oscilação da nota lentamente e vá aumentando a velocidade das ondas até chegar no seu vibrato natural.", 
+        actionText: "ACELERE O VIBRATO", 
         command: 'ACELERE O VIBRATO' 
       }
     ]
@@ -88,17 +88,17 @@ export const level6Modules: Module[] = [
         id: 'l6-c1', 
         title: '5. Vibrato Estreito (Pop)', 
         icon: Mic2,
-        prepText: "Estilo moderno. Mantenha a oscilação de afinação bem curta, quase imperceptível, ideal para músicas Pop e R&B contemporâneo.", 
-        actionText: "VIBRATO ESTREITO", 
-        command: 'REDUZA A AMPLITUDE' 
+        prepText: "Estilo Pop! Faça um vibrato contido e rápido. A oscilação deve ser bem sutil, mal saindo do centro da nota (ideal para músicas modernas).", 
+        actionText: "VIBRATO CURTO (POP)", 
+        command: 'VIBRATO CURTO (POP)' 
       },
       { 
         id: 'l6-c2', 
         title: '6. Vibrato Largo (Teatro)', 
         icon: Disc,
-        prepText: "Estilo clássico/teatral. Aumente a profundidade da oscilação para um som mais dramático e operístico, com total controle do centro tonal.", 
-        actionText: "VIBRATO LARGO", 
-        command: 'AUMENTE A PROFUNDIDADE' 
+        prepText: "Estilo Teatro Musical! Solte a voz com um vibrato amplo e profundo. A onda da nota deve ser bem perceptível e majestosa.", 
+        actionText: "VIBRATO LARGO (TEATRO)", 
+        command: 'VIBRATO LARGO (TEATRO)' 
       }
     ]
   },
@@ -113,17 +113,17 @@ export const level6Modules: Module[] = [
         id: 'l6-d1', 
         title: '7. Nota Reta para Vibrato', 
         icon: Activity,
-        prepText: "A técnica das estrelas. Comece a nota sem vibrato (reta) e, nos últimos segundos da sustentação, deixe o vibrato florescer naturalmente.", 
-        actionText: "RETA -> VIBRATO", 
-        command: 'VIBRE NO FINAL' 
+        prepText: "O clássico do R&B e Sertanejo! Sustente a nota totalmente reta (sem tremer) e, só no finalzinho do fôlego, solte o vibrato.", 
+        actionText: "RETO PARA VIBRATO", 
+        command: 'RETO PARA VIBRATO' 
       },
       { 
         id: 'l6-d2', 
         title: '8. Sustentação Longa com Vibrato', 
         icon: Timer,
-        prepText: "Teste de resistência. Mantenha uma nota longa com vibrato constante do início ao fim, garantindo que a afinação central não se perca.", 
-        actionText: "SUSTENTAÇÃO VIBRANTE", 
-        command: 'MANTENHA O VIBRATO' 
+        prepText: "O teste de resistência! Sustente uma nota longa aplicando o vibrato do início ao fim, mantendo o controle, a afinação base e o relaxamento.", 
+        actionText: "SUSTENTE COM VIBRATO", 
+        command: 'SUSTENTE COM VIBRATO' 
       }
     ]
   }

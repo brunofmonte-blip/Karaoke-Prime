@@ -50,9 +50,9 @@ export const academyLessons: Lesson[] = [
   },
   { 
     level: 6, 
-    title: "Sustained Vibrato", 
+    title: "Nível 6: Vibrato Sustentado", 
     focus: 'Vibrato Technique', 
-    description: "Developing a controlled and consistent vibrato.", 
+    description: "Desenvolvendo um vibrato controlado, consistente e relaxado.", 
     required_score: 85,
     bgImage: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1600" // Pro Booth
   },
