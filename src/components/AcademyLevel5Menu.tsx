@@ -51,8 +51,8 @@ export const level5Modules: Module[] = [
         id: 'l5-a2', 
         title: '2. Bending (Deslize de Afinação)', 
         icon: Zap,
-        prepText: "Comece a nota ligeiramente abaixo do tom (flat) e deslize suavemente para cima até cravar no centro exato.", 
-        actionText: "ACERTE O CENTRO DA NOTA", 
+        prepText: "Efeito escorregador! Comece cantando a nota um pouco mais grave (abaixo do tom) e vá subindo a voz aos poucos, deslizando até a barra cravar no centro exato.", 
+        actionText: "DESLIZE DE BAIXO PARA CIMA", 
         command: 'DESLIZE E CRAVE' 
       }
     ]
