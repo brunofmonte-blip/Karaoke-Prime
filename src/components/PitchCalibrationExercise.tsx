@@ -10,6 +10,7 @@ import PitchTuner from './PitchTuner';
 import { toast } from 'sonner';
 import { level4Modules } from './AcademyLevel4Menu';
 import { level5Modules } from './AcademyLevel5Menu';
+import { level6Modules } from './AcademyLevel6Menu';
 
 interface PitchCalibrationExerciseProps {
   subModule: CalibrationSubModule;
@@ -35,7 +36,7 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
         return {
           title: found.title,
           description: module.description,
-          command: found.command || 'ATAQUE AGORA',
+          command: found.command || found.actionText || 'ATAQUE AGORA',
           prepText: found.prepText,
           actionText: found.actionText || 'CANTAR'
         };
@@ -49,7 +50,21 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
         return {
           title: found.title,
           description: module.description,
-          command: found.command || 'ESTABILIZE AGORA',
+          command: found.command || found.actionText || 'ESTABILIZE AGORA',
+          prepText: found.prepText,
+          actionText: found.actionText || 'CANTAR'
+        };
+      }
+    }
+
+    // --- DYNAMIC LOOKUP FROM LEVEL 6 ---
+    for (const module of level6Modules) {
+      const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
+      if (found && found.prepText) {
+        return {
+          title: found.title,
+          description: module.description,
+          command: found.command || found.actionText || 'OSCILE AGORA',
           prepText: found.prepText,
           actionText: found.actionText || 'CANTAR'
         };
