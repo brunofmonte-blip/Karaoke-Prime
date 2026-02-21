@@ -38,10 +38,14 @@ const VocalSandboxOverlay: React.FC = () => {
     manualProgress,
     activeModule,
     activeSubModule,
+    activeExerciseId,
   } = useVocalSandbox();
   
+  // Explicit Routing Logic: Map modules and Level 5 IDs to the correct Engine
   const isBreathingExercise = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander' || activeModule === 'rhythm';
-  const isPitchCalibration = activeModule === 'pitch-calibration';
+  
+  // Force Pitch Calibration Engine for 'pitch-calibration' module OR any Level 5 exercise
+  const isPitchCalibration = activeModule === 'pitch-calibration' || (activeExerciseId && activeExerciseId.startsWith('l5-'));
   
   const progressValue = isBreathingExercise ? manualProgress : (currentTime / totalDuration) * 100;
 
