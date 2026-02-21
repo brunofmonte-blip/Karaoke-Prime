@@ -50,7 +50,7 @@ export const academyLessons: Lesson[] = [
   },
   { 
     level: 6, 
-    title: "Nível 6: Vibrato Sustentado", 
+    title: "Vibrato Sustentado", 
     focus: 'Vibrato Technique', 
     description: "Desenvolvendo um vibrato controlado, consistente e relaxado.", 
     required_score: 85,
