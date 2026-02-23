@@ -73,7 +73,7 @@ const ElitePillarCard: React.FC<ElitePillarProps> = ({
 
   const content = (
     <div className={cn(
-      "p-6 rounded-2xl transition-all duration-500 flex-shrink-0 w-[240px] relative",
+      "p-6 rounded-2xl transition-all duration-500 relative h-full flex flex-col",
       "bg-card/20 backdrop-blur-xl border-2 shadow-2xl",
       isUnlocked ? "border-green-500/70 shadow-green-500/30" : "border-primary/70 shadow-primary/30",
       "cursor-pointer hover:scale-[1.05] hover:bg-card/30",
@@ -88,32 +88,30 @@ const ElitePillarCard: React.FC<ElitePillarProps> = ({
       )}
       
       <div className={cn(
-        "h-12 w-12 mb-4 flex items-center justify-center rounded-xl border-2",
+        "h-12 w-12 mb-4 flex items-center justify-center rounded-xl border-2 flex-shrink-0",
         isLocked ? "border-white/20 bg-white/5" : "border-primary/50 bg-primary/10"
       )}>
         <Icon className={cn("h-6 w-6", isLocked ? "text-white/40" : "text-primary icon-neon-glow")} />
       </div>
       
       <h3 className="text-xl font-bold mb-2 text-white">{title}</h3>
-      <p className="text-sm text-gray-400 leading-snug">{description}</p>
+      <p className="text-sm text-gray-400 leading-snug flex-grow">{description}</p>
     </div>
   );
 
   if (to && !isLocked) {
-    return <Link to={to} className="block">{content}</Link>;
+    return <Link to={to} className="block h-full">{content}</Link>;
   }
   
-  return <div className="block">{content}</div>;
+  return <div className="block h-full">{content}</div>;
 };
 
 const Index = () => {
   const navigate = useNavigate();
   const { data: profile } = useUserProfile();
   const { user } = useAuth();
-  const { openModal: openPrimeModal } = usePrimeSubscription();
   
   const currentLevel = profile?.academy_level ?? 0;
-  const isPrime = profile?.is_prime ?? false;
   const [lockedPillar, setLockedPillar] = useState<{ title: string, requiredLevel: number } | null>(null);
 
   const handlePillarClick = (title: string, requiredLevel: number, to: string) => {
@@ -142,7 +140,8 @@ const Index = () => {
       <HeroSection />
 
       <div className="container mx-auto px-4 -mt-20 relative z-20">
-        <div className="flex overflow-x-auto space-x-6 pb-8 md:justify-center no-scrollbar">
+        {/* Uniform 5-Column Grid for Desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 pb-8">
           <ElitePillarCard 
             title="Básico" 
             description="Karaoke tradicional com MVs originais e sistema de batalha." 
