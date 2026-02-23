@@ -49,6 +49,7 @@ const App = () => (
                       <Route path="/library" element={<Library />} />
                       <Route path="/song/:id" element={<SongPlayer />} />
                       <Route path="/duel" element={<Duel />} />
+                      <Route path="/talent" element={<Index />} /> {/* Placeholder for Next Talent */}
                       <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
