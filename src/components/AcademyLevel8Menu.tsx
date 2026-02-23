@@ -16,8 +16,20 @@ export const level8Modules = [
     icon: Wind,
     prescription: 'Foco em Suporte Diafragmático',
     exercises: [
-      { id: 'l8-1', title: '1. Pressão Diafragmática', icon: Wind, prepText: "Sinta a resistência abdominal ao sustentar notas fortes.", actionText: "MANTENHA A PRESSÃO" },
-      { id: 'l8-2', title: '2. Chamada (Call)', icon: Zap, prepText: "Use a técnica de 'chamada' para projetar a voz com segurança.", actionText: "PROJETE A VOZ" }
+      { 
+        id: 'l8-1', 
+        title: '1. Pressão Diafragmática', 
+        icon: Wind, 
+        prepText: "Vamos ativar o motor da voz! Faça sons fortes e curtos de 'TS - TS - TS', empurrando a barriga para fora, para acordar o diafragma.", 
+        actionText: "PULSE O APOIO ('TS')" 
+      },
+      { 
+        id: 'l8-2', 
+        title: '2. Chamada (Call)', 
+        icon: Zap, 
+        prepText: "Use a voz de quem está chamando um táxi do outro lado da rua. Grite um 'HEY!' afinado, com bastante volume, mas sem arranhar a garganta.", 
+        actionText: "CHAMADA ('HEY')" 
+      }
     ]
   },
   {
@@ -27,8 +39,20 @@ export const level8Modules = [
     icon: Mic2,
     prescription: 'Foco em Ressonância de Máscara',
     exercises: [
-      { id: 'l8-3', title: '3. Belt de Vogal Aberta', icon: Music, prepText: "Use vogais abertas para maximizar a ressonância no belting.", actionText: "ABRA A RESSONÂNCIA" },
-      { id: 'l8-4', title: '4. Sustentação de Potência', icon: Activity, prepText: "Sustente notas agudas potentes mantendo o brilho vocal.", actionText: "SUSTENTE COM BRILHO" }
+      { 
+        id: 'l8-3', 
+        title: '3. Belt de Vogal Aberta', 
+        icon: Music, 
+        prepText: "Hora da potência! Cante um 'YÉ' com som bem aberto e sorriso no rosto. Isso ajuda o som a sair alto e brilhante.", 
+        actionText: "BELTING ('YÉ')" 
+      },
+      { 
+        id: 'l8-4', 
+        title: '4. Sustentação de Potência', 
+        icon: Activity, 
+        prepText: "Teste de força! Sustente o 'YÉ' agudo pelo máximo de tempo que conseguir, mantendo o volume lá em cima e a afinação cravada.", 
+        actionText: "SUSTENTE O BELT ('YÉ')" 
+      }
     ]
   },
   {
@@ -38,8 +62,20 @@ export const level8Modules = [
     icon: Target,
     prescription: 'Foco em Twang e Brilho',
     exercises: [
-      { id: 'l8-5', title: '5. Twang Básico', icon: Target, prepText: "Adicione 'twang' à sua voz para aumentar a projeção sem esforço.", actionText: "ADICIONE TWANG" },
-      { id: 'l8-6', title: '6. Projeção Frontal', icon: Mic2, prepText: "Direcione o som para a 'máscara' facial para brilho máximo.", actionText: "PROJETE À FRENTE" }
+      { 
+        id: 'l8-5', 
+        title: '5. Twang Básico', 
+        icon: Target, 
+        prepText: "O segredo do brilho vocal (Twang). Faça um som estridente imitando o choro de um bebê com 'NÊ-NÊ', bem anasalado e espremido.", 
+        actionText: "VOZ DE BEBÊ ('NÊ')" 
+      },
+      { 
+        id: 'l8-6', 
+        title: '6. Projeção Frontal', 
+        icon: Mic2, 
+        prepText: "Jogue o som para o nariz! Cante 'MIAU' deslizando as notas. Esse som estridente de gato protege a sua garganta nos agudos fortes.", 
+        actionText: "PROJEÇÃO ('MIAU')" 
+      }
     ]
   },
   {
@@ -49,8 +85,20 @@ export const level8Modules = [
     icon: Wind,
     prescription: 'Foco em Resistência no Belting',
     exercises: [
-      { id: 'l8-7', title: '7. Cinto de Apoio', icon: Wind, prepText: "Imagine um cinto de apoio para manter a pressão constante.", actionText: "USE O APOIO" },
-      { id: 'l8-8', title: '8. Belting Dinâmico', icon: Activity, prepText: "Varie o volume durante o belting sem perder a estabilidade.", actionText: "BELTING DINÂMICO" }
+      { 
+        id: 'l8-7', 
+        title: '7. Cinto de Apoio', 
+        icon: Wind, 
+        prepText: "Cante notas fortes e curtas com 'GÓ'. Pense que você está levantando um peso a cada nota, usando o corpo todo para apoiar a voz.", 
+        actionText: "ATAQUE FORTE ('GÓ')" 
+      },
+      { 
+        id: 'l8-8', 
+        title: '8. Belting Dinâmico', 
+        icon: Activity, 
+        prepText: "Comece com o volume médio usando 'NÓ' e vá aumentando (crescendo) até virar um Belting potente e rasgado no final.", 
+        actionText: "CRESCENDO ('NÓ')" 
+      }
     ]
   },
   {
@@ -60,8 +108,20 @@ export const level8Modules = [
     icon: Disc,
     prescription: 'Foco em Crescendo e Clímax',
     exercises: [
-      { id: 'l8-9', title: '9. Crescendo para Belt', icon: Disc, prepText: "Inicie suave e cresça para um belting potente.", actionText: "CRESÇA PARA O BELT" },
-      { id: 'l8-10', title: '10. A Nota de Ouro', icon: Zap, prepText: "Execute a nota mais alta e potente do seu repertório.", actionText: "CRAVE A NOTA DE OURO" }
+      { 
+        id: 'l8-9', 
+        title: '9. Crescendo para Belt', 
+        icon: Disc, 
+        prepText: "A clássica nota de clímax de música Pop! Deslize de uma nota baixa até a nota mais aguda explodindo em um 'YEAH' potente.", 
+        actionText: "EXPLOSÃO ('YEAH')" 
+      },
+      { 
+        id: 'l8-10', 
+        title: '10. A Nota de Ouro', 
+        icon: Zap, 
+        prepText: "O Boss Final do Belting! Dê o seu grito mais afinado, alto e longo com a sílaba 'BÁ'. Mostre todo o seu poder de fogo!", 
+        actionText: "A NOTA DE OURO ('BÁ')" 
+      }
     ]
   }
 ];
