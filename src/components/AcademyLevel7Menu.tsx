@@ -16,8 +16,20 @@ export const level7Modules = [
     icon: Activity,
     prescription: 'Foco em Consciência de Registro',
     exercises: [
-      { id: 'l7-1', title: '1. Sirene de Quebra', icon: Activity, prepText: "Deslize do grave para o agudo e identifique onde sua voz 'quebra'.", actionText: "DESLIZE E IDENTIFIQUE" },
-      { id: 'l7-2', title: '2. Salto de Registro', icon: Zap, prepText: "Pule entre notas de peito e cabeça para fortalecer a musculatura interna.", actionText: "SALTE ENTRE REGISTROS" }
+      { 
+        id: 'l7-1', 
+        title: '1. Sirene de Quebra', 
+        icon: Activity, 
+        prepText: "Faça uma sirene do grave ao agudo com a vogal 'U'. Note onde sua voz dá aquela 'falhada' natural (a quebra).", 
+        actionText: "SIRENE DE QUEBRA ('U')" 
+      },
+      { 
+        id: 'l7-2', 
+        title: '2. Salto de Registro', 
+        icon: Zap, 
+        prepText: "Cante a nota grave e pule para a aguda usando 'I'. Deixe a voz mudar para a cabeça (falsete) propositalmente.", 
+        actionText: "SALTO DE REGISTRO ('I')" 
+      }
     ]
   },
   {
@@ -27,8 +39,20 @@ export const level7Modules = [
     icon: Layers,
     prescription: 'Foco em Mix Voice',
     exercises: [
-      { id: 'l7-3', title: '3. Conexão em Vogais', icon: Music, prepText: "Use vogais fechadas para suavizar a passagem entre os registros.", actionText: "CONECTE AS VOGAIS" },
-      { id: 'l7-4', title: '4. Mix Voice Inicial', icon: Mic2, prepText: "Encontre o equilíbrio entre a ressonância de peito e cabeça.", actionText: "EQUILIBRE O MIX" }
+      { 
+        id: 'l7-3', 
+        title: '3. Conexão em Vogais', 
+        icon: Music, 
+        prepText: "Vamos conectar! Deslize suavemente do grave ao agudo com a sílaba 'MUM', mantendo o volume baixo para a voz não quebrar.", 
+        actionText: "CONEXÃO SUAVE ('MUM')" 
+      },
+      { 
+        id: 'l7-4', 
+        title: '4. Mix Voice Inicial', 
+        icon: Mic2, 
+        prepText: "O início da voz mista! Use a sílaba 'NAY' (com som de choro) para subir na escala mantendo a voz firme e sem falhar.", 
+        actionText: "VOZ MISTA ('NAY')" 
+      }
     ]
   },
   {
@@ -38,8 +62,20 @@ export const level7Modules = [
     icon: Wind,
     prescription: 'Foco em Agudos Isolados',
     exercises: [
-      { id: 'l7-5', title: '5. Falsete vs Cabeça', icon: Wind, prepText: "Diferencie o falsete soproso da voz de cabeça firme.", actionText: "DIFERENCIE OS TONS" },
-      { id: 'l7-6', title: '6. Sustentação Aguda', icon: Activity, prepText: "Sustente notas agudas em voz de cabeça com estabilidade.", actionText: "SUSTENTE O AGUDO" }
+      { 
+        id: 'l7-5', 
+        title: '5. Falsete vs Cabeça', 
+        icon: Wind, 
+        prepText: "Voz de cabeça leve. Cante a sílaba 'WU' soltando bastante ar, como se fosse o vento, cravando a nota aguda.", 
+        actionText: "VOZ LEVE ('WU')" 
+      },
+      { 
+        id: 'l7-6', 
+        title: '6. Sustentação Aguda', 
+        icon: Activity, 
+        prepText: "Agora sem o ar! Cante a nota aguda com 'GUG' para dar firmeza à voz de cabeça sem forçar a garganta.", 
+        actionText: "CABEÇA FIRME ('GUG')" 
+      }
     ]
   },
   {
@@ -49,8 +85,20 @@ export const level7Modules = [
     icon: Disc,
     prescription: 'Foco em Escalas Descendentes',
     exercises: [
-      { id: 'l7-7', title: '7. Escala Descendente', icon: Disc, prepText: "Desça do agudo para o grave mantendo a conexão vocal.", actionText: "DESÇA COM CONTROLE" },
-      { id: 'l7-8', title: '8. Arpejo de Retorno', icon: Music, prepText: "Use arpejos para retornar ao registro de peito suavemente.", actionText: "RETORNE AO PEITO" }
+      { 
+        id: 'l7-7', 
+        title: '7. Escala Descendente', 
+        icon: Disc, 
+        prepText: "Hora de descer. Comece no agudo (voz de cabeça) e vá descendo as notas até a voz de peito forte usando 'NO'.", 
+        actionText: "DESCIDA ('NO')" 
+      },
+      { 
+        id: 'l7-8', 
+        title: '8. Arpejo de Retorno', 
+        icon: Music, 
+        prepText: "Desça pulando degraus! Salte das notas agudas para as graves com a sílaba 'BÁ', deixando a voz de peito assumir naturalmente.", 
+        actionText: "ARPEJO DE DESCIDA ('BÁ')" 
+      }
     ]
   },
   {
@@ -60,8 +108,20 @@ export const level7Modules = [
     icon: Zap,
     prescription: 'Foco em Navegação Rápida',
     exercises: [
-      { id: 'l7-9', title: '9. Salto Rápido', icon: Zap, prepText: "Execute saltos rápidos através da zona de quebra.", actionText: "SALTE RÁPIDO" },
-      { id: 'l7-10', title: '10. Sirene Completa', icon: Activity, prepText: "Execute uma sirene completa do grave ao agudo e volta.", actionText: "SIRENE COMPLETA" }
+      { 
+        id: 'l7-9', 
+        title: '9. Salto Rápido', 
+        icon: Zap, 
+        prepText: "Pule da voz de peito para a de cabeça e volte rapidamente usando 'HA'. Mantenha a leveza!", 
+        actionText: "SALTO DUPLO ('HA')" 
+      },
+      { 
+        id: 'l7-10', 
+        title: '10. Sirene Completa', 
+        icon: Activity, 
+        prepText: "O teste final da transição. Faça uma sirene completa de baixo até em cima e volte, sem deixar a voz quebrar em nenhum momento!", 
+        actionText: "SIRENE COMPLETA" 
+      }
     ]
   }
 ];
