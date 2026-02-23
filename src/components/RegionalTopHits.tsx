@@ -54,7 +54,8 @@ const RegionalTopHits = () => {
                   "glass-pillar hover:border-primary hover:shadow-primary/40 shadow-2xl group"
                 )}>
                   <CardContent className="p-8 flex flex-col items-center text-center h-[320px] justify-between">
-                    <div className="text-6xl mb-4 transform transition-transform duration-500 group-hover:scale-110">
+                    {/* Large Flag Icon */}
+                    <div className="text-7xl md:text-8xl mb-4 transform transition-transform duration-500 group-hover:scale-110 drop-shadow-xl">
                       {item.flag}
                     </div>
                     
@@ -62,7 +63,7 @@ const RegionalTopHits = () => {
                       <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
                         {item.region}
                       </h3>
-                      <p className="text-sm text-gray-400 leading-relaxed">
+                      <p className="text-sm text-gray-400 leading-relaxed line-clamp-2">
                         {item.description}
                       </p>
                     </div>
