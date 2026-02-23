@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle, PlayCircle, Sparkles, Library as LibraryIcon, Search } from "lucide-react";
 import { cn } from "../utils/cn";
-import GlobalHotspotsCarousel from "@/components/GlobalHotspotsCarousel";
+import RegionalTopHits from "@/components/RegionalTopHits";
 import RecentlyAdded from "@/components/RecentlyAdded";
 import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 import RankingTables from "@/components/RankingTables";
@@ -177,7 +177,7 @@ const Index = () => {
 
         <div className="py-16">
           <AchievementsSection />
-          <GlobalHotspotsCarousel />
+          <RegionalTopHits />
           <RecentlyAdded />
           <TrendTopicsFeed />
           <div className="mt-12 pb-16">
