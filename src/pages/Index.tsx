@@ -169,6 +169,13 @@ const Index = () => {
             isLocked={currentLevel < 8}
             onLockClick={() => handlePillarClick("Backstage", 8, "/backstage")}
           />
+          <ElitePillarCard 
+            title="Next Success" 
+            description="Espaço do compositor. Transforme suas ideias em músicas de estúdio usando IA." 
+            icon={Sparkles} 
+            isLocked={currentLevel < 10}
+            onLockClick={() => handlePillarClick("Next Success", 10, "/next-success")}
+          />
         </div>
 
         <div className="mt-12">
