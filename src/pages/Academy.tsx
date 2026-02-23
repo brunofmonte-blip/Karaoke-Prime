@@ -8,6 +8,10 @@ import AcademyLevel3Menu from '@/components/AcademyLevel3Menu';
 import AcademyLevel4Menu from '@/components/AcademyLevel4Menu';
 import AcademyLevel5Menu from '@/components/AcademyLevel5Menu';
 import AcademyLevel6Menu from '@/components/AcademyLevel6Menu';
+import AcademyLevel7Menu from '@/components/AcademyLevel7Menu';
+import AcademyLevel8Menu from '@/components/AcademyLevel8Menu';
+import AcademyLevel9Menu from '@/components/AcademyLevel9Menu';
+import AcademyLevel10Menu from '@/components/AcademyLevel10Menu';
 import InstructorAvatar from '@/components/InstructorAvatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -30,6 +34,22 @@ const Academy = () => {
   const currentLesson = selectedLevel ? academyLessons.find(l => l.level === selectedLevel) : null;
   const bgImage = currentLesson?.bgImage || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1600";
 
+  const renderLevelMenu = (level: number) => {
+    switch (level) {
+      case 1: return <AcademyModuleMenu level={1} />;
+      case 2: return <AcademyLevel2Menu />;
+      case 3: return <AcademyLevel3Menu />;
+      case 4: return <AcademyLevel4Menu />;
+      case 5: return <AcademyLevel5Menu />;
+      case 6: return <AcademyLevel6Menu />;
+      case 7: return <AcademyLevel7Menu />;
+      case 8: return <AcademyLevel8Menu />;
+      case 9: return <AcademyLevel9Menu />;
+      case 10: return <AcademyLevel10Menu />;
+      default: return null;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-8 min-h-[80vh] flex items-center justify-center">
@@ -46,7 +66,6 @@ const Academy = () => {
       <div className="min-h-screen bg-background/80 backdrop-blur-md p-4 md:p-8">
         <div className="container mx-auto max-w-6xl">
           
-          {/* Welcome Section with Instructor */}
           {!selectedLevel && (
             <div className="flex flex-col items-center text-center mb-12 animate-in fade-in slide-in-from-top-8 duration-1000">
               <InstructorAvatar />
@@ -130,38 +149,18 @@ const Academy = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {selectedLevel === 1 ? (
+            {selectedLevel ? (
               <div className="col-span-full">
-                <AcademyModuleMenu level={1} />
-              </div>
-            ) : selectedLevel === 2 ? (
-              <div className="col-span-full">
-                <AcademyLevel2Menu />
-              </div>
-            ) : selectedLevel === 3 ? (
-              <div className="col-span-full">
-                <AcademyLevel3Menu />
-              </div>
-            ) : selectedLevel === 4 ? (
-              <div className="col-span-full">
-                <AcademyLevel4Menu />
-              </div>
-            ) : selectedLevel === 5 ? (
-              <div className="col-span-full">
-                <AcademyLevel5Menu />
-              </div>
-            ) : selectedLevel === 6 ? (
-              <div className="col-span-full">
-                <AcademyLevel6Menu />
+                {renderLevelMenu(selectedLevel)}
               </div>
             ) : (
               academyLessons.map((lesson) => (
                 <div 
                   key={lesson.level} 
-                  onClick={() => (lesson.level >= 1 && lesson.level <= 6) && setSelectedLevel(lesson.level)}
+                  onClick={() => (lesson.level >= 1 && lesson.level <= 10) && setSelectedLevel(lesson.level)}
                   className={cn(
                     "transition-transform duration-300",
-                    (lesson.level >= 1 && lesson.level <= 6) && "cursor-pointer hover:scale-[1.02]"
+                    (lesson.level >= 1 && lesson.level <= 10) && "cursor-pointer hover:scale-[1.02]"
                   )}
                 >
                   <LessonCard lesson={lesson} isAdminMode={isAdminMode} />
