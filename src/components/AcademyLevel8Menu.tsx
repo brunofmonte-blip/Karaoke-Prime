@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, Wind } from 'lucide-react';
+import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, Wind, Target, Disc } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 
@@ -29,6 +29,39 @@ export const level8Modules = [
     exercises: [
       { id: 'l8-3', title: '3. Belt de Vogal Aberta', icon: Music, prepText: "Use vogais abertas para maximizar a ressonância no belting.", actionText: "ABRA A RESSONÂNCIA" },
       { id: 'l8-4', title: '4. Sustentação de Potência', icon: Activity, prepText: "Sustente notas agudas potentes mantendo o brilho vocal.", actionText: "SUSTENTE COM BRILHO" }
+    ]
+  },
+  {
+    id: 'L8-MC',
+    title: 'Módulo C: Ressonância Metálica',
+    description: 'O segredo do brilho vocal.',
+    icon: Target,
+    prescription: 'Foco em Twang e Brilho',
+    exercises: [
+      { id: 'l8-5', title: '5. Twang Básico', icon: Target, prepText: "Adicione 'twang' à sua voz para aumentar a projeção sem esforço.", actionText: "ADICIONE TWANG" },
+      { id: 'l8-6', title: '6. Projeção Frontal', icon: Mic2, prepText: "Direcione o som para a 'máscara' facial para brilho máximo.", actionText: "PROJETE À FRENTE" }
+    ]
+  },
+  {
+    id: 'L8-MD',
+    title: 'Módulo D: Controle de Pressão',
+    description: 'Evitando a fadiga no belting.',
+    icon: Wind,
+    prescription: 'Foco em Resistência no Belting',
+    exercises: [
+      { id: 'l8-7', title: '7. Cinto de Apoio', icon: Wind, prepText: "Imagine um cinto de apoio para manter a pressão constante.", actionText: "USE O APOIO" },
+      { id: 'l8-8', title: '8. Belting Dinâmico', icon: Activity, prepText: "Varie o volume durante o belting sem perder a estabilidade.", actionText: "BELTING DINÂMICO" }
+    ]
+  },
+  {
+    id: 'L8-ME',
+    title: 'Módulo E: Clímax Vocal',
+    description: 'A grande nota final.',
+    icon: Disc,
+    prescription: 'Foco em Crescendo e Clímax',
+    exercises: [
+      { id: 'l8-9', title: '9. Crescendo para Belt', icon: Disc, prepText: "Inicie suave e cresça para um belting potente.", actionText: "CRESÇA PARA O BELT" },
+      { id: 'l8-10', title: '10. A Nota de Ouro', icon: Zap, prepText: "Execute a nota mais alta e potente do seu repertório.", actionText: "CRAVE A NOTA DE OURO" }
     ]
   }
 ];

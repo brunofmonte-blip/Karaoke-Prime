@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { academyLessons } from '@/data/lessons';
 import LessonCard from '@/components/LessonCard';
@@ -33,6 +33,11 @@ const Academy = () => {
   
   const currentLesson = selectedLevel ? academyLessons.find(l => l.level === selectedLevel) : null;
   const bgImage = currentLesson?.bgImage || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1600";
+
+  // Scroll to top whenever the selected level changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [selectedLevel]);
 
   const renderLevelMenu = (level: number) => {
     switch (level) {

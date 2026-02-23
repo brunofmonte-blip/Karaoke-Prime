@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, Timer, Target } from 'lucide-react';
+import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, Timer, Target, Disc, Layers } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 
@@ -28,7 +28,40 @@ export const level10Modules = [
     prescription: 'Foco em Maestria Vocal',
     exercises: [
       { id: 'l10-3', title: '3. Afinação Cega Dinâmica', icon: Target, prepText: "Mantenha a afinação sem feedback visual sob variação de volume.", actionText: "DOMÍNIO CEGO" },
-      { id: 'l10-4', title: '4. O Desafio Final', icon: Mic2, prepText: "Uma performance completa avaliada pelo motor neural de elite.", actionText: "PERFORMANCE FINAL" }
+      { id: 'l10-4', title: '4. Pulo Cego', icon: Zap, prepText: "Execute um salto de nota sem auxílio visual do afinador.", actionText: "PULO CEGO" }
+    ]
+  },
+  {
+    id: 'L10-MC',
+    title: 'Módulo C: Dinâmica Extrema',
+    description: 'Controle absoluto de volume.',
+    icon: Disc,
+    prescription: 'Foco em Controle de Volume',
+    exercises: [
+      { id: 'l10-5', title: '5. Sussurro ao Grito', icon: Disc, prepText: "Varie do sussurro ao volume máximo mantendo a afinação.", actionText: "VARIAÇÃO EXTREMA" },
+      { id: 'l10-6', title: '6. Crescendo Triplo', icon: Activity, prepText: "Execute três crescendos sucessivos com controle total.", actionText: "CRESCENDO TRIPLO" }
+    ]
+  },
+  {
+    id: 'L10-MD',
+    title: 'Módulo D: Precisão Sob Pressão',
+    description: 'Afinação com fadiga.',
+    icon: Layers,
+    prescription: 'Foco em Precisão com Fadiga',
+    exercises: [
+      { id: 'l10-7', title: '7. Salto de 2 Oitavas', icon: Layers, prepText: "Execute um salto de duas oitavas com precisão cirúrgica.", actionText: "SALTO DE 2 OITAVAS" },
+      { id: 'l10-8', title: '8. Acerto na Mosca', icon: Target, prepText: "Acerte notas aleatórias de primeira com precisão de cents.", actionText: "ACERTO NA MOSCA" }
+    ]
+  },
+  {
+    id: 'L10-ME',
+    title: 'Módulo E: A Certificação',
+    description: 'A prova final do Vocal Coach.',
+    icon: Mic2,
+    prescription: 'Foco em Performance Mestre',
+    exercises: [
+      { id: 'l10-9', title: '9. Medley de Técnicas', icon: Music, prepText: "Execute um medley combinando vibrato, belting e agilidade.", actionText: "MEDLEY TÉCNICO" },
+      { id: 'l10-10', title: '10. O Desafio Final (Boss)', icon: Mic2, prepText: "A prova final: performance completa avaliada pela AI de elite.", actionText: "DESAFIO FINAL" }
     ]
   }
 ];

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, Layers } from 'lucide-react';
+import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, Layers, Wind, Disc } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 
@@ -29,6 +29,39 @@ export const level7Modules = [
     exercises: [
       { id: 'l7-3', title: '3. Conexão em Vogais', icon: Music, prepText: "Use vogais fechadas para suavizar a passagem entre os registros.", actionText: "CONECTE AS VOGAIS" },
       { id: 'l7-4', title: '4. Mix Voice Inicial', icon: Mic2, prepText: "Encontre o equilíbrio entre a ressonância de peito e cabeça.", actionText: "EQUILIBRE O MIX" }
+    ]
+  },
+  {
+    id: 'L7-MC',
+    title: 'Módulo C: Domínio da Voz de Cabeça',
+    description: 'Fortalecendo os agudos isolados.',
+    icon: Wind,
+    prescription: 'Foco em Agudos Isolados',
+    exercises: [
+      { id: 'l7-5', title: '5. Falsete vs Cabeça', icon: Wind, prepText: "Diferencie o falsete soproso da voz de cabeça firme.", actionText: "DIFERENCIE OS TONS" },
+      { id: 'l7-6', title: '6. Sustentação Aguda', icon: Activity, prepText: "Sustente notas agudas em voz de cabeça com estabilidade.", actionText: "SUSTENTE O AGUDO" }
+    ]
+  },
+  {
+    id: 'L7-MD',
+    title: 'Módulo D: Descida Suave',
+    description: 'Trazendo os agudos de volta ao peito.',
+    icon: Disc,
+    prescription: 'Foco em Escalas Descendentes',
+    exercises: [
+      { id: 'l7-7', title: '7. Escala Descendente', icon: Disc, prepText: "Desça do agudo para o grave mantendo a conexão vocal.", actionText: "DESÇA COM CONTROLE" },
+      { id: 'l7-8', title: '8. Arpejo de Retorno', icon: Music, prepText: "Use arpejos para retornar ao registro de peito suavemente.", actionText: "RETORNE AO PEITO" }
+    ]
+  },
+  {
+    id: 'L7-ME',
+    title: 'Módulo E: Agilidade no Passaggio',
+    description: 'Navegação rápida sem solavancos.',
+    icon: Zap,
+    prescription: 'Foco em Navegação Rápida',
+    exercises: [
+      { id: 'l7-9', title: '9. Salto Rápido', icon: Zap, prepText: "Execute saltos rápidos através da zona de quebra.", actionText: "SALTE RÁPIDO" },
+      { id: 'l7-10', title: '10. Sirene Completa', icon: Activity, prepText: "Execute uma sirene completa do grave ao agudo e volta.", actionText: "SIRENE COMPLETA" }
     ]
   }
 ];

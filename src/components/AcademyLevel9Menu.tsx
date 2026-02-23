@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, Layers } from 'lucide-react';
+import { Mic2, Music, Zap, PlayCircle, ChevronRight, Activity, Layers, Disc, BarChart3 } from 'lucide-react';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { publicDomainLibrary } from '@/data/public-domain-library';
 
@@ -23,12 +23,45 @@ export const level9Modules = [
   {
     id: 'L9-MB',
     title: 'Módulo B: Agilidade Mista',
-    description: 'Complexidade rítmica e melódica em riffs modernos.',
+    description: 'Riffs modernos e complexidade rítmica.',
     icon: Layers,
     prescription: 'Foco em Articulação Vocal',
     exercises: [
       { id: 'l9-3', title: '3. Riff em Zig-Zag', icon: Music, prepText: "Navegue por intervalos variados em um riff complexo.", actionText: "RIFF EM ZIG-ZAG" },
-      { id: 'l9-4', title: '4. Melisma Longo (R&B)', icon: Mic2, prepText: "Sustente a agilidade em um melisma longo e expressivo.", actionText: "MELISMA R&B" }
+      { id: 'l9-4', title: '4. Melisma Curto', icon: Mic2, prepText: "Execute um melisma curto e preciso com agilidade.", actionText: "MELISMA CURTO" }
+    ]
+  },
+  {
+    id: 'L9-MC',
+    title: 'Módulo C: Escalas Blues',
+    description: 'Fluidez no estilo R&B.',
+    icon: Music,
+    prescription: 'Foco em Fluidez R&B',
+    exercises: [
+      { id: 'l9-5', title: '5. Blues Run', icon: Music, prepText: "Execute um run clássico de blues com notas de passagem.", actionText: "BLUES RUN" },
+      { id: 'l9-6', title: '6. Deslize Suave', icon: Activity, prepText: "Deslize entre as notas da escala blues com suavidade.", actionText: "DESLIZE SUAVE" }
+    ]
+  },
+  {
+    id: 'L9-MD',
+    title: 'Módulo D: Saltos e Arpejos',
+    description: 'Precisão em alta velocidade.',
+    icon: BarChart3,
+    prescription: 'Foco em Precisão Rápida',
+    exercises: [
+      { id: 'l9-7', title: '7. Riff em Arpejo', icon: BarChart3, prepText: "Execute um riff baseado em arpejos rápidos.", actionText: "RIFF EM ARPEJO" },
+      { id: 'l9-8', title: '8. Salto Sincopado', icon: Zap, prepText: "Execute saltos rápidos com ritmo sincopado.", actionText: "SALTO SINCOPADO" }
+    ]
+  },
+  {
+    id: 'L9-ME',
+    title: 'Módulo E: O Grande Melisma',
+    description: 'Acrobacias complexas.',
+    icon: Disc,
+    prescription: 'Foco em Acrobacias Vocais',
+    exercises: [
+      { id: 'l9-9', title: '9. Corrida Longa', icon: Disc, prepText: "Execute uma corrida vocal longa e complexa.", actionText: "CORRIDA LONGA" },
+      { id: 'l9-10', title: '10. Riff de Assinatura', icon: Zap, prepText: "Crie e execute seu próprio riff de assinatura complexo.", actionText: "RIFF DE ASSINATURA" }
     ]
   }
 ];
