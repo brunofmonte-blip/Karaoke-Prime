@@ -15,6 +15,8 @@ import Backstage from "./pages/Backstage";
 import Library from "./pages/Library";
 import SongPlayer from "./pages/SongPlayer";
 import Duel from "./pages/Duel";
+import Talent from "./pages/Talent";
+import NextSuccess from "./pages/NextSuccess";
 import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
 import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
@@ -49,9 +51,9 @@ const App = () => (
                       <Route path="/library" element={<Library />} />
                       <Route path="/song/:id" element={<SongPlayer />} />
                       <Route path="/duel" element={<Duel />} />
-                      <Route path="/talent" element={<Index />} /> {/* Placeholder for Next Talent */}
+                      <Route path="/talent" element={<Talent />} />
                       <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
-                      <Route path="/next-success" element={<Index />} /> {/* Placeholder for Next Success */}
+                      <Route path="/next-success" element={<NextSuccess />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
