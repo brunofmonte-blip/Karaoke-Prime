@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { Mic2, LogOut, User, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/integrations/supabase/auth";
 import { useLoginModal } from "@/hooks/use-login-modal";
 import { supabase } from "@/integrations/supabase/client";
+import { auth as firebaseAuth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 import { toast } from "sonner";
 
 const NavLink = ({ to, children }: { to: string, children: React.ReactNode }) => (
@@ -14,22 +17,38 @@ const NavLink = ({ to, children }: { to: string, children: React.ReactNode }) =>
 );
 
 const Header = () => {
-  const { user } = useAuth();
+  const { user, authType } = useAuth();
   const { openModal } = useLoginModal();
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error("Failed to sign out.", { description: error.message });
-    } else {
+    try {
+      if (authType === 'firebase') {
+        await signOut(firebaseAuth);
+      } else {
+        await supabase.auth.signOut();
+      }
       toast.success("Successfully signed out. See you soon!", { duration: 3000 });
+    } catch (error: any) {
+      toast.error("Failed to sign out.");
     }
   };
+
+  const getUserDisplay = () => {
+    if (!user) return null;
+    
+    // Firebase user has photoURL and displayName
+    // Supabase user has user_metadata.avatar_url and user_metadata.full_name
+    const avatarUrl = (user as any).photoURL || (user as any).user_metadata?.avatar_url;
+    const name = (user as any).displayName || (user as any).user_metadata?.full_name || (user as any).email?.split('@')[0] || "User";
+    
+    return { avatarUrl, name };
+  };
+
+  const userInfo = getUserDisplay();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Logo: Karaoke Prime (Amazon Music Style) */}
         <Link to="/" className="flex items-center space-x-2">
           <div className="flex flex-col items-start">
             <div className="flex items-center">
@@ -48,7 +67,6 @@ const Header = () => {
           </div>
         </Link>
 
-        {/* Navigation - Strictly 5 Items */}
         <nav className="hidden md:flex items-center space-x-6">
           <NavLink to="/">Basic</NavLink>
           <NavLink to="/academy">Academy</NavLink>
@@ -57,31 +75,37 @@ const Header = () => {
           <NavLink to="/next-success">Next Success</NavLink>
         </nav>
 
-        {/* User/Auth Actions */}
         <div className="flex items-center space-x-4">
-          {/* Data Security Badge */}
           <div className="hidden sm:flex items-center text-xs text-green-400 font-medium space-x-1 px-2 py-1 rounded-full bg-green-900/30 border border-green-700/50">
             <ShieldCheck className="h-3 w-3" />
             <span>Security Verified</span>
           </div>
           
           {user ? (
-            <>
-              <Button variant="ghost" size="icon" className="text-accent hover:bg-accent/10 rounded-full">
-                <User className="h-5 w-5 amazon-gold-glow" />
-              </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8 border border-primary/50">
+                  <AvatarImage src={userInfo?.avatarUrl} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    {userInfo?.name?.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden lg:inline text-sm font-medium text-foreground truncate max-w-[100px]">
+                  {userInfo?.name}
+                </span>
+              </div>
               <Button 
                 variant="outline" 
                 onClick={handleSignOut}
                 className={cn(
                   "border-destructive text-destructive hover:bg-destructive/10",
-                  "rounded-full px-4 py-2 transition-all duration-300 border-2 hover:border-destructive/80"
+                  "rounded-full px-4 py-2 transition-all duration-300 border-2 hover:border-destructive/80 h-9"
                 )}
               >
                 <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+                <span className="hidden sm:inline">Sign Out</span>
               </Button>
-            </>
+            </div>
           ) : (
             <Button 
               variant="outline" 
