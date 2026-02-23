@@ -11,6 +11,10 @@ import { toast } from 'sonner';
 import { level4Modules } from './AcademyLevel4Menu';
 import { level5Modules } from './AcademyLevel5Menu';
 import { level6Modules } from './AcademyLevel6Menu';
+import { level7Modules } from './AcademyLevel7Menu';
+import { level8Modules } from './AcademyLevel8Menu';
+import { level9Modules } from './AcademyLevel9Menu';
+import { level10Modules } from './AcademyLevel10Menu';
 
 interface PitchCalibrationExerciseProps {
   subModule: CalibrationSubModule;
@@ -29,48 +33,36 @@ const PitchCalibrationExercise: React.FC<PitchCalibrationExerciseProps> = ({ sub
     const safeTitle = normalize(activeExerciseTitle || '');
     const safeId = (activeExerciseId || '').toLowerCase();
 
-    // --- DYNAMIC LOOKUP FROM LEVEL 4 ---
-    for (const module of level4Modules) {
-      const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
-      if (found && found.prepText) {
+    // Master list of all modules to search through
+    const allLevelModules = [
+      ...level4Modules,
+      ...level5Modules,
+      ...level6Modules,
+      ...level7Modules,
+      ...level8Modules,
+      ...level9Modules,
+      ...level10Modules
+    ];
+
+    // Search through all modules for the matching exercise ID or Title
+    for (const module of allLevelModules) {
+      const found = module.exercises.find(ex => 
+        ex.id.toLowerCase() === safeId || 
+        normalize(ex.title).includes(safeTitle)
+      );
+      
+      if (found) {
         return {
           title: found.title,
           description: module.description,
           command: found.command || found.actionText || 'ATAQUE AGORA',
-          prepText: found.prepText,
+          prepText: found.prepText || module.description,
           actionText: found.actionText || 'CANTAR'
         };
       }
     }
 
-    // --- DYNAMIC LOOKUP FROM LEVEL 5 ---
-    for (const module of level5Modules) {
-      const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
-      if (found && found.prepText) {
-        return {
-          title: found.title,
-          description: module.description,
-          command: found.command || found.actionText || 'ESTABILIZE AGORA',
-          prepText: found.prepText,
-          actionText: found.actionText || 'CANTAR'
-        };
-      }
-    }
-
-    // --- DYNAMIC LOOKUP FROM LEVEL 6 ---
-    for (const module of level6Modules) {
-      const found = module.exercises.find(ex => ex.id.toLowerCase() === safeId || normalize(ex.title).includes(safeTitle));
-      if (found && found.prepText) {
-        return {
-          title: found.title,
-          description: module.description,
-          command: found.command || found.actionText || 'OSCILE AGORA',
-          prepText: found.prepText,
-          actionText: found.actionText || 'CANTAR'
-        };
-      }
-    }
-
+    // Generic Fallback
     return {
       title: 'Calibração de Tom',
       description: 'Ajuste sua frequência vocal com precisão.',
