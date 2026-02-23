@@ -38,16 +38,16 @@ export const level6Modules: Module[] = [
         id: 'l6-a1', 
         title: '1. Sirene de Oscilação', 
         icon: Activity,
-        prepText: "Hora de soltar a voz! Brinque de sirene, subindo e descendo o tom levemente para encontrar a oscilação natural da sua garganta, sem forçar.", 
-        actionText: "OSCILE LEVEMENTE", 
+        prepText: "Hora de soltar a voz! Cante a vogal 'U'. Brinque de sirene, subindo e descendo o tom levemente nessa vogal para encontrar a oscilação natural da garganta.", 
+        actionText: "CANTE 'U' E OSCILE", 
         command: 'OSCILE LEVEMENTE' 
       },
       { 
         id: 'l6-a2', 
         title: '2. Pulsação Diafragmática', 
         icon: Wind,
-        prepText: "Sinta a pulsação na barriga! Cante a nota e faça leves empurrões com o diafragma (como uma risada 'ha-ha-ha' contínua) para gerar o vibrato.", 
-        actionText: "PULSE A NOTA", 
+        prepText: "Sinta a pulsação na barriga! Cante a sílaba 'HA' e faça leves empurrões com o diafragma (como uma risada 'ha-ha-ha' contínua) para gerar o vibrato.", 
+        actionText: "PULSE A SÍLABA (HA-HA)", 
         command: 'PULSE A NOTA' 
       }
     ]
