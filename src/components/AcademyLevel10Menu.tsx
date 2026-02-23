@@ -16,8 +16,20 @@ export const level10Modules = [
     icon: Timer,
     prescription: 'Foco em Resistência Extrema',
     exercises: [
-      { id: 'l10-1', title: '1. Sustentação Extrema', icon: Timer, prepText: "Mantenha a nota cravada pelo máximo de tempo possível.", actionText: "SUSTENTE AO MÁXIMO" },
-      { id: 'l10-2', title: '2. Pulo de Oitava Duplo', icon: Zap, prepText: "Execute saltos de duas oitavas com precisão absoluta.", actionText: "SALTO DUPLO" }
+      { 
+        id: 'l10-1', 
+        title: '1. Sustentação Extrema', 
+        icon: Timer, 
+        prepText: "Teste de ferro! Sustente a nota com a vogal 'A' o máximo de tempo que seus pulmões aguentarem, mantendo o afinador cravado no verde.", 
+        actionText: "SUSTENTAÇÃO MÁXIMA ('A')" 
+      },
+      { 
+        id: 'l10-2', 
+        title: '2. Pulo de Oitava Duplo', 
+        icon: Zap, 
+        prepText: "Saltos gigantes! Pule da sua nota mais grave direto para a mais aguda e volte, usando 'I'. Exige controle total de ar.", 
+        actionText: "SALTO EXTREMO ('I')" 
+      }
     ]
   },
   {
@@ -27,8 +39,20 @@ export const level10Modules = [
     icon: Target,
     prescription: 'Foco em Maestria Vocal',
     exercises: [
-      { id: 'l10-3', title: '3. Afinação Cega Dinâmica', icon: Target, prepText: "Mantenha a afinação sem feedback visual sob variação de volume.", actionText: "DOMÍNIO CEGO" },
-      { id: 'l10-4', title: '4. Pulo Cego', icon: Zap, prepText: "Execute um salto de nota sem auxílio visual do afinador.", actionText: "PULO CEGO" }
+      { 
+        id: 'l10-3', 
+        title: '3. Afinação Cega Dinâmica', 
+        icon: Target, 
+        prepText: "O afinador vai sumir e o volume vai mudar! Cante 'O', alterne entre som forte e fraco confiando apenas no seu ouvido interno.", 
+        actionText: "AFINAÇÃO CEGA ('O')" 
+      },
+      { 
+        id: 'l10-4', 
+        title: '4. Pulo Cego', 
+        icon: Zap, 
+        prepText: "Sem ajuda visual! Pule para notas distantes usando 'U' guiado apenas pela memória muscular da sua garganta.", 
+        actionText: "SALTO CEGO ('U')" 
+      }
     ]
   },
   {
@@ -38,8 +62,20 @@ export const level10Modules = [
     icon: Disc,
     prescription: 'Foco em Controle de Volume',
     exercises: [
-      { id: 'l10-5', title: '5. Sussurro ao Grito', icon: Disc, prepText: "Varie do sussurro ao volume máximo mantendo a afinação.", actionText: "VARIAÇÃO EXTREMA" },
-      { id: 'l10-6', title: '6. Crescendo Triplo', icon: Activity, prepText: "Execute três crescendos sucessivos com controle total.", actionText: "CRESCENDO TRIPLO" }
+      { 
+        id: 'l10-5', 
+        title: '5. Sussurro ao Grito', 
+        icon: Disc, 
+        prepText: "Comece cantando quase sussurrando e vá aumentando o volume sem parar até chegar a um grito potente e afinado usando 'YEAH'.", 
+        actionText: "SUSSURRO PARA GRITO" 
+      },
+      { 
+        id: 'l10-6', 
+        title: '6. Crescendo Triplo', 
+        icon: Activity, 
+        prepText: "Cante três notas seguidas, subindo o volume (crescendo) em cada uma delas usando 'HA', sem perder o fôlego.", 
+        actionText: "CRESCENDO TRIPLO ('HA')" 
+      }
     ]
   },
   {
@@ -49,8 +85,20 @@ export const level10Modules = [
     icon: Layers,
     prescription: 'Foco em Precisão com Fadiga',
     exercises: [
-      { id: 'l10-7', title: '7. Salto de 2 Oitavas', icon: Layers, prepText: "Execute um salto de duas oitavas com precisão cirúrgica.", actionText: "SALTO DE 2 OITAVAS" },
-      { id: 'l10-8', title: '8. Acerto na Mosca', icon: Target, prepText: "Acerte notas aleatórias de primeira com precisão de cents.", actionText: "ACERTO NA MOSCA" }
+      { 
+        id: 'l10-7', 
+        title: '7. Salto de 2 Oitavas', 
+        icon: Layers, 
+        prepText: "O salto mais longo! Pule duas oitavas inteiras com 'WU'. É como ir do porão ao sótão em uma fração de segundo.", 
+        actionText: "PULO DE 2 OITAVAS ('WU')" 
+      },
+      { 
+        id: 'l10-8', 
+        title: '8. Acerto na Mosca', 
+        icon: Target, 
+        prepText: "Ataque notas rápidas sem 'escorregar' a voz para chegar nelas. Exige precisão de atirador de elite usando a sílaba 'DA'.", 
+        actionText: "ACERTO NA MOSCA ('DA')" 
+      }
     ]
   },
   {
@@ -60,8 +108,20 @@ export const level10Modules = [
     icon: Mic2,
     prescription: 'Foco em Performance Mestre',
     exercises: [
-      { id: 'l10-9', title: '9. Medley de Técnicas', icon: Music, prepText: "Execute um medley combinando vibrato, belting e agilidade.", actionText: "MEDLEY TÉCNICO" },
-      { id: 'l10-10', title: '10. O Desafio Final (Boss)', icon: Mic2, prepText: "A prova final: performance completa avaliada pela AI de elite.", actionText: "DESAFIO FINAL" }
+      { 
+        id: 'l10-9', 
+        title: '9. Medley de Técnicas', 
+        icon: Music, 
+        prepText: "O aquecimento final. Misture vibrato, pulos rápidos e dinâmica em uma única respiração usando a vogal 'E'.", 
+        actionText: "MEDLEY VOCAL ('E')" 
+      },
+      { 
+        id: 'l10-10', 
+        title: '10. O Desafio Final (Boss)', 
+        icon: Mic2, 
+        prepText: "A Prova do Vocal Coach! Aplique tudo o que aprendeu em uma nota longa que exige potência e termina com vibrato. Cante 'A' e mostre ao que veio!", 
+        actionText: "O DESAFIO FINAL ('A')" 
+      }
     ]
   }
 ];
