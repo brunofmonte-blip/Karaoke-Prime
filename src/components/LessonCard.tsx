@@ -29,22 +29,29 @@ const LessonCard: React.FC<LessonCardProps> = ({ lesson, isAdminMode = false }) 
     song.genre === 'Vocal Exercises' && song.title.includes(lesson.focus.split(' ')[0])
   ) || publicDomainLibrary.find(song => song.genre === 'Vocal Exercises');
 
-  const handleStartLesson = () => {
+  const handleStartLesson = (e: React.MouseEvent) => {
+    // Prevent bubbling to the parent div in Academy.tsx if we are handling the click here
+    // However, for levels 1-10, we WANT the parent to handle it to open the menu.
+    
     if (!isUnlocked) {
+      e.stopPropagation();
       toast.error(`Lição Trancada: Complete o Nível ${lesson.level - 1} primeiro.`);
       return;
     }
     
-    // Levels 1-6 have dedicated Module Menus, so we don't start analysis here
-    if (lesson.level >= 1 && lesson.level <= 6) {
+    // Levels 1-10 have dedicated Module Menus, so we don't start analysis here.
+    // We let the event bubble to the parent div in Academy.tsx which calls setSelectedLevel.
+    if (lesson.level >= 1 && lesson.level <= 10) {
       return;
     }
 
     if (!lessonSong) {
+      e.stopPropagation();
       toast.error("Material da lição não encontrado.");
       return;
     }
 
+    e.stopPropagation();
     startAnalysis(lessonSong, false);
     openOverlay();
     toast.info(`Iniciando Nível ${lesson.level}: ${lesson.title}`, { duration: 3000 });
