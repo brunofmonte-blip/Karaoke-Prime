@@ -53,7 +53,6 @@ const Header = () => {
           <NavLink to="/academy">Academy</NavLink>
           <NavLink to="/talent">Next Talent</NavLink>
           <NavLink to="/backstage">Backstage</NavLink>
-          <NavLink to="/success">Amazon Success</NavLink>
         </nav>
 
         {/* User/Auth Actions */}
