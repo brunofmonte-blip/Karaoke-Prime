@@ -48,11 +48,13 @@ const Header = () => {
           </div>
         </Link>
 
-        {/* Navigation */}
+        {/* Navigation - Strictly 5 Items */}
         <nav className="hidden md:flex items-center space-x-6">
+          <NavLink to="/">Basic</NavLink>
           <NavLink to="/academy">Academy</NavLink>
           <NavLink to="/talent">Next Talent</NavLink>
           <NavLink to="/backstage">Backstage</NavLink>
+          <NavLink to="/next-success">Next Success</NavLink>
         </nav>
 
         {/* User/Auth Actions */}

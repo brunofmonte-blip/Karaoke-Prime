@@ -51,6 +51,7 @@ const App = () => (
                       <Route path="/duel" element={<Duel />} />
                       <Route path="/talent" element={<Index />} /> {/* Placeholder for Next Talent */}
                       <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
+                      <Route path="/next-success" element={<Index />} /> {/* Placeholder for Next Success */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>

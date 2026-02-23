@@ -15,11 +15,36 @@ import { Globe, ChevronRight } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 const regionalHits = [
-  { region: "Brasil", flag: "🇧🇷", description: "Sertanejo, MPB e Samba dominam o topo.", query: "sertanejo" },
-  { region: "EUA", flag: "🇺🇸", description: "Pop, Rock e Country em alta nas paradas.", query: "pop rock usa" },
-  { region: "Japão", flag: "🇯🇵", description: "J-Pop e clássicos de Anime são os favoritos.", query: "j-pop anime" },
-  { region: "Reino Unido", flag: "🇬🇧", description: "Britpop e Indie Rock lideram as buscas.", query: "britpop" },
-  { region: "Coreia do Sul", flag: "🇰🇷", description: "K-Pop e baladas românticas no topo.", query: "k-pop" }
+  { 
+    region: "Brasil", 
+    flagUrl: "https://flagcdn.com/w160/br.png", 
+    description: "Sertanejo, MPB e Samba dominam o topo.", 
+    query: "sertanejo" 
+  },
+  { 
+    region: "EUA", 
+    flagUrl: "https://flagcdn.com/w160/us.png", 
+    description: "Pop, Rock e Country em alta nas paradas.", 
+    query: "pop rock usa" 
+  },
+  { 
+    region: "Japão", 
+    flagUrl: "https://flagcdn.com/w160/jp.png", 
+    description: "J-Pop e clássicos de Anime são os favoritos.", 
+    query: "j-pop anime" 
+  },
+  { 
+    region: "Reino Unido", 
+    flagUrl: "https://flagcdn.com/w160/gb.png", 
+    description: "Britpop e Indie Rock lideram as buscas.", 
+    query: "britpop" 
+  },
+  { 
+    region: "Coreia do Sul", 
+    flagUrl: "https://flagcdn.com/w160/kr.png", 
+    description: "K-Pop e baladas românticas no topo.", 
+    query: "k-pop" 
+  }
 ];
 
 const RegionalTopHits = () => {
@@ -54,9 +79,13 @@ const RegionalTopHits = () => {
                   "glass-pillar hover:border-primary hover:shadow-primary/40 shadow-2xl group"
                 )}>
                   <CardContent className="p-8 flex flex-col items-center text-center h-[320px] justify-between">
-                    {/* Large Flag Icon */}
-                    <div className="text-7xl md:text-8xl mb-4 transform transition-transform duration-500 group-hover:scale-110 drop-shadow-xl">
-                      {item.flag}
+                    {/* HD Flag Image */}
+                    <div className="mb-4 transform transition-transform duration-500 group-hover:scale-110 drop-shadow-xl">
+                      <img 
+                        src={item.flagUrl} 
+                        alt={item.region} 
+                        className="w-24 h-auto rounded-md shadow-lg border border-white/10"
+                      />
                     </div>
                     
                     <div>
