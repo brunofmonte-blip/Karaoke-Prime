@@ -16,8 +16,20 @@ export const level9Modules = [
     icon: Activity,
     prescription: 'Foco em Definição de Notas',
     exercises: [
-      { id: 'l9-1', title: '1. Cascata de 5 Notas', icon: Activity, prepText: "Cante uma escala descendente de 5 notas em alta velocidade.", actionText: "CASCATA RÁPIDA" },
-      { id: 'l9-2', title: '2. Run Pentatônico', icon: Zap, prepText: "Execute um run pentatônico clássico com precisão milimétrica.", actionText: "RUN PENTATÔNICO" }
+      { 
+        id: 'l9-1', 
+        title: '1. Cascata de 5 Notas', 
+        icon: Activity, 
+        prepText: "Vamos descer a escada rolando! Cante uma sequência rápida de 5 notas de cima para baixo usando 'DA-DA-DA'. Mantenha cada nota separada e nítida.", 
+        actionText: "CASCATA RÁPIDA ('DA')" 
+      },
+      { 
+        id: 'l9-2', 
+        title: '2. Run Pentatônico', 
+        icon: Zap, 
+        prepText: "O clássico do R&B! Desça a escala pulando notas com bastante agilidade usando 'NO'. Pense no som de uma risada rápida e controlada.", 
+        actionText: "RUN DESCENDENTE ('NO')" 
+      }
     ]
   },
   {
@@ -27,8 +39,20 @@ export const level9Modules = [
     icon: Layers,
     prescription: 'Foco em Articulação Vocal',
     exercises: [
-      { id: 'l9-3', title: '3. Riff em Zig-Zag', icon: Music, prepText: "Navegue por intervalos variados em um riff complexo.", actionText: "RIFF EM ZIG-ZAG" },
-      { id: 'l9-4', title: '4. Melisma Curto', icon: Mic2, prepText: "Execute um melisma curto e preciso com agilidade.", actionText: "MELISMA CURTO" }
+      { 
+        id: 'l9-3', 
+        title: '3. Riff em Zig-Zag', 
+        icon: Music, 
+        prepText: "Sobe e desce! Alterne notas agudas e graves velozmente com 'BÁ-BÁ'. Controle a sua respiração para não perder o ritmo e não embolar.", 
+        actionText: "ZIG-ZAG VOCAL ('BÁ')" 
+      },
+      { 
+        id: 'l9-4', 
+        title: '4. Melisma Curto', 
+        icon: Mic2, 
+        prepText: "Enfeite a nota! Estique uma única vogal ('A') e faça uma 'ondinha' rápida nela (subindo e descendo um tom rapidamente) antes de finalizar.", 
+        actionText: "MELISMA CURTO ('A')" 
+      }
     ]
   },
   {
@@ -38,8 +62,20 @@ export const level9Modules = [
     icon: Music,
     prescription: 'Foco em Fluidez R&B',
     exercises: [
-      { id: 'l9-5', title: '5. Blues Run', icon: Music, prepText: "Execute um run clássico de blues com notas de passagem.", actionText: "BLUES RUN" },
-      { id: 'l9-6', title: '6. Deslize Suave', icon: Activity, prepText: "Deslize entre as notas da escala blues com suavidade.", actionText: "DESLIZE SUAVE" }
+      { 
+        id: 'l9-5', 
+        title: '5. Blues Run', 
+        icon: Music, 
+        prepText: "Estilo Soul Music! Faça uma descida vocal rápida e cheia de balanço usando a sílaba 'YEAH', escorregando levemente entre as notas.", 
+        actionText: "BLUES RUN ('YEAH')" 
+      },
+      { 
+        id: 'l9-6', 
+        title: '6. Deslize Suave', 
+        icon: Activity, 
+        prepText: "Ligue os pontos sem quebrar! Deslize de uma nota aguda para uma bem grave usando 'U', passando rapidamente por todas as notas do meio.", 
+        actionText: "DESLIZE VELOZ ('U')" 
+      }
     ]
   },
   {
@@ -49,8 +85,20 @@ export const level9Modules = [
     icon: BarChart3,
     prescription: 'Foco em Precisão Rápida',
     exercises: [
-      { id: 'l9-7', title: '7. Riff em Arpejo', icon: BarChart3, prepText: "Execute um riff baseado em arpejos rápidos.", actionText: "RIFF EM ARPEJO" },
-      { id: 'l9-8', title: '8. Salto Sincopado', icon: Zap, prepText: "Execute saltos rápidos com ritmo sincopado.", actionText: "SALTO SINCOPADO" }
+      { 
+        id: 'l9-7', 
+        title: '7. Riff em Arpejo', 
+        icon: BarChart3, 
+        prepText: "Pule de 3 em 3 degraus! Suba e desça a escala pulando notas rapidamente com 'NÁ', focando em acertar cada alvo em alta velocidade.", 
+        actionText: "ARPEJO RÁPIDO ('NÁ')" 
+      },
+      { 
+        id: 'l9-8', 
+        title: '8. Salto Sincopado', 
+        icon: Zap, 
+        prepText: "Ritmo quebrado! Faça saltos vocais velozes brincando com o tempo da batida musical usando 'HA'. O segredo é sentir o balanço.", 
+        actionText: "SALTO COM BALANÇO ('HA')" 
+      }
     ]
   },
   {
@@ -60,8 +108,20 @@ export const level9Modules = [
     icon: Disc,
     prescription: 'Foco em Acrobacias Vocais',
     exercises: [
-      { id: 'l9-9', title: '9. Corrida Longa', icon: Disc, prepText: "Execute uma corrida vocal longa e complexa.", actionText: "CORRIDA LONGA" },
-      { id: 'l9-10', title: '10. Riff de Assinatura', icon: Zap, prepText: "Crie e execute seu próprio riff de assinatura complexo.", actionText: "RIFF DE ASSINATURA" }
+      { 
+        id: 'l9-9', 
+        title: '9. Corrida Longa', 
+        icon: Disc, 
+        prepText: "Prepare o fôlego e relaxe o maxilar! Desça uma longa escala de 8 notas muito rápido usando a vogal 'O'. Mantenha o ar fluindo!", 
+        actionText: "CORRIDA LONGA ('O')" 
+      },
+      { 
+        id: 'l9-10', 
+        title: '10. Riff de Assinatura', 
+        icon: Zap, 
+        prepText: "O Boss da Agilidade! Um Riff Pop complexo, cheio de sobe e desce usando a vogal 'E'. Mostre toda a sua elasticidade vocal!", 
+        actionText: "RIFF DE OURO ('E')" 
+      }
     ]
   }
 ];
