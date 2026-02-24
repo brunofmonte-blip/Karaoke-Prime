@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+// VERIFIED KARAOKE IDS
 const initialSongs = [
   { id: 'fJ9rUzIMcZQ', title: "Bohemian Rhapsody", artist: "Queen", provider: "KaraFun" },
   { id: 'bo_efYhYU2A', title: "Shallow", artist: "Lady Gaga", provider: "Stingray" },
@@ -36,7 +37,7 @@ const BasicLobby = () => {
         s.artist.toLowerCase().includes(query.toLowerCase())
       );
       
-      // Dynamically add a verified generic Karaoke ID (Frank Sinatra - My Way) for search results
+      // FORCE: Add a verified generic Karaoke ID (Frank Sinatra - My Way) for search results
       const searchResult = { 
         id: '79DijItQXMM', 
         title: `${query} (Karaoke Version)`, 
@@ -66,7 +67,6 @@ const BasicLobby = () => {
       className="min-h-screen bg-cover bg-center bg-fixed relative"
       style={{ backgroundImage: "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80')" }}
     >
-      {/* Heavy Dark Overlay */}
       <div className="absolute inset-0 bg-black/85 backdrop-blur-sm z-0" />
 
       <div className="container mx-auto p-4 md:p-8 min-h-screen relative z-10">
@@ -160,7 +160,11 @@ const BasicLobby = () => {
               {query ? 'Resultados da Busca' : 'Resultados Sugeridos'}
             </h3>
             {results.map((song) => (
-              <Link key={song.id} to={`/room?v=${song.id}`} className="block group">
+              <div 
+                key={song.id} 
+                onClick={() => navigate(`/room?v=${song.id}`)} 
+                className="block group cursor-pointer"
+              >
                 <Card className="border-border/50 bg-card/30 hover:bg-card/50 hover:border-primary/50 transition-all duration-300 rounded-2xl overflow-hidden">
                   <CardContent className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -177,7 +181,7 @@ const BasicLobby = () => {
                     </Button>
                   </CardContent>
                 </Card>
-              </Link>
+              </div>
             ))}
           </div>
         </section>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Mic, MicOff, Video, VideoOff, Play, Square, ArrowLeft, Activity } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, Square, ArrowLeft, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -9,7 +9,9 @@ import { cn } from '@/lib/utils';
 const KaraokeRoom = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const videoId = searchParams.get('v') || 'fJ9rUzIMcZQ'; // Fallback to Queen
+  
+  // STRICT: Read 'v' parameter from URL. Fallback only to Queen if missing.
+  const videoId = searchParams.get('v') || 'fJ9rUzIMcZQ'; 
 
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -21,11 +23,11 @@ const KaraokeRoom = () => {
       <div className="w-full max-w-6xl flex justify-between items-center mb-6">
         <Button 
           variant="ghost" 
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/basic')}
           className="text-muted-foreground hover:text-primary transition-colors"
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
-          Voltar
+          Voltar ao Lobby
         </Button>
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
@@ -38,7 +40,7 @@ const KaraokeRoom = () => {
         <iframe 
           width="100%" 
           height="100%" 
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`} 
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&enablejsapi=1`} 
           title="Karaoke Video" 
           frameBorder="0" 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -46,7 +48,7 @@ const KaraokeRoom = () => {
           className="w-full h-full"
         ></iframe>
         
-        {/* Pitch Visualizer Overlay (Placeholder) */}
+        {/* Pitch Visualizer Overlay */}
         <div className="absolute bottom-8 left-8 right-8 h-16 flex items-end gap-1 pointer-events-none opacity-50">
           {[...Array(40)].map((_, i) => (
             <div 
@@ -117,13 +119,6 @@ const KaraokeRoom = () => {
           </div>
           <span className="text-xl font-black text-white tabular-nums">0.00s</span>
         </div>
-      </div>
-
-      {/* Branding Tagline */}
-      <div className="mt-12 text-center opacity-30">
-        <h2 className="text-2xl font-black tracking-[0.5em] text-white uppercase">
-          Cante. Evolua. Conquiste.
-        </h2>
       </div>
     </div>
   );
