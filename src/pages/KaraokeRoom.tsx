@@ -24,6 +24,10 @@ export default function KaraokeRoom() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const micVolumeRef = useRef(0);
 
+  // Recording Refs
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
+
   // RECORDING TIMER LOGIC
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -92,6 +96,37 @@ export default function KaraokeRoom() {
     updateVolume();
   };
 
+  const startRecording = () => {
+    if (!stream) return;
+    
+    chunksRef.current = [];
+    const recorder = new MediaRecorder(stream);
+    
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunksRef.current.push(e.data);
+      }
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+      const videoUrl = URL.createObjectURL(blob);
+      navigate('/score', { state: { videoUrl, time: recordingTime } });
+    };
+
+    mediaRecorderRef.current = recorder;
+    recorder.start();
+    setIsRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (stream) stream.getTracks().forEach(t => t.stop());
+    }
+  };
+
   const toggleMic = () => {
     setIsMicOn(!isMicOn);
   };
@@ -128,13 +163,6 @@ export default function KaraokeRoom() {
       videoRef.current.srcObject = stream;
     }
   }, [isCameraOn, stream]);
-
-  const handleStop = () => {
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    if (audioContextRef.current) audioContextRef.current.close();
-    // Pass the recording time to the score screen
-    navigate('/score', { state: { time: recordingTime } });
-  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col p-4 md:p-8">
@@ -240,7 +268,8 @@ export default function KaraokeRoom() {
             </div>
 
             <Button 
-              onClick={() => isRecording ? handleStop() : setIsRecording(true)}
+              onClick={() => isRecording ? stopRecording() : startRecording()}
+              disabled={!stream && !isRecording}
               className={cn(
                 "w-full py-8 rounded-2xl font-black text-base transition-all duration-500 shadow-lg",
                 isRecording 
