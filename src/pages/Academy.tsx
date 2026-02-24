@@ -30,10 +30,7 @@ export default function Academy() {
 
   const handleStartLevel = (level: number, unlocked: boolean) => {
     if (!unlocked) {
-      toast.error("Módulo Premium", {
-        description: "Assine o Karaoke Prime para desbloquear o currículo completo.",
-        duration: 5000
-      });
+      navigate('/premium');
       return;
     }
     // Logic to start Level 1 (Breathing Gym)
@@ -75,7 +72,10 @@ export default function Academy() {
                 <h3 className="text-2xl font-black text-accent uppercase tracking-widest mb-1">Prescrição do Instrutor IA</h3>
                 <p className="text-white text-lg font-medium">Baseado no seu último show, você deve focar em: <span className="text-accent font-black underline decoration-2 underline-offset-4">{recommendedPlan}</span></p>
               </div>
-              <Button className="bg-accent hover:bg-accent/90 text-black font-black px-8 py-6 rounded-xl shadow-lg shadow-accent/20">
+              <Button 
+                onClick={() => navigate('/premium')}
+                className="bg-accent hover:bg-accent/90 text-black font-black px-8 py-6 rounded-xl shadow-lg shadow-accent/20"
+              >
                 COMEÇAR AGORA
               </Button>
             </div>

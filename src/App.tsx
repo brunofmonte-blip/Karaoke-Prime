@@ -20,6 +20,7 @@ import Duel from "./pages/Duel";
 import Talent from "./pages/Talent";
 import NextSuccess from "./pages/NextSuccess";
 import ScoreResult from "./pages/ScoreResult";
+import Premium from "./pages/Premium";
 import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
 import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
@@ -60,6 +61,7 @@ const App = () => (
                       <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
                       <Route path="/next-success" element={<NextSuccess />} />
                       <Route path="/score" element={<ScoreResult />} />
+                      <Route path="/premium" element={<Premium />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
