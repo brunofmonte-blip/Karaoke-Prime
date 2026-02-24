@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Trophy, BrainCircuit, ChevronRight, ArrowLeft, Star, Zap, Activity, ShieldAlert, Share2, Download, Rocket, Instagram } from 'lucide-react';
+import { Trophy, BrainCircuit, ChevronRight, ArrowLeft, Star, Zap, Activity, ShieldAlert, Share2, Download, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -146,9 +146,9 @@ export default function ScoreResult() {
                 <div className="pt-8 border-t border-white/10 space-y-4">
                   <button 
                     onClick={() => navigate('/academy', { state: { recommendedPlan: feedback.module } })} 
-                    className="w-full py-6 bg-gradient-to-r from-cyan-600 to-cyan-400 text-black font-black rounded-2xl uppercase tracking-wider text-lg shadow-[0_0_20px_rgba(0,183,235,0.3)] hover:shadow-[0_0_30px_rgba(0,183,235,0.6)] transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-gradient-to-r from-cyan-600 to-cyan-400 text-black font-black rounded-xl uppercase tracking-wider text-sm shadow-[0_0_20px_rgba(0,183,235,0.3)] hover:shadow-[0_0_30px_rgba(0,183,235,0.6)] transition-all flex items-center justify-center gap-2"
                   >
-                    <Rocket className="w-6 h-6" />
+                    <Rocket className="w-5 h-5" />
                     Ir para o Academy
                   </button>
 
@@ -157,7 +157,7 @@ export default function ScoreResult() {
                       onClick={handleShare}
                       className="flex-[2] py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-black rounded-xl uppercase tracking-wider text-xs shadow-lg flex items-center justify-center gap-2 hover:opacity-90 transition-all"
                     >
-                      <Instagram className="w-4 h-4" /> Compartilhar no Story
+                      <Share2 className="w-4 h-4" /> Compartilhar (TikTok/Insta/FB)
                     </button>
                     
                     {videoUrl && (

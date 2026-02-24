@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { academyLessons } from '@/data/lessons';
 import LessonCard from '@/components/LessonCard';
@@ -16,10 +17,11 @@ import InstructorAvatar from '@/components/InstructorAvatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
-import { GraduationCap, Zap, Trophy, ShieldAlert, ChevronLeft, Sparkles } from 'lucide-react';
+import { GraduationCap, Zap, Trophy, ShieldAlert, ChevronLeft, Sparkles, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Academy = () => {
+  const location = useLocation();
   const { data: profile, isLoading } = useUserProfile();
   const [isAdminMode, setIsAdminMode] = useState(true);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
@@ -81,6 +83,21 @@ const Academy = () => {
                 Bem-vindo à Academia. Seu diagnóstico vocal de 10 níveis começa aqui. 
                 Siga o currículo projetado por AI para atingir a maestria.
               </p>
+            </div>
+          )}
+
+          {/* AI Vocal Coach Prescription Banner */}
+          {location.state?.recommendedPlan && (
+            <div className="mb-8 p-6 rounded-2xl bg-accent/20 border-2 border-accent/50 animate-in slide-in-from-left duration-500">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-full bg-accent/30">
+                  <BrainCircuit className="h-8 w-8 text-accent" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-accent uppercase tracking-widest">Prescrição do Instrutor IA</h3>
+                  <p className="text-white font-medium">Foco Recomendado: <span className="text-accent font-black">{location.state.recommendedPlan}</span></p>
+                </div>
+              </div>
             </div>
           )}
 
