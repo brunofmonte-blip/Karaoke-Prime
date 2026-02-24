@@ -16,7 +16,7 @@ export default function ScoreResult() {
   const [feedback, setFeedback] = useState({ title: '', text: '', module: '' });
 
   useEffect(() => {
-    // BRUTAL MVP SCORING: Forces low scores to demonstrate Academy value
+    // SCORING CARRASCO (25 a 62)
     const generatedScore = Math.floor(Math.random() * (62 - 25 + 1)) + 25;
     setScore(generatedScore);
 
