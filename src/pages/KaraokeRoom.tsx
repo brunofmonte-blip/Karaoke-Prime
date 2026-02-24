@@ -10,7 +10,6 @@ export default function KaraokeRoom() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-  // IF NO ID IS SENT, FALLBACK TO A GENERIC KARAOKE BACKGROUND, NEVER MOANA.
   const videoId = searchParams.get('v') || 'oVbXpK_BRbw';
 
   const [isMicOn, setIsMicOn] = useState(false);
@@ -21,7 +20,6 @@ export default function KaraokeRoom() {
   
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // MEDIA LOGIC: WEBCAM & MIC
   const toggleCamera = async () => {
     if (isCameraOn) {
       if (stream) {
@@ -37,7 +35,6 @@ export default function KaraokeRoom() {
         });
         setStream(newStream);
         setIsCameraOn(true);
-        // We'll set the srcObject in a useEffect to ensure the ref is ready
       } catch (err) {
         console.error("Error accessing media devices:", err);
       }
@@ -46,10 +43,8 @@ export default function KaraokeRoom() {
 
   const toggleMic = () => {
     setIsMicOn(!isMicOn);
-    // In a real app, we would update the audio track of the existing stream here
   };
 
-  // MOCK SCORING LOGIC
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRecording && isMicOn) {
@@ -58,11 +53,7 @@ export default function KaraokeRoom() {
       const triggerFeedback = () => {
         const randomWord = words[Math.floor(Math.random() * words.length)];
         setFeedback(randomWord);
-        
-        // Clear feedback after 1.5s
         setTimeout(() => setFeedback(''), 1500);
-        
-        // Schedule next feedback between 3 and 6 seconds
         const nextTime = Math.floor(Math.random() * 3000) + 3000;
         interval = setTimeout(triggerFeedback, nextTime);
       };
@@ -75,7 +66,6 @@ export default function KaraokeRoom() {
     };
   }, [isRecording, isMicOn]);
 
-  // Sync video element with stream
   useEffect(() => {
     if (isCameraOn && stream && videoRef.current) {
       videoRef.current.srcObject = stream;
@@ -83,9 +73,9 @@ export default function KaraokeRoom() {
   }, [isCameraOn, stream]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center p-4 md:p-8">
+    <div className="min-h-screen bg-background flex flex-col p-4 md:p-8">
       {/* Header */}
-      <div className="w-full max-w-6xl flex justify-between items-center mb-6">
+      <div className="w-full max-w-7xl mx-auto flex justify-between items-center mb-6">
         <Button 
           variant="ghost" 
           onClick={() => {
@@ -103,111 +93,116 @@ export default function KaraokeRoom() {
         </div>
       </div>
 
-      {/* Video Player Section */}
-      <div className="w-full max-w-5xl aspect-video rounded-3xl overflow-hidden border-2 border-primary/30 shadow-2xl shadow-primary/10 bg-black relative group">
-        <iframe 
-          width="100%" 
-          height="100%" 
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&enablejsapi=1`} 
-          title="Karaoke Video" 
-          frameBorder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          allowFullScreen
-          className="w-full h-full"
-        ></iframe>
-
-        {/* Feedback Overlay */}
-        {feedback && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-            <h2 className="text-6xl md:text-8xl font-black text-yellow-400 italic animate-in zoom-in duration-300 drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] uppercase tracking-tighter">
-              {feedback}
-            </h2>
-          </div>
-        )}
+      {/* Main Content Area */}
+      <div className="flex flex-col lg:flex-row gap-8 w-full max-w-7xl mx-auto flex-grow">
         
-        {/* Webcam Overlay */}
-        {isCameraOn && (
-          <div className="absolute bottom-6 right-6 z-30">
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              muted 
-              playsInline
-              className="w-48 h-32 object-cover rounded-2xl border-2 border-cyan-500 shadow-2xl shadow-cyan-500/20" 
-            />
-          </div>
-        )}
-        
-        {/* Pitch Visualizer Overlay */}
-        <div className="absolute bottom-8 left-8 right-8 h-16 flex items-end gap-1 pointer-events-none opacity-50">
-          {[...Array(40)].map((_, i) => (
-            <div 
-              key={i} 
-              className="flex-1 bg-primary rounded-t-sm animate-pulse" 
-              style={{ 
-                height: `${Math.random() * 100}%`,
-                animationDelay: `${i * 0.05}s`
-              }} 
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Control Dock */}
-      <div className="mt-8 w-full max-w-2xl glass-pillar border-2 border-primary/30 rounded-3xl p-6 flex items-center justify-between shadow-2xl">
-        <div className="flex gap-4">
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={toggleMic}
-            className={cn(
-              "h-14 w-14 rounded-2xl border-2 transition-all",
-              isMicOn ? "border-primary text-primary bg-primary/20 shadow-[0_0_15px_rgba(0,168,225,0.4)]" : "border-destructive text-destructive bg-destructive/10"
-            )}
-          >
-            {isMicOn ? <Mic className="h-6 w-6" /> : <MicOff className="h-6 w-6" />}
-          </Button>
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={toggleCamera}
-            className={cn(
-              "h-14 w-14 rounded-2xl border-2 transition-all",
-              isCameraOn ? "border-primary text-primary bg-primary/20 shadow-[0_0_15px_rgba(0,168,225,0.4)]" : "border-muted text-muted-foreground bg-muted/10"
-            )}
-          >
-            {isCameraOn ? <Video className="h-6 w-6" /> : <VideoOff className="h-6 w-6" />}
-          </Button>
+        {/* LEFT COLUMN: Video Player (Unobstructed) */}
+        <div className="flex-grow aspect-video lg:aspect-auto lg:h-[600px] rounded-3xl overflow-hidden border-2 border-primary/30 shadow-2xl bg-black relative">
+          <iframe 
+            width="100%" 
+            height="100%" 
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&enablejsapi=1`} 
+            title="Karaoke Video" 
+            frameBorder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowFullScreen
+            className="w-full h-full"
+          ></iframe>
         </div>
 
-        <Button 
-          onClick={() => setIsRecording(!isRecording)}
-          className={cn(
-            "px-10 py-7 rounded-2xl font-black text-lg transition-all duration-500 shadow-lg",
-            isRecording 
-              ? "bg-destructive hover:bg-destructive/90 text-white shadow-destructive/40 animate-pulse" 
-              : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/40"
-          )}
-        >
-          {isRecording ? (
-            <>
-              <Square className="h-6 w-6 mr-3 fill-current" />
-              PARAR GRAVAÇÃO
-            </>
-          ) : (
-            <>
-              <div className="h-3 w-3 rounded-full bg-red-500 mr-3 animate-ping" />
-              INICIAR GRAVAÇÃO
-            </>
-          )}
-        </Button>
-
-        <div className="flex flex-col items-end">
-          <div className="flex items-center gap-2 text-primary mb-1">
-            <Activity className="h-4 w-4" />
-            <span className="text-xs font-bold uppercase tracking-tighter">Pitch Sync</span>
+        {/* RIGHT COLUMN: Studio Panel */}
+        <div className="w-full lg:w-80 flex flex-col gap-6">
+          
+          {/* Feedback Area */}
+          <div className="h-32 flex items-center justify-center glass-pillar rounded-2xl border-2 border-accent/30 shadow-lg">
+            {feedback ? (
+              <h2 className="text-4xl font-black text-yellow-400 italic animate-in zoom-in duration-300 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] uppercase tracking-tighter">
+                {feedback}
+              </h2>
+            ) : (
+              <div className="text-center">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Performance</p>
+                <p className="text-sm text-gray-400 italic">Aguardando voz...</p>
+              </div>
+            )}
           </div>
-          <span className="text-xl font-black text-white tabular-nums">0.00s</span>
+
+          {/* Webcam Area */}
+          <div className="aspect-video rounded-2xl overflow-hidden border-2 border-cyan-500 bg-black relative shadow-xl">
+            {isCameraOn ? (
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                muted 
+                playsInline
+                className="w-full h-full object-cover transform scale-x-[-1]" 
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground gap-2">
+                <VideoOff className="h-8 w-8 opacity-20" />
+                <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Câmera Desligada</span>
+              </div>
+            )}
+          </div>
+
+          {/* Control Dock */}
+          <div className="glass-pillar border-2 border-primary/30 rounded-3xl p-6 space-y-6 shadow-2xl">
+            <div className="flex justify-center gap-4">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={toggleMic}
+                className={cn(
+                  "h-12 w-12 rounded-xl border-2 transition-all",
+                  isMicOn ? "border-primary text-primary bg-primary/20 shadow-[0_0_10px_rgba(0,168,225,0.4)]" : "border-destructive text-destructive bg-destructive/10"
+                )}
+              >
+                {isMicOn ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={toggleCamera}
+                className={cn(
+                  "h-12 w-12 rounded-xl border-2 transition-all",
+                  isCameraOn ? "border-primary text-primary bg-primary/20 shadow-[0_0_10px_rgba(0,168,225,0.4)]" : "border-muted text-muted-foreground bg-muted/10"
+                )}
+              >
+                {isCameraOn ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+              </Button>
+            </div>
+
+            <Button 
+              onClick={() => setIsRecording(!isRecording)}
+              className={cn(
+                "w-full py-8 rounded-2xl font-black text-base transition-all duration-500 shadow-lg",
+                isRecording 
+                  ? "bg-destructive hover:bg-destructive/90 text-white shadow-destructive/40 animate-pulse" 
+                  : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/40"
+              )}
+            >
+              {isRecording ? (
+                <>
+                  <Square className="h-5 w-5 mr-2 fill-current" />
+                  PARAR
+                </>
+              ) : (
+                <>
+                  <div className="h-2 w-2 rounded-full bg-red-500 mr-2 animate-ping" />
+                  GRAVAR
+                </>
+              )}
+            </Button>
+
+            <div className="flex flex-col items-center pt-2 border-t border-white/10">
+              <div className="flex items-center gap-2 text-primary mb-1">
+                <Activity className="h-4 w-4" />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Pitch Sync</span>
+              </div>
+              <span className="text-2xl font-black text-white tabular-nums">0.00s</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
