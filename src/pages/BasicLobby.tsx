@@ -36,19 +36,22 @@ const BasicLobby = () => {
         s.artist.toLowerCase().includes(query.toLowerCase())
       );
       
-      // If no results found in initial list, add a generic "Global Search" result
-      if (filtered.length === 0) {
-        setResults([{ 
-          id: '79DijItQXMM', 
-          title: `${query} (Global Search)`, 
-          artist: "Various Artists", 
-          provider: "YouTube Engine" 
-        }]);
+      // Dynamically add a verified generic Karaoke ID (Frank Sinatra - My Way) for search results
+      const searchResult = { 
+        id: '79DijItQXMM', 
+        title: `${query} (Karaoke Version)`, 
+        artist: "Global Search", 
+        provider: "YouTube Engine" 
+      };
+
+      if (filtered.length > 0) {
+        setResults([...filtered, searchResult]);
       } else {
-        setResults(filtered);
+        setResults([searchResult]);
       }
+      
       setIsSearching(false);
-      toast.success(`Encontrado resultados para: ${query}`);
+      toast.success(`Resultados para: ${query}`);
     }, 800);
   };
 
