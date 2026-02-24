@@ -10,8 +10,8 @@ const KaraokeRoom = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  // STRICT: Read 'v' parameter from URL. Fallback only to Queen if missing.
-  const videoId = searchParams.get('v') || 'fJ9rUzIMcZQ'; 
+  // HARD OVERWRITE: Read 'v' parameter from URL. Fallback to a generic karaoke track (oVbXpK_BRbw).
+  const videoId = searchParams.get('v') || 'oVbXpK_BRbw'; 
 
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(false);

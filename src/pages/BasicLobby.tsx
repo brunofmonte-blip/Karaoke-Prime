@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-// VERIFIED KARAOKE IDS
+// VERIFIED KARAOKE IDS - HARD OVERWRITE
 const initialSongs = [
   { id: 'fJ9rUzIMcZQ', title: "Bohemian Rhapsody", artist: "Queen", provider: "KaraFun" },
   { id: 'bo_efYhYU2A', title: "Shallow", artist: "Lady Gaga", provider: "Stingray" },
@@ -23,42 +23,22 @@ const BasicLobby = () => {
   const [results, setResults] = useState(initialSongs);
   const [isSearching, setIsSearching] = useState(false);
 
-  const handleSearch = () => {
-    if (!query.trim()) {
-      setResults(initialSongs);
-      return;
-    }
-
-    setIsSearching(true);
-    // Simulate API delay
-    setTimeout(() => {
-      const filtered = initialSongs.filter(s => 
-        s.title.toLowerCase().includes(query.toLowerCase()) || 
-        s.artist.toLowerCase().includes(query.toLowerCase())
-      );
-      
-      // FORCE: Add a verified generic Karaoke ID (Frank Sinatra - My Way) for search results
-      const searchResult = { 
-        id: '79DijItQXMM', 
-        title: `${query} (Karaoke Version)`, 
-        artist: "Global Search", 
-        provider: "YouTube Engine" 
-      };
-
-      if (filtered.length > 0) {
-        setResults([...filtered, searchResult]);
-      } else {
-        setResults([searchResult]);
-      }
-      
-      setIsSearching(false);
-      toast.success(`Resultados para: ${query}`);
-    }, 800);
-  };
-
+  // OVERWRITE SEARCH LOGIC
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
+    if (e.key === 'Enter' && query.trim()) {
+      setIsSearching(true);
+      // Simulate API delay and inject a verified generic Karaoke ID (Frank Sinatra - My Way)
+      setTimeout(() => {
+        const searchResult = { 
+          id: '79DijItQXMM', 
+          title: `${query} (Karaoke Version)`, 
+          artist: "Global Search", 
+          provider: "YouTube Engine" 
+        };
+        setResults([searchResult, ...initialSongs]);
+        setIsSearching(false);
+        toast.success(`Resultados para: ${query}`);
+      }, 800);
     }
   };
 
