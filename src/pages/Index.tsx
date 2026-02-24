@@ -1,22 +1,18 @@
-import React, { useState, useMemo } from 'react';
-import { GraduationCap, Star, Lock, Music, Trophy, CheckCircle, PlayCircle, Sparkles, Library as LibraryIcon, Search } from "lucide-react";
+import React, { useState } from 'react';
+import { GraduationCap, Star, Lock, Music, Trophy, Sparkles } from "lucide-react";
 import { cn } from "../utils/cn";
 import RegionalTopHits from "@/components/RegionalTopHits";
 import RecentlyAdded from "@/components/RecentlyAdded";
 import TrendTopicsFeed from "@/components/TrendTopicsFeed";
+import TrendSingersFeed from "@/components/TrendSingersFeed";
 import RankingTables from "@/components/RankingTables";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useUserProfile } from '@/hooks/use-user-profile';
 import PillarLockedOverlay from '@/components/PillarLockedOverlay';
 import { useAuth } from '@/integrations/supabase/auth';
-import { usePrimeSubscription } from '@/hooks/use-prime-subscription';
 import AchievementsSection from '@/components/AchievementsSection';
-import { publicDomainLibrary } from '@/data/public-domain-library';
-import { academyLessons } from '@/data/lessons';
-import { Button } from '@/components/ui/button';
 import AdvancedSearch from '@/components/AdvancedSearch';
-import { Input } from '@/components/ui/input';
 
 const HeroSection = () => (
   <section 
@@ -184,6 +180,7 @@ const Index = () => {
         <div className="py-16">
           <AchievementsSection />
           <RegionalTopHits />
+          <TrendSingersFeed />
           <RecentlyAdded />
           <TrendTopicsFeed />
           <div className="mt-12 pb-16">
