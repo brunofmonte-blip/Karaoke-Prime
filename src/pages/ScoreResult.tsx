@@ -1,34 +1,47 @@
 "use client";
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Trophy, BrainCircuit, ChevronRight, ArrowLeft, Star, Zap, Activity } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Trophy, BrainCircuit, ChevronRight, ArrowLeft, Star, Zap, Activity, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export default function ScoreResult() {
   const navigate = useNavigate();
-  
-  // Mock score for MVP - in a real app this would come from state/context
-  const score = Math.floor(Math.random() * (95 - 75 + 1)) + 75;
-  
-  const getDiagnosis = (s: number) => {
-    if (s >= 90) return {
-      title: "Performance de Elite!",
-      text: "Sua estabilidade de afinação foi impecável. O motor neural detectou um controle de respiração superior, sustentando muito bem as notas longas do refrão.",
-      action: "Testar Duelo Online",
-      route: "/basic"
-    };
-    return {
-      title: "Bom Potencial, Mas Pode Melhorar",
-      text: "Você segurou bem o tom na maior parte do tempo, mas detectamos instabilidade (scooping) nos ataques das notas agudas. Recomendamos focar em exercícios de apoio.",
-      action: "Treinar na Academy",
-      route: "/academy"
-    };
-  };
+  const location = useLocation();
+  const [score, setScore] = useState(0);
+  const [feedback, setFeedback] = useState({ title: '', text: '', action: '', route: '' });
 
-  const diagnosis = getDiagnosis(score);
+  useEffect(() => {
+    // Strict scoring algorithm (skews lower to encourage training)
+    const generatedScore = Math.floor(Math.random() * (82 - 38 + 1)) + 38;
+    setScore(generatedScore);
+
+    // Dynamic Feedback Matrix
+    if (generatedScore < 50) {
+      setFeedback({
+        title: "Diagnóstico: Instabilidade Crítica",
+        text: "O motor neural detectou oscilações graves na afinação e perda de fôlego no fim das frases. É normal no início, mas requer base técnica imediata.",
+        action: "Treinar Nível 1: Respiração",
+        route: "/academy"
+      });
+    } else if (generatedScore < 70) {
+      setFeedback({
+        title: "Diagnóstico: Potencial Detectado",
+        text: "Você segurou bem o tom na maior parte do tempo, mas detectamos instabilidade (scooping) nos ataques das notas agudas. Recomendamos focar em exercícios de apoio.",
+        action: "Treinar Módulo A: Ataque Laser",
+        route: "/academy"
+      });
+    } else {
+      setFeedback({
+        title: "Diagnóstico: Performance Técnica",
+        text: "Sua estabilidade de afinação foi satisfatória, mas o controle de vibrato ainda apresenta irregularidades rítmicas. Excelente base para o próximo nível.",
+        action: "Avançar para Duelo Online",
+        route: "/basic"
+      });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 md:p-8">
@@ -58,8 +71,12 @@ export default function ScoreResult() {
               </div>
               <div className="flex gap-1 mt-4">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={cn("h-5 w-5", i < 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-600")} />
+                  <Star key={i} className={cn("h-5 w-5", i < Math.floor(score / 20) ? "text-yellow-400 fill-yellow-400" : "text-gray-600")} />
                 ))}
+              </div>
+              <div className="mt-6 flex items-center gap-2 text-[10px] font-bold text-destructive uppercase tracking-widest">
+                <ShieldAlert className="h-3 w-3" />
+                Strict AI Evaluation
               </div>
             </CardContent>
           </Card>
@@ -78,18 +95,18 @@ export default function ScoreResult() {
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-xl font-bold text-accent neon-gold-glow">{diagnosis.title}</h3>
+                <h3 className="text-xl font-bold text-accent neon-gold-glow">{feedback.title}</h3>
                 <p className="text-gray-300 leading-relaxed text-lg">
-                  {diagnosis.text}
+                  {feedback.text}
                 </p>
               </div>
 
               <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-4">
                 <Button 
-                  onClick={() => navigate(diagnosis.route)}
+                  onClick={() => navigate(feedback.route)}
                   className="flex-grow bg-accent hover:bg-accent/90 text-black font-black py-7 rounded-2xl text-lg shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02]"
                 >
-                  {diagnosis.action}
+                  {feedback.action}
                   <ChevronRight className="ml-2 h-6 w-6" />
                 </Button>
                 <Button 

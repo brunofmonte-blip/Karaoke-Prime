@@ -15,6 +15,7 @@ export default function KaraokeRoom() {
   const [isMicOn, setIsMicOn] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [feedback, setFeedback] = useState('');
   
@@ -22,6 +23,19 @@ export default function KaraokeRoom() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const micVolumeRef = useRef(0);
+
+  // RECORDING TIMER LOGIC
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isRecording) {
+      timer = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      setRecordingTime(0);
+    }
+    return () => clearInterval(timer);
+  }, [isRecording]);
 
   const toggleCamera = async () => {
     if (isCameraOn) {
@@ -34,7 +48,7 @@ export default function KaraokeRoom() {
       try {
         const newStream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
-          audio: true // Always request audio for the analyzer
+          audio: true 
         });
         setStream(newStream);
         setIsCameraOn(true);
@@ -82,14 +96,12 @@ export default function KaraokeRoom() {
     setIsMicOn(!isMicOn);
   };
 
-  // AUTHENTIC FEEDBACK LOGIC BASED ON VOLUME
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRecording && isMicOn) {
       const words = ["PERFECT!", "BOM!", "EXCELENTE!", "INCRÍVEL!"];
       
       const checkPerformance = () => {
-        // Only trigger feedback if volume is above a threshold (detecting actual singing)
         if (micVolumeRef.current > 15) {
           const randomWord = words[Math.floor(Math.random() * words.length)];
           setFeedback(randomWord);
@@ -120,7 +132,8 @@ export default function KaraokeRoom() {
   const handleStop = () => {
     if (stream) stream.getTracks().forEach(t => t.stop());
     if (audioContextRef.current) audioContextRef.current.close();
-    navigate('/score');
+    // Pass the recording time to the score screen
+    navigate('/score', { state: { time: recordingTime } });
   };
 
   return (
@@ -147,7 +160,7 @@ export default function KaraokeRoom() {
       {/* Main Content Area */}
       <div className="flex flex-col lg:flex-row gap-8 w-full max-w-7xl mx-auto flex-grow">
         
-        {/* LEFT COLUMN: Video Player (Unobstructed) */}
+        {/* LEFT COLUMN: Video Player */}
         <div className="flex-grow aspect-video lg:aspect-auto lg:h-[600px] rounded-3xl overflow-hidden border-2 border-primary/30 shadow-2xl bg-black relative">
           <iframe 
             width="100%" 
@@ -253,7 +266,9 @@ export default function KaraokeRoom() {
                 <Activity className="h-4 w-4" />
                 <span className="text-[10px] font-bold uppercase tracking-tighter">Pitch Sync</span>
               </div>
-              <span className="text-2xl font-black text-white tabular-nums">0.00s</span>
+              <span className="text-2xl font-black text-white tabular-nums">
+                {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}s
+              </span>
             </div>
           </div>
 
