@@ -3,11 +3,14 @@
 import React, { useState } from 'react';
 import { Mic, MicOff, Video, VideoOff, Play, Square, ArrowLeft, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const KaraokeRoom = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const videoId = searchParams.get('v') || 'fJ9rUzIMcZQ'; // Fallback to Queen
+
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -35,7 +38,7 @@ const KaraokeRoom = () => {
         <iframe 
           width="100%" 
           height="100%" 
-          src="https://www.youtube.com/embed/79DijItQXMM?autoplay=1&modestbranding=1&rel=0" 
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`} 
           title="Karaoke Video" 
           frameBorder="0" 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
