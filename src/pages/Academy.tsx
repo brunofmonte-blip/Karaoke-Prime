@@ -41,8 +41,14 @@ export default function Academy() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="container mx-auto max-w-6xl">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-fixed relative"
+      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1600')" }}
+    >
+      {/* Dark Overlay for Readability */}
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-0" />
+
+      <div className="container mx-auto max-w-6xl p-4 md:p-8 relative z-10">
         
         {/* Hero Section */}
         <div className="flex flex-col items-center text-center mb-12 animate-in fade-in slide-in-from-top-8 duration-1000">
@@ -50,7 +56,7 @@ export default function Academy() {
           <h1 className="text-4xl md:text-6xl font-black text-white mt-6 mb-4 tracking-tighter">
             KARAOKE <span className="text-primary neon-blue-glow">ACADEMY</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl font-medium leading-relaxed">
+          <p className="text-xl text-gray-300 max-w-2xl font-medium leading-relaxed">
             O currículo definitivo para a maestria vocal. 10 níveis projetados por IA para transformar sua voz.
           </p>
         </div>
