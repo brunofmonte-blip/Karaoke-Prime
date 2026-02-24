@@ -1,196 +1,170 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useUserProfile } from '@/hooks/use-user-profile';
-import { academyLessons } from '@/data/lessons';
-import LessonCard from '@/components/LessonCard';
-import AcademyModuleMenu from '@/components/AcademyModuleMenu';
-import AcademyLevel2Menu from '@/components/AcademyLevel2Menu';
-import AcademyLevel3Menu from '@/components/AcademyLevel3Menu';
-import AcademyLevel4Menu from '@/components/AcademyLevel4Menu';
-import AcademyLevel5Menu from '@/components/AcademyLevel5Menu';
-import AcademyLevel6Menu from '@/components/AcademyLevel6Menu';
-import AcademyLevel7Menu from '@/components/AcademyLevel7Menu';
-import AcademyLevel8Menu from '@/components/AcademyLevel8Menu';
-import AcademyLevel9Menu from '@/components/AcademyLevel9Menu';
-import AcademyLevel10Menu from '@/components/AcademyLevel10Menu';
-import InstructorAvatar from '@/components/InstructorAvatar';
-import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { Progress } from '@/components/ui/progress';
-import { GraduationCap, Zap, Trophy, ShieldAlert, ChevronLeft, Sparkles, BrainCircuit } from 'lucide-react';
+"use client";
+
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { BrainCircuit, Lock, PlayCircle, ChevronRight, Trophy, Star, GraduationCap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import InstructorAvatar from '@/components/InstructorAvatar';
+import { toast } from 'sonner';
 
 export default function Academy() {
   const location = useLocation();
+  const navigate = useNavigate();
   const recommendedPlan = location.state?.recommendedPlan;
-  const { data: profile, isLoading } = useUserProfile();
-  const [isAdminMode, setIsAdminMode] = useState(true);
-  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
-  
-  const currentLevel = profile?.academy_level ?? 0;
-  const currentXp = profile?.xp ?? 0;
-  const bestNote = profile?.best_note ?? 0;
-  const maxLevel = 10;
-  
-  const progressValue = (currentLevel / maxLevel) * 100;
-  
-  const currentLesson = selectedLevel ? academyLessons.find(l => l.level === selectedLevel) : null;
-  const bgImage = currentLesson?.bgImage || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1600";
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [selectedLevel]);
+  // CURRICULUM DATA
+  const curriculum = [
+    { level: 1, title: "Fundamentos e Respiração", desc: "A base de todo grande cantor. Domine o apoio diafragmático.", unlocked: true },
+    { level: 2, title: "Calibração de Pitch (Afinação)", desc: "Ataque laser nas notas. Elimine o scooping e os deslizes.", unlocked: false },
+    { level: 3, title: "Sincronia e Ritmo", desc: "Cante no tempo perfeito. Entenda o groove da música.", unlocked: false },
+    { level: 4, title: "Transições e Registros", desc: "Voz de peito, voz de cabeça e a ponte perfeita entre elas.", unlocked: false },
+    { level: 5, title: "Vibrato Mastery", desc: "O segredo da emoção. Controle a oscilação com naturalidade.", unlocked: false },
+    { level: 6, title: "Ressonância e Projeção", desc: "Cante mais alto sem forçar a garganta usando as máscaras faciais.", unlocked: false },
+    { level: 7, title: "Dinâmica e Expressão", desc: "Sussurros e explosões. Como contar uma história cantando.", unlocked: false },
+    { level: 8, title: "Agilidade Vocal (Melismas)", desc: "Flexibilidade extrema para cantar R&B e Pop com perfeição.", unlocked: false },
+    { level: 9, title: "Identidade Vocal", desc: "Pare de imitar e descubra o timbre único da sua própria voz.", unlocked: false },
+    { level: 10, title: "Performance Masterclass", desc: "Presença de palco, microfonação e domínio de público.", unlocked: false },
+  ];
 
-  const renderLevelMenu = (level: number) => {
-    switch (level) {
-      case 1: return <AcademyModuleMenu level={1} />;
-      case 2: return <AcademyLevel2Menu />;
-      case 3: return <AcademyLevel3Menu />;
-      case 4: return <AcademyLevel4Menu />;
-      case 5: return <AcademyLevel5Menu />;
-      case 6: return <AcademyLevel6Menu />;
-      case 7: return <AcademyLevel7Menu />;
-      case 8: return <AcademyLevel8Menu />;
-      case 9: return <AcademyLevel9Menu />;
-      case 10: return <AcademyLevel10Menu />;
-      default: return null;
+  const handleStartLevel = (level: number, unlocked: boolean) => {
+    if (!unlocked) {
+      toast.error("Módulo Premium", {
+        description: "Assine o Karaoke Prime para desbloquear o currículo completo.",
+        duration: 5000
+      });
+      return;
     }
+    // Logic to start Level 1 (Breathing Gym)
+    toast.success("Iniciando Nível 1: Fundamentos");
   };
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-8 min-h-[80vh] flex items-center justify-center">
-        <p className="text-primary neon-blue-glow animate-pulse">Carregando dados da Academia...</p>
-      </div>
-    );
-  }
-
   return (
-    <div 
-      className="min-h-screen bg-cover bg-center bg-fixed transition-all duration-1000"
-      style={{ backgroundImage: `url(${bgImage})` }}
-    >
-      <div className="min-h-screen bg-background/80 backdrop-blur-md p-4 md:p-8">
-        <div className="container mx-auto max-w-6xl">
-          
-          {!selectedLevel && (
-            <div className="flex flex-col items-center text-center mb-12 animate-in fade-in slide-in-from-top-8 duration-1000">
-              <InstructorAvatar />
-              <h1 className="text-4xl md:text-6xl font-black text-white mt-6 mb-4 tracking-tighter">
-                KARAOKE <span className="text-primary neon-blue-glow">ACADEMY</span>
-              </h1>
-              <p className="text-xl text-gray-300 max-w-2xl font-medium leading-relaxed">
-                Bem-vindo à Academia. Seu diagnóstico vocal de 10 níveis começa aqui. 
-                Siga o currículo projetado por AI para atingir a maestria.
-              </p>
-            </div>
-          )}
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="container mx-auto max-w-6xl">
+        
+        {/* Hero Section */}
+        <div className="flex flex-col items-center text-center mb-12 animate-in fade-in slide-in-from-top-8 duration-1000">
+          <InstructorAvatar />
+          <h1 className="text-4xl md:text-6xl font-black text-white mt-6 mb-4 tracking-tighter">
+            KARAOKE <span className="text-primary neon-blue-glow">ACADEMY</span>
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl font-medium leading-relaxed">
+            O currículo definitivo para a maestria vocal. 10 níveis projetados por IA para transformar sua voz.
+          </p>
+        </div>
 
-          {/* AI Vocal Coach Prescription Banner */}
-          {recommendedPlan && (
-            <div className="mb-8 p-6 rounded-2xl bg-accent/20 border-2 border-accent/50 animate-in slide-in-from-left duration-500">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-full bg-accent/30">
-                  <BrainCircuit className="h-8 w-8 text-accent" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-accent uppercase tracking-widest">Prescrição do Instrutor IA</h3>
-                  <p className="text-white font-medium">Foco Recomendado: <span className="text-accent font-black">{recommendedPlan}</span></p>
-                </div>
-              </div>
+        {/* AI Vocal Coach Prescription Banner */}
+        {recommendedPlan && (
+          <div className="mb-12 p-8 rounded-3xl bg-accent/10 border-2 border-accent/50 animate-in slide-in-from-left duration-500 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <BrainCircuit className="h-24 w-24 text-accent" />
             </div>
-          )}
-
-          <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div className="text-center md:text-left">
-              <div className="flex items-center gap-2 mb-2">
-                {selectedLevel && (
-                  <Button variant="ghost" size="icon" onClick={() => setSelectedLevel(null)} className="rounded-full text-white hover:bg-white/10">
-                    <ChevronLeft className="h-6 w-6" />
-                  </Button>
-                )}
-                <h2 className="text-3xl font-bold text-primary neon-blue-glow">
-                  {selectedLevel ? `Nível ${selectedLevel}: ${currentLesson?.title}` : "Seu Currículo Vocal"}
-                </h2>
+            <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
+              <div className="p-4 rounded-2xl bg-accent/20 border border-accent/40">
+                <BrainCircuit className="h-10 w-10 text-accent" />
               </div>
+              <div className="text-center md:text-left flex-grow">
+                <h3 className="text-2xl font-black text-accent uppercase tracking-widest mb-1">Prescrição do Instrutor IA</h3>
+                <p className="text-white text-lg font-medium">Baseado no seu último show, você deve focar em: <span className="text-accent font-black underline decoration-2 underline-offset-4">{recommendedPlan}</span></p>
+              </div>
+              <Button className="bg-accent hover:bg-accent/90 text-black font-black px-8 py-6 rounded-xl shadow-lg shadow-accent/20">
+                COMEÇAR AGORA
+              </Button>
             </div>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => setIsAdminMode(!isAdminMode)}
-              className={cn(
-                "rounded-xl border-2 transition-all duration-300",
-                isAdminMode ? "border-accent text-accent bg-accent/10" : "border-white/20 text-gray-400 bg-white/5"
-              )}
-            >
-              <ShieldAlert className="h-4 w-4 mr-2" />
-              {isAdminMode ? "Admin Bypass: ON" : "Admin Bypass: OFF"}
-            </Button>
           </div>
+        )}
 
-          {!selectedLevel && (
-            <Card className={cn(
-              "mb-12 p-6 rounded-3xl border-2 border-primary/30 shadow-2xl",
-              "glass-pillar bg-card/40 backdrop-blur-xl"
-            )}>
-              <CardContent className="p-0 grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
-                  <GraduationCap className="h-8 w-8 text-primary mx-auto mb-2" />
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Nível Atual</p>
-                  <p className="text-4xl font-black text-white">{currentLevel}</p>
-                </div>
-                
-                <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
-                  <Zap className="h-8 w-8 text-accent mx-auto mb-2 amazon-gold-glow" />
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Melhor Nota</p>
-                  <p className="text-4xl font-black text-accent neon-gold-glow">{bestNote.toFixed(1)}%</p>
-                </div>
-                
-                <div className="text-center p-4 bg-white/5 rounded-2xl border border-white/10">
-                  <Trophy className="h-8 w-8 text-primary mx-auto mb-2" />
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total XP</p>
-                  <p className="text-4xl font-black text-white">{currentXp}</p>
-                </div>
-                
-                <div className="md:col-span-3 pt-6 border-t border-white/10">
-                  <div className="flex justify-between items-end mb-3">
-                    <p className="text-sm font-bold text-white flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      Progresso para Vocal Master
-                    </p>
-                    <span className="text-xs font-bold text-primary">{progressValue.toFixed(0)}%</span>
+        {/* Curriculum Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {curriculum.map((item) => (
+            <Card 
+              key={item.level}
+              className={cn(
+                "relative overflow-hidden transition-all duration-500 border-2 group",
+                item.unlocked 
+                  ? "glass-pillar border-primary/50 hover:border-primary hover:scale-[1.02] cursor-pointer" 
+                  : "bg-black/40 border-white/5 opacity-60 grayscale-[0.5]"
+              )}
+              onClick={() => handleStartLevel(item.level, item.unlocked)}
+            >
+              {!item.unlocked && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-20">
+                  <div className="flex flex-col items-center gap-2">
+                    <Lock className="h-10 w-10 text-white/50" />
+                    <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.3em]">Premium</span>
                   </div>
-                  <Progress 
-                    value={progressValue} 
-                    className="h-4 bg-white/10" 
-                    indicatorClassName="bg-primary shadow-[0_0_15px_rgba(0,168,225,0.6)]"
-                  />
+                </div>
+              )}
+
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <div className={cn(
+                    "h-10 w-10 rounded-xl border flex items-center justify-center font-black text-lg",
+                    item.unlocked ? "border-primary/50 bg-primary/10 text-primary" : "border-white/10 bg-white/5 text-gray-500"
+                  )}>
+                    {item.level}
+                  </div>
+                  {item.unlocked ? (
+                    <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+                  ) : (
+                    <Trophy className="h-5 w-5 text-gray-600" />
+                  )}
+                </div>
+                <CardTitle className={cn(
+                  "text-xl font-bold mt-4",
+                  item.unlocked ? "text-white" : "text-gray-500"
+                )}>
+                  {item.title}
+                </CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  {item.desc}
+                </p>
+
+                <div className="pt-4 border-t border-white/5">
+                  <Button 
+                    variant={item.unlocked ? "default" : "secondary"}
+                    className={cn(
+                      "w-full rounded-xl font-black uppercase tracking-wider text-xs py-6",
+                      item.unlocked 
+                        ? "bg-primary hover:bg-primary/90 text-black shadow-lg shadow-primary/20" 
+                        : "bg-white/5 text-gray-500 cursor-not-allowed"
+                    )}
+                  >
+                    {item.unlocked ? (
+                      <>
+                        <PlayCircle className="h-4 w-4 mr-2" />
+                        Iniciar Treino
+                      </>
+                    ) : (
+                      "Desbloquear com Prime"
+                    )}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {selectedLevel ? (
-              <div className="col-span-full">
-                {renderLevelMenu(selectedLevel)}
-              </div>
-            ) : (
-              academyLessons.map((lesson) => (
-                <div 
-                  key={lesson.level} 
-                  onClick={() => (lesson.level >= 1 && lesson.level <= 10) && setSelectedLevel(lesson.level)}
-                  className={cn(
-                    "transition-transform duration-300",
-                    (lesson.level >= 1 && lesson.level <= 10) && "cursor-pointer hover:scale-[1.02]"
-                  )}
-                >
-                  <LessonCard lesson={lesson} isAdminMode={isAdminMode} />
-                </div>
-              ))
-            )}
-          </div>
+          ))}
         </div>
+
+        {/* Footer CTA */}
+        <div className="mt-20 text-center pb-12">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest mb-6">
+            <Star className="h-3 w-3 fill-current" />
+            Certificação Pro-Vocal
+          </div>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Pronto para o Próximo Nível?</h2>
+          <p className="text-gray-400 max-w-xl mx-auto mb-8">
+            Complete todos os 10 níveis para receber seu selo de Artista Verificado e desbloquear o acesso ao Backstage.
+          </p>
+          <Button variant="ghost" className="text-gray-500 hover:text-white">
+            Ver Detalhes da Certificação <ChevronRight className="ml-1 h-4 w-4" />
+          </Button>
+        </div>
+
       </div>
     </div>
   );
