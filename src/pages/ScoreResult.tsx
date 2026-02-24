@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Trophy, BrainCircuit, ChevronRight, ArrowLeft, Star, Zap, Activity, ShieldAlert, Share2, Download } from 'lucide-react';
+import { Trophy, BrainCircuit, ChevronRight, ArrowLeft, Star, Zap, Activity, ShieldAlert, Share2, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -146,8 +146,13 @@ export default function ScoreResult() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Button 
                       onClick={() => navigate(feedback.route)}
-                      className="bg-accent hover:bg-accent/90 text-black font-black py-8 rounded-2xl text-lg shadow-lg shadow-accent/20 transition-transform hover:scale-[1.02]"
+                      className={cn(
+                        "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500",
+                        "text-white font-black py-8 rounded-2xl text-lg shadow-[0_0_20px_rgba(6,182,212,0.5)]",
+                        "transition-all duration-300 hover:scale-[1.02] border-none"
+                      )}
                     >
+                      <Rocket className="mr-2 h-6 w-6" />
                       {feedback.action}
                       <ChevronRight className="ml-2 h-6 w-6" />
                     </Button>
