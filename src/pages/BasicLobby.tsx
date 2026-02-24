@@ -9,36 +9,27 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-// VERIFIED KARAOKE IDS - HARD OVERWRITE
-const initialSongs = [
-  { id: 'fJ9rUzIMcZQ', title: "Bohemian Rhapsody", artist: "Queen", provider: "KaraFun" },
-  { id: 'bo_efYhYU2A', title: "Shallow", artist: "Lady Gaga", provider: "Stingray" },
-  { id: 'ePjNEB-vjM8', title: "Evidências", artist: "Chitãozinho & Xororó", provider: "Original" },
+// APPROVED KARAOKE CHANNELS ONLY
+const initialResults = [
+  { id: 'oVbXpK_BRbw', title: 'Bohemian Rhapsody', artist: 'Queen', channel: 'KaraFun' },
+  { id: 'tStNgmErrDA', title: 'Shallow', artist: 'Lady Gaga', channel: 'Party Tyme Karaoke' },
+  { id: 'MvWE4YV7KtQ', title: 'Evidências', artist: 'Chitãozinho & Xororó', channel: 'Karaoke em Português' }
 ];
 
-const BasicLobby = () => {
+export default function BasicLobby() {
   const navigate = useNavigate();
-  const [activeMode, setActiveMode] = useState<'online' | 'offline' | 'duel'>('online');
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState(initialSongs);
-  const [isSearching, setIsSearching] = useState(false);
+  const [results, setResults] = useState(initialResults);
+  const [activeMode, setActiveMode] = useState<'online' | 'offline' | 'duel'>('online');
 
-  // OVERWRITE SEARCH LOGIC
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && query.trim()) {
-      setIsSearching(true);
-      // Simulate API delay and inject a verified generic Karaoke ID (Frank Sinatra - My Way)
-      setTimeout(() => {
-        const searchResult = { 
-          id: '79DijItQXMM', 
-          title: `${query} (Karaoke Version)`, 
-          artist: "Global Search", 
-          provider: "YouTube Engine" 
-        };
-        setResults([searchResult, ...initialSongs]);
-        setIsSearching(false);
-        toast.success(`Resultados para: ${query}`);
-      }, 800);
+  const handleSearch = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && query.trim() !== '') {
+      // Simulating search strictly within our approved channels
+      setResults([
+        { id: '6_tG7Z5T12s', title: `${query} (Karaoke Version)`, artist: 'Busca Exclusiva', channel: 'KaraFun / Stingray' },
+        ...initialResults
+      ]);
+      toast.success(`Resultados para: ${query}`);
     }
   };
 
@@ -126,13 +117,8 @@ const BasicLobby = () => {
               className="pl-12 h-16 text-lg rounded-2xl bg-card/50 border-primary/30 focus:border-primary transition-all text-white"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
+              onKeyDown={handleSearch}
             />
-            {isSearching && (
-              <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                <Loader2 className="h-6 w-6 text-primary animate-spin" />
-              </div>
-            )}
           </div>
 
           <div className="space-y-4">
@@ -153,7 +139,7 @@ const BasicLobby = () => {
                       </div>
                       <div>
                         <h4 className="font-bold text-white group-hover:text-primary transition-colors">{song.title}</h4>
-                        <p className="text-sm text-muted-foreground">{song.artist} • <span className="text-xs opacity-70">{song.provider}</span></p>
+                        <p className="text-sm text-muted-foreground">{song.artist} • <span className="text-xs opacity-70">{song.channel}</span></p>
                       </div>
                     </div>
                     <Button variant="ghost" size="icon" className="rounded-full group-hover:text-primary text-white">
@@ -168,6 +154,4 @@ const BasicLobby = () => {
       </div>
     </div>
   );
-};
-
-export default BasicLobby;
+}

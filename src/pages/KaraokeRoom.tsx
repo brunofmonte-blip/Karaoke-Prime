@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
-const KaraokeRoom = () => {
-  const navigate = useNavigate();
+export default function KaraokeRoom() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   
-  // HARD OVERWRITE: Read 'v' parameter from URL. Fallback to a generic karaoke track (oVbXpK_BRbw).
-  const videoId = searchParams.get('v') || 'oVbXpK_BRbw'; 
+  // IF NO ID IS SENT, FALLBACK TO A GENERIC KARAOKE BACKGROUND, NEVER MOANA.
+  const videoId = searchParams.get('v') || 'oVbXpK_BRbw';
 
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -122,6 +122,4 @@ const KaraokeRoom = () => {
       </div>
     </div>
   );
-};
-
-export default KaraokeRoom;
+}
