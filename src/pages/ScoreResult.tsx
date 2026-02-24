@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Trophy, BrainCircuit, ChevronRight, ArrowLeft, Star, Zap, Activity, ShieldAlert, Share2, Rocket } from 'lucide-react';
+import { Trophy, BrainCircuit, ChevronRight, ArrowLeft, Star, Zap, Activity, ShieldAlert, Share2, Download, Rocket, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -13,33 +13,33 @@ export default function ScoreResult() {
   const videoUrl = location.state?.videoUrl;
 
   const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState({ title: '', text: '', action: '', route: '' });
+  const [feedback, setFeedback] = useState({ title: '', text: '', module: '', route: '' });
 
   useEffect(() => {
     // Strict MVP Scoring (38 to 82) to push Academy
     const generatedScore = Math.floor(Math.random() * (82 - 38 + 1)) + 38;
     setScore(generatedScore);
 
-    // Dynamic Strict Feedback Matrix
+    // Dynamic Personal Trainer Feedback Matrix
     if (generatedScore < 50) {
       setFeedback({
         title: "Diagnóstico: Instabilidade Crítica",
         text: "O motor neural detectou oscilações graves na afinação e perda de fôlego no fim das frases. É normal no início, mas requer base técnica imediata para evitar lesões.",
-        action: "Treinar Nível 1: Respiração",
+        module: "Nível 1: Respiração",
         route: "/academy"
       });
     } else if (generatedScore < 70) {
       setFeedback({
         title: "Diagnóstico: Potencial Detectado",
         text: "Você segurou bem o tom na maior parte do tempo, mas detectamos instabilidade (scooping) nos ataques das notas agudas. Recomendamos focar em exercícios de apoio diafragmático.",
-        action: "Treinar Módulo A: Ataque Laser",
+        module: "Módulo A: Ataque Laser",
         route: "/academy"
       });
     } else {
       setFeedback({
         title: "Diagnóstico: Performance Técnica",
         text: "Sua estabilidade de afinação foi satisfatória, mas o controle de vibrato ainda apresenta irregularidades rítmicas. Excelente base para o próximo nível de maestria.",
-        action: "Avançar para Duelo Online",
+        module: "Duelo Online",
         route: "/basic"
       });
     }
@@ -56,12 +56,6 @@ export default function ScoreResult() {
       } catch (error) { 
         console.log('Erro ao compartilhar', error); 
       }
-    } else {
-      // Fallback: Download the video
-      const link = document.createElement('a');
-      link.href = videoUrl;
-      link.download = 'meu-cover-karaoke-prime.webm';
-      link.click();
     }
   };
 
@@ -83,7 +77,7 @@ export default function ScoreResult() {
           
           {/* LEFT: Video Preview & Score */}
           <div className="lg:col-span-5 space-y-6">
-            <Card className="glass-pillar border-2 border-primary/50 overflow-hidden rounded-3xl">
+            <Card className="glass-pillar border-2 border-primary/50 overflow-hidden rounded-3xl shadow-2xl">
               <CardContent className="p-0 aspect-video bg-black relative">
                 {videoUrl ? (
                   <video 
@@ -135,41 +129,56 @@ export default function ScoreResult() {
                   <h2 className="text-2xl font-bold text-white">Relatório do Instrutor IA</h2>
                 </div>
 
-                <div className="space-y-4 flex-grow">
-                  <h3 className="text-2xl font-bold text-accent neon-gold-glow">{feedback.title}</h3>
-                  <p className="text-gray-300 leading-relaxed text-xl">
-                    {feedback.text}
-                  </p>
+                <div className="space-y-6 flex-grow">
+                  <div>
+                    <h3 className="text-2xl font-bold text-accent neon-gold-glow mb-2">{feedback.title}</h3>
+                    <p className="text-gray-300 leading-relaxed text-lg">
+                      {feedback.text}
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-primary/10 border border-primary/30">
+                    <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Plano de Treino Recomendado</p>
+                    <p className="text-xl font-black text-white">{feedback.module}</p>
+                  </div>
                 </div>
 
                 <div className="pt-8 border-t border-white/10 space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Button 
-                      onClick={() => navigate(feedback.route)}
-                      className={cn(
-                        "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500",
-                        "text-white font-black py-8 rounded-2xl text-lg shadow-[0_0_20px_rgba(6,182,212,0.5)]",
-                        "transition-all duration-300 hover:scale-[1.02] border-none"
-                      )}
-                    >
-                      <Rocket className="mr-2 h-6 w-6" />
-                      {feedback.action}
-                      <ChevronRight className="ml-2 h-6 w-6" />
-                    </Button>
-                    <Button 
+                  <button 
+                    onClick={() => navigate('/academy', { state: { recommendedPlan: feedback.module } })} 
+                    className="w-full py-6 bg-gradient-to-r from-cyan-600 to-cyan-400 text-black font-black rounded-2xl uppercase tracking-wider text-lg shadow-[0_0_20px_rgba(0,183,235,0.3)] hover:shadow-[0_0_30px_rgba(0,183,235,0.6)] transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+                  >
+                    <Rocket className="w-6 h-6" />
+                    Ir para o Academy
+                  </button>
+
+                  <div className="flex gap-4">
+                    <button 
                       onClick={handleShare}
-                      variant="outline"
-                      className="bg-primary/10 border-primary/50 text-primary hover:bg-primary/20 py-8 rounded-2xl text-lg font-bold"
+                      className="flex-[2] py-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-black rounded-xl uppercase tracking-wider text-xs shadow-lg flex items-center justify-center gap-2 hover:opacity-90 transition-all"
                     >
-                      <Share2 className="mr-2 h-6 w-6" />
-                      Exportar / Compartilhar
-                    </Button>
+                      <Instagram className="w-4 h-4" /> Compartilhar no Story
+                    </button>
+                    
+                    {videoUrl && (
+                      <button 
+                        onClick={() => { 
+                          const link = document.createElement('a'); 
+                          link.href = videoUrl; 
+                          link.download = 'meu-cover-prime.webm'; 
+                          link.click(); 
+                        }} 
+                        className="flex-1 py-4 bg-white/10 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-white/20 transition-all border border-white/10"
+                      >
+                        <Download className="w-4 h-4" /> Salvar
+                      </button>
+                    )}
                   </div>
                   
                   <Button 
                     variant="ghost"
                     onClick={() => navigate('/basic')}
-                    className="w-full text-gray-400 hover:text-white py-4"
+                    className="w-full text-gray-500 hover:text-white py-4"
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Voltar ao Lobby
@@ -183,7 +192,7 @@ export default function ScoreResult() {
 
         {/* Footer Tagline */}
         <div className="mt-16 text-center">
-          <h2 className="text-2xl md:text-4xl font-extrabold uppercase tracking-widest text-foreground/20">
+          <h2 className="text-2xl md:text-4xl font-extrabold uppercase tracking-widest text-foreground/10">
             CANTE. EVOLUA. CONQUISTE O MUNDO.
           </h2>
         </div>
