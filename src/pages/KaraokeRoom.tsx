@@ -19,6 +19,9 @@ export default function KaraokeRoom() {
   const [feedback, setFeedback] = useState('');
   
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const micVolumeRef = useRef(0);
 
   const toggleCamera = async () => {
     if (isCameraOn) {
@@ -31,34 +34,76 @@ export default function KaraokeRoom() {
       try {
         const newStream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
-          audio: isMicOn 
+          audio: true // Always request audio for the analyzer
         });
         setStream(newStream);
         setIsCameraOn(true);
+        setIsMicOn(true);
+        setupAudioAnalyzer(newStream);
       } catch (err) {
         console.error("Error accessing media devices:", err);
       }
     }
   };
 
+  const setupAudioAnalyzer = (mediaStream: MediaStream) => {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    const audioContext = new AudioContext();
+    const analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaStreamSource(mediaStream);
+    
+    source.connect(analyser);
+    analyser.fftSize = 256;
+    
+    audioContextRef.current = audioContext;
+    analyserRef.current = analyser;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const updateVolume = () => {
+      if (!analyserRef.current) return;
+      analyserRef.current.getByteFrequencyData(dataArray);
+      
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        sum += dataArray[i];
+      }
+      const average = sum / bufferLength;
+      micVolumeRef.current = average;
+      
+      requestAnimationFrame(updateVolume);
+    };
+
+    updateVolume();
+  };
+
   const toggleMic = () => {
     setIsMicOn(!isMicOn);
   };
 
+  // AUTHENTIC FEEDBACK LOGIC BASED ON VOLUME
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRecording && isMicOn) {
       const words = ["PERFECT!", "BOM!", "EXCELENTE!", "INCRÍVEL!"];
       
-      const triggerFeedback = () => {
-        const randomWord = words[Math.floor(Math.random() * words.length)];
-        setFeedback(randomWord);
-        setTimeout(() => setFeedback(''), 1500);
+      const checkPerformance = () => {
+        // Only trigger feedback if volume is above a threshold (detecting actual singing)
+        if (micVolumeRef.current > 15) {
+          const randomWord = words[Math.floor(Math.random() * words.length)];
+          setFeedback(randomWord);
+          setTimeout(() => setFeedback(''), 1500);
+        } else {
+          setFeedback('Gravando...');
+          setTimeout(() => setFeedback(''), 1500);
+        }
+        
         const nextTime = Math.floor(Math.random() * 3000) + 3000;
-        interval = setTimeout(triggerFeedback, nextTime);
+        interval = setTimeout(checkPerformance, nextTime);
       };
 
-      interval = setTimeout(triggerFeedback, 3000);
+      interval = setTimeout(checkPerformance, 2000);
     }
 
     return () => {
@@ -71,6 +116,12 @@ export default function KaraokeRoom() {
       videoRef.current.srcObject = stream;
     }
   }, [isCameraOn, stream]);
+
+  const handleStop = () => {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    if (audioContextRef.current) audioContextRef.current.close();
+    navigate('/score');
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col p-4 md:p-8">
@@ -116,7 +167,10 @@ export default function KaraokeRoom() {
           {/* Feedback Area */}
           <div className="h-32 flex items-center justify-center glass-pillar rounded-2xl border-2 border-accent/30 shadow-lg">
             {feedback ? (
-              <h2 className="text-4xl font-black text-yellow-400 italic animate-in zoom-in duration-300 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] uppercase tracking-tighter">
+              <h2 className={cn(
+                "font-black italic animate-in zoom-in duration-300 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] uppercase tracking-tighter",
+                feedback === 'Gravando...' ? "text-primary text-xl" : "text-4xl text-yellow-400"
+              )}>
                 {feedback}
               </h2>
             ) : (
@@ -173,7 +227,7 @@ export default function KaraokeRoom() {
             </div>
 
             <Button 
-              onClick={() => setIsRecording(!isRecording)}
+              onClick={() => isRecording ? handleStop() : setIsRecording(true)}
               className={cn(
                 "w-full py-8 rounded-2xl font-black text-base transition-all duration-500 shadow-lg",
                 isRecording 
