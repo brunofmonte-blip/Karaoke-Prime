@@ -9,27 +9,49 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-// APPROVED KARAOKE CHANNELS ONLY
+// REAL YOUTUBE API CONFIGURATION
+const YOUTUBE_API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
+
 const initialResults = [
-  { id: 'oVbXpK_BRbw', title: 'Bohemian Rhapsody', artist: 'Queen', channel: 'KaraFun' },
-  { id: 'tStNgmErrDA', title: 'Shallow', artist: 'Lady Gaga', channel: 'Party Tyme Karaoke' },
-  { id: 'MvWE4YV7KtQ', title: 'Evidências', artist: 'Chitãozinho & Xororó', channel: 'Karaoke em Português' }
+  { id: 'tStNgmErrDA', title: 'Shallow (Karaoke)', artist: 'Lady Gaga', channel: 'Party Tyme' },
+  { id: 'MvWE4YV7KtQ', title: 'Evidências (Karaoke)', artist: 'Chitãozinho & Xororó', channel: 'Genno Karaoke' }
 ];
 
 export default function BasicLobby() {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(initialResults);
+  const [loading, setLoading] = useState(false);
   const [activeMode, setActiveMode] = useState<'online' | 'offline' | 'duel'>('online');
 
-  const handleSearch = (e: React.KeyboardEvent) => {
+  const handleSearch = async (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && query.trim() !== '') {
-      // Simulating search strictly within our approved channels
-      setResults([
-        { id: '6_tG7Z5T12s', title: `${query} (Karaoke Version)`, artist: 'Busca Exclusiva', channel: 'KaraFun / Stingray' },
-        ...initialResults
-      ]);
-      toast.success(`Resultados para: ${query}`);
+      setLoading(true);
+      try {
+        // Fetching real data and filtering ONLY embeddable videos
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${encodeURIComponent(query + ' karaoke')}&type=video&videoEmbeddable=true&key=${YOUTUBE_API_KEY}`
+        );
+        const data = await response.json();
+
+        if (data.items) {
+          const formattedResults = data.items.map((item: any) => ({
+            id: item.id.videoId,
+            title: item.snippet.title,
+            artist: item.snippet.channelTitle,
+            channel: "YouTube Live"
+          }));
+          setResults(formattedResults);
+          toast.success(`Encontramos ${formattedResults.length} resultados!`);
+        } else {
+          toast.error("Nenhum resultado encontrado ou limite da API atingido.");
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        toast.error("Erro ao conectar com o YouTube.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -113,12 +135,17 @@ export default function BasicLobby() {
           <div className="relative mb-8">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
             <Input 
-              placeholder="Qual música vamos cantar hoje?" 
+              placeholder="Qual música vamos cantar hoje? (Pressione Enter)" 
               className="pl-12 h-16 text-lg rounded-2xl bg-card/50 border-primary/30 focus:border-primary transition-all text-white"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleSearch}
             />
+            {loading && (
+              <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <Loader2 className="h-6 w-6 text-primary animate-spin" />
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
@@ -137,12 +164,12 @@ export default function BasicLobby() {
                       <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                         <Music className="h-6 w-6 text-primary" />
                       </div>
-                      <div>
-                        <h4 className="font-bold text-white group-hover:text-primary transition-colors">{song.title}</h4>
-                        <p className="text-sm text-muted-foreground">{song.artist} • <span className="text-xs opacity-70">{song.channel}</span></p>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-white group-hover:text-primary transition-colors truncate" dangerouslySetInnerHTML={{ __html: song.title }} />
+                        <p className="text-sm text-muted-foreground truncate">{song.artist} • <span className="text-xs opacity-70">{song.channel}</span></p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="rounded-full group-hover:text-primary text-white">
+                    <Button variant="ghost" size="icon" className="rounded-full group-hover:text-primary text-white flex-shrink-0">
                       <PlayCircle className="h-8 w-8" />
                     </Button>
                   </CardContent>
