@@ -142,7 +142,7 @@ const Index = () => {
             title="Básico" 
             description="Karaoke tradicional com MVs originais e sistema de batalha." 
             icon={Music} 
-            to="/room"
+            to="/basic"
           />
           <ElitePillarCard 
             title="Academy" 

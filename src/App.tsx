@@ -15,6 +15,7 @@ import Backstage from "./pages/Backstage";
 import Library from "./pages/Library";
 import SongPlayer from "./pages/SongPlayer";
 import KaraokeRoom from "./pages/KaraokeRoom";
+import BasicLobby from "./pages/BasicLobby";
 import Duel from "./pages/Duel";
 import Talent from "./pages/Talent";
 import NextSuccess from "./pages/NextSuccess";
@@ -52,6 +53,7 @@ const App = () => (
                       <Route path="/library" element={<Library />} />
                       <Route path="/song/:id" element={<SongPlayer />} />
                       <Route path="/room" element={<KaraokeRoom />} />
+                      <Route path="/basic" element={<BasicLobby />} />
                       <Route path="/duel" element={<Duel />} />
                       <Route path="/talent" element={<Talent />} />
                       <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
