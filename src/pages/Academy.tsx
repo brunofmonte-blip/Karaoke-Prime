@@ -20,8 +20,9 @@ import { Progress } from '@/components/ui/progress';
 import { GraduationCap, Zap, Trophy, ShieldAlert, ChevronLeft, Sparkles, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const Academy = () => {
+export default function Academy() {
   const location = useLocation();
+  const recommendedPlan = location.state?.recommendedPlan;
   const { data: profile, isLoading } = useUserProfile();
   const [isAdminMode, setIsAdminMode] = useState(true);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
@@ -36,7 +37,6 @@ const Academy = () => {
   const currentLesson = selectedLevel ? academyLessons.find(l => l.level === selectedLevel) : null;
   const bgImage = currentLesson?.bgImage || "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1600";
 
-  // Scroll to top whenever the selected level changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [selectedLevel]);
@@ -87,7 +87,7 @@ const Academy = () => {
           )}
 
           {/* AI Vocal Coach Prescription Banner */}
-          {location.state?.recommendedPlan && (
+          {recommendedPlan && (
             <div className="mb-8 p-6 rounded-2xl bg-accent/20 border-2 border-accent/50 animate-in slide-in-from-left duration-500">
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-full bg-accent/30">
@@ -95,7 +95,7 @@ const Academy = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-accent uppercase tracking-widest">Prescrição do Instrutor IA</h3>
-                  <p className="text-white font-medium">Foco Recomendado: <span className="text-accent font-black">{location.state.recommendedPlan}</span></p>
+                  <p className="text-white font-medium">Foco Recomendado: <span className="text-accent font-black">{recommendedPlan}</span></p>
                 </div>
               </div>
             </div>
@@ -194,6 +194,4 @@ const Academy = () => {
       </div>
     </div>
   );
-};
-
-export default Academy;
+}

@@ -13,36 +13,40 @@ export default function ScoreResult() {
   const videoUrl = location.state?.videoUrl;
 
   const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState({ title: '', text: '', module: '', route: '' });
+  const [feedback, setFeedback] = useState({ title: '', text: '', module: '' });
 
   useEffect(() => {
-    // Strict MVP Scoring (38 to 82) to push Academy
-    const generatedScore = Math.floor(Math.random() * (82 - 38 + 1)) + 38;
+    // BRUTAL MVP SCORING: Forces low scores to demonstrate Academy value
+    const generatedScore = Math.floor(Math.random() * (62 - 25 + 1)) + 25;
     setScore(generatedScore);
 
-    // Dynamic Personal Trainer Feedback Matrix
-    if (generatedScore < 50) {
-      setFeedback({
-        title: "Diagnóstico: Instabilidade Crítica",
-        text: "O motor neural detectou oscilações graves na afinação e perda de fôlego no fim das frases. É normal no início, mas requer base técnica imediata para evitar lesões.",
-        module: "Nível 1: Respiração",
-        route: "/academy"
-      });
-    } else if (generatedScore < 70) {
-      setFeedback({
-        title: "Diagnóstico: Potencial Detectado",
-        text: "Você segurou bem o tom na maior parte do tempo, mas detectamos instabilidade (scooping) nos ataques das notas agudas. Recomendamos focar em exercícios de apoio diafragmático.",
-        module: "Módulo A: Ataque Laser",
-        route: "/academy"
-      });
-    } else {
-      setFeedback({
-        title: "Diagnóstico: Performance Técnica",
-        text: "Sua estabilidade de afinação foi satisfatória, mas o controle de vibrato ainda apresenta irregularidades rítmicas. Excelente base para o próximo nível de maestria.",
-        module: "Duelo Online",
-        route: "/basic"
-      });
-    }
+    const issues = [
+      { 
+        id: 'breath', 
+        title: "Instabilidade de Fluxo", 
+        text: "O motor neural detectou perda de pressão subglótica. Você está 'vazando' ar, o que impede a sustentação de notas longas e causa fadiga precoce.", 
+        module: "Nível 1: Respiração" 
+      },
+      { 
+        id: 'pitch', 
+        title: "Desvio de Frequência", 
+        text: "Sua afinação oscilou fora da margem de tolerância de 20 cents. Detectamos 'scooping' (escorregar para a nota) em 70% dos ataques.", 
+        module: "Módulo A: Ataque Laser" 
+      },
+      { 
+        id: 'rhythm', 
+        title: "Inconsistência Rítmica", 
+        text: "Seu ataque vocal está sistematicamente atrasado em relação ao pulso (BPM). Isso indica falta de coordenação entre audição e emissão.", 
+        module: "Rhythm Basics" 
+      }
+    ];
+    
+    const selectedIssue = issues[Math.floor(Math.random() * issues.length)];
+    setFeedback({
+      title: selectedIssue.title,
+      text: selectedIssue.text,
+      module: selectedIssue.module
+    });
   }, []);
 
   const handleShare = async () => {
@@ -50,7 +54,7 @@ export default function ScoreResult() {
       try {
         await navigator.share({ 
           title: 'Meu Cover - Karaoke Prime', 
-          text: `Fiz ${score} pontos no Karaoke Prime! Olha como eu cantei!`, 
+          text: `Fiz ${score} pontos no Karaoke Prime! Preciso treinar mais na Academy!`, 
           url: videoUrl 
         });
       } catch (error) { 
@@ -80,11 +84,7 @@ export default function ScoreResult() {
             <Card className="glass-pillar border-2 border-primary/50 overflow-hidden rounded-3xl shadow-2xl">
               <CardContent className="p-0 aspect-video bg-black relative">
                 {videoUrl ? (
-                  <video 
-                    src={videoUrl} 
-                    controls 
-                    className="w-full h-full object-cover"
-                  />
+                  <video src={videoUrl} controls className="w-full h-full object-cover" />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                     Vídeo não disponível
