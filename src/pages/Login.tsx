@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Mic2, Chrome, Mail, Lock, ArrowRight, 
-  ShieldCheck, Sparkles, Github, Facebook 
+  ShieldCheck, Sparkles, User, Loader2 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +31,13 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real scenario, authentication logic goes here
+    toast.success(isLogin ? "Bem-vindo de volta!" : "Conta criada com sucesso!");
+    navigate('/basic');
   };
 
   return (
@@ -96,7 +103,7 @@ export default function Login() {
                 disabled={isLoading}
                 className="w-full h-14 bg-white text-black hover:bg-gray-100 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.02]"
               >
-                <Chrome className="h-5 w-5" />
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Chrome className="h-5 w-5" />}
                 Continuar com Google
               </Button>
             </div>
@@ -111,17 +118,34 @@ export default function Login() {
             </div>
 
             {/* Email Form */}
-            <div className="space-y-4">
+            <form onSubmit={handleAuth} className="space-y-4">
+              {!isLogin && (
+                <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Nome Completo</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                    <Input 
+                      placeholder="Seu nome artístico" 
+                      className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 focus:border-primary text-white"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">E-mail</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
                   <Input 
+                    type="email"
                     placeholder="seu@email.com" 
                     className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 focus:border-primary text-white"
+                    required
                   />
                 </div>
               </div>
+              
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Senha</label>
                 <div className="relative">
@@ -130,17 +154,19 @@ export default function Login() {
                     type="password"
                     placeholder="••••••••" 
                     className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 focus:border-primary text-white"
+                    required
                   />
                 </div>
               </div>
-            </div>
 
-            <Button 
-              className="w-full h-16 bg-primary hover:bg-primary/90 text-black font-black rounded-2xl shadow-lg shadow-primary/20 text-lg group"
-            >
-              {isLogin ? 'ENTRAR AGORA' : 'CRIAR CONTA'}
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+              <Button 
+                type="submit"
+                className="w-full h-16 bg-primary hover:bg-primary/90 text-black font-black rounded-2xl shadow-lg shadow-primary/20 text-lg group mt-4"
+              >
+                {isLogin ? 'ENTRAR AGORA' : 'CRIAR CONTA'}
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </form>
 
             <div className="text-center pt-4">
               <button 
