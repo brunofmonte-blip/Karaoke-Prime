@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 
 export default function Premium() {
   const navigate = useNavigate();
+
   const primeBenefits = [
     "Acesso total aos 10 Níveis da Karaoke Academy.",
     "Análises ilimitadas da Inteligência Artificial.",
@@ -16,6 +17,10 @@ export default function Premium() {
     "Selo exclusivo 'Prime Member' no seu perfil.",
     "Prioridade máxima na vitrine de Trend Topics."
   ];
+
+  const handleSubscribe = (url: string) => {
+    window.location.href = url;
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -44,7 +49,11 @@ export default function Premium() {
                 <span className="text-2xl font-bold text-gray-400">,90</span>
               </div>
               <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-10">Por Mês</p>
-              <Button variant="outline" className="w-full py-6 rounded-xl border-primary text-primary hover:bg-primary/10">
+              <Button 
+                variant="outline" 
+                onClick={() => handleSubscribe('https://buy.stripe.com/6oE01U69S69S69S69S')}
+                className="w-full py-6 rounded-xl border-primary text-primary hover:bg-primary/10"
+              >
                 ASSINAR MENSAL
               </Button>
             </CardContent>
@@ -67,7 +76,10 @@ export default function Premium() {
               </div>
               <p className="text-sm font-bold text-primary uppercase tracking-widest mb-2">Equivalente a R$ 9,99/mês</p>
               <p className="text-xs text-muted-foreground mb-10">Cobrado anualmente</p>
-              <Button className="w-full py-6 rounded-xl bg-primary hover:bg-primary/90 text-black font-bold shadow-lg shadow-primary/20">
+              <Button 
+                onClick={() => handleSubscribe('https://buy.stripe.com/6oE01U69S69S69S69S')}
+                className="w-full py-6 rounded-xl bg-primary hover:bg-primary/90 text-black font-black shadow-lg shadow-primary/20"
+              >
                 ASSINAR ANUAL
               </Button>
             </CardContent>
