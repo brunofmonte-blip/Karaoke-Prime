@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, Play, ShieldCheck, Lock, CheckCircle2, 
-  Clock, Mic, Target, Pause, Loader2, BrainCircuit, 
-  Trophy, Sparkles, Activity 
+  ArrowLeft, ShieldCheck, Lock, CheckCircle2, 
+  Clock, Mic, Target, Loader2, BrainCircuit, 
+  Trophy, Sparkles, Activity, Square
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,24 +17,17 @@ export default function Lesson() {
   const navigate = useNavigate();
 
   const modules = [
-    { id: '1', title: 'A Base: Respiração Diafragmática', time: '05:20', type: 'video', locked: false, videoId: '8z98B6Xo6X8', desc: 'Aprenda a ativar o diafragma para sustentar notas longas sem cansar as pregas vocais.', objectives: ['Inspirar expandindo o abdômen', 'Controlar a saída de ar constante'] },
-    { id: '2', title: 'Controle de Fluxo de Ar', time: '08:15', type: 'video', locked: false, videoId: 'dQw4w9WgXcQ', desc: 'Entenda como a pressão do ar afeta diretamente o volume e a estabilidade da sua voz.', objectives: ['Manter pressão subglótica estável', 'Evitar voz soprosa'] },
-    { id: '3', title: 'Prática: Sustentação de 5 Segundos', time: '03:00', type: 'mic', locked: true, desc: 'Aplique a técnica de respiração cantando uma nota contínua.', objectives: ['Sustentar nota no tom correto', 'Não perder o fôlego'] },
-    { id: '4', title: 'Aquecimento Labial (Trill)', time: '04:10', type: 'video', locked: true, desc: 'O exercício número 1 dos cantores profissionais para aquecer a voz sem atrito.', objectives: ['Relaxar musculatura facial', 'Conectar respiração e pregas vocais'] },
-    { id: '5', title: 'Prática: Sirene Vocal', time: '05:00', type: 'mic', locked: true, desc: 'Deslize dos graves aos agudos usando o Trill labial para encontrar sua extensão.', objectives: ['Passar pelas pontes vocais', 'Manter fluxo constante'] },
-    { id: '6', title: 'Postura e Alinhamento Corporal', time: '06:30', type: 'video', locked: true, desc: 'Como o alinhamento da coluna e pescoço libera sua ressonância natural.', objectives: ['Alinhamento cervical', 'Abertura de caixa torácica'] },
-    { id: '7', title: 'Prática: Notas Longas Controladas', time: '04:45', type: 'mic', locked: true, desc: 'Treino de resistência para notas sustentadas em diferentes volumes.', objectives: ['Controle dinâmico', 'Estabilidade tonal'] },
-    { id: '8', title: 'Relaxamento Laríngeo', time: '07:20', type: 'video', locked: true, desc: 'Técnicas para baixar a laringe e cantar com mais conforto e corpo.', objectives: ['Laringe neutra', 'Espaço faríngeo'] },
-    { id: '9', title: 'Rotina de Resfriamento Vocal', time: '03:50', type: 'video', locked: true, desc: 'Exercícios essenciais para relaxar a voz após uma sessão intensa.', objectives: ['Desaquecimento seguro', 'Higiene vocal'] },
-    { id: '10', title: 'Desafio Final: Domínio Nível 1', time: '10:00', type: 'mic', locked: true, desc: 'O teste definitivo para provar sua base técnica e avançar para o Nível 2.', objectives: ['Precisão de 80%+', 'Controle total de fôlego'] },
+    { id: '1', title: 'A Base: Respiração Diafragmática', time: '05:20', type: 'practice', locked: false, desc: 'Aprenda a ativar o diafragma para sustentar notas longas sem cansar as pregas vocais e evitar falhas na afinação.', objectives: ['Inspirar expandindo o abdômen', 'Controlar a saída de ar de forma constante'] },
+    { id: '2', title: 'Controle de Fluxo de Ar', time: '08:15', type: 'practice', locked: false, desc: 'Entenda como a pressão do ar afeta diretamente o volume e a estabilidade da sua voz.', objectives: ['Manter a pressão subglótica estável', 'Evitar vazamento de ar (voz soprosa)'] },
+    { id: '3', title: 'Prática: Sustentação de 5 Segundos', time: '03:00', type: 'practice', locked: true, desc: 'Teste de resistência básica. Mantenha uma nota constante por 5 segundos sem oscilações de volume.', objectives: ['Estabilidade tonal', 'Apoio contínuo'] },
+    { id: '4', title: 'Aquecimento Labial (Trill)', time: '04:10', type: 'practice', locked: true, desc: 'O exercício número 1 dos cantores profissionais para aquecer a voz sem atrito.', objectives: ['Relaxar musculatura facial', 'Conectar respiração e pregas vocais'] },
   ];
 
   const [activeMod, setActiveMod] = useState(modules[0]);
-  const [step, setStep] = useState<'idle' | 'video' | 'recording' | 'analyzing' | 'result'>('idle');
-  const [timeLeft, setTimeLeft] = useState(15);
+  const [step, setStep] = useState<'idle' | 'recording' | 'analyzing' | 'result'>('idle');
   const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(5);
   const streamRef = useRef<MediaStream | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSelect = (mod: any) => {
     if (mod.locked) {
@@ -51,26 +44,22 @@ export default function Lesson() {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
   };
-
-  const startVideo = () => setStep('video');
 
   const startPractice = async () => {
     try {
-      // Request real microphone access
+      // REQUEST REAL MIC ACCESS
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       
       setStep('recording');
-      setTimeLeft(15);
+      setTimeLeft(5);
 
-      timerRef.current = setInterval(() => {
+      // Simulate recording duration
+      const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            if (timerRef.current) clearInterval(timerRef.current);
+            clearInterval(timer);
             finishRecording();
             return 0;
           }
@@ -80,7 +69,7 @@ export default function Lesson() {
 
     } catch (err) {
       console.error("Mic access error:", err);
-      toast.error("Acesso ao microfone negado. Verifique as permissões.");
+      toast.error("Acesso ao microfone negado. Verifique as permissões do navegador.");
     }
   };
 
@@ -96,10 +85,8 @@ export default function Lesson() {
   const resetPractice = () => {
     setStep('idle');
     setScore(0);
-    setTimeLeft(15);
   };
 
-  // Cleanup mic on unmount
   useEffect(() => {
     return () => stopMic();
   }, []);
@@ -129,27 +116,15 @@ export default function Lesson() {
                   <>
                     <InstructorAvatar />
                     <Button 
-                      onClick={activeMod.type === 'video' ? startVideo : startPractice}
+                      onClick={startPractice}
                       className="mt-8 h-20 w-20 rounded-full bg-primary hover:bg-primary/90 text-black shadow-2xl shadow-primary/50 animate-in zoom-in duration-300"
                     >
-                      {activeMod.type === 'video' ? <Play className="h-10 w-10 fill-current" /> : <Mic className="h-10 w-10" />}
+                      <Mic className="h-10 w-10" />
                     </Button>
                     <p className="mt-4 text-white font-bold uppercase tracking-widest animate-pulse">
-                      {activeMod.type === 'video' ? 'Assistir Aula' : 'Iniciar Prática'}
+                      Iniciar Prática Vocal
                     </p>
                   </>
-                )}
-
-                {step === 'video' && (
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src={`https://www.youtube.com/embed/${activeMod.videoId}?autoplay=1&modestbranding=1&rel=0`} 
-                    title="Lesson Video"
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    className="absolute inset-0 w-full h-full"
-                  ></iframe>
                 )}
 
                 {step === 'recording' && (
@@ -160,12 +135,12 @@ export default function Lesson() {
                     </div>
                     <div className="bg-black/60 backdrop-blur-md px-8 py-4 rounded-2xl border border-red-500/50 flex items-center gap-4">
                       <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
-                      <span className="text-xl font-black text-white tracking-widest uppercase">Gravando: {timeLeft}s</span>
+                      <span className="text-xl font-black text-white tracking-widest uppercase">Capturando Voz: {timeLeft}s</span>
                     </div>
                     <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-primary transition-all duration-1000 linear" 
-                        style={{ width: `${(timeLeft / 15) * 100}%` }} 
+                        style={{ width: `${(timeLeft / 5) * 100}%` }} 
                       />
                     </div>
                   </div>
@@ -249,7 +224,7 @@ export default function Lesson() {
                         "h-10 w-10 rounded-xl flex items-center justify-center font-bold shrink-0",
                         activeMod.id === mod.id ? "bg-primary text-black" : "bg-white/10 text-gray-400"
                       )}>
-                        {mod.type === 'video' ? <Play className="h-4 w-4 fill-current" /> : <Mic className="h-4 w-4" />}
+                        <Activity className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
                         <h4 className={cn("font-bold text-sm truncate", activeMod.id === mod.id ? "text-white" : "text-gray-400")}>{mod.title}</h4>
