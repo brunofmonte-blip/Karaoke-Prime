@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Session, User as SupabaseUser } from '@supabase/supabase-js';
-import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
+import { User as FirebaseUser, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signInWithPopup } from 'firebase/auth';
 import { supabase } from './client';
-import { auth as firebaseAuth } from '@/lib/firebase';
+import { auth as firebaseAuth, googleProvider } from '@/lib/firebase';
 
 interface AuthContextType {
   session: Session | null;
   user: (SupabaseUser | FirebaseUser) | null;
   isLoading: boolean;
   authType: 'supabase' | 'firebase' | null;
+  signInWithGoogle: () => Promise<void>;
+  loginWithEmail: (email: string, pass: string) => Promise<void>;
+  registerWithEmail: (email: string, pass: string, name: string) => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -60,7 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (firebaseUser) {
         setUser(firebaseUser);
         setAuthType('firebase');
-        setSession(null); // Clear supabase session if firebase is active
+        setSession(null);
       } else if (authType === 'firebase') {
         setUser(null);
         setAuthType(null);
@@ -74,8 +77,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, [authType]);
 
+  const signInWithGoogle = async () => {
+    await signInWithPopup(firebaseAuth, googleProvider);
+  };
+
+  const loginWithEmail = async (email: string, pass: string) => {
+    await signInWithEmailAndPassword(firebaseAuth, email, pass);
+  };
+
+  const registerWithEmail = async (email: string, pass: string, name: string) => {
+    const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, pass);
+    await updateProfile(userCredential.user, { displayName: name });
+  };
+
   return (
-    <AuthContext.Provider value={{ session, user, isLoading, authType }}>
+    <AuthContext.Provider value={{ 
+      session, 
+      user, 
+      isLoading, 
+      authType,
+      signInWithGoogle,
+      loginWithEmail,
+      registerWithEmail
+    }}>
       {children}
     </AuthContext.Provider>
   );

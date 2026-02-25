@@ -4,40 +4,58 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Mic2, Chrome, Mail, Lock, ArrowRight, 
-  ShieldCheck, Sparkles, User, Loader2 
+  ShieldCheck, Sparkles, User, Loader2, AlertCircle 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { auth as firebaseAuth, googleProvider } from '@/lib/firebase';
-import { signInWithPopup } from 'firebase/auth';
+import { useAuth } from '@/integrations/supabase/auth';
 import { toast } from 'sonner';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { signInWithGoogle, loginWithEmail, registerWithEmail } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
-      await signInWithPopup(firebaseAuth, googleProvider);
-      toast.success("Bem-vindo ao Karaoke Prime!");
+      if (isLogin) {
+        await loginWithEmail(email, password);
+        toast.success("Bem-vindo de volta!");
+      } else {
+        await registerWithEmail(email, password, name);
+        toast.success("Conta criada com sucesso!");
+      }
       navigate('/');
-    } catch (error: any) {
-      console.error("Login Error:", error);
-      toast.error("Falha na autenticação.");
+    } catch (err: any) {
+      console.error("Auth Error:", err);
+      setError(err.message || 'Falha na autenticação. Tente novamente.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleAuth = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real scenario, authentication logic goes here
-    toast.success(isLogin ? "Bem-vindo de volta!" : "Conta criada com sucesso!");
-    navigate('/basic');
+  const handleGoogle = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await signInWithGoogle();
+      toast.success("Bem-vindo ao Karaoke Prime!");
+      navigate('/');
+    } catch (err: any) {
+      console.error("Google Auth Error:", err);
+      setError('Falha ao conectar com o Google.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -99,11 +117,11 @@ export default function Login() {
             {/* Social Logins */}
             <div className="grid grid-cols-1 gap-3">
               <Button 
-                onClick={handleGoogleLogin}
-                disabled={isLoading}
+                onClick={handleGoogle}
+                disabled={loading}
                 className="w-full h-14 bg-white text-black hover:bg-gray-100 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.02]"
               >
-                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Chrome className="h-5 w-5" />}
+                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Chrome className="h-5 w-5" />}
                 Continuar com Google
               </Button>
             </div>
@@ -117,6 +135,13 @@ export default function Login() {
               </div>
             </div>
 
+            {error && (
+              <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-2 text-destructive text-xs font-bold animate-in fade-in slide-in-from-top-1">
+                <AlertCircle className="h-4 w-4" />
+                {error}
+              </div>
+            )}
+
             {/* Email Form */}
             <form onSubmit={handleAuth} className="space-y-4">
               {!isLogin && (
@@ -127,7 +152,9 @@ export default function Login() {
                     <Input 
                       placeholder="Seu nome artístico" 
                       className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 focus:border-primary text-white"
-                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required={!isLogin}
                     />
                   </div>
                 </div>
@@ -141,6 +168,8 @@ export default function Login() {
                     type="email"
                     placeholder="seu@email.com" 
                     className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 focus:border-primary text-white"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -154,6 +183,8 @@ export default function Login() {
                     type="password"
                     placeholder="••••••••" 
                     className="h-14 pl-12 rounded-2xl bg-white/5 border-white/10 focus:border-primary text-white"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
@@ -161,16 +192,26 @@ export default function Login() {
 
               <Button 
                 type="submit"
+                disabled={loading}
                 className="w-full h-16 bg-primary hover:bg-primary/90 text-black font-black rounded-2xl shadow-lg shadow-primary/20 text-lg group mt-4"
               >
-                {isLogin ? 'ENTRAR AGORA' : 'CRIAR CONTA'}
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                {loading ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  <>
+                    {isLogin ? 'ENTRAR AGORA' : 'CRIAR CONTA'}
+                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
               </Button>
             </form>
 
             <div className="text-center pt-4">
               <button 
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError('');
+                }}
                 className="text-sm text-gray-400 hover:text-primary transition-colors font-medium"
               >
                 {isLogin ? 'Não tem uma conta? Registre-se' : 'Já possui uma conta? Entre aqui'}
