@@ -33,8 +33,11 @@ export default function Academy() {
       navigate('/premium');
       return;
     }
-    // Logic to start Level 1 (Breathing Gym)
-    toast.success("Iniciando Nível 1: Fundamentos");
+    if (level === 1) {
+      navigate('/lesson');
+      return;
+    }
+    toast.success(`Iniciando Nível ${level}`);
   };
 
   return (
