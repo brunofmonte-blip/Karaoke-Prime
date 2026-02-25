@@ -45,7 +45,7 @@ export default function Premium() {
             </div>
             <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-8">Por Mês</p>
             <button 
-              onClick={() => window.location.href = 'COLE_SEU_LINK_MENSAL_AQUI_COM_HTTPS'}
+              onClick={() => window.location.href = 'https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00'}
               className="w-full py-4 bg-transparent border border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-black font-black rounded-xl uppercase tracking-wider transition-colors"
             >
               Assinar Mensal
@@ -83,9 +83,6 @@ export default function Premium() {
               </div>
             ))}
           </div>
-        </div>
-        <div className="text-center border-t border-gray-900 pt-8 mt-8">
-           <p className="text-gray-600 text-[10px] uppercase tracking-widest">Pagamento 100% seguro processado por Stripe</p>
         </div>
       </div>
     </div>
