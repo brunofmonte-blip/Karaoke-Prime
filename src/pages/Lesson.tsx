@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, ShieldCheck, Lock, CheckCircle2, 
-  Clock, Mic, Target, Loader2, BrainCircuit, 
-  Trophy, Sparkles, Activity, Wind
+  Clock, Mic, Target, BrainCircuit, 
+  Trophy, Sparkles, Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -19,21 +19,20 @@ export default function Lesson() {
   const modules = [
     { id: '1', title: 'A Base: Respiração Diafragmática', time: '01:00', type: 'practice', locked: false, desc: 'Aprenda a ativar o diafragma para sustentar notas longas sem cansar as pregas vocais.', objectives: ['Inspirar (4s)', 'Segurar (4s)', 'Expirar emitindo som (10s)', 'Descansar (4s)'] },
     { id: '2', title: 'Controle de Fluxo de Ar', time: '08:15', type: 'video', locked: false, desc: 'Entenda como a pressão do ar afeta diretamente o volume e a estabilidade da sua voz.', objectives: ['Manter a pressão subglótica', 'Evitar vazamento de ar'] },
-    { id: '3', title: 'Prática: Sustentação de 5 Segundos', time: '03:00', type: 'mic', locked: true, desc: 'Teste de resistência básica.', objectives: [] },
-    { id: '4', title: 'Aquecimento Labial (Trill)', time: '04:10', type: 'video', locked: true, desc: 'Exercício de vibração labial.', objectives: [] },
+    { id: '3', title: 'Prática: Sustentação de 5 Segundos', time: '03:00', type: 'mic', locked: true, desc: '', objectives: [] },
+    { id: '4', title: 'Aquecimento Labial (Trill)', time: '04:10', type: 'video', locked: true, desc: '', objectives: [] },
   ];
 
   const [activeMod, setActiveMod] = useState(modules[0]);
-  const [step, setStep] = useState<'idle' | 'recording' | 'analyzing' | 'result'>('idle');
+  const [step, setStep] = useState('idle');
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [breathPhase, setBreathPhase] = useState('PREPARAR');
-  const streamRef = useRef<MediaStream | null>(null);
+  const streamRef = useRef<any>(null);
 
   const handleSelect = (mod: any) => {
-    if (mod.locked) {
-      navigate('/premium');
-    } else {
+    if (mod.locked) navigate('/premium');
+    else {
       setActiveMod(mod);
       setStep('idle');
       stopMic();
@@ -42,7 +41,7 @@ export default function Lesson() {
 
   const stopMic = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((track: any) => track.stop());
       streamRef.current = null;
     }
   };
@@ -54,31 +53,25 @@ export default function Lesson() {
       setStep('recording');
       setTimeLeft(60);
     } catch (err) {
-      console.error("Mic access error:", err);
-      toast.error("Acesso ao microfone negado.");
+      toast.error("Erro ao acessar microfone");
     }
   };
 
-  // THE 4-4-10-4 BREATHING ENGINE
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
     if (step === 'recording') {
       let elapsed = 0;
-      const totalTime = 60;
-
       interval = setInterval(() => {
         elapsed++;
-        setTimeLeft(totalTime - elapsed);
-
-        // Cycle logic: 4s Inhale, 4s Hold, 10s Exhale, 4s Rest = 22s total
+        setTimeLeft(60 - elapsed);
+        
         const cyclePos = elapsed % 22;
-
-        if (cyclePos < 4) setBreathPhase('INSPIRAR (NARIZ)');
-        else if (cyclePos < 8) setBreathPhase('SEGURAR (APOIO)');
-        else if (cyclePos < 18) setBreathPhase('EXPIRAR (SOM "S")');
+        if (cyclePos < 4) setBreathPhase('INSPIRAR');
+        else if (cyclePos < 8) setBreathPhase('SEGURAR');
+        else if (cyclePos < 18) setBreathPhase('EXPIRAR');
         else setBreathPhase('DESCANSAR');
 
-        if (elapsed >= totalTime) {
+        if (elapsed >= 60) {
           clearInterval(interval);
           stopMic();
           setStep('analyzing');
@@ -89,15 +82,10 @@ export default function Lesson() {
         }
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [step]);
-
-  const resetPractice = () => {
-    setStep('idle');
-    setScore(0);
-    setTimeLeft(60);
-    setBreathPhase('PREPARAR');
-  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -138,15 +126,15 @@ export default function Lesson() {
                     <div className="relative">
                       <div className={cn(
                         "absolute inset-0 rounded-full animate-ping opacity-20",
-                        breathPhase.includes('EXPIRAR') ? "bg-accent" : "bg-primary"
+                        breathPhase === 'EXPIRAR' ? "bg-accent" : "bg-primary"
                       )} />
-                      <InstructorAvatar phase={breathPhase.includes('EXPIRAR') ? 'exhale' : breathPhase.includes('INSPIRAR') ? 'inhale' : 'suspend'} />
+                      <InstructorAvatar phase={breathPhase === 'EXPIRAR' ? 'exhale' : breathPhase === 'INSPIRAR' ? 'inhale' : 'suspend'} />
                     </div>
                     
                     <div className="space-y-2">
                       <div className={cn(
                         "px-8 py-4 rounded-2xl border-2 flex flex-col items-center gap-1 transition-all duration-500",
-                        breathPhase.includes('EXPIRAR') ? "bg-accent/20 border-accent shadow-[0_0_20px_rgba(255,153,0,0.3)]" : "bg-primary/20 border-primary shadow-[0_0_20px_rgba(0,168,225,0.3)]"
+                        breathPhase === 'EXPIRAR' ? "bg-accent/20 border-accent shadow-[0_0_20px_rgba(255,153,0,0.3)]" : "bg-primary/20 border-primary shadow-[0_0_20px_rgba(0,168,225,0.3)]"
                       )}>
                         <span className="text-3xl font-black text-white tracking-tighter uppercase">{breathPhase}</span>
                         <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Tempo Restante: {timeLeft}s</span>
@@ -180,7 +168,7 @@ export default function Lesson() {
                       <p className="text-primary font-bold uppercase tracking-widest">Eficiência Respiratória</p>
                     </div>
                     <div className="flex gap-4">
-                      <Button onClick={resetPractice} variant="outline" className="border-white/20 text-white hover:bg-white/10">Tentar Novamente</Button>
+                      <Button onClick={() => setStep('idle')} variant="outline" className="border-white/20 text-white hover:bg-white/10">Tentar Novamente</Button>
                       <Button onClick={() => navigate('/academy')} className="bg-primary text-black font-bold">Concluir Módulo</Button>
                     </div>
                   </div>
