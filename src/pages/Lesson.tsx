@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Play, ShieldCheck, Lock, CheckCircle2, 
@@ -17,8 +17,8 @@ export default function Lesson() {
   const navigate = useNavigate();
 
   const modules = [
-    { id: '1', title: 'A Base: Respiração Diafragmática', time: '05:20', type: 'video', locked: false, desc: 'Aprenda a ativar o diafragma para sustentar notas longas sem cansar as pregas vocais.', objectives: ['Inspirar expandindo o abdômen', 'Controlar a saída de ar constante'] },
-    { id: '2', title: 'Controle de Fluxo de Ar', time: '08:15', type: 'video', locked: false, desc: 'Entenda como a pressão do ar afeta diretamente o volume e a estabilidade da sua voz.', objectives: ['Manter pressão subglótica estável', 'Evitar voz soprosa'] },
+    { id: '1', title: 'A Base: Respiração Diafragmática', time: '05:20', type: 'video', locked: false, videoId: '8z98B6Xo6X8', desc: 'Aprenda a ativar o diafragma para sustentar notas longas sem cansar as pregas vocais.', objectives: ['Inspirar expandindo o abdômen', 'Controlar a saída de ar constante'] },
+    { id: '2', title: 'Controle de Fluxo de Ar', time: '08:15', type: 'video', locked: false, videoId: 'dQw4w9WgXcQ', desc: 'Entenda como a pressão do ar afeta diretamente o volume e a estabilidade da sua voz.', objectives: ['Manter pressão subglótica estável', 'Evitar voz soprosa'] },
     { id: '3', title: 'Prática: Sustentação de 5 Segundos', time: '03:00', type: 'mic', locked: true, desc: 'Aplique a técnica de respiração cantando uma nota contínua.', objectives: ['Sustentar nota no tom correto', 'Não perder o fôlego'] },
     { id: '4', title: 'Aquecimento Labial (Trill)', time: '04:10', type: 'video', locked: true, desc: 'O exercício número 1 dos cantores profissionais para aquecer a voz sem atrito.', objectives: ['Relaxar musculatura facial', 'Conectar respiração e pregas vocais'] },
     { id: '5', title: 'Prática: Sirene Vocal', time: '05:00', type: 'mic', locked: true, desc: 'Deslize dos graves aos agudos usando o Trill labial para encontrar sua extensão.', objectives: ['Passar pelas pontes vocais', 'Manter fluxo constante'] },
@@ -30,32 +30,79 @@ export default function Lesson() {
   ];
 
   const [activeMod, setActiveMod] = useState(modules[0]);
-  const [practiceState, setPracticeState] = useState<'idle' | 'connecting' | 'recording' | 'analyzing' | 'result'>('idle');
+  const [step, setStep] = useState<'idle' | 'video' | 'recording' | 'analyzing' | 'result'>('idle');
+  const [timeLeft, setTimeLeft] = useState(15);
   const [score, setScore] = useState(0);
+  const streamRef = useRef<MediaStream | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSelect = (mod: any) => {
     if (mod.locked) {
       navigate('/premium');
     } else {
       setActiveMod(mod);
-      setPracticeState('idle');
+      setStep('idle');
+      stopMic();
     }
   };
 
-  const startPractice = () => {
-    setPracticeState('connecting');
-    setTimeout(() => setPracticeState('recording'), 2000);
-    setTimeout(() => setPracticeState('analyzing'), 7000);
+  const stopMic = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+  };
+
+  const startVideo = () => setStep('video');
+
+  const startPractice = async () => {
+    try {
+      // Request real microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      
+      setStep('recording');
+      setTimeLeft(15);
+
+      timerRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            finishRecording();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+    } catch (err) {
+      console.error("Mic access error:", err);
+      toast.error("Acesso ao microfone negado. Verifique as permissões.");
+    }
+  };
+
+  const finishRecording = () => {
+    stopMic();
+    setStep('analyzing');
     setTimeout(() => {
       setScore(Math.floor(Math.random() * 30) + 65); // Random score between 65-95
-      setPracticeState('result');
-    }, 9500);
+      setStep('result');
+    }, 3000);
   };
 
   const resetPractice = () => {
-    setPracticeState('idle');
+    setStep('idle');
     setScore(0);
+    setTimeLeft(15);
   };
+
+  // Cleanup mic on unmount
+  useEffect(() => {
+    return () => stopMic();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -76,13 +123,13 @@ export default function Lesson() {
             <div className="aspect-video rounded-3xl bg-black border-2 border-primary/30 relative overflow-hidden shadow-2xl flex flex-col items-center justify-center group">
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-0" />
               
-              {/* Practice State UI */}
+              {/* Step UI */}
               <div className="relative z-10 flex flex-col items-center text-center p-6 w-full h-full justify-center">
-                {practiceState === 'idle' && (
+                {step === 'idle' && (
                   <>
                     <InstructorAvatar />
                     <Button 
-                      onClick={startPractice}
+                      onClick={activeMod.type === 'video' ? startVideo : startPractice}
                       className="mt-8 h-20 w-20 rounded-full bg-primary hover:bg-primary/90 text-black shadow-2xl shadow-primary/50 animate-in zoom-in duration-300"
                     >
                       {activeMod.type === 'video' ? <Play className="h-10 w-10 fill-current" /> : <Mic className="h-10 w-10" />}
@@ -93,15 +140,19 @@ export default function Lesson() {
                   </>
                 )}
 
-                {practiceState === 'connecting' && (
-                  <div className="flex flex-col items-center gap-4 animate-in fade-in duration-500">
-                    <Loader2 className="h-16 w-16 text-primary animate-spin" />
-                    <h3 className="text-2xl font-bold text-white">Conectando Sensores...</h3>
-                    <p className="text-gray-400">Calibrando microfone e motor neural.</p>
-                  </div>
+                {step === 'video' && (
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={`https://www.youtube.com/embed/${activeMod.videoId}?autoplay=1&modestbranding=1&rel=0`} 
+                    title="Lesson Video"
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    className="absolute inset-0 w-full h-full"
+                  ></iframe>
                 )}
 
-                {practiceState === 'recording' && (
+                {step === 'recording' && (
                   <div className="flex flex-col items-center gap-6 w-full animate-in zoom-in duration-500">
                     <div className="relative">
                       <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" />
@@ -109,15 +160,18 @@ export default function Lesson() {
                     </div>
                     <div className="bg-black/60 backdrop-blur-md px-8 py-4 rounded-2xl border border-red-500/50 flex items-center gap-4">
                       <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
-                      <span className="text-xl font-black text-white tracking-widest uppercase">Gravando Performance</span>
+                      <span className="text-xl font-black text-white tracking-widest uppercase">Gravando: {timeLeft}s</span>
                     </div>
                     <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary animate-[progress_5s_linear]" style={{ width: '100%' }} />
+                      <div 
+                        className="h-full bg-primary transition-all duration-1000 linear" 
+                        style={{ width: `${(timeLeft / 15) * 100}%` }} 
+                      />
                     </div>
                   </div>
                 )}
 
-                {practiceState === 'analyzing' && (
+                {step === 'analyzing' && (
                   <div className="flex flex-col items-center gap-6 animate-in fade-in duration-500">
                     <BrainCircuit className="h-20 w-20 text-accent animate-pulse" />
                     <h3 className="text-3xl font-black text-accent neon-gold-glow">IA Analisando...</h3>
@@ -125,7 +179,7 @@ export default function Lesson() {
                   </div>
                 )}
 
-                {practiceState === 'result' && (
+                {step === 'result' && (
                   <div className="flex flex-col items-center gap-6 animate-in zoom-in duration-500">
                     <div className="p-6 rounded-full bg-primary/20 border-4 border-primary shadow-[0_0_30px_rgba(0,168,225,0.4)]">
                       <Trophy className="h-16 w-16 text-primary" />
