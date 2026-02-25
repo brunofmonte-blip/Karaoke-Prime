@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Mic2, LogOut, User, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,7 +18,7 @@ const NavLink = ({ to, children }: { to: string, children: React.ReactNode }) =>
 
 const Header = () => {
   const { user, authType } = useAuth();
-  const { openModal } = useLoginModal();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
@@ -28,6 +28,7 @@ const Header = () => {
         await supabase.auth.signOut();
       }
       toast.success("Successfully signed out. See you soon!", { duration: 3000 });
+      navigate('/');
     } catch (error: any) {
       toast.error("Failed to sign out.");
     }
@@ -36,8 +37,6 @@ const Header = () => {
   const getUserDisplay = () => {
     if (!user) return null;
     
-    // Firebase user has photoURL and displayName
-    // Supabase user has user_metadata.avatar_url and user_metadata.full_name
     const avatarUrl = (user as any).photoURL || (user as any).user_metadata?.avatar_url;
     const name = (user as any).displayName || (user as any).user_metadata?.full_name || (user as any).email?.split('@')[0] || "User";
     
@@ -109,7 +108,7 @@ const Header = () => {
           ) : (
             <Button 
               variant="outline" 
-              onClick={openModal}
+              onClick={() => navigate('/login')}
               className={cn(
                 "border-primary text-primary hover:bg-primary/10",
                 "rounded-full px-4 py-2 transition-all duration-300 border-2 hover:border-primary/80"

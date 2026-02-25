@@ -22,6 +22,7 @@ import NextSuccess from "./pages/NextSuccess";
 import ScoreResult from "./pages/ScoreResult";
 import Premium from "./pages/Premium";
 import Lesson from "./pages/Lesson";
+import Login from "./pages/Login";
 import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
 import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
 import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
@@ -64,6 +65,7 @@ const App = () => (
                       <Route path="/score" element={<ScoreResult />} />
                       <Route path="/premium" element={<Premium />} />
                       <Route path="/lesson" element={<Lesson />} />
+                      <Route path="/login" element={<Login />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
