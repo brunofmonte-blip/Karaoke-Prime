@@ -40,7 +40,7 @@ export default function Premium() {
               <h2 className="text-2xl font-bold text-white uppercase tracking-widest mb-6">Plano Mensal</h2>
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="text-2xl font-bold text-gray-400">R$</span>
-                <span className="text-6xl font-black text-white tracking-tighter">39</span>
+                <span className="text-6xl font-black text-white tracking-tighter">19</span>
                 <span className="text-2xl font-bold text-gray-400">,90</span>
               </div>
               <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-10">Por Mês</p>
@@ -62,11 +62,11 @@ export default function Premium() {
               <h2 className="text-2xl font-bold text-primary neon-blue-glow uppercase tracking-widest mb-6">Plano Anual</h2>
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="text-2xl font-bold text-gray-400">R$</span>
-                <span className="text-6xl font-black text-white tracking-tighter">29</span>
+                <span className="text-6xl font-black text-white tracking-tighter">119</span>
                 <span className="text-2xl font-bold text-gray-400">,90</span>
               </div>
-              <p className="text-sm font-bold text-primary uppercase tracking-widest mb-2">Por Mês</p>
-              <p className="text-xs text-muted-foreground mb-10">R$ 358,80 cobrados anualmente</p>
+              <p className="text-sm font-bold text-primary uppercase tracking-widest mb-2">Equivalente a R$ 9,99/mês</p>
+              <p className="text-xs text-muted-foreground mb-10">Cobrado anualmente</p>
               <Button className="w-full py-6 rounded-xl bg-primary hover:bg-primary/90 text-black font-bold shadow-lg shadow-primary/20">
                 ASSINAR ANUAL
               </Button>
