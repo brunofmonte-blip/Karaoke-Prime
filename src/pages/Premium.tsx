@@ -2,18 +2,18 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowLeft } from 'lucide-react';
+import { CheckCircle, ArrowLeft, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export default function Premium() {
   const navigate = useNavigate();
-  const benefits = [
-    "Acesso total aos 10 Níveis da Karaoke Academy.", 
-    "Análises ilimitadas da Inteligência Artificial.", 
-    "Modo Offline: Baixe aulas e treinos.", 
-    "Selo exclusivo 'Prime Member' no seu perfil.", 
+  const primeBenefits = [
+    "Acesso total aos 10 Níveis da Karaoke Academy.",
+    "Análises ilimitadas da Inteligência Artificial.",
+    "Modo Offline: Baixe aulas e treinos.",
+    "Selo exclusivo 'Prime Member' no seu perfil.",
     "Prioridade máxima na vitrine de Trend Topics."
   ];
 
@@ -56,6 +56,9 @@ export default function Premium() {
               Melhor Valor
             </div>
             <CardContent className="p-10 flex flex-col items-center text-center">
+              <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
+                <Crown className="h-6 w-6 text-primary neon-blue-glow" />
+              </div>
               <h2 className="text-2xl font-bold text-primary neon-blue-glow uppercase tracking-widest mb-6">Plano Anual</h2>
               <div className="flex items-baseline gap-1 mb-2">
                 <span className="text-2xl font-bold text-gray-400">R$</span>
@@ -74,7 +77,7 @@ export default function Premium() {
         <div className="max-w-3xl mx-auto">
           <h3 className="text-xl font-bold text-white mb-8 text-center uppercase tracking-widest">Benefícios Prime</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {benefits.map((benefit, index) => (
+            {primeBenefits.map((benefit, index) => (
               <div key={index} className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
                 <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
                 <span className="text-sm text-gray-300">{benefit}</span>
