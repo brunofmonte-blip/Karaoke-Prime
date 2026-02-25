@@ -10,6 +10,12 @@ import { cn } from '@/lib/utils';
 export default function Premium() {
   const navigate = useNavigate();
 
+  // ==========================================
+  // LINKS DE PAGAMENTO OFICIAIS (STRIPE)
+  // ==========================================
+  const STRIPE_LINK_MENSAL = 'https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00';
+  const STRIPE_LINK_ANUAL = 'https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01';
+
   const primeBenefits = [
     "Acesso total aos 10 Níveis da Karaoke Academy.",
     "Análises ilimitadas da Inteligência Artificial.",
@@ -51,7 +57,7 @@ export default function Premium() {
               <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-10">Por Mês</p>
               <Button 
                 variant="outline" 
-                onClick={() => handleSubscribe('https://buy.stripe.com/6oE01U69S69S69S69S')}
+                onClick={() => handleSubscribe(STRIPE_LINK_MENSAL)}
                 className="w-full py-6 rounded-xl border-primary text-primary hover:bg-primary/10"
               >
                 ASSINAR MENSAL
@@ -77,7 +83,7 @@ export default function Premium() {
               <p className="text-sm font-bold text-primary uppercase tracking-widest mb-2">Equivalente a R$ 9,99/mês</p>
               <p className="text-xs text-muted-foreground mb-10">Cobrado anualmente</p>
               <Button 
-                onClick={() => handleSubscribe('https://buy.stripe.com/6oE01U69S69S69S69S')}
+                onClick={() => handleSubscribe(STRIPE_LINK_ANUAL)}
                 className="w-full py-6 rounded-xl bg-primary hover:bg-primary/90 text-black font-black shadow-lg shadow-primary/20"
               >
                 ASSINAR ANUAL
