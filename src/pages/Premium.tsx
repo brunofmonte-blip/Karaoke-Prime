@@ -13,7 +13,7 @@ export default function Premium() {
   // ==========================================
   // LINKS DE PAGAMENTO OFICIAIS (STRIPE)
   // ==========================================
-  const STRIPE_LINK_MENSAL = 'https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00';
+  const STRIPE_LINK_MENSAL = 'COLE_O_NOVO_LINK_MENSAL_AQUI';
   const STRIPE_LINK_ANUAL = 'https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01';
 
   const primeBenefits = [
