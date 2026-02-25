@@ -10,8 +10,8 @@ export default function Premium() {
   // ==========================================
   // LINKS DE PAGAMENTO OFICIAIS (STRIPE)
   // ==========================================
-  const STRIPE_LINK_MENSAL = 'https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00';
-  const STRIPE_LINK_ANUAL = 'https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01';
+  const STRIPE_LINK_MENSAL = 'COLE_O_LINK_MENSAL_AQUI_QUE_JA_ESTA_FUNCIONANDO';
+  const STRIPE_LINK_ANUAL = 'COLE_O_NOVO_LINK_ANUAL_AQUI';
 
   const primeBenefits = [
     "Acesso total aos 10 Níveis da Karaoke Academy.",
@@ -37,6 +37,7 @@ export default function Premium() {
           </h1>
           <p className="text-gray-400 text-lg">Escolha o plano ideal para sua jornada vocal e desbloqueie 100% da IA.</p>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {/* PLANO MENSAL */}
           <div className="bg-gray-950 border border-gray-800 rounded-3xl p-8 flex flex-col items-center justify-center text-center hover:border-cyan-500/50 transition-colors relative shadow-xl">
@@ -54,6 +55,7 @@ export default function Premium() {
               Assinar Mensal
             </button>
           </div>
+
           {/* PLANO ANUAL */}
           <div className="bg-gray-950 border-2 border-cyan-500 rounded-3xl p-8 flex flex-col items-center justify-center text-center relative shadow-[0_0_40px_rgba(0,183,235,0.2)]">
             <div className="absolute -top-4 right-8 bg-cyan-500 text-black px-4 py-1.5 rounded-md font-black text-[10px] uppercase tracking-widest shadow-lg">Melhor Valor</div>
@@ -74,6 +76,7 @@ export default function Premium() {
             </button>
           </div>
         </div>
+
         <div className="bg-gray-950/50 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm mb-8">
           <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-6 text-center">Tudo que você ganha no Prime</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -85,6 +88,7 @@ export default function Premium() {
             ))}
           </div>
         </div>
+
         <div className="text-center border-t border-gray-900 pt-8 mt-8">
            <p className="text-gray-600 text-[10px] uppercase tracking-widest">Pagamento 100% seguro processado por Stripe</p>
         </div>
