@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, ShieldCheck, Lock, CheckCircle2, 
   Clock, Mic, Target, Loader2, BrainCircuit, 
-  Trophy, Sparkles, Activity, Square
+  Trophy, Sparkles, Activity, Wind
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,16 +17,17 @@ export default function Lesson() {
   const navigate = useNavigate();
 
   const modules = [
-    { id: '1', title: 'A Base: Respiração Diafragmática', time: '05:20', type: 'practice', locked: false, desc: 'Aprenda a ativar o diafragma para sustentar notas longas sem cansar as pregas vocais e evitar falhas na afinação.', objectives: ['Inspirar expandindo o abdômen', 'Controlar a saída de ar de forma constante'] },
-    { id: '2', title: 'Controle de Fluxo de Ar', time: '08:15', type: 'practice', locked: false, desc: 'Entenda como a pressão do ar afeta diretamente o volume e a estabilidade da sua voz.', objectives: ['Manter a pressão subglótica estável', 'Evitar vazamento de ar (voz soprosa)'] },
-    { id: '3', title: 'Prática: Sustentação de 5 Segundos', time: '03:00', type: 'practice', locked: true, desc: 'Teste de resistência básica. Mantenha uma nota constante por 5 segundos sem oscilações de volume.', objectives: ['Estabilidade tonal', 'Apoio contínuo'] },
-    { id: '4', title: 'Aquecimento Labial (Trill)', time: '04:10', type: 'practice', locked: true, desc: 'O exercício número 1 dos cantores profissionais para aquecer a voz sem atrito.', objectives: ['Relaxar musculatura facial', 'Conectar respiração e pregas vocais'] },
+    { id: '1', title: 'A Base: Respiração Diafragmática', time: '01:00', type: 'practice', locked: false, desc: 'Aprenda a ativar o diafragma para sustentar notas longas sem cansar as pregas vocais.', objectives: ['Inspirar (4s)', 'Segurar (4s)', 'Expirar emitindo som (10s)', 'Descansar (4s)'] },
+    { id: '2', title: 'Controle de Fluxo de Ar', time: '08:15', type: 'video', locked: false, desc: 'Entenda como a pressão do ar afeta diretamente o volume e a estabilidade da sua voz.', objectives: ['Manter a pressão subglótica', 'Evitar vazamento de ar'] },
+    { id: '3', title: 'Prática: Sustentação de 5 Segundos', time: '03:00', type: 'mic', locked: true, desc: 'Teste de resistência básica.', objectives: [] },
+    { id: '4', title: 'Aquecimento Labial (Trill)', time: '04:10', type: 'video', locked: true, desc: 'Exercício de vibração labial.', objectives: [] },
   ];
 
   const [activeMod, setActiveMod] = useState(modules[0]);
   const [step, setStep] = useState<'idle' | 'recording' | 'analyzing' | 'result'>('idle');
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [breathPhase, setBreathPhase] = useState('PREPARAR');
   const streamRef = useRef<MediaStream | null>(null);
 
   const handleSelect = (mod: any) => {
@@ -48,48 +49,55 @@ export default function Lesson() {
 
   const startPractice = async () => {
     try {
-      // REQUEST REAL MIC ACCESS
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      
       setStep('recording');
-      setTimeLeft(5);
-
-      // Simulate recording duration
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            finishRecording();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
+      setTimeLeft(60);
     } catch (err) {
       console.error("Mic access error:", err);
-      toast.error("Acesso ao microfone negado. Verifique as permissões do navegador.");
+      toast.error("Acesso ao microfone negado.");
     }
   };
 
-  const finishRecording = () => {
-    stopMic();
-    setStep('analyzing');
-    setTimeout(() => {
-      setScore(Math.floor(Math.random() * 30) + 65); // Random score between 65-95
-      setStep('result');
-    }, 3000);
-  };
+  // THE 4-4-10-4 BREATHING ENGINE
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (step === 'recording') {
+      let elapsed = 0;
+      const totalTime = 60;
+
+      interval = setInterval(() => {
+        elapsed++;
+        setTimeLeft(totalTime - elapsed);
+
+        // Cycle logic: 4s Inhale, 4s Hold, 10s Exhale, 4s Rest = 22s total
+        const cyclePos = elapsed % 22;
+
+        if (cyclePos < 4) setBreathPhase('INSPIRAR (NARIZ)');
+        else if (cyclePos < 8) setBreathPhase('SEGURAR (APOIO)');
+        else if (cyclePos < 18) setBreathPhase('EXPIRAR (SOM "S")');
+        else setBreathPhase('DESCANSAR');
+
+        if (elapsed >= totalTime) {
+          clearInterval(interval);
+          stopMic();
+          setStep('analyzing');
+          setTimeout(() => {
+            setScore(Math.floor(Math.random() * 25) + 70);
+            setStep('result');
+          }, 3000);
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [step]);
 
   const resetPractice = () => {
     setStep('idle');
     setScore(0);
+    setTimeLeft(60);
+    setBreathPhase('PREPARAR');
   };
-
-  useEffect(() => {
-    return () => stopMic();
-  }, []);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -105,12 +113,10 @@ export default function Lesson() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow">
-          {/* Main Content Area: Practice Studio */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="aspect-video rounded-3xl bg-black border-2 border-primary/30 relative overflow-hidden shadow-2xl flex flex-col items-center justify-center group">
+            <div className="aspect-video rounded-3xl bg-black border-2 border-primary/30 relative overflow-hidden shadow-2xl flex flex-col items-center justify-center">
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-0" />
               
-              {/* Step UI */}
               <div className="relative z-10 flex flex-col items-center text-center p-6 w-full h-full justify-center">
                 {step === 'idle' && (
                   <>
@@ -122,7 +128,7 @@ export default function Lesson() {
                       <Mic className="h-10 w-10" />
                     </Button>
                     <p className="mt-4 text-white font-bold uppercase tracking-widest animate-pulse">
-                      Iniciar Prática Vocal
+                      Iniciar Ciclo de Respiração
                     </p>
                   </>
                 )}
@@ -130,17 +136,27 @@ export default function Lesson() {
                 {step === 'recording' && (
                   <div className="flex flex-col items-center gap-6 w-full animate-in zoom-in duration-500">
                     <div className="relative">
-                      <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" />
-                      <InstructorAvatar phase="exhale" />
+                      <div className={cn(
+                        "absolute inset-0 rounded-full animate-ping opacity-20",
+                        breathPhase.includes('EXPIRAR') ? "bg-accent" : "bg-primary"
+                      )} />
+                      <InstructorAvatar phase={breathPhase.includes('EXPIRAR') ? 'exhale' : breathPhase.includes('INSPIRAR') ? 'inhale' : 'suspend'} />
                     </div>
-                    <div className="bg-black/60 backdrop-blur-md px-8 py-4 rounded-2xl border border-red-500/50 flex items-center gap-4">
-                      <div className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
-                      <span className="text-xl font-black text-white tracking-widest uppercase">Capturando Voz: {timeLeft}s</span>
+                    
+                    <div className="space-y-2">
+                      <div className={cn(
+                        "px-8 py-4 rounded-2xl border-2 flex flex-col items-center gap-1 transition-all duration-500",
+                        breathPhase.includes('EXPIRAR') ? "bg-accent/20 border-accent shadow-[0_0_20px_rgba(255,153,0,0.3)]" : "bg-primary/20 border-primary shadow-[0_0_20px_rgba(0,168,225,0.3)]"
+                      )}>
+                        <span className="text-3xl font-black text-white tracking-tighter uppercase">{breathPhase}</span>
+                        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Tempo Restante: {timeLeft}s</span>
+                      </div>
                     </div>
+
                     <div className="w-64 h-2 bg-white/10 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-primary transition-all duration-1000 linear" 
-                        style={{ width: `${(timeLeft / 5) * 100}%` }} 
+                        style={{ width: `${(timeLeft / 60) * 100}%` }} 
                       />
                     </div>
                   </div>
@@ -150,7 +166,7 @@ export default function Lesson() {
                   <div className="flex flex-col items-center gap-6 animate-in fade-in duration-500">
                     <BrainCircuit className="h-20 w-20 text-accent animate-pulse" />
                     <h3 className="text-3xl font-black text-accent neon-gold-glow">IA Analisando...</h3>
-                    <p className="text-gray-300 max-w-xs">Processando estabilidade de pitch e suporte diafragmático.</p>
+                    <p className="text-gray-300 max-w-xs">Processando suporte diafragmático e constância de fluxo.</p>
                   </div>
                 )}
 
@@ -161,7 +177,7 @@ export default function Lesson() {
                     </div>
                     <div>
                       <h3 className="text-5xl font-black text-white mb-1">{score}%</h3>
-                      <p className="text-primary font-bold uppercase tracking-widest">Precisão Vocal</p>
+                      <p className="text-primary font-bold uppercase tracking-widest">Eficiência Respiratória</p>
                     </div>
                     <div className="flex gap-4">
                       <Button onClick={resetPractice} variant="outline" className="border-white/20 text-white hover:bg-white/10">Tentar Novamente</Button>
@@ -177,7 +193,7 @@ export default function Lesson() {
                 <div>
                   <h2 className="text-3xl font-bold text-white mb-2">{activeMod.title}</h2>
                   <p className="text-gray-400 leading-relaxed text-lg">
-                    {activeMod.desc || "Descrição do módulo em carregamento..."}
+                    {activeMod.desc}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-muted-foreground">
@@ -195,19 +211,18 @@ export default function Lesson() {
                       <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                       {obj}
                     </li>
-                  )) || <li className="text-gray-500 italic">Objetivos não definidos para este módulo.</li>}
+                  ))}
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Sidebar Playlist */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Conteúdo do Nível</h3>
-              <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded">10 MÓDULOS</span>
+              <span className="text-[10px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded">4 MÓDULOS</span>
             </div>
-            <div className="space-y-3 max-h-[650px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-3">
               {modules.map((mod) => (
                 <Card 
                   key={mod.id} 
@@ -224,7 +239,7 @@ export default function Lesson() {
                         "h-10 w-10 rounded-xl flex items-center justify-center font-bold shrink-0",
                         activeMod.id === mod.id ? "bg-primary text-black" : "bg-white/10 text-gray-400"
                       )}>
-                        <Activity className="h-4 w-4" />
+                        {mod.type === 'practice' || mod.type === 'mic' ? <Mic className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
                       </div>
                       <div className="min-w-0">
                         <h4 className={cn("font-bold text-sm truncate", activeMod.id === mod.id ? "text-white" : "text-gray-400")}>{mod.title}</h4>
