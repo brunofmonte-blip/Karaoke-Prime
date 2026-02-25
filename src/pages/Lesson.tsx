@@ -28,35 +28,80 @@ export default function Lesson() {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [breathPhase, setBreathPhase] = useState('PREPARAR');
+
   const streamRef = useRef<any>(null);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+
+  // AUDIO & TTS SETUP
+  useEffect(() => {
+    // Ambient focus music
+    bgMusicRef.current = new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3');
+    if (bgMusicRef.current) {
+      bgMusicRef.current.loop = true;
+      bgMusicRef.current.volume = 0.15;
+    }
+    return () => {
+      if (bgMusicRef.current) bgMusicRef.current.pause();
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+
+  const speak = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'pt-BR';
+      msg.rate = 1.0;
+      msg.pitch = 1.0;
+      window.speechSynthesis.speak(msg);
+    }
+  };
 
   const handleSelect = (mod: any) => {
     if (mod.locked) navigate('/premium');
     else {
       setActiveMod(mod);
       setStep('idle');
-      stopMic();
+      stopPractice();
     }
   };
 
-  const stopMic = () => {
+  const stopPractice = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track: any) => track.stop());
       streamRef.current = null;
     }
+    if (bgMusicRef.current) bgMusicRef.current.pause();
+    window.speechSynthesis.cancel();
   };
 
   const startPractice = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
+      
+      if (bgMusicRef.current) {
+        bgMusicRef.current.currentTime = 0;
+        bgMusicRef.current.play().catch(e => console.error("Audio play failed:", e));
+      }
+      
       setStep('recording');
       setTimeLeft(60);
+      speak("Iniciando ciclo de respiração. Prepare-se.");
     } catch (err) {
       toast.error("Erro ao acessar microfone");
     }
   };
 
+  // TRIGGER VOICE WHEN PHASE CHANGES
+  useEffect(() => {
+    if (step === 'recording' && breathPhase !== 'PREPARAR') {
+      const cleanText = breathPhase.split('(')[0].trim().toLowerCase();
+      speak(cleanText);
+    }
+  }, [breathPhase, step]);
+
+  // THE 60-SECOND BREATHING ENGINE
   useEffect(() => {
     let interval: any;
     if (step === 'recording') {
@@ -73,7 +118,7 @@ export default function Lesson() {
 
         if (elapsed >= 60) {
           clearInterval(interval);
-          stopMic();
+          stopPractice();
           setStep('analyzing');
           setTimeout(() => {
             setScore(Math.floor(Math.random() * 25) + 70);
