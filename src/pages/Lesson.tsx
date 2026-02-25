@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, ShieldCheck, Lock, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, Play, ShieldCheck, Lock, CheckCircle2, Clock, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import InstructorAvatar from '@/components/InstructorAvatar';
@@ -12,10 +12,16 @@ export default function Lesson() {
   const navigate = useNavigate();
 
   const modules = [
-    { id: 'A', title: 'Fundamentos da Respiração', duration: '05:20', active: true, locked: false },
-    { id: 'B', title: 'Controle de Fluxo de Ar', duration: '08:15', active: false, locked: true },
-    { id: 'C', title: 'Apoio Diafragmático', duration: '06:30', active: false, locked: true },
-    { id: 'D', title: 'Exercício Prático Orientado', duration: '12:00', active: false, locked: true },
+    { id: '1', type: 'video', title: 'A Base: Respiração Diafragmática', duration: '05:20', active: true, locked: false },
+    { id: '2', type: 'video', title: 'Controle de Fluxo de Ar', duration: '08:15', active: false, locked: false },
+    { id: '3', type: 'mic', title: 'Prática: Sustentação de 5 Segundos', duration: '03:00', active: false, locked: true },
+    { id: '4', type: 'video', title: 'Aquecimento Labial (Trill)', duration: '04:10', active: false, locked: true },
+    { id: '5', type: 'mic', title: 'Prática: Sirene Vocal', duration: '05:00', active: false, locked: true },
+    { id: '6', type: 'video', title: 'Postura e Alinhamento Corporal', duration: '06:30', active: false, locked: true },
+    { id: '7', type: 'mic', title: 'Prática: Notas Longas Controladas', duration: '04:45', active: false, locked: true },
+    { id: '8', type: 'video', title: 'Relaxamento Laríngeo', duration: '07:20', active: false, locked: true },
+    { id: '9', type: 'video', title: 'Rotina de Resfriamento Vocal', duration: '03:50', active: false, locked: true },
+    { id: '10', type: 'mic', title: 'Desafio Final: Domínio Nível 1', duration: '10:00', active: false, locked: true },
   ];
 
   return (
@@ -43,7 +49,7 @@ export default function Lesson() {
             </div>
             
             <div className="p-6 rounded-3xl glass-pillar border-2 border-primary/20">
-              <h2 className="text-2xl font-bold text-white mb-2">Módulo A: Fundamentos da Respiração</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">Módulo 1: A Base: Respiração Diafragmática</h2>
               <p className="text-gray-400 leading-relaxed">
                 Nesta aula, você aprenderá a base de todo grande cantor: a respiração diafragmática. 
                 Entenda como expandir sua capacidade pulmonar e criar o suporte necessário para notas longas e potentes.
@@ -54,31 +60,33 @@ export default function Lesson() {
           {/* Sidebar Modules */}
           <div className="lg:col-span-4 space-y-4">
             <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">Conteúdo do Nível</h3>
-            {modules.map((mod) => (
-              <Card key={mod.id} className={cn(
-                "border-2 transition-all duration-300",
-                mod.active ? "border-primary bg-primary/5" : "border-white/5 bg-white/5",
-                mod.locked && "opacity-50"
-              )}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "h-10 w-10 rounded-xl flex items-center justify-center font-bold",
-                      mod.active ? "bg-primary text-black" : "bg-white/10 text-gray-400"
-                    )}>
-                      {mod.id}
-                    </div>
-                    <div>
-                      <h4 className={cn("font-bold text-sm", mod.active ? "text-white" : "text-gray-400")}>{mod.title}</h4>
-                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase font-bold">
-                        <Clock className="h-3 w-3" /> {mod.duration}
+            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+              {modules.map((mod) => (
+                <Card key={mod.id} className={cn(
+                  "border-2 transition-all duration-300",
+                  mod.active ? "border-primary bg-primary/5" : "border-white/5 bg-white/5",
+                  mod.locked && "opacity-50"
+                )}>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "h-10 w-10 rounded-xl flex items-center justify-center font-bold",
+                        mod.active ? "bg-primary text-black" : "bg-white/10 text-gray-400"
+                      )}>
+                        {mod.type === 'video' ? <Play className="h-4 w-4 fill-current" /> : <Mic className="h-4 w-4" />}
+                      </div>
+                      <div>
+                        <h4 className={cn("font-bold text-sm", mod.active ? "text-white" : "text-gray-400")}>{mod.title}</h4>
+                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase font-bold">
+                          <Clock className="h-3 w-3" /> {mod.duration}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {mod.locked ? <Lock className="h-4 w-4 text-gray-600" /> : <CheckCircle2 className="h-4 w-4 text-primary" />}
-                </CardContent>
-              </Card>
-            ))}
+                    {mod.locked ? <Lock className="h-4 w-4 text-gray-600" /> : <CheckCircle2 className="h-4 w-4 text-primary" />}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
             
             <Button className="w-full py-8 mt-4 bg-accent hover:bg-accent/90 text-black font-black rounded-2xl shadow-lg shadow-accent/20">
               INICIAR PRÁTICA GUIADA
