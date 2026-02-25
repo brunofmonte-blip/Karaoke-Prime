@@ -2,10 +2,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowLeft, Crown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { CheckCircle2, Crown, ArrowLeft } from 'lucide-react';
 
 export default function Premium() {
   const navigate = useNavigate();
@@ -13,7 +10,7 @@ export default function Premium() {
   // ==========================================
   // LINKS DE PAGAMENTO OFICIAIS (STRIPE)
   // ==========================================
-  const STRIPE_LINK_MENSAL = 'COLE_O_NOVO_LINK_MENSAL_AQUI';
+  const STRIPE_LINK_MENSAL = 'https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00';
   const STRIPE_LINK_ANUAL = 'https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01';
 
   const primeBenefits = [
@@ -24,84 +21,72 @@ export default function Premium() {
     "Prioridade máxima na vitrine de Trend Topics."
   ];
 
-  const handleSubscribe = (url: string) => {
-    window.location.href = url;
-  };
-
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="container mx-auto p-4 md:p-8 max-w-6xl">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="mr-2 h-5 w-5" /> Voltar
-        </Button>
-
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tighter">
-            KARAOKE <span className="text-primary neon-blue-glow">PRIME</span>
+    <div className="min-h-screen bg-background p-4 md:p-8 relative overflow-hidden">
+      <div className="max-w-4xl mx-auto relative z-10">
+        <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-white text-sm mb-8 flex items-center gap-2 transition-colors">
+          <ArrowLeft size={16} /> Voltar
+        </button>
+        
+        <div className="text-center mb-12">
+          <div className="inline-flex p-3 bg-gradient-to-tr from-cyan-900 to-cyan-700 rounded-full mb-6 border border-cyan-500 shadow-[0_0_30px_rgba(0,183,235,0.3)]">
+            <Crown className="text-cyan-400" size={40} />
+          </div>
+          <h1 className="text-5xl lg:text-6xl font-black text-white mb-4 uppercase italic tracking-tighter">
+            KARAOKE <span className="text-cyan-500">PRIME</span>
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Escolha o plano ideal para sua jornada vocal.
-          </p>
+          <p className="text-gray-400 text-lg">Escolha o plano ideal para sua jornada vocal e desbloqueie 100% da IA.</p>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-          {/* Monthly Plan */}
-          <Card className="glass-pillar border-2 border-white/10 rounded-3xl overflow-hidden">
-            <CardContent className="p-10 flex flex-col items-center text-center">
-              <h2 className="text-2xl font-bold text-white uppercase tracking-widest mb-6">Plano Mensal</h2>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-2xl font-bold text-gray-400">R$</span>
-                <span className="text-6xl font-black text-white tracking-tighter">19</span>
-                <span className="text-2xl font-bold text-gray-400">,90</span>
-              </div>
-              <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-10">Por Mês</p>
-              <Button 
-                variant="outline" 
-                onClick={() => handleSubscribe(STRIPE_LINK_MENSAL)}
-                className="w-full py-6 rounded-xl border-primary text-primary hover:bg-primary/10"
-              >
-                ASSINAR MENSAL
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Annual Plan */}
-          <Card className="glass-pillar border-2 border-primary/50 rounded-3xl overflow-hidden relative">
-            <div className="absolute top-0 right-0 bg-primary text-black text-[10px] font-black px-4 py-1 rounded-bl-xl uppercase tracking-widest">
-              Melhor Valor
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          {/* PLANO MENSAL */}
+          <div className="bg-gray-950 border border-gray-800 rounded-3xl p-8 flex flex-col items-center justify-center text-center hover:border-cyan-500/50 transition-colors relative shadow-xl">
+            <h3 className="text-xl font-bold text-white mb-6 uppercase tracking-widest">Plano Mensal</h3>
+            <div className="flex items-baseline gap-1 mb-8">
+              <span className="text-2xl font-bold text-gray-500">R$</span>
+              <span className="text-7xl font-black text-white">19</span>
+              <span className="text-2xl font-bold text-gray-400">,90</span>
             </div>
-            <CardContent className="p-10 flex flex-col items-center text-center">
-              <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-                <Crown className="h-6 w-6 text-primary neon-blue-glow" />
-              </div>
-              <h2 className="text-2xl font-bold text-primary neon-blue-glow uppercase tracking-widest mb-6">Plano Anual</h2>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-2xl font-bold text-gray-400">R$</span>
-                <span className="text-6xl font-black text-white tracking-tighter">119</span>
-                <span className="text-2xl font-bold text-gray-400">,90</span>
-              </div>
-              <p className="text-sm font-bold text-primary uppercase tracking-widest mb-2">Equivalente a R$ 9,99/mês</p>
-              <p className="text-xs text-muted-foreground mb-10">Cobrado anualmente</p>
-              <Button 
-                onClick={() => handleSubscribe(STRIPE_LINK_ANUAL)}
-                className="w-full py-6 rounded-xl bg-primary hover:bg-primary/90 text-black font-black shadow-lg shadow-primary/20"
-              >
-                ASSINAR ANUAL
-              </Button>
-            </CardContent>
-          </Card>
+            <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-8">Por Mês</p>
+            <button 
+              onClick={() => window.location.href = STRIPE_LINK_MENSAL}
+              className="w-full py-4 bg-transparent border border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-black font-black rounded-xl uppercase tracking-wider transition-colors"
+            >
+              Assinar Mensal
+            </button>
+          </div>
+          {/* PLANO ANUAL */}
+          <div className="bg-gray-950 border-2 border-cyan-500 rounded-3xl p-8 flex flex-col items-center justify-center text-center relative shadow-[0_0_40px_rgba(0,183,235,0.2)]">
+            <div className="absolute -top-4 right-8 bg-cyan-500 text-black px-4 py-1.5 rounded-md font-black text-[10px] uppercase tracking-widest shadow-lg">Melhor Valor</div>
+            
+            <h3 className="text-xl font-bold text-cyan-500 mb-6 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(0,183,235,0.8)]">Plano Anual</h3>
+            <div className="flex items-baseline gap-1 mb-2">
+              <span className="text-2xl font-bold text-gray-500">R$</span>
+              <span className="text-7xl font-black text-white">119</span>
+              <span className="text-2xl font-bold text-gray-400">,90</span>
+            </div>
+            <p className="text-cyan-500 text-xs font-bold uppercase tracking-widest mb-2">Por Ano</p>
+            <p className="text-gray-500 text-[10px] mb-8 uppercase tracking-widest">Equivale a apenas R$ 9,99/mês</p>
+            <button 
+              onClick={() => window.location.href = STRIPE_LINK_ANUAL}
+              className="w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-black rounded-xl uppercase tracking-wider transition-colors shadow-[0_0_20px_rgba(0,183,235,0.4)]"
+            >
+              Assinar Anual
+            </button>
+          </div>
         </div>
-
-        <div className="max-w-3xl mx-auto">
-          <h3 className="text-xl font-bold text-white mb-8 text-center uppercase tracking-widest">Benefícios Prime</h3>
+        <div className="bg-gray-950/50 border border-gray-800 rounded-3xl p-8 backdrop-blur-sm mb-8">
+          <h4 className="text-white font-bold text-sm uppercase tracking-widest mb-6 text-center">Tudo que você ganha no Prime</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {primeBenefits.map((benefit, index) => (
-              <div key={index} className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
-                <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-sm text-gray-300">{benefit}</span>
+            {primeBenefits.map((benefit, idx) => (
+              <div key={idx} className="flex items-start gap-3">
+                <CheckCircle2 className="text-cyan-500 shrink-0 mt-0.5" size={18} />
+                <span className="text-gray-300 text-sm">{benefit}</span>
               </div>
             ))}
           </div>
+        </div>
+        <div className="text-center border-t border-gray-900 pt-8 mt-8">
+           <p className="text-gray-600 text-[10px] uppercase tracking-widest">Pagamento 100% seguro processado por Stripe</p>
         </div>
       </div>
     </div>
