@@ -1,96 +1,102 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Heart, Share2, AlertTriangle, Play } from 'lucide-react';
+import { Youtube, ExternalLink, Music, Mic2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { validateContentSafety } from '@/utils/content-safety';
-import { useAuth } from '@/integrations/supabase/auth';
 
-const trendItems = [
-  { id: 1, user: "VocalPro_88", caption: "Hitting that high note! 🎤 #KaraokeChallenge (Rock)", likes: 1.2, comments: 345, video: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=1000", genre: "Rock" },
-  { id: 2, user: "PrimeTalent_UK", caption: "Audition round 3 success! Wish me luck! ✨ (Flagged)", likes: 980, comments: 120, video: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1000", genre: "Pop" }, 
-  { id: 3, user: "AcademyGrad", caption: "My AI diagnostic score improved by 15%! Thanks, Prime! (Pop)", likes: 2.5, comments: 500, video: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000", genre: "Pop" },
-  { id: 4, user: "JazzMaster", caption: "Smooth notes tonight. 🎷 (Jazz)", likes: 0.8, comments: 50, video: "https://images.unsplash.com/photo-1501084817091-ec513ea013b6?q=80&w=1000", genre: "Jazz" },
+const premiumChannels = [
+  { 
+    id: 1, 
+    name: "Sing King", 
+    initials: "SK", 
+    description: "O maior canal de karaokê do mundo com hits atuais.", 
+    subscribers: "10M+",
+    color: "text-primary",
+    glow: "shadow-primary/40"
+  },
+  { 
+    id: 2, 
+    name: "Party Tyme", 
+    initials: "PT", 
+    description: "Clássicos remasterizados e trilhas de alta fidelidade.", 
+    subscribers: "2M+",
+    color: "text-accent",
+    glow: "shadow-accent/40"
+  },
+  { 
+    id: 3, 
+    name: "KaraFun", 
+    initials: "KF", 
+    description: "Especialistas em animações e letras sincronizadas.", 
+    subscribers: "1.5M+",
+    color: "text-green-400",
+    glow: "shadow-green-400/40"
+  },
+  { 
+    id: 4, 
+    name: "Ponto do Karaokê", 
+    initials: "PK", 
+    description: "A maior biblioteca de sucessos brasileiros e MPB.", 
+    subscribers: "800k+",
+    color: "text-red-500",
+    glow: "shadow-red-500/40"
+  },
 ];
 
 const TrendTopicsFeed: React.FC = () => {
-  const { user } = useAuth();
-  
-  const filteredItems = user 
-    ? trendItems.filter(item => item.genre === "Rock" || item.id !== 1)
-    : trendItems;
-
   return (
-    <div className="py-8">
-      <h2 className="text-3xl font-bold text-left mb-6 text-accent neon-gold-glow px-4 md:px-0">
-        {user ? "Personalized Trend Topics" : "Trend Topics (Video Feed)"}
-      </h2>
-      <div className="space-y-6 px-4 md:px-0">
-        {filteredItems.map((item) => {
-          const safetyCheck = validateContentSafety(item.id);
-          const isSafe = safetyCheck.isSafe;
+    <div className="py-12">
+      <div className="mb-10">
+        <h2 className="text-3xl md:text-4xl font-black text-white neon-blue-glow flex items-center gap-3">
+          Canais de Karaokê Premium <Youtube className="h-8 w-8 text-red-600" />
+        </h2>
+        <p className="text-gray-400 mt-2 font-medium">As melhores fontes de áudio para sua performance</p>
+      </div>
 
-          return (
-            <Card key={item.id} className={cn(
-              "rounded-xl border-2 border-border/50 bg-card/50 backdrop-blur-md shadow-xl",
-              "hover:border-accent/70 transition-all duration-300"
-            )}>
-              <CardContent className="p-4 flex flex-col md:flex-row gap-4">
-                {/* Video Thumbnail / Moderation Check */}
-                <div 
-                  className={cn(
-                    "w-full md:w-1/3 h-48 rounded-lg relative flex items-center justify-center overflow-hidden",
-                    isSafe ? "bg-black" : "bg-destructive/20 border border-destructive/50"
-                  )}
-                >
-                  {isSafe ? (
-                    <>
-                      <img 
-                        src={item.video} 
-                        alt="Thumbnail" 
-                        className="absolute inset-0 w-full h-full object-cover opacity-60"
-                      />
-                      <div className="relative z-10 bg-primary/20 backdrop-blur-sm p-3 rounded-full border border-primary/50">
-                        <Play className="h-6 w-6 text-primary fill-primary" />
-                      </div>
-                      <div className="absolute bottom-2 left-2 text-[10px] font-bold text-white bg-black/60 px-2 py-1 rounded uppercase tracking-widest">
-                        {item.user}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="text-center p-4">
-                      <AlertTriangle className="h-8 w-8 text-destructive mx-auto mb-2" />
-                      <p className="text-sm font-semibold text-destructive">Content Under Review</p>
-                      <p className="text-xs text-muted-foreground">Flagged by AI Moderation.</p>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Content and Actions */}
-                <div className="flex flex-col justify-between w-full md:w-2/3">
-                  <div>
-                    <p className="text-sm text-foreground mb-2 font-medium">{item.caption}</p>
-                  </div>
-                  <div className="flex items-center justify-between text-muted-foreground text-sm mt-2">
-                    <div className="flex space-x-4">
-                      <div className="flex items-center">
-                        <Heart className="h-4 w-4 mr-1 text-red-500 fill-red-500/50" />
-                        <span className="font-bold">{item.likes}k</span>
-                      </div>
-                      <div className="flex items-center">
-                        <MessageSquare className="h-4 w-4 mr-1" />
-                        <span className="font-bold">{item.comments}</span>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 font-bold">
-                      <Share2 className="h-4 w-4 mr-1" /> Share
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {premiumChannels.map((channel) => (
+          <Card key={channel.id} className={cn(
+            "rounded-[2rem] border-2 border-white/10 bg-card/30 backdrop-blur-xl transition-all duration-500",
+            "hover:border-primary/50 hover:scale-[1.03] shadow-2xl group overflow-hidden"
+          )}>
+            <CardContent className="p-8 flex flex-col items-center text-center h-full">
+              {/* Neon Initials Avatar */}
+              <div className={cn(
+                "w-24 h-24 rounded-3xl flex items-center justify-center mb-6 border-2 border-white/5 bg-black/40",
+                "transition-all duration-500 group-hover:border-primary/50",
+                channel.glow
+              )}>
+                <span className={cn(
+                  "text-4xl font-black tracking-tighter",
+                  channel.color,
+                  "drop-shadow-[0_0_8px_currentColor]"
+                )}>
+                  {channel.initials}
+                </span>
+              </div>
+
+              <div className="flex-grow">
+                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
+                  {channel.name}
+                </h3>
+                <p className="text-xs text-gray-500 uppercase tracking-widest font-black mb-3">
+                  {channel.subscribers} Inscritos
+                </p>
+                <p className="text-sm text-gray-400 leading-relaxed mb-6">
+                  {channel.description}
+                </p>
+              </div>
+
+              <Button 
+                variant="outline"
+                className="w-full rounded-xl border-white/10 bg-white/5 hover:bg-primary hover:text-primary-foreground transition-all gap-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Ver Canal
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );

@@ -17,31 +17,31 @@ import { useNavigate } from 'react-router-dom';
 const regionalHits = [
   { 
     region: "Brasil", 
-    emoji: "🇧🇷", 
+    flagUrl: "https://flagcdn.com/w160/br.png", 
     description: "Sertanejo, MPB e Samba dominam o topo.", 
     query: "sertanejo" 
   },
   { 
     region: "EUA", 
-    emoji: "🇺🇸", 
+    flagUrl: "https://flagcdn.com/w160/us.png", 
     description: "Pop, Rock e Country em alta nas paradas.", 
     query: "pop rock usa" 
   },
   { 
     region: "Japão", 
-    emoji: "🇯🇵", 
+    flagUrl: "https://flagcdn.com/w160/jp.png", 
     description: "J-Pop e clássicos de Anime são os favoritos.", 
     query: "j-pop anime" 
   },
   { 
     region: "Reino Unido", 
-    emoji: "🇬🇧", 
+    flagUrl: "https://flagcdn.com/w160/gb.png", 
     description: "Britpop e Indie Rock lideram as buscas.", 
     query: "britpop" 
   },
   { 
     region: "Coreia do Sul", 
-    emoji: "🇰🇷", 
+    flagUrl: "https://flagcdn.com/w160/kr.png", 
     description: "K-Pop e baladas românticas no topo.", 
     query: "k-pop" 
   }
@@ -79,9 +79,13 @@ const RegionalTopHits = () => {
                   "glass-pillar hover:border-primary hover:shadow-primary/40 shadow-2xl group"
                 )}>
                   <CardContent className="p-8 flex flex-col items-center text-center h-[320px] justify-between">
-                    {/* Native Emoji Flag */}
-                    <div className="mb-4 transform transition-transform duration-500 group-hover:scale-125 drop-shadow-2xl text-7xl">
-                      {item.emoji}
+                    {/* Flag Image from FlagCDN */}
+                    <div className="mb-4 h-20 flex items-center justify-center">
+                      <img 
+                        src={item.flagUrl} 
+                        alt={`Bandeira ${item.region}`}
+                        className="w-24 h-auto rounded-lg shadow-lg transform transition-transform duration-500 group-hover:scale-110"
+                      />
                     </div>
                     
                     <div>
