@@ -31,6 +31,7 @@ import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
 import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
 import { DuelProvider } from "./hooks/use-duel-engine";
 import DuelSummaryModal from "./components/DuelSummaryModal";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
           <PrimeSubscriptionProvider>
             <VocalSandboxProvider key="vocal-sandbox-root">
               <BrowserRouter>
+                <ScrollToTop />
                 <DuelProvider>
                   <Layout>
                     <Routes>

@@ -9,18 +9,19 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-// REAL YOUTUBE API CONFIGURATION
 const YOUTUBE_API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
 
-const initialResults = [
-  { id: 'tStNgmErrDA', title: 'Shallow (Karaoke)', artist: 'Lady Gaga', channel: 'Party Tyme' },
-  { id: 'MvWE4YV7KtQ', title: 'Evidências (Karaoke)', artist: 'Chitãozinho & Xororó', channel: 'Genno Karaoke' }
+const mockResults = [
+  { id: 'tStNgmErrDA', title: 'Shallow (Karaoke)', artist: 'Lady Gaga', channel: 'Mock Studio' },
+  { id: 'MvWE4YV7KtQ', title: 'Evidências (Karaoke)', artist: 'Chitãozinho & Xororó', channel: 'Mock Studio' },
+  { id: 'HO8AZPOrJqQ', title: 'Asa Branca (Karaoke)', artist: 'Luiz Gonzaga', channel: 'Mock Studio' },
+  { id: 'oVbXpK_BRbw', title: 'Bohemian Rhapsody (Karaoke)', artist: 'Queen', channel: 'Mock Studio' }
 ];
 
 export default function BasicLobby() {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState(initialResults);
+  const [results, setResults] = useState(mockResults.slice(0, 2));
   const [loading, setLoading] = useState(false);
   const [activeMode, setActiveMode] = useState<'online' | 'offline' | 'duel'>('online');
 
@@ -28,13 +29,15 @@ export default function BasicLobby() {
     if (e.key === 'Enter' && query.trim() !== '') {
       setLoading(true);
       try {
-        // Fetching real data and filtering ONLY embeddable videos
         const response = await fetch(
           `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${encodeURIComponent(query + ' karaoke')}&type=video&videoEmbeddable=true&key=${YOUTUBE_API_KEY}`
         );
+        
+        if (!response.ok) throw new Error("API Limit or Error");
+        
         const data = await response.json();
 
-        if (data.items) {
+        if (data.items && data.items.length > 0) {
           const formattedResults = data.items.map((item: any) => ({
             id: item.id.videoId,
             title: item.snippet.title,
@@ -44,11 +47,17 @@ export default function BasicLobby() {
           setResults(formattedResults);
           toast.success(`Encontramos ${formattedResults.length} resultados!`);
         } else {
-          toast.error("Nenhum resultado encontrado ou limite da API atingido.");
+          throw new Error("No results");
         }
       } catch (error) {
-        console.error("Search error:", error);
-        toast.error("Erro ao conectar com o YouTube.");
+        console.warn("YouTube API failed, using mock fallback:", error);
+        // Fallback to mock data filtered by query
+        const filteredMock = mockResults.filter(m => 
+          m.title.toLowerCase().includes(query.toLowerCase()) || 
+          m.artist.toLowerCase().includes(query.toLowerCase())
+        );
+        setResults(filteredMock.length > 0 ? filteredMock : mockResults);
+        toast.info("Modo de Demonstração: Exibindo resultados sugeridos.");
       } finally {
         setLoading(false);
       }

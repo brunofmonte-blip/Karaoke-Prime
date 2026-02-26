@@ -12,6 +12,12 @@ import { toast } from 'sonner';
 const API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
 const PRIORITY_CHANNELS = ["@ViguibaKaraoke", "@ClubinhodoKaraoke", "@singerkaraoke", "@singkingkaraoke"];
 
+const mockLibrary = [
+  { id: { videoId: 'tStNgmErrDA' }, snippet: { title: 'Shallow (Karaoke)', channelTitle: 'Mock Studio', thumbnails: { high: { url: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=500' } } } },
+  { id: { videoId: 'MvWE4YV7KtQ' }, snippet: { title: 'Evidências (Karaoke)', channelTitle: 'Mock Studio', thumbnails: { high: { url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=500' } } } },
+  { id: { videoId: 'HO8AZPOrJqQ' }, snippet: { title: 'Asa Branca (Karaoke)', channelTitle: 'Mock Studio', thumbnails: { high: { url: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500' } } } }
+];
+
 const Library: React.FC = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -22,27 +28,29 @@ const Library: React.FC = () => {
   const searchSongs = async (searchQuery: string = "") => {
     setIsLoading(true);
     try {
-      // Append "karaoke" and priority channels to the query for better results
       const enhancedQuery = `${searchQuery} karaoke ${PRIORITY_CHANNELS.join(" ")}`;
       const response = await fetch(
         `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(enhancedQuery)}&type=video&key=${API_KEY}`
       );
+      
+      if (!response.ok) throw new Error("API Error");
+      
       const data = await response.json();
       
-      if (data.items) {
+      if (data.items && data.items.length > 0) {
         setResults(data.items);
       } else {
-        toast.error("Erro ao buscar músicas. Verifique sua conexão ou limite da API.");
+        throw new Error("No items");
       }
     } catch (error) {
-      console.error("Search error:", error);
-      toast.error("Falha na busca em tempo real.");
+      console.warn("Library search failed, using mock fallback.");
+      setResults(mockLibrary);
+      toast.info("Modo de Demonstração: Exibindo biblioteca sugerida.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Initial search on mount
   useEffect(() => {
     searchSongs("popular");
   }, []);

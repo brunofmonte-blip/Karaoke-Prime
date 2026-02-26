@@ -17,31 +17,31 @@ import { useNavigate } from 'react-router-dom';
 const regionalHits = [
   { 
     region: "Brasil", 
-    flagUrl: "https://flagcdn.com/w160/br.png", 
+    emoji: "🇧🇷", 
     description: "Sertanejo, MPB e Samba dominam o topo.", 
     query: "sertanejo" 
   },
   { 
     region: "EUA", 
-    flagUrl: "https://flagcdn.com/w160/us.png", 
+    emoji: "🇺🇸", 
     description: "Pop, Rock e Country em alta nas paradas.", 
     query: "pop rock usa" 
   },
   { 
     region: "Japão", 
-    flagUrl: "https://flagcdn.com/w160/jp.png", 
+    emoji: "🇯🇵", 
     description: "J-Pop e clássicos de Anime são os favoritos.", 
     query: "j-pop anime" 
   },
   { 
     region: "Reino Unido", 
-    flagUrl: "https://flagcdn.com/w160/gb.png", 
+    emoji: "🇬🇧", 
     description: "Britpop e Indie Rock lideram as buscas.", 
     query: "britpop" 
   },
   { 
     region: "Coreia do Sul", 
-    flagUrl: "https://flagcdn.com/w160/kr.png", 
+    emoji: "🇰🇷", 
     description: "K-Pop e baladas românticas no topo.", 
     query: "k-pop" 
   }
@@ -79,13 +79,9 @@ const RegionalTopHits = () => {
                   "glass-pillar hover:border-primary hover:shadow-primary/40 shadow-2xl group"
                 )}>
                   <CardContent className="p-8 flex flex-col items-center text-center h-[320px] justify-between">
-                    {/* HD Flag Image */}
-                    <div className="mb-4 transform transition-transform duration-500 group-hover:scale-110 drop-shadow-xl">
-                      <img 
-                        src={item.flagUrl} 
-                        alt={item.region} 
-                        className="w-24 h-auto rounded-md shadow-lg border border-white/10"
-                      />
+                    {/* Native Emoji Flag */}
+                    <div className="mb-4 transform transition-transform duration-500 group-hover:scale-125 drop-shadow-2xl text-7xl">
+                      {item.emoji}
                     </div>
                     
                     <div>

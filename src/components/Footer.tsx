@@ -7,16 +7,6 @@ import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
-const staticChartData = [
-  { name: 'Note 1', pitch: 65, breath: 80 },
-  { name: 'Note 2', pitch: 70, breath: 75 },
-  { name: 'Note 3', pitch: 85, breath: 90 },
-  { name: 'Note 4', pitch: 92, breath: 88 },
-  { name: 'Note 5', pitch: 78, breath: 82 },
-  { name: 'Note 6', pitch: 88, breath: 95 },
-  { name: 'Note 7', pitch: 95, breath: 98 },
-];
-
 const Footer = () => {
   const { user } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
@@ -27,10 +17,10 @@ const Footer = () => {
   const { isAnalyzing, pitchHistory, isPitchDeviating, recentAchievements } = vocalContext;
 
   const historicalData = useMemo(() => {
-    if (typeof window === 'undefined') return staticChartData;
+    if (typeof window === 'undefined') return [];
     try {
       const stored = localStorage.getItem('karaoke_offline_performance_logs');
-      if (!stored) return staticChartData;
+      if (!stored) return [];
       const logs = JSON.parse(stored);
       return logs.slice(-5).map((log: any, index: number) => ({
         name: `Session ${index + 1}`,
@@ -38,7 +28,7 @@ const Footer = () => {
         breath: 50
       }));
     } catch (e) {
-      return staticChartData;
+      return [];
     }
   }, [isAnalyzing]);
 
@@ -64,10 +54,10 @@ const Footer = () => {
   };
 
   return (
-    <footer className="w-full bg-background border-t border-border/40 p-6">
+    <footer className="w-full bg-background border-t border-border/40 p-6 mt-12">
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-8 h-auto lg:h-[300px]">
-          <div className="lg:col-span-2 w-full h-[300px] lg:h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-12 h-auto lg:h-[350px]">
+          <div className="lg:col-span-2 w-full h-[350px] lg:h-full">
             <VocalEvolutionChart title={chartTitle} data={chartData} />
           </div>
           <div className="lg:col-span-1">
@@ -86,18 +76,18 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Centralized Branding Tagline */}
-        <div className="text-center py-12 border-t border-border/40">
+        {/* Centralized Branding Tagline with proper spacing */}
+        <div className="text-center py-16 border-t border-border/40">
           <h2 className={cn(
-            "text-2xl md:text-4xl font-extrabold uppercase tracking-widest leading-tight",
-            "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+            "text-2xl md:text-4xl font-extrabold uppercase tracking-[0.2em] leading-tight",
+            "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]"
           )}>
-            CANTE. EVOLUA. CONQUISTAR O MUNDO.
+            CANTE. EVOLUA. <span className="text-primary neon-blue-glow">CONQUISTAR O MUNDO.</span>
           </h2>
         </div>
 
         <div className="flex flex-col items-center pt-8 border-t border-border/40 space-y-4">
-          <p className="text-[10px] md:text-xs text-muted-foreground/50 font-medium tracking-widest uppercase text-center">
+          <p className="text-[10px] md:text-xs text-muted-foreground/50 font-bold tracking-widest uppercase text-center">
             © 2026 Karaoke Prime - All rights reserved
           </p>
           <div className="opacity-50 hover:opacity-100 transition-opacity">
