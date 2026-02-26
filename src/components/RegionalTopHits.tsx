@@ -14,36 +14,66 @@ import { cn } from "@/lib/utils";
 import { Globe, ChevronRight } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
+// Simplified Inline SVGs for stability
+const BrazilFlag = () => (
+  <svg viewBox="0 0 720 504" className="w-24 h-auto rounded-lg shadow-lg">
+    <rect width="720" height="504" fill="#009c3b"/>
+    <path d="M360 72L648 252L360 432L72 252z" fill="#ffdf00"/>
+    <circle cx="360" cy="252" r="105" fill="#002776"/>
+  </svg>
+);
+
+const USAFlag = () => (
+  <svg viewBox="0 0 741 390" className="w-24 h-auto rounded-lg shadow-lg">
+    <rect width="741" height="390" fill="#fff"/>
+    <path d="M0 0h741v30H0zM0 60h741v30H0zM0 120h741v30H0zM0 180h741v30H0zM0 240h741v30H0zM0 300h741v30H0zM0 360h741v30H0z" fill="#b22234"/>
+    <rect width="296.4" height="210" fill="#3c3b6e"/>
+  </svg>
+);
+
+const JapanFlag = () => (
+  <svg viewBox="0 0 900 600" className="w-24 h-auto rounded-lg shadow-lg border border-border/20">
+    <rect width="900" height="600" fill="#fff"/>
+    <circle cx="450" cy="300" r="180" fill="#bc002d"/>
+  </svg>
+);
+
+const UKFlag = () => (
+  <svg viewBox="0 0 60 30" className="w-24 h-auto rounded-lg shadow-lg">
+    <clipPath id="s">
+      <path d="M0,0 v30 h60 v-30 z"/>
+    </clipPath>
+    <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" clipPath="url(#s)"/>
+    <path d="M0,0 L60,30 M60,0 L0,30" stroke="#012169" strokeWidth="4" clipPath="url(#s)"/>
+    <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+    <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+  </svg>
+);
+
 const regionalHits = [
   { 
     region: "Brasil", 
-    flagUrl: "https://flagcdn.com/w160/br.png", 
+    icon: <BrazilFlag />, 
     description: "Sertanejo, MPB e Samba dominam o topo.", 
     query: "sertanejo" 
   },
   { 
     region: "EUA", 
-    flagUrl: "https://flagcdn.com/w160/us.png", 
+    icon: <USAFlag />, 
     description: "Pop, Rock e Country em alta nas paradas.", 
     query: "pop rock usa" 
   },
   { 
     region: "Japão", 
-    flagUrl: "https://flagcdn.com/w160/jp.png", 
+    icon: <JapanFlag />, 
     description: "J-Pop e clássicos de Anime são os favoritos.", 
     query: "j-pop anime" 
   },
   { 
     region: "Reino Unido", 
-    flagUrl: "https://flagcdn.com/w160/gb.png", 
+    icon: <UKFlag />, 
     description: "Britpop e Indie Rock lideram as buscas.", 
     query: "britpop" 
-  },
-  { 
-    region: "Coreia do Sul", 
-    flagUrl: "https://flagcdn.com/w160/kr.png", 
-    description: "K-Pop e baladas românticas no topo.", 
-    query: "k-pop" 
   }
 ];
 
@@ -79,13 +109,8 @@ const RegionalTopHits = () => {
                   "glass-pillar hover:border-primary hover:shadow-primary/40 shadow-2xl group"
                 )}>
                   <CardContent className="p-8 flex flex-col items-center text-center h-[320px] justify-between">
-                    {/* Flag Image from FlagCDN */}
-                    <div className="mb-4 h-20 flex items-center justify-center">
-                      <img 
-                        src={item.flagUrl} 
-                        alt={`Bandeira ${item.region}`}
-                        className="w-24 h-auto rounded-lg shadow-lg transform transition-transform duration-500 group-hover:scale-110"
-                      />
+                    <div className="mb-4 h-20 flex items-center justify-center transform transition-transform duration-500 group-hover:scale-110">
+                      {item.icon}
                     </div>
                     
                     <div>

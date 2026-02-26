@@ -8,7 +8,7 @@ const premiumChannels = [
   { 
     id: 1, 
     name: "Sing King", 
-    initials: "SK", 
+    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_n-Q1Xy0W5K1_X_M1N1_X_M1N1_X_M1N1=s176-c-k-c0x00ffffff-no-rj",
     description: "O maior canal de karaokê do mundo com hits atuais.", 
     subscribers: "10M+",
     color: "text-primary",
@@ -17,7 +17,7 @@ const premiumChannels = [
   { 
     id: 2, 
     name: "Party Tyme", 
-    initials: "PT", 
+    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_m_P_M_P_M_P_M_P_M_P_M_P_M_P=s176-c-k-c0x00ffffff-no-rj",
     description: "Clássicos remasterizados e trilhas de alta fidelidade.", 
     subscribers: "2M+",
     color: "text-accent",
@@ -60,19 +60,23 @@ const TrendTopicsFeed: React.FC = () => {
             "hover:border-primary/50 hover:scale-[1.03] shadow-2xl group overflow-hidden"
           )}>
             <CardContent className="p-8 flex flex-col items-center text-center h-full">
-              {/* Neon Initials Avatar */}
+              {/* Official Avatar or Neon Initials */}
               <div className={cn(
-                "w-24 h-24 rounded-3xl flex items-center justify-center mb-6 border-2 border-white/5 bg-black/40",
+                "w-24 h-24 rounded-3xl flex items-center justify-center mb-6 border-2 border-white/5 bg-black/40 overflow-hidden",
                 "transition-all duration-500 group-hover:border-primary/50",
                 channel.glow
               )}>
-                <span className={cn(
-                  "text-4xl font-black tracking-tighter",
-                  channel.color,
-                  "drop-shadow-[0_0_8px_currentColor]"
-                )}>
-                  {channel.initials}
-                </span>
+                {channel.avatar ? (
+                  <img src={channel.avatar} alt={channel.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className={cn(
+                    "text-4xl font-black tracking-tighter",
+                    channel.color,
+                    "drop-shadow-[0_0_8px_currentColor]"
+                  )}>
+                    {channel.initials}
+                  </span>
+                )}
               </div>
 
               <div className="flex-grow">
