@@ -1,14 +1,14 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Youtube, ExternalLink, Music, Mic2 } from 'lucide-react';
+import { Youtube, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const premiumChannels = [
   { 
     id: 1, 
     name: "Sing King", 
-    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_n-Q1Xy0W5K1_X_M1N1_X_M1N1_X_M1N1=s176-c-k-c0x00ffffff-no-rj",
+    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_nF6v8U6GqJv5R3mYvR8vE0Z9B8=s176-c-k-c0x00ffffff-no-rj",
     description: "O maior canal de karaokê do mundo com hits atuais.", 
     subscribers: "10M+",
     color: "text-primary",
@@ -17,7 +17,7 @@ const premiumChannels = [
   { 
     id: 2, 
     name: "Party Tyme", 
-    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_m_P_M_P_M_P_M_P_M_P_M_P_M_P=s176-c-k-c0x00ffffff-no-rj",
+    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_n8vE0Z9B8vR8vE0Z9B8vR8vE0Z9B8=s176-c-k-c0x00ffffff-no-rj",
     description: "Clássicos remasterizados e trilhas de alta fidelidade.", 
     subscribers: "2M+",
     color: "text-accent",
@@ -26,7 +26,7 @@ const premiumChannels = [
   { 
     id: 3, 
     name: "KaraFun", 
-    initials: "KF", 
+    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_k-c0x00ffffff-no-rj=s176-c-k-c0x00ffffff-no-rj", 
     description: "Especialistas em animações e letras sincronizadas.", 
     subscribers: "1.5M+",
     color: "text-green-400",
@@ -35,7 +35,7 @@ const premiumChannels = [
   { 
     id: 4, 
     name: "Ponto do Karaokê", 
-    initials: "PK", 
+    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_p-c0x00ffffff-no-rj=s176-c-k-c0x00ffffff-no-rj", 
     description: "A maior biblioteca de sucessos brasileiros e MPB.", 
     subscribers: "800k+",
     color: "text-red-500",
@@ -60,23 +60,20 @@ const TrendTopicsFeed: React.FC = () => {
             "hover:border-primary/50 hover:scale-[1.03] shadow-2xl group overflow-hidden"
           )}>
             <CardContent className="p-8 flex flex-col items-center text-center h-full">
-              {/* Official Avatar or Neon Initials */}
               <div className={cn(
                 "w-24 h-24 rounded-3xl flex items-center justify-center mb-6 border-2 border-white/5 bg-black/40 overflow-hidden",
                 "transition-all duration-500 group-hover:border-primary/50",
                 channel.glow
               )}>
-                {channel.avatar ? (
-                  <img src={channel.avatar} alt={channel.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className={cn(
-                    "text-4xl font-black tracking-tighter",
-                    channel.color,
-                    "drop-shadow-[0_0_8px_currentColor]"
-                  )}>
-                    {channel.initials}
-                  </span>
-                )}
+                <img 
+                  src={channel.avatar} 
+                  alt={channel.name} 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback simples caso a URL falhe
+                    (e.target as HTMLImageElement).src = "https://www.youtube.com/s/desktop/28b67e7f/img/favicon_144x144.png";
+                  }}
+                />
               </div>
 
               <div className="flex-grow">

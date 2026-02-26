@@ -8,8 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-
-const YOUTUBE_API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
+import { searchYoutubeVideos } from '@/services/youtubeService';
 
 const mockResults = [
   { id: 'tStNgmErrDA', title: 'Shallow (Karaoke)', artist: 'Lady Gaga', channel: 'Mock Studio' },
@@ -29,13 +28,7 @@ export default function BasicLobby() {
     if (e.key === 'Enter' && query.trim() !== '') {
       setLoading(true);
       try {
-        const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${encodeURIComponent(query + ' karaoke')}&type=video&videoEmbeddable=true&key=${YOUTUBE_API_KEY}`
-        );
-        
-        if (!response.ok) throw new Error("API Limit or Error");
-        
-        const data = await response.json();
+        const data = await searchYoutubeVideos(query + ' karaoke', 8);
 
         if (data.items && data.items.length > 0) {
           const formattedResults = data.items.map((item: any) => ({
@@ -51,7 +44,6 @@ export default function BasicLobby() {
         }
       } catch (error) {
         console.warn("YouTube API failed, using mock fallback:", error);
-        // Fallback to mock data filtered by query
         const filteredMock = mockResults.filter(m => 
           m.title.toLowerCase().includes(query.toLowerCase()) || 
           m.artist.toLowerCase().includes(query.toLowerCase())
@@ -79,7 +71,6 @@ export default function BasicLobby() {
           <h1 className="text-4xl font-bold text-primary neon-blue-glow">Lobby de Karaokê</h1>
         </div>
 
-        {/* Mode Selection */}
         <section className="mb-12">
           <h2 className="text-xl font-bold text-white mb-6 uppercase tracking-widest">Escolha o Modo de Jogo</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -139,7 +130,6 @@ export default function BasicLobby() {
           </div>
         </section>
 
-        {/* Search Section */}
         <section className="max-w-3xl mx-auto">
           <div className="relative mb-8">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />

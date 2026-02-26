@@ -8,8 +8,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { searchYoutubeVideos } from '@/services/youtubeService';
 
-const API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
 const PRIORITY_CHANNELS = ["@ViguibaKaraoke", "@ClubinhodoKaraoke", "@singerkaraoke", "@singkingkaraoke"];
 
 const mockLibrary = [
@@ -29,13 +29,7 @@ const Library: React.FC = () => {
     setIsLoading(true);
     try {
       const enhancedQuery = `${searchQuery} karaoke ${PRIORITY_CHANNELS.join(" ")}`;
-      const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(enhancedQuery)}&type=video&key=${API_KEY}`
-      );
-      
-      if (!response.ok) throw new Error("API Error");
-      
-      const data = await response.json();
+      const data = await searchYoutubeVideos(enhancedQuery, 12);
       
       if (data.items && data.items.length > 0) {
         setResults(data.items);
@@ -73,7 +67,6 @@ const Library: React.FC = () => {
         </p>
       </div>
 
-      {/* Mode Selection Menu */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <Button 
           onClick={() => setActiveFilter('all')}
@@ -121,7 +114,6 @@ const Library: React.FC = () => {
         </Button>
       </div>
 
-      {/* Search Bar */}
       <form onSubmit={handleSearchSubmit} className="max-w-xl mx-auto mb-10 relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
@@ -143,7 +135,6 @@ const Library: React.FC = () => {
         </Button>
       </form>
 
-      {/* Results Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {results.map((item) => (
           <Card key={item.id.videoId} className={cn(

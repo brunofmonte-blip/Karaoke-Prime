@@ -5,12 +5,11 @@ import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Music, Che
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-
-const API_KEY = "AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs";
+import { searchYoutubeVideos } from "@/services/youtubeService";
 
 export default function SongPlayer() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Get the videoId from the URL
+  const { id } = useParams(); 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -26,7 +25,6 @@ export default function SongPlayer() {
   const [feedback, setFeedback] = useState("");
   const micVolumeRef = useRef(0);
 
-  // YOUTUBE CONTROLS VIA POSTMESSAGE
   const handlePause = () => {
     setIsPaused(true);
     if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -52,7 +50,6 @@ export default function SongPlayer() {
     }
   };
 
-  // AI FEEDBACK LOGIC
   const getDiagnosis = (finalScore: number) => {
     if (finalScore > 2000) return {
       title: "Performance de Elite!",
@@ -74,16 +71,12 @@ export default function SongPlayer() {
     };
   };
 
-  // FETCH DYNAMIC RECOMMENDATIONS
   useEffect(() => {
     if (isFinished) {
       const fetchRecs = async () => {
         setIsLoadingRecs(true);
         try {
-          const response = await fetch(
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=3&q=karaoke+hits&type=video&key=${API_KEY}`
-          );
-          const data = await response.json();
+          const data = await searchYoutubeVideos('karaoke hits', 3);
           if (data.items) {
             setRecommendations(data.items);
           }
@@ -98,7 +91,6 @@ export default function SongPlayer() {
     }
   }, [isFinished]);
 
-  // CAMERA & MIC INIT
   useEffect(() => {
     let stream: MediaStream | null = null;
     let audioCtx: AudioContext | null = null;
@@ -112,7 +104,6 @@ export default function SongPlayer() {
             videoRef.current.srcObject = s;
           }
 
-          // Initialize Audio Analysis
           const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
           audioCtx = new AudioContext();
           const analyser = audioCtx.createAnalyser();
@@ -139,7 +130,6 @@ export default function SongPlayer() {
     };
   }, [isPlaying, isFinished, isPaused, cameraEnabled]);
 
-  // SCORING ENGINE
   useEffect(() => {
     let interval: NodeJS.Timeout;
     let clearFeedback: NodeJS.Timeout;
@@ -169,7 +159,6 @@ export default function SongPlayer() {
 
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
-      {/* HEADER & END BUTTON */}
       {!isFinished && (
         <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
           <div className="flex flex-col gap-4 pointer-events-auto">
@@ -187,7 +176,6 @@ export default function SongPlayer() {
               </div>
             )}
           </div>
-          {/* SCORE HUD */}
           {isPlaying && (
             <div className="flex flex-col items-end gap-2 animate-in fade-in slide-in-from-top-5 pointer-events-none">
               <div className="bg-black/80 border border-cyan-500/50 backdrop-blur-md px-6 py-3 rounded-2xl flex items-center gap-4 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
@@ -208,7 +196,6 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* FEEDBACK HUD */}
       {feedback && isPlaying && !isFinished && (
         <div className="absolute top-36 right-10 z-50 pointer-events-none animate-in slide-in-from-right-5 fade-in duration-200">
           <span className={`text-4xl md:text-5xl font-black italic uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]
@@ -219,7 +206,6 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* START SCREEN */}
       {!isPlaying && !isFinished && (
         <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-auto">
           <div className="w-24 h-24 mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/50">
@@ -242,13 +228,12 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* PAUSE MENU OVERLAY */}
       {isPaused && !isFinished && (
         <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in-95 duration-200">
           <h2 className="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
           <p className="text-gray-400 mb-12">Recupere o fôlego. O palco aguarda.</p>
           <div className="flex gap-6">
-            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
               <Play className="w-10 h-10 fill-black" />
               <span className="text-xl tracking-wider">CONTINUAR</span>
             </Button>
@@ -260,7 +245,6 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* YOUTUBE IFRAME */}
       {!isFinished && (
         <div className="absolute inset-0 z-10 pt-20 pb-20 bg-black flex items-center justify-center pointer-events-none">
           <iframe 
@@ -276,14 +260,12 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* USER VIDEO CIRCLE */}
       {isPlaying && !isFinished && cameraEnabled && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-2 border-cyan-400 overflow-hidden shadow-lg z-50 bg-black animate-in fade-in zoom-in">
           <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
         </div>
       )}
 
-      {/* BOTTOM MIC STATUS */}
       {!isFinished && (
         <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
           <div className="flex items-center gap-4 bg-gray-900/90 px-8 py-3 rounded-full border border-gray-700 backdrop-blur-md shadow-lg">
@@ -295,16 +277,11 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* POST-PERFORMANCE EVALUATION */}
       {isFinished && (
         <div className="absolute inset-0 z-50 bg-gray-950 overflow-y-auto pointer-events-auto flex flex-col items-center py-12 px-4 animate-in fade-in duration-500">
-          
           <div className="max-w-5xl w-full space-y-8">
-            {/* SECTION 1: AI DIAGNOSIS */}
             <div className="bg-black/60 border border-gray-800 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden flex flex-col md:flex-row gap-10 items-center">
               <div className="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
-              
-              {/* Score Sphere */}
               <div className="flex flex-col items-center justify-center w-full md:w-1/3 z-10">
                 <div className="w-32 h-32 rounded-full border-4 border-cyan-500 overflow-hidden mb-6 shadow-[0_0_30px_rgba(6,182,212,0.3)]">
                   <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover" alt="Instrutor" />
@@ -312,14 +289,11 @@ export default function SongPlayer() {
                 <h3 className="text-gray-400 tracking-widest text-sm mb-2 uppercase font-bold">Pontuação Final</h3>
                 <p className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{score}</p>
               </div>
-
-              {/* Feedback & Call to Action */}
               <div className="w-full md:w-2/3 flex flex-col justify-center z-10">
                 <div className="flex items-center gap-3 mb-4">
                   <BrainCircuit className="w-8 h-8 text-cyan-500" />
                   <h2 className="text-3xl font-bold text-white">Relatório do Instrutor IA</h2>
                 </div>
-                
                 <div className="bg-gray-900/80 p-6 rounded-2xl border border-gray-700 mb-6 shadow-inner">
                   <h4 className="text-xl font-bold text-cyan-400 mb-2">{diagnosis.title}</h4>
                   <p className="text-gray-300 leading-relaxed text-lg">{diagnosis.text}</p>
@@ -332,14 +306,11 @@ export default function SongPlayer() {
                 </Button>
               </div>
             </div>
-
-            {/* SECTION 2: SONG RECOMMENDATIONS */}
             <div className="mt-12">
               <div className="flex items-center gap-3 mb-6">
                 <Music className="w-6 h-6 text-yellow-500" />
                 <h3 className="text-2xl font-bold text-white">Recomendações para você</h3>
               </div>
-              
               {isLoadingRecs ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -369,8 +340,6 @@ export default function SongPlayer() {
                 </div>
               )}
             </div>
-
-            {/* FOOTER ACTION */}
             <div className="flex justify-center pt-8 pb-12">
               <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white" onClick={() => navigate("/library")}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Voltar ao Acervo de Músicas
