@@ -12,12 +12,6 @@ import { searchYoutubeVideos } from '@/services/youtubeService';
 
 const PRIORITY_CHANNELS = ["@ViguibaKaraoke", "@ClubinhodoKaraoke", "@singerkaraoke", "@singkingkaraoke"];
 
-const mockLibrary = [
-  { id: { videoId: 'tStNgmErrDA' }, snippet: { title: 'Shallow (Karaoke)', channelTitle: 'Mock Studio', thumbnails: { high: { url: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=500' } } } },
-  { id: { videoId: 'MvWE4YV7KtQ' }, snippet: { title: 'Evidências (Karaoke)', channelTitle: 'Mock Studio', thumbnails: { high: { url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=500' } } } },
-  { id: { videoId: 'HO8AZPOrJqQ' }, snippet: { title: 'Asa Branca (Karaoke)', channelTitle: 'Mock Studio', thumbnails: { high: { url: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=500' } } } }
-];
-
 const Library: React.FC = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -34,12 +28,11 @@ const Library: React.FC = () => {
       if (data.items && data.items.length > 0) {
         setResults(data.items);
       } else {
-        throw new Error("No items");
+        toast.error("Nenhum resultado encontrado.");
       }
     } catch (error) {
-      console.warn("Library search failed, using mock fallback.");
-      setResults(mockLibrary);
-      toast.info("Modo de Demonstração: Exibindo biblioteca sugerida.");
+      console.error("Library search failed:", error);
+      toast.error("Erro ao carregar biblioteca.");
     } finally {
       setIsLoading(false);
     }

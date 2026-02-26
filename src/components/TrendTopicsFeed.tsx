@@ -1,14 +1,14 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Youtube, ExternalLink } from 'lucide-react';
+import { Youtube, ExternalLink, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const premiumChannels = [
   { 
     id: 1, 
     name: "Sing King", 
-    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_nF6v8U6GqJv5R3mYvR8vE0Z9B8=s176-c-k-c0x00ffffff-no-rj",
+    thumbnail: "https://img.youtube.com/vi/oVbXpK_BRbw/maxresdefault.jpg",
     description: "O maior canal de karaokê do mundo com hits atuais.", 
     subscribers: "10M+",
     color: "text-primary",
@@ -17,7 +17,7 @@ const premiumChannels = [
   { 
     id: 2, 
     name: "Party Tyme", 
-    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_n8vE0Z9B8vR8vE0Z9B8vR8vE0Z9B8=s176-c-k-c0x00ffffff-no-rj",
+    thumbnail: "https://img.youtube.com/vi/tStNgmErrDA/maxresdefault.jpg",
     description: "Clássicos remasterizados e trilhas de alta fidelidade.", 
     subscribers: "2M+",
     color: "text-accent",
@@ -26,7 +26,7 @@ const premiumChannels = [
   { 
     id: 3, 
     name: "KaraFun", 
-    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_k-c0x00ffffff-no-rj=s176-c-k-c0x00ffffff-no-rj", 
+    thumbnail: "https://img.youtube.com/vi/L0MK7qz13bU/maxresdefault.jpg", 
     description: "Especialistas em animações e letras sincronizadas.", 
     subscribers: "1.5M+",
     color: "text-green-400",
@@ -35,7 +35,7 @@ const premiumChannels = [
   { 
     id: 4, 
     name: "Ponto do Karaokê", 
-    avatar: "https://yt3.googleusercontent.com/ytc/AIdro_p-c0x00ffffff-no-rj=s176-c-k-c0x00ffffff-no-rj", 
+    thumbnail: "https://img.youtube.com/vi/MvWE4YV7KtQ/maxresdefault.jpg", 
     description: "A maior biblioteca de sucessos brasileiros e MPB.", 
     subscribers: "800k+",
     color: "text-red-500",
@@ -59,42 +59,43 @@ const TrendTopicsFeed: React.FC = () => {
             "rounded-[2rem] border-2 border-white/10 bg-card/30 backdrop-blur-xl transition-all duration-500",
             "hover:border-primary/50 hover:scale-[1.03] shadow-2xl group overflow-hidden"
           )}>
-            <CardContent className="p-8 flex flex-col items-center text-center h-full">
-              <div className={cn(
-                "w-24 h-24 rounded-3xl flex items-center justify-center mb-6 border-2 border-white/5 bg-black/40 overflow-hidden",
-                "transition-all duration-500 group-hover:border-primary/50",
-                channel.glow
-              )}>
+            <CardContent className="p-0 flex flex-col h-full">
+              {/* Video Thumbnail as Cover */}
+              <div className="relative h-48 w-full overflow-hidden">
                 <img 
-                  src={channel.avatar} 
+                  src={channel.thumbnail} 
                   alt={channel.name} 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback simples caso a URL falhe
-                    (e.target as HTMLImageElement).src = "https://www.youtube.com/s/desktop/28b67e7f/img/favicon_144x144.png";
-                  }}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="bg-primary/20 backdrop-blur-md p-3 rounded-full border border-primary/50">
+                    <Play className="h-6 w-6 text-primary fill-primary" />
+                  </div>
+                </div>
+                <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-[10px] font-bold text-white border border-white/10">
+                  HD AUDIO
+                </div>
               </div>
 
-              <div className="flex-grow">
-                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
+              <div className="p-6 flex-grow flex flex-col">
+                <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">
                   {channel.name}
                 </h3>
-                <p className="text-xs text-gray-500 uppercase tracking-widest font-black mb-3">
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-3">
                   {channel.subscribers} Inscritos
                 </p>
-                <p className="text-sm text-gray-400 leading-relaxed mb-6">
+                <p className="text-sm text-gray-400 leading-relaxed mb-6 flex-grow">
                   {channel.description}
                 </p>
-              </div>
 
-              <Button 
-                variant="outline"
-                className="w-full rounded-xl border-white/10 bg-white/5 hover:bg-primary hover:text-primary-foreground transition-all gap-2"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Ver Canal
-              </Button>
+                <Button 
+                  variant="outline"
+                  className="w-full rounded-xl border-white/10 bg-white/5 hover:bg-primary hover:text-primary-foreground transition-all gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Ver Canal
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

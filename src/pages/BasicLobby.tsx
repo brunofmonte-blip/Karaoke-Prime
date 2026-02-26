@@ -10,17 +10,10 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { searchYoutubeVideos } from '@/services/youtubeService';
 
-const mockResults = [
-  { id: 'tStNgmErrDA', title: 'Shallow (Karaoke)', artist: 'Lady Gaga', channel: 'Mock Studio' },
-  { id: 'MvWE4YV7KtQ', title: 'Evidências (Karaoke)', artist: 'Chitãozinho & Xororó', channel: 'Mock Studio' },
-  { id: 'HO8AZPOrJqQ', title: 'Asa Branca (Karaoke)', artist: 'Luiz Gonzaga', channel: 'Mock Studio' },
-  { id: 'oVbXpK_BRbw', title: 'Bohemian Rhapsody (Karaoke)', artist: 'Queen', channel: 'Mock Studio' }
-];
-
 export default function BasicLobby() {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState(mockResults.slice(0, 2));
+  const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeMode, setActiveMode] = useState<'online' | 'offline' | 'duel'>('online');
 
@@ -28,7 +21,7 @@ export default function BasicLobby() {
     if (e.key === 'Enter' && query.trim() !== '') {
       setLoading(true);
       try {
-        const data = await searchYoutubeVideos(query + ' karaoke', 8);
+        const data = await searchYoutubeVideos(query + ' karaoke', 10);
 
         if (data.items && data.items.length > 0) {
           const formattedResults = data.items.map((item: any) => ({
@@ -38,18 +31,12 @@ export default function BasicLobby() {
             channel: "YouTube Live"
           }));
           setResults(formattedResults);
-          toast.success(`Encontramos ${formattedResults.length} resultados!`);
         } else {
-          throw new Error("No results");
+          toast.error("Nenhum resultado encontrado.");
         }
       } catch (error) {
-        console.warn("YouTube API failed, using mock fallback:", error);
-        const filteredMock = mockResults.filter(m => 
-          m.title.toLowerCase().includes(query.toLowerCase()) || 
-          m.artist.toLowerCase().includes(query.toLowerCase())
-        );
-        setResults(filteredMock.length > 0 ? filteredMock : mockResults);
-        toast.info("Modo de Demonstração: Exibindo resultados sugeridos.");
+        console.error("YouTube API Error:", error);
+        toast.error("Erro ao conectar com o YouTube. Verifique sua conexão.");
       } finally {
         setLoading(false);
       }
@@ -149,7 +136,7 @@ export default function BasicLobby() {
 
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">
-              {query ? 'Resultados da Busca' : 'Resultados Sugeridos'}
+              {query ? 'Resultados da Busca' : 'Digite para buscar músicas'}
             </h3>
             {results.map((song) => (
               <div 
