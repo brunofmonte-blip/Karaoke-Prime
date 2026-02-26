@@ -1,18 +1,17 @@
 /**
- * Motor de Busca YouTube - Configuração Forçada de Produção
- * Esta função ignora qualquer configuração externa e utiliza a chave direta.
+ * Motor de Busca YouTube - Configuração de Produção Forçada
+ * Este serviço realiza chamadas diretas à API do Google sem fallbacks.
  */
 
+const API_KEY = 'AIzaSyAoMCAB5-K0Tj0tHaWEskLXN7hjfspux8M';
+
 export const searchYouTube = async (query: string) => {
-  const API_KEY = 'AIzaSyAoMCAB5-K0Tj0tHaWEskLXN7hjfspux8M';
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${API_KEY}`;
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${API_KEY}`;
   
   const response = await fetch(url);
   
   if (!response.ok) {
-    const errorData = await response.json();
-    console.error("YouTube API Error:", errorData);
-    throw new Error("Falha na comunicação com o YouTube.");
+    throw new Error('Failed to fetch from YouTube');
   }
 
   const data = await response.json();

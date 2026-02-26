@@ -162,8 +162,7 @@ const Library: React.FC = () => {
       ) : (
         <div className="text-center p-20 text-white flex flex-col items-center gap-4 animate-in fade-in duration-500">
           <Music className="h-16 w-16 opacity-20" />
-          <p className="text-xl font-medium">Nenhuma música encontrada.</p>
-          <p className="text-sm text-gray-400">Tente buscar por outro termo ou artista.</p>
+          <p className="text-xl font-medium">Nenhuma música encontrada. Tente buscar por outro termo ou artista.</p>
         </div>
       )}
     </div>

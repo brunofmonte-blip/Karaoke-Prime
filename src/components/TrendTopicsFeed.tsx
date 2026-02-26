@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Youtube, ExternalLink, Play } from 'lucide-react';
+import { Youtube, ExternalLink, Play, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const premiumChannels = [
@@ -11,7 +11,7 @@ const premiumChannels = [
     thumbnail: "https://i.ytimg.com/vi/P7qu_p_i-pY/hqdefault.jpg",
     description: "O maior canal de karaokê do mundo com hits atuais.", 
     subscribers: "10M+",
-    color: "text-primary"
+    color: "bg-primary/20"
   },
   { 
     id: 2, 
@@ -19,7 +19,7 @@ const premiumChannels = [
     thumbnail: "https://i.ytimg.com/vi/vL9YofV_L_Q/hqdefault.jpg",
     description: "Clássicos remasterizados e trilhas de alta fidelidade.", 
     subscribers: "2M+",
-    color: "text-accent"
+    color: "bg-accent/20"
   },
   { 
     id: 3, 
@@ -27,7 +27,7 @@ const premiumChannels = [
     thumbnail: "https://i.ytimg.com/vi/XqZsoesa55w/hqdefault.jpg", 
     description: "Especialistas em animações e letras sincronizadas.", 
     subscribers: "1.5M+",
-    color: "text-green-400"
+    color: "bg-green-500/20"
   },
   { 
     id: 4, 
@@ -35,9 +35,66 @@ const premiumChannels = [
     thumbnail: "https://i.ytimg.com/vi/W_8R6EID7F0/hqdefault.jpg", 
     description: "A maior biblioteca de sucessos brasileiros e MPB.", 
     subscribers: "800k+",
-    color: "text-red-500"
+    color: "bg-red-500/20"
   },
 ];
+
+const ChannelCard = ({ channel }: { channel: typeof premiumChannels[0] }) => {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <Card className={cn(
+      "rounded-[2rem] border-2 border-white/10 bg-card/30 backdrop-blur-xl transition-all duration-500",
+      "hover:border-primary/50 hover:scale-[1.03] shadow-2xl group overflow-hidden"
+    )}>
+      <CardContent className="p-0 flex flex-col h-full">
+        <div className="relative h-48 w-full overflow-hidden">
+          {!imgError ? (
+            <img 
+              src={channel.thumbnail} 
+              alt={channel.name} 
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className={cn("w-full h-full flex flex-col items-center justify-center gap-2", channel.color)}>
+              <Music className="h-10 w-10 text-white/50" />
+              <span className="font-bold text-white/80">{channel.name}</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-primary/20 backdrop-blur-md p-3 rounded-full border border-primary/50">
+              <Play className="h-6 w-6 text-primary fill-primary" />
+            </div>
+          </div>
+          <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-[10px] font-bold text-white border border-white/10">
+            HD AUDIO
+          </div>
+        </div>
+
+        <div className="p-6 flex-grow flex flex-col">
+          <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">
+            {channel.name}
+          </h3>
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-3">
+            {channel.subscribers} Inscritos
+          </p>
+          <p className="text-sm text-gray-400 leading-relaxed mb-6 flex-grow">
+            {channel.description}
+          </p>
+
+          <Button 
+            variant="outline"
+            className="w-full rounded-xl border-white/10 bg-white/5 hover:bg-primary hover:text-primary-foreground transition-all gap-2"
+          >
+            <ExternalLink className="h-4 w-4" />
+            Ver Canal
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const TrendTopicsFeed: React.FC = () => {
   return (
@@ -51,48 +108,7 @@ const TrendTopicsFeed: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {premiumChannels.map((channel) => (
-          <Card key={channel.id} className={cn(
-            "rounded-[2rem] border-2 border-white/10 bg-card/30 backdrop-blur-xl transition-all duration-500",
-            "hover:border-primary/50 hover:scale-[1.03] shadow-2xl group overflow-hidden"
-          )}>
-            <CardContent className="p-0 flex flex-col h-full">
-              <div className="relative h-48 w-full overflow-hidden">
-                <img 
-                  src={channel.thumbnail} 
-                  alt={channel.name} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="bg-primary/20 backdrop-blur-md p-3 rounded-full border border-primary/50">
-                    <Play className="h-6 w-6 text-primary fill-primary" />
-                  </div>
-                </div>
-                <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-[10px] font-bold text-white border border-white/10">
-                  HD AUDIO
-                </div>
-              </div>
-
-              <div className="p-6 flex-grow flex flex-col">
-                <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">
-                  {channel.name}
-                </h3>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-3">
-                  {channel.subscribers} Inscritos
-                </p>
-                <p className="text-sm text-gray-400 leading-relaxed mb-6 flex-grow">
-                  {channel.description}
-                </p>
-
-                <Button 
-                  variant="outline"
-                  className="w-full rounded-xl border-white/10 bg-white/5 hover:bg-primary hover:text-primary-foreground transition-all gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Ver Canal
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <ChannelCard key={channel.id} channel={channel} />
         ))}
       </div>
     </div>
