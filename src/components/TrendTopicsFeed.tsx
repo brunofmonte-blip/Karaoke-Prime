@@ -8,7 +8,7 @@ const premiumChannels = [
   { 
     id: 1, 
     name: "Sing King", 
-    thumbnail: "https://img.youtube.com/vi/P7qu_p_i-pY/maxresdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/P7qu_p_i-pY/hqdefault.jpg",
     description: "O maior canal de karaokê do mundo com hits atuais.", 
     subscribers: "10M+",
     color: "text-primary"
@@ -16,7 +16,7 @@ const premiumChannels = [
   { 
     id: 2, 
     name: "Party Tyme", 
-    thumbnail: "https://img.youtube.com/vi/vL9YofV_L_Q/maxresdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/vL9YofV_L_Q/hqdefault.jpg",
     description: "Clássicos remasterizados e trilhas de alta fidelidade.", 
     subscribers: "2M+",
     color: "text-accent"
@@ -24,7 +24,7 @@ const premiumChannels = [
   { 
     id: 3, 
     name: "KaraFun", 
-    thumbnail: "https://img.youtube.com/vi/XqZsoesa55w/maxresdefault.jpg", 
+    thumbnail: "https://i.ytimg.com/vi/XqZsoesa55w/hqdefault.jpg", 
     description: "Especialistas em animações e letras sincronizadas.", 
     subscribers: "1.5M+",
     color: "text-green-400"
@@ -32,7 +32,7 @@ const premiumChannels = [
   { 
     id: 4, 
     name: "Ponto do Karaokê", 
-    thumbnail: "https://img.youtube.com/vi/W_8R6EID7F0/maxresdefault.jpg", 
+    thumbnail: "https://i.ytimg.com/vi/W_8R6EID7F0/hqdefault.jpg", 
     description: "A maior biblioteca de sucessos brasileiros e MPB.", 
     subscribers: "800k+",
     color: "text-red-500"

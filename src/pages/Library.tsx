@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import { searchYouTube } from '@/services/youtubeService';
 
 const PRIORITY_CHANNELS = ["@ViguibaKaraoke", "@ClubinhodoKaraoke", "@singerkaraoke", "@singkingkaraoke"];
@@ -27,7 +26,7 @@ const Library: React.FC = () => {
       setResults(items || []);
     } catch (error) {
       console.error("Library search failed:", error);
-      toast.error("Erro ao conectar com o motor de busca.");
+      setResults([]);
     } finally {
       setIsLoading(false);
     }
@@ -44,11 +43,6 @@ const Library: React.FC = () => {
     }
   };
 
-  const handleCantarOnline = () => {
-    setActiveFilter('all');
-    searchSongs(query || "popular");
-  };
-
   return (
     <div className="container mx-auto p-4 md:p-8 min-h-[80vh]">
       <div className="text-center mb-12">
@@ -62,7 +56,7 @@ const Library: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <Button 
-          onClick={handleCantarOnline}
+          onClick={() => { setActiveFilter('all'); searchSongs("popular"); }}
           variant="outline"
           className={cn(
             "h-32 rounded-2xl border-2 flex flex-col gap-2 transition-all duration-300",
@@ -168,7 +162,8 @@ const Library: React.FC = () => {
       ) : (
         <div className="text-center p-20 text-white flex flex-col items-center gap-4 animate-in fade-in duration-500">
           <Music className="h-16 w-16 opacity-20" />
-          <p className="text-xl font-medium">Nenhuma música encontrada. Tente buscar por outro termo ou artista.</p>
+          <p className="text-xl font-medium">Nenhuma música encontrada.</p>
+          <p className="text-sm text-gray-400">Tente buscar por outro termo ou artista.</p>
         </div>
       )}
     </div>
