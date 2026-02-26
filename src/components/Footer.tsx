@@ -96,11 +96,11 @@ const Footer = () => {
           </h2>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-border/40">
-          <p className="text-sm text-muted-foreground order-2 md:order-1 mt-4 md:mt-0">
-            © {new Date().getFullYear()} Karaoke Prime. Todos os direitos reservados.
+        <div className="flex flex-col items-center pt-8 border-t border-border/40 space-y-4">
+          <p className="text-[10px] md:text-xs text-muted-foreground/50 font-medium tracking-widest uppercase text-center">
+            © 2026 Karaoke Prime - All rights reserved
           </p>
-          <div className="order-1 md:order-2">
+          <div className="opacity-50 hover:opacity-100 transition-opacity">
             <MadeWithDyad />
           </div>
         </div>
