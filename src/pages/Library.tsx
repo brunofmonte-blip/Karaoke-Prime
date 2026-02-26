@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { searchYoutubeVideos } from '@/services/youtubeService';
+import { searchYouTube } from '@/services/youtubeService';
 
 const PRIORITY_CHANNELS = ["@ViguibaKaraoke", "@ClubinhodoKaraoke", "@singerkaraoke", "@singkingkaraoke"];
 
@@ -23,16 +23,11 @@ const Library: React.FC = () => {
     setIsLoading(true);
     try {
       const enhancedQuery = searchQuery ? `${searchQuery} karaoke` : `popular karaoke ${PRIORITY_CHANNELS.join(" ")}`;
-      const data = await searchYoutubeVideos(enhancedQuery, 12);
-      
-      if (data.items && data.items.length > 0) {
-        setResults(data.items);
-      } else {
-        setResults([]);
-      }
+      const items = await searchYouTube(enhancedQuery);
+      setResults(items || []);
     } catch (error) {
       console.error("Library search failed:", error);
-      toast.error("Erro ao carregar biblioteca.");
+      toast.error("Erro ao conectar com o motor de busca.");
     } finally {
       setIsLoading(false);
     }
@@ -171,10 +166,9 @@ const Library: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center p-20 text-muted-foreground flex flex-col items-center gap-4 animate-in fade-in duration-500">
+        <div className="text-center p-20 text-white flex flex-col items-center gap-4 animate-in fade-in duration-500">
           <Music className="h-16 w-16 opacity-20" />
-          <p className="text-xl font-medium">Nenhuma música encontrada.</p>
-          <p className="text-sm">Tente buscar por outro termo ou artista.</p>
+          <p className="text-xl font-medium">Nenhuma música encontrada. Tente buscar por outro termo ou artista.</p>
         </div>
       )}
     </div>

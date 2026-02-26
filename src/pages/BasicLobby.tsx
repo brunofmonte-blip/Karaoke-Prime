@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { searchYoutubeVideos } from '@/services/youtubeService';
+import { searchYouTube } from '@/services/youtubeService';
 
 export default function BasicLobby() {
   const navigate = useNavigate();
@@ -21,10 +21,10 @@ export default function BasicLobby() {
     if (e.key === 'Enter' && query.trim() !== '') {
       setLoading(true);
       try {
-        const data = await searchYoutubeVideos(query + ' karaoke', 10);
+        const items = await searchYouTube(query + ' karaoke');
 
-        if (data.items && data.items.length > 0) {
-          const formattedResults = data.items.map((item: any) => ({
+        if (items && items.length > 0) {
+          const formattedResults = items.map((item: any) => ({
             id: item.id.videoId,
             title: item.snippet.title,
             artist: item.snippet.channelTitle,
@@ -32,11 +32,11 @@ export default function BasicLobby() {
           }));
           setResults(formattedResults);
         } else {
-          toast.error("Nenhum resultado encontrado.");
+          setResults([]);
         }
       } catch (error) {
         console.error("YouTube API Error:", error);
-        toast.error("Erro ao conectar com o YouTube. Verifique sua conexão.");
+        toast.error("Erro ao conectar com o YouTube.");
       } finally {
         setLoading(false);
       }
@@ -135,33 +135,39 @@ export default function BasicLobby() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">
-              {query ? 'Resultados da Busca' : 'Digite para buscar músicas'}
-            </h3>
-            {results.map((song) => (
-              <div 
-                key={song.id} 
-                onClick={() => navigate(`/room?v=${song.id}`)} 
-                className="block group cursor-pointer"
-              >
-                <Card className="border-border/50 bg-card/30 hover:bg-card/50 hover:border-primary/50 transition-all duration-300 rounded-2xl overflow-hidden">
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                        <Music className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-white group-hover:text-primary transition-colors truncate" dangerouslySetInnerHTML={{ __html: song.title }} />
-                        <p className="text-sm text-muted-foreground truncate">{song.artist} • <span className="text-xs opacity-70">{song.channel}</span></p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="icon" className="rounded-full group-hover:text-primary text-white flex-shrink-0">
-                      <PlayCircle className="h-8 w-8" />
-                    </Button>
-                  </CardContent>
-                </Card>
+            {results.length > 0 ? (
+              <>
+                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">Resultados da Busca</h3>
+                {results.map((song) => (
+                  <div 
+                    key={song.id} 
+                    onClick={() => navigate(`/room?v=${song.id}`)} 
+                    className="block group cursor-pointer"
+                  >
+                    <Card className="border-border/50 bg-card/30 hover:bg-card/50 hover:border-primary/50 transition-all duration-300 rounded-2xl overflow-hidden">
+                      <CardContent className="p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <Music className="h-6 w-6 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-white group-hover:text-primary transition-colors truncate" dangerouslySetInnerHTML={{ __html: song.title }} />
+                            <p className="text-sm text-muted-foreground truncate">{song.artist} • <span className="text-xs opacity-70">{song.channel}</span></p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon" className="rounded-full group-hover:text-primary text-white flex-shrink-0">
+                          <PlayCircle className="h-8 w-8" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
+              </>
+            ) : query && !loading ? (
+              <div className="text-center py-10 text-white">
+                <p className="text-lg font-medium">Nenhuma música encontrada. Tente buscar por outro termo ou artista.</p>
               </div>
-            ))}
+            ) : null}
           </div>
         </section>
       </div>

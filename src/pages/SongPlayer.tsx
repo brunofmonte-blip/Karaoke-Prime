@@ -5,7 +5,7 @@ import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Music, Che
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { searchYoutubeVideos } from "@/services/youtubeService";
+import { searchYouTube } from "@/services/youtubeService";
 
 export default function SongPlayer() {
   const navigate = useNavigate();
@@ -76,13 +76,12 @@ export default function SongPlayer() {
       const fetchRecs = async () => {
         setIsLoadingRecs(true);
         try {
-          const data = await searchYoutubeVideos('karaoke hits', 3);
-          if (data.items) {
-            setRecommendations(data.items);
+          const items = await searchYouTube('karaoke hits');
+          if (items) {
+            setRecommendations(items.slice(0, 3));
           }
         } catch (error) {
           console.error("Failed to fetch recommendations:", error);
-          toast.error("Não foi possível carregar recomendações.");
         } finally {
           setIsLoadingRecs(false);
         }
