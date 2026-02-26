@@ -8,7 +8,7 @@ const premiumChannels = [
   { 
     id: 1, 
     name: "Sing King", 
-    thumbnail: "https://img.youtube.com/vi/oVbXpK_BRbw/maxresdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/P7qu_p_i-pY/hqdefault.jpg",
     description: "O maior canal de karaokê do mundo com hits atuais.", 
     subscribers: "10M+",
     color: "text-primary",
@@ -17,7 +17,7 @@ const premiumChannels = [
   { 
     id: 2, 
     name: "Party Tyme", 
-    thumbnail: "https://img.youtube.com/vi/tStNgmErrDA/maxresdefault.jpg",
+    thumbnail: "https://i.ytimg.com/vi/vL9YofV_L_Q/hqdefault.jpg",
     description: "Clássicos remasterizados e trilhas de alta fidelidade.", 
     subscribers: "2M+",
     color: "text-accent",
@@ -26,7 +26,7 @@ const premiumChannels = [
   { 
     id: 3, 
     name: "KaraFun", 
-    thumbnail: "https://img.youtube.com/vi/L0MK7qz13bU/maxresdefault.jpg", 
+    thumbnail: "https://i.ytimg.com/vi/XqZsoesa55w/hqdefault.jpg", 
     description: "Especialistas em animações e letras sincronizadas.", 
     subscribers: "1.5M+",
     color: "text-green-400",
@@ -35,7 +35,7 @@ const premiumChannels = [
   { 
     id: 4, 
     name: "Ponto do Karaokê", 
-    thumbnail: "https://img.youtube.com/vi/MvWE4YV7KtQ/maxresdefault.jpg", 
+    thumbnail: "https://i.ytimg.com/vi/W_8R6EID7F0/hqdefault.jpg", 
     description: "A maior biblioteca de sucessos brasileiros e MPB.", 
     subscribers: "800k+",
     color: "text-red-500",
@@ -60,7 +60,6 @@ const TrendTopicsFeed: React.FC = () => {
             "hover:border-primary/50 hover:scale-[1.03] shadow-2xl group overflow-hidden"
           )}>
             <CardContent className="p-0 flex flex-col h-full">
-              {/* Video Thumbnail as Cover */}
               <div className="relative h-48 w-full overflow-hidden">
                 <img 
                   src={channel.thumbnail} 

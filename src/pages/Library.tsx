@@ -22,13 +22,13 @@ const Library: React.FC = () => {
   const searchSongs = async (searchQuery: string = "") => {
     setIsLoading(true);
     try {
-      const enhancedQuery = `${searchQuery} karaoke ${PRIORITY_CHANNELS.join(" ")}`;
+      const enhancedQuery = searchQuery ? `${searchQuery} karaoke` : `popular karaoke ${PRIORITY_CHANNELS.join(" ")}`;
       const data = await searchYoutubeVideos(enhancedQuery, 12);
       
       if (data.items && data.items.length > 0) {
         setResults(data.items);
       } else {
-        toast.error("Nenhum resultado encontrado.");
+        setResults([]);
       }
     } catch (error) {
       console.error("Library search failed:", error);
@@ -39,7 +39,7 @@ const Library: React.FC = () => {
   };
 
   useEffect(() => {
-    searchSongs("popular");
+    searchSongs();
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -47,6 +47,11 @@ const Library: React.FC = () => {
     if (query.trim()) {
       searchSongs(query);
     }
+  };
+
+  const handleCantarOnline = () => {
+    setActiveFilter('all');
+    searchSongs(query || "popular");
   };
 
   return (
@@ -62,7 +67,7 @@ const Library: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <Button 
-          onClick={() => setActiveFilter('all')}
+          onClick={handleCantarOnline}
           variant="outline"
           className={cn(
             "h-32 rounded-2xl border-2 flex flex-col gap-2 transition-all duration-300",
@@ -128,42 +133,48 @@ const Library: React.FC = () => {
         </Button>
       </form>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {results.map((item) => (
-          <Card key={item.id.videoId} className={cn(
-            "rounded-xl overflow-hidden border-2 border-border/50 transition-all duration-300 flex flex-col h-full",
-            "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-lg"
-          )}>
-            <div 
-              className="h-40 bg-cover bg-center relative group cursor-pointer"
-              style={{ backgroundImage: `url(${item.snippet.thumbnails.high.url})` }}
-              onClick={() => navigate(`/song/${item.id.videoId}`)}
-            >
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <PlayCircle className="h-12 w-12 text-primary icon-neon-glow" />
-              </div>
-            </div>
-            <CardContent className="p-4 flex flex-col flex-grow justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-primary line-clamp-2 mb-1">{item.snippet.title}</h3>
-                <p className="text-xs text-muted-foreground mb-3">{item.snippet.channelTitle}</p>
-              </div>
-              <Button 
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Loader2 className="h-12 w-12 text-primary animate-spin" />
+          <p className="text-muted-foreground animate-pulse">Consultando motor de busca...</p>
+        </div>
+      ) : results.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {results.map((item) => (
+            <Card key={item.id.videoId} className={cn(
+              "rounded-xl overflow-hidden border-2 border-border/50 transition-all duration-300 flex flex-col h-full",
+              "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-lg"
+            )}>
+              <div 
+                className="h-40 bg-cover bg-center relative group cursor-pointer"
+                style={{ backgroundImage: `url(${item.snippet.thumbnails.high.url})` }}
                 onClick={() => navigate(`/song/${item.id.videoId}`)}
-                className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg shadow-md shadow-accent/30 h-9"
               >
-                <PlayCircle className="h-4 w-4 mr-2" />
-                Cantar Agora
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {results.length === 0 && !isLoading && (
-        <div className="text-center p-10 text-muted-foreground flex flex-col items-center gap-4">
-          <Music className="h-12 w-12 opacity-20" />
-          <p>Nenhuma música encontrada. Tente buscar por um artista ou título.</p>
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <PlayCircle className="h-12 w-12 text-primary icon-neon-glow" />
+                </div>
+              </div>
+              <CardContent className="p-4 flex flex-col flex-grow justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-primary line-clamp-2 mb-1" dangerouslySetInnerHTML={{ __html: item.snippet.title }} />
+                  <p className="text-xs text-muted-foreground mb-3">{item.snippet.channelTitle}</p>
+                </div>
+                <Button 
+                  onClick={() => navigate(`/song/${item.id.videoId}`)}
+                  className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg shadow-md shadow-accent/30 h-9"
+                >
+                  <PlayCircle className="h-4 w-4 mr-2" />
+                  Cantar Agora
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center p-20 text-muted-foreground flex flex-col items-center gap-4 animate-in fade-in duration-500">
+          <Music className="h-16 w-16 opacity-20" />
+          <p className="text-xl font-medium">Nenhuma música encontrada.</p>
+          <p className="text-sm">Tente buscar por outro termo ou artista.</p>
         </div>
       )}
     </div>
