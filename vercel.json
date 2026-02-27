@@ -20,7 +20,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com https://picsum.photos; connect-src 'self' https://wlqpgpdvfdhganbbbwbl.supabase.co; font-src 'self';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com https://picsum.photos https://i.pravatar.cc https://*.ytimg.com; connect-src 'self' https://wlqpgpdvfdhganbbbwbl.supabase.co https://www.googleapis.com; font-src 'self';"
         }
       ]
     }
