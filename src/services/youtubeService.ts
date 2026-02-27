@@ -15,5 +15,5 @@ export const searchYouTube = async (query: string) => {
   } catch (error) {
     console.error('YouTube Search Error:', error);
     return [];
-  }
+   }
 };
