@@ -1,4 +1,2 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-
-/;
+// Arquivo de imagem corrompido
+// Removendo rastros de chaves
