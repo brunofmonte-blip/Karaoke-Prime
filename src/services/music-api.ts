@@ -1,4 +1,4 @@
-const API_KEY = 'Alvo 2:';
+const API_KEY = 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548';
 
 export const searchYouTube = async (query: string) => {
   try {
