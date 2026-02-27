@@ -1,118 +1,194 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Youtube, ExternalLink, Play, Music } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { GraduationCap, Star, Lock, Music, Trophy, Sparkles } from "lucide-react";
+import { cn } from "../utils/cn";
+import RegionalTopHits from "@/components/RegionalTopHits";
+import RecentlyAdded from "@/components/RecentlyAdded";
+import TrendSingersFeed from "@/components/TrendSingersFeed";
+import RankingTables from "@/components/RankingTables";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useUserProfile } from '@/hooks/use-user-profile';
+import PillarLockedOverlay from '@/components/PillarLockedOverlay';
+import { useAuth } from '@/integrations/supabase/auth';
+import AchievementsSection from '@/components/AchievementsSection';
+import AdvancedSearch from '@/components/AdvancedSearch';
 
-const premiumChannels = [
-  { 
-    id: 1, 
-    name: "Sing King", 
-    thumbnail: "https://i.ytimg.com/vi/P7qu_p_i-pY/hqdefault.jpg",
-    description: "O maior canal de karaokê do mundo com hits atuais.", 
-    subscribers: "10M+",
-    color: "bg-primary/20"
-  },
-  { 
-    id: 2, 
-    name: "Party Tyme", 
-    thumbnail: "https://i.ytimg.com/vi/vL9YofV_L_Q/hqdefault.jpg",
-    description: "Clássicos remasterizados e trilhas de alta fidelidade.", 
-    subscribers: "2M+",
-    color: "bg-accent/20"
-  },
-  { 
-    id: 3, 
-    name: "KaraFun", 
-    thumbnail: "https://i.ytimg.com/vi/XqZsoesa55w/hqdefault.jpg", 
-    description: "Especialistas em animações e letras sincronizadas.", 
-    subscribers: "1.5M+",
-    color: "bg-green-500/20"
-  },
-  { 
-    id: 4, 
-    name: "Ponto do Karaokê", 
-    thumbnail: "https://i.ytimg.com/vi/W_8R6EID7F0/hqdefault.jpg", 
-    description: "A maior biblioteca de sucessos brasileiros e MPB.", 
-    subscribers: "800k+",
-    color: "bg-red-500/20"
-  },
-];
+const HeroSection = () => (
+  <section 
+    className="relative h-[85vh] w-full flex flex-col items-center justify-center text-center" 
+    style={{ 
+      backgroundImage: "url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2070&auto=format&fit=crop')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }}
+  >
+    {/* Dark Overlay for Readability */}
+    <div className="absolute inset-0 bg-black/60" />
+    
+    <div className="relative z-10 p-4">
+      <h1 className="text-6xl md:text-8xl font-black text-white mb-6 tracking-tighter">
+        KARAOKE <span className="text-primary neon-blue-glow">PRIME</span>
+      </h1>
+      <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto font-medium leading-relaxed">
+        A plataforma definitiva para evolução vocal e performance global.
+      </p>
+    </div>
+  </section>
+);
 
-const ChannelCard = ({ channel }: { channel: typeof premiumChannels[0] }) => {
-  const [imgError, setImgError] = useState(false);
+interface ElitePillarProps {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  to?: string;
+  onClick?: () => void;
+  isLocked?: boolean;
+  isUnlocked?: boolean;
+  onLockClick?: () => void;
+}
 
-  return (
-    <Card className={cn(
-      "rounded-[2rem] border-2 border-white/10 bg-card/30 backdrop-blur-xl transition-all duration-500",
-      "hover:border-primary/50 hover:scale-[1.03] shadow-2xl group overflow-hidden"
-    )}>
-      <CardContent className="p-0 flex flex-col h-full">
-        <div className="relative h-48 w-full overflow-hidden">
-          {!imgError ? (
-            <img 
-              src={channel.thumbnail} 
-              alt={channel.name} 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <div className={cn("w-full h-full flex flex-col items-center justify-center gap-2", channel.color)}>
-              <Music className="h-10 w-10 text-white/50" />
-              <span className="font-bold text-white/80">{channel.name}</span>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="bg-primary/20 backdrop-blur-md p-3 rounded-full border border-primary/50">
-              <Play className="h-6 w-6 text-primary fill-primary" />
-            </div>
-          </div>
-          <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-[10px] font-bold text-white border border-white/10">
-            HD AUDIO
-          </div>
+const ElitePillarCard: React.FC<ElitePillarProps> = ({ 
+  title, 
+  description, 
+  icon: Icon, 
+  to, 
+  onClick, 
+  isLocked = false, 
+  isUnlocked = false,
+  onLockClick 
+}) => {
+  const handleClick = (e: React.MouseEvent) => {
+    if (isLocked) {
+      e.preventDefault();
+      onLockClick?.();
+      return;
+    }
+    onClick?.();
+  };
+
+  const content = (
+    <div className={cn(
+      "p-6 rounded-2xl transition-all duration-500 relative h-full flex flex-col",
+      "bg-card/20 backdrop-blur-xl border-2 shadow-2xl",
+      isUnlocked ? "border-green-500/70 shadow-green-500/30" : "border-primary/70 shadow-primary/30",
+      "cursor-pointer hover:scale-[1.05] hover:bg-card/30",
+      isLocked && "opacity-60 grayscale-[0.5]"
+    )}
+    onClick={handleClick}
+    >
+      {isLocked && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl z-10">
+          <Lock className="h-10 w-10 text-white/50" />
         </div>
-
-        <div className="p-6 flex-grow flex flex-col">
-          <h3 className="text-xl font-bold text-white mb-1 group-hover:text-primary transition-colors">
-            {channel.name}
-          </h3>
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-3">
-            {channel.subscribers} Inscritos
-          </p>
-          <p className="text-sm text-gray-400 leading-relaxed mb-6 flex-grow">
-            {channel.description}
-          </p>
-
-          <Button 
-            variant="outline"
-            className="w-full rounded-xl border-white/10 bg-white/5 hover:bg-primary hover:text-primary-foreground transition-all gap-2"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Ver Canal
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      )}
+      
+      <div className={cn(
+        "h-12 w-12 mb-4 flex items-center justify-center rounded-xl border-2 flex-shrink-0",
+        isLocked ? "border-white/20 bg-white/5" : "border-primary/50 bg-primary/10"
+      )}>
+        <Icon className={cn("h-6 w-6", isLocked ? "text-white/40" : "text-primary icon-neon-glow")} />
+      </div>
+      
+      <h3 className="text-xl font-bold mb-2 text-white">{title}</h3>
+      <p className="text-sm text-gray-400 leading-snug flex-grow">{description}</p>
+    </div>
   );
+
+  if (to && !isLocked) {
+    return <Link to={to} className="block h-full">{content}</Link>;
+  }
+  
+  return <div className="block h-full">{content}</div>;
 };
 
-const TrendTopicsFeed: React.FC = () => {
-  return (
-    <div className="py-12">
-      <div className="mb-10">
-        <h2 className="text-3xl md:text-4xl font-black text-white neon-blue-glow flex items-center gap-3">
-          Canais de Karaokê Premium <Youtube className="h-8 w-8 text-red-600" />
-        </h2>
-        <p className="text-gray-400 mt-2 font-medium">As melhores fontes de áudio para sua performance</p>
-      </div>
+const Index = () => {
+  const navigate = useNavigate();
+  const { data: profile } = useUserProfile();
+  const { user } = useAuth();
+  
+  const currentLevel = profile?.academy_level ?? 0;
+  const [lockedPillar, setLockedPillar] = useState<{ title: string, requiredLevel: number } | null>(null);
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {premiumChannels.map((channel) => (
-          <ChannelCard key={channel.id} channel={channel} />
-        ))}
+  const handlePillarClick = (title: string, requiredLevel: number, to: string) => {
+    if (!user) {
+      toast.warning("Faça login para acessar recursos premium.");
+      return;
+    }
+    if (currentLevel < requiredLevel) {
+      setLockedPillar({ title, requiredLevel });
+    } else {
+      navigate(to);
+    }
+  };
+
+  return (
+    <div className="w-full bg-background">
+      {lockedPillar && (
+        <PillarLockedOverlay 
+          title={lockedPillar.title}
+          requiredLevel={lockedPillar.requiredLevel}
+          currentLevel={currentLevel}
+          onClose={() => setLockedPillar(null)}
+        />
+      )}
+
+      <HeroSection />
+
+      <div className="container mx-auto px-4 -mt-20 relative z-20">
+        {/* Uniform 5-Column Grid for Desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 pb-8">
+          <ElitePillarCard 
+            title="Básico" 
+            description="Karaoke tradicional com MVs originais e sistema de batalha." 
+            icon={Music} 
+            to="/basic"
+          />
+          <ElitePillarCard 
+            title="Academy" 
+            description="Currículo de 10 níveis com Diagnóstico Vocal AI." 
+            icon={GraduationCap} 
+            to="/academy"
+          />
+          <ElitePillarCard 
+            title="Next Talent" 
+            description="Audições gamificadas de 10 níveis, do local ao global." 
+            icon={Star} 
+            isLocked={currentLevel < 5}
+            onLockClick={() => handlePillarClick("Next Talent", 5, "/talent")}
+          />
+          <ElitePillarCard 
+            title="Backstage" 
+            description="UI Premium bloqueada por teste Pro-Vocal." 
+            icon={Lock} 
+            isLocked={currentLevel < 8}
+            onLockClick={() => handlePillarClick("Backstage", 8, "/backstage")}
+          />
+          <ElitePillarCard 
+            title="Next Success" 
+            description="Espaço do compositor. Transforme suas ideias em músicas de estúdio usando IA." 
+            icon={Sparkles} 
+            isLocked={currentLevel < 10}
+            onLockClick={() => handlePillarClick("Next Success", 10, "/next-success")}
+          />
+        </div>
+
+        <div className="mt-12">
+          <AdvancedSearch />
+        </div>
+
+        <div className="py-16">
+          <AchievementsSection />
+          <RegionalTopHits />
+          <TrendSingersFeed />
+          <RecentlyAdded />
+                    <div className="mt-12 pb-16">
+            <h2 className="text-4xl font-bold text-center mb-12 text-primary neon-blue-glow">Rankings Globais</h2>
+            <RankingTables />
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default TrendTopicsFeed;
+export default Index;
