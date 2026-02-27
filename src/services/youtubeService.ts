@@ -181,8 +181,7 @@ const Index = () => {
           <RegionalTopHits />
           <TrendSingersFeed />
           <RecentlyAdded />
-          <TrendTopicsFeed />
-          <div className="mt-12 pb-16">
+                    <div className="mt-12 pb-16">
             <h2 className="text-4xl font-bold text-center mb-12 text-primary neon-blue-glow">Rankings Globais</h2>
             <RankingTables />
           </div>
