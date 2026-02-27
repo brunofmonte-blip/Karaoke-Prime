@@ -1,38 +1,19 @@
-import { PublicDomainSong, publicDomainLibrary } from '@/data/public-domain-library';
+const API_KEY = 'SUA_3_CHAVE_NOVA_AQUI';
 
-export interface SearchFilters {
-  query: string;
-  origin: 'Nacional' | 'Internacional' | 'All';
-  genre?: string;
-}
+export const searchYouTube = async (query: string) => {
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${API_KEY}`;
+    
+    const response = await fetch(url);
 
-/**
- * Service to fetch and filter songs from the global content infrastructure.
- * In a production environment, this would call external APIs like Freemusicarchive.
- */
-export const searchMusicLibrary = async (filters: SearchFilters): Promise<PublicDomainSong[]> => {
-  // Simulate API latency
-  await new Promise(resolve => setTimeout(resolve, 300));
-
-  let results = [...publicDomainLibrary];
-
-  if (filters.query) {
-    const q = filters.query.toLowerCase();
-    results = results.filter(s => 
-      s.title.toLowerCase().includes(q) || 
-      s.artist.toLowerCase().includes(q)
-    );
-  }
-
-  if (filters.origin !== 'All') {
-    // Mock origin filtering: assuming certain IDs or genres are 'Nacional'
-    const nacionalGenres = ['Folk/Traditional']; 
-    if (filters.origin === 'Nacional') {
-      results = results.filter(s => nacionalGenres.includes(s.genre));
-    } else {
-      results = results.filter(s => !nacionalGenres.includes(s.genre));
+    if (!response.ok) {
+      return [];
     }
-  }
 
-  return results;
+    const data = await response.json();
+    return data.items || [];
+  } catch (error) {
+    console.error('YouTube Search Error:', error);
+    return [];
+  }
 };
