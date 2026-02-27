@@ -1,19 +1,16 @@
-const // API_KEY = 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548';
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
-export const searchYouTube = async (query: string) => {
-  try {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${API_KEY}`;
-    
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      return [];
-    }
-
-    const data = await response.json();
-    return data.items || [];
-  } catch (error) {
-    console.error('YouTube Search Error:', error);
-    return [];
-  }
+const firebaseConfig = {
+ // apiKey: "AIzaSyDmJaH9jZUqI2fGQV_yAYC-8w8t3RmvrlI",
+  authDomain: "karaoke-prime-4f59e.firebaseapp.com",
+  projectId: "karaoke-prime-4f59e",
+  storageBucket: "karaoke-prime-4f59e.firebasestorage.app",
+  messagingSenderId: "1019002450289",
+  appId: "1:1019002450289:web:fd3801c55b5bdeb2c906d0",
+  measurementId: "G-H3J972N7FM"
 };
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
