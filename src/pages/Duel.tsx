@@ -192,7 +192,7 @@ const Duel = () => {
                     <Button variant="outline" className="border-cyan-500 text-cyan-400" onClick={async () => {
                       if(!searchQuery) return;
                       try {
-                        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=4&q=${encodeURIComponent(searchQuery + ' karaoke')}&type=video&key=AIzaSyBcRjgGXm-M6Q05F4dw3bEJmkpXMIV9Qvs`);
+                        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=4&q=${encodeURIComponent(searchQuery + ' karaoke')}&type=video&key=AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548`);
                         const data = await res.json();
                         setSearchResults(data.items || []);
                       } catch(e) { console.error(e); }
