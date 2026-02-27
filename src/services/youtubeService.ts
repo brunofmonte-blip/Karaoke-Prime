@@ -1,4 +1,4 @@
-const API_KEY = 'AIzaSyAoMCAB5-K0Tj0tHaWEskLXN7hjfspux8M';
+const API_KEY = 'AIzaSyApKqJRrnMZNrrl7uVW2IZKwi2RvJKU1W0';
 
 export const searchYouTube = async (query: string) => {
   try {
