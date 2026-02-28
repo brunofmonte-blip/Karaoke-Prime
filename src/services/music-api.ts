@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 // const firebaseConfig = {
- apiKey: "vazio",
+ apiKey: "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548",
   authDomain: "karaoke-prime-4f59e.firebaseapp.com",
   projectId: "karaoke-prime-4f59e",
   storageBucket: "karaoke-prime-4f59e.firebasestorage.app",
