@@ -1,45 +1,61 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Globe, Download, Users, Lock, PlayCircle, Music, ArrowLeft, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { searchYouTube } from '@/services/youtubeService';
 
 export default function BasicLobby() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get('q') || '');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeMode, setActiveMode] = useState<'online' | 'offline' | 'duel'>('online');
 
-  const handleSearch = async (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && query.trim() !== '') {
-      setLoading(true);
-      try {
-        const items = await searchYouTube(query + ' karaoke');
+  const performSearch = useCallback(async (searchTerm: string) => {
+    if (!searchTerm.trim()) return;
+    
+    setLoading(true);
+    try {
+      const items = await searchYouTube(searchTerm + ' karaoke');
 
-        if (items && items.length > 0) {
-          const formattedResults = items.map((item: any) => ({
-            id: item.id.videoId,
-            title: item.snippet.title,
-            artist: item.snippet.channelTitle,
-            channel: "YouTube Live"
-          }));
-          setResults(formattedResults);
-        } else {
-          setResults([]);
-        }
-      } catch (error) {
-        console.error("YouTube API Error:", error);
-        toast.error("Erro ao conectar com o YouTube.");
-      } finally {
-        setLoading(false);
+      if (items && items.length > 0) {
+        const formattedResults = items.map((item: any) => ({
+          id: item.id.videoId,
+          title: item.snippet.title,
+          artist: item.snippet.channelTitle,
+          channel: "YouTube Live"
+        }));
+        setResults(formattedResults);
+      } else {
+        setResults([]);
       }
+    } catch (error) {
+      console.error("YouTube API Error:", error);
+      toast.error("Erro ao conectar com o YouTube.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Efeito para disparar a busca automática se houver o parâmetro 'q' na URL
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q) {
+      setQuery(q);
+      performSearch(q);
+    }
+  }, [searchParams, performSearch]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      performSearch(query);
     }
   };
 
@@ -125,7 +141,7 @@ export default function BasicLobby() {
               className="pl-12 h-16 text-lg rounded-2xl bg-card/50 border-primary/30 focus:border-primary transition-all text-white"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleSearch}
+              onKeyDown={handleKeyDown}
             />
             {loading && (
               <div className="absolute right-4 top-1/2 -translate-y-1/2">

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,8 +14,9 @@ const AdvancedSearch: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSearch = () => {
-    // Redirect to library with search params
-    navigate(`/library?q=${encodeURIComponent(query)}&origin=${origin}`);
+    if (!query.trim()) return;
+    // Redirecionando para /basic em vez de /library conforme solicitado
+    navigate(`/basic?q=${encodeURIComponent(query)}&origin=${origin}`);
   };
 
   return (
