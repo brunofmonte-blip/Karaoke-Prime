@@ -132,9 +132,12 @@ const Index = () => {
         />
       )}
 
+      {/* 1. Hero Section */}
       <HeroSection />
 
       <div className="container mx-auto px-4 -mt-20 relative z-20">
+        
+        {/* 2. Grid with 5 ElitePillarCard components */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 pb-8">
           <ElitePillarCard 
             title="Básico" 
@@ -171,16 +174,28 @@ const Index = () => {
           />
         </div>
 
+        {/* 3. Advanced Search */}
         <div className="mt-12">
           <AdvancedSearch />
         </div>
 
         <div className="py-16">
+          {/* 4. Achievements Section */}
           <AchievementsSection />
+          
+          {/* 5. Regional Top Hits */}
           <RegionalTopHits />
+          
+          {/* 6. Trend Singers Feed */}
           <TrendSingersFeed />
+          
+          {/* 7. Recently Added */}
           <RecentlyAdded />
+          
+          {/* 8. Trend Topics Feed */}
           <TrendTopicsFeed />
+          
+          {/* 9. Ranking Tables */}
           <div className="mt-12 pb-16">
             <h2 className="text-4xl font-bold text-center mb-12 text-primary neon-blue-glow">Rankings Globais</h2>
             <RankingTables />
