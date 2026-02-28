@@ -2,14 +2,17 @@
 
 import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Lock, PlayCircle, ChevronLeft, Trophy, Star, GraduationCap, Sparkles, Target, Zap, ArrowLeft, Loader2 } from 'lucide-react';
+import { BrainCircuit, Lock, Trophy, Star, GraduationCap, Sparkles, Target, Zap, ArrowLeft, Loader2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import InstructorAvatar from '@/components/InstructorAvatar';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { useAuth } from '@/integrations/supabase/auth';
 import { academyLessons } from '@/data/lessons';
+
+// Importação segura dos menus de nível
 import AcademyModuleMenu from '@/components/AcademyModuleMenu';
 import AcademyLevel2Menu from '@/components/AcademyLevel2Menu';
 import AcademyLevel3Menu from '@/components/AcademyLevel3Menu';
@@ -24,15 +27,17 @@ import AcademyLevel10Menu from '@/components/AcademyLevel10Menu';
 export default function Academy() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   const recommendedPlan = location.state?.recommendedPlan;
 
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
 
+  // Dados do perfil com fallbacks seguros
   const currentLevel = profile?.academy_level ?? 0;
   const currentXp = profile?.xp ?? 0;
   const xpToNextLevel = (currentLevel + 1) * 1000;
-  const xpProgress = (currentXp % 1000) / 10;
+  const xpProgress = Math.min(100, (currentXp % 1000) / 10);
 
   const renderLevelMenu = (level: number) => {
     switch (level) {
@@ -51,18 +56,53 @@ export default function Academy() {
   };
 
   const activeLesson = useMemo(() => {
+    if (!selectedLevel) return null;
     return academyLessons.find(l => l.level === selectedLevel);
   }, [selectedLevel]);
 
-  if (isProfileLoading) {
+  // 1. Estado de Carregamento
+  if (isAuthLoading || isProfileLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-        <p className="text-muted-foreground animate-pulse">Carregando seu currículo vocal...</p>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="relative">
+          <div className="absolute inset-0 blur-2xl bg-primary/20 animate-pulse rounded-full" />
+          <Loader2 className="h-16 w-16 text-primary animate-spin relative z-10" />
+        </div>
+        <p className="text-muted-foreground animate-pulse mt-6 font-medium tracking-widest uppercase text-xs">
+          Sincronizando seu progresso vocal...
+        </p>
       </div>
     );
   }
 
+  // 2. Estado Não Logado
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+        <div className="max-w-md space-y-8 animate-in fade-in zoom-in duration-500">
+          <div className="p-6 rounded-full bg-primary/10 border-2 border-primary/30 inline-block mx-auto">
+            <Lock className="h-12 w-12 text-primary neon-blue-glow" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-black text-white tracking-tighter">ACADEMY <span className="text-primary">LOCKED</span></h1>
+            <p className="text-gray-400">O currículo científico de 10 níveis é exclusivo para membros da comunidade Karaoke Prime.</p>
+          </div>
+          <Button 
+            onClick={() => navigate('/login')}
+            className="w-full py-8 bg-primary hover:bg-primary/90 text-black font-black rounded-2xl shadow-lg shadow-primary/20 text-lg"
+          >
+            <LogIn className="mr-2 h-6 w-6" />
+            ENTRAR PARA TREINAR
+          </Button>
+          <Button variant="ghost" onClick={() => navigate('/')} className="text-gray-500 hover:text-white">
+            Voltar para a Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Renderização Principal
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Hero Header */}
@@ -89,7 +129,7 @@ export default function Academy() {
       <div className="container mx-auto max-w-6xl px-4 -mt-10 relative z-30">
         
         {/* User Progress Dashboard */}
-        <Card className="glass-pillar border-2 border-primary/30 mb-12 overflow-hidden">
+        <Card className="glass-pillar border-2 border-primary/30 mb-12 overflow-hidden shadow-2xl">
           <CardContent className="p-6 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
               <div className="flex items-center gap-4">
@@ -138,25 +178,25 @@ export default function Academy() {
                 <Card className="glass-pillar border-2 border-accent/50 overflow-hidden">
                   <div 
                     className="h-48 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${activeLesson?.bgImage})` }}
+                    style={{ backgroundImage: `url(${activeLesson?.bgImage || 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=800'})` }}
                   />
                   <CardContent className="p-6">
-                    <h2 className="text-2xl font-black text-white mb-2">Nível {selectedLevel}: {activeLesson?.title}</h2>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-6">{activeLesson?.description}</p>
+                    <h2 className="text-2xl font-black text-white mb-2">Nível {selectedLevel}: {activeLesson?.title || 'Lição'}</h2>
+                    <p className="text-gray-400 text-sm leading-relaxed mb-6">{activeLesson?.description || 'Descrição não disponível.'}</p>
                     
                     <div className="space-y-4">
                       <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
                         <Target className="h-5 w-5 text-accent" />
                         <div>
                           <p className="text-[10px] font-black text-gray-500 uppercase">Foco Principal</p>
-                          <p className="text-sm font-bold text-white">{activeLesson?.focus}</p>
+                          <p className="text-sm font-bold text-white">{activeLesson?.focus || 'Técnica Vocal'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
                         <Zap className="h-5 w-5 text-primary" />
                         <div>
                           <p className="text-[10px] font-black text-gray-500 uppercase">Nota de Corte</p>
-                          <p className="text-sm font-bold text-white">{activeLesson?.required_score}% de Precisão</p>
+                          <p className="text-sm font-bold text-white">{activeLesson?.required_score || 60}% de Precisão</p>
                         </div>
                       </div>
                     </div>
