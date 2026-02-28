@@ -10,6 +10,7 @@ export default function KaraokeRoom() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
+  // Captura o ID do vídeo da URL ou usa um padrão
   const videoId = searchParams.get('v') || 'oVbXpK_BRbw';
 
   const [isMicOn, setIsMicOn] = useState(false);
@@ -28,7 +29,6 @@ export default function KaraokeRoom() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
 
-  // RECORDING TIMER LOGIC
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isRecording) {
@@ -132,33 +132,6 @@ export default function KaraokeRoom() {
   };
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRecording && isMicOn) {
-      const words = ["PERFECT!", "BOM!", "EXCELENTE!", "INCRÍVEL!"];
-      
-      const checkPerformance = () => {
-        if (micVolumeRef.current > 15) {
-          const randomWord = words[Math.floor(Math.random() * words.length)];
-          setFeedback(randomWord);
-          setTimeout(() => setFeedback(''), 1500);
-        } else {
-          setFeedback('Gravando...');
-          setTimeout(() => setFeedback(''), 1500);
-        }
-        
-        const nextTime = Math.floor(Math.random() * 3000) + 3000;
-        interval = setTimeout(checkPerformance, nextTime);
-      };
-
-      interval = setTimeout(checkPerformance, 2000);
-    }
-
-    return () => {
-      if (interval) clearTimeout(interval);
-    };
-  }, [isRecording, isMicOn]);
-
-  useEffect(() => {
     if (isCameraOn && stream && videoRef.current) {
       videoRef.current.srcObject = stream;
     }
@@ -193,7 +166,7 @@ export default function KaraokeRoom() {
           <iframe 
             width="100%" 
             height="100%" 
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&enablejsapi=1`} 
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&enablejsapi=1&origin=${window.location.origin}`} 
             title="Karaoke Video" 
             frameBorder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

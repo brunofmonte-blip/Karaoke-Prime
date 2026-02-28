@@ -30,7 +30,7 @@ export default function BasicLobby() {
           id: item.id.videoId,
           title: item.snippet.title,
           artist: item.snippet.channelTitle,
-          channel: "YouTube Live"
+          thumbnail: item.snippet.thumbnails.high.url
         }));
         setResults(formattedResults);
       } else {
@@ -38,13 +38,12 @@ export default function BasicLobby() {
       }
     } catch (error) {
       console.error("YouTube API Error:", error);
-      toast.error("Erro ao conectar com o YouTube.");
+      toast.error("Erro ao conectar com o motor de busca.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Efeito para disparar a busca automática se houver o parâmetro 'q' na URL
   useEffect(() => {
     const q = searchParams.get('q');
     if (q) {
@@ -52,6 +51,14 @@ export default function BasicLobby() {
       performSearch(q);
     }
   }, [searchParams, performSearch]);
+
+  const handleSelectSong = (videoId: string) => {
+    if (!videoId) {
+      toast.error("ID do vídeo inválido.");
+      return;
+    }
+    navigate(`/room?v=${videoId}`);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -157,22 +164,22 @@ export default function BasicLobby() {
                 {results.map((song) => (
                   <div 
                     key={song.id} 
-                    onClick={() => navigate(`/room?v=${song.id}`)} 
+                    onClick={() => handleSelectSong(song.id)} 
                     className="block group cursor-pointer"
                   >
                     <Card className="border-border/50 bg-card/30 hover:bg-card/50 hover:border-primary/50 transition-all duration-300 rounded-2xl overflow-hidden">
                       <CardContent className="p-4 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                            <Music className="h-6 w-6 text-primary" />
+                          <div className="h-16 w-24 rounded-lg overflow-hidden bg-black flex-shrink-0 border border-white/10">
+                            <img src={song.thumbnail} alt={song.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="font-bold text-white group-hover:text-primary transition-colors truncate" dangerouslySetInnerHTML={{ __html: song.title }} />
-                            <p className="text-sm text-muted-foreground truncate">{song.artist} • <span className="text-xs opacity-70">{song.channel}</span></p>
+                            <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
                           </div>
                         </div>
                         <Button variant="ghost" size="icon" className="rounded-full group-hover:text-primary text-white flex-shrink-0">
-                          <PlayCircle className="h-8 w-8" />
+                          <PlayCircle className="h-10 w-10" />
                         </Button>
                       </CardContent>
                     </Card>
