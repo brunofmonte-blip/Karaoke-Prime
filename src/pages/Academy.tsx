@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Lock, Trophy, Star, GraduationCap, Sparkles, Target, Zap, ArrowLeft, Loader2, LogIn } from 'lucide-react';
+import { BrainCircuit, Lock, Trophy, Star, GraduationCap, Sparkles, Target, Zap, ArrowLeft, Loader2, LogIn, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -12,64 +12,35 @@ import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
 import { academyLessons } from '@/data/lessons';
 
-// Importação segura dos menus de nível
+// Importação dos menus de nível
 import AcademyModuleMenu from '@/components/AcademyModuleMenu';
-import AcademyLevel2Menu from '@/components/AcademyLevel2Menu';
-import AcademyLevel3Menu from '@/components/AcademyLevel3Menu';
-import AcademyLevel4Menu from '@/components/AcademyLevel4Menu';
-import AcademyLevel5Menu from '@/components/AcademyLevel5Menu';
-import AcademyLevel6Menu from '@/components/AcademyLevel6Menu';
-import AcademyLevel7Menu from '@/components/AcademyLevel7Menu';
-import AcademyLevel8Menu from '@/components/AcademyLevel8Menu';
-import AcademyLevel9Menu from '@/components/AcademyLevel9Menu';
-import AcademyLevel10Menu from '@/components/AcademyLevel10Menu';
 
 export default function Academy() {
-  const location = useLocation();
+  const location = useNavigate();
   const navigate = useNavigate();
   const { user, isLoading: isAuthLoading } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
-  const recommendedPlan = location.state?.recommendedPlan;
-
+  
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
 
-  // Dados do perfil com fallbacks seguros
-  const currentLevel = profile?.academy_level ?? 0;
-  const currentXp = profile?.xp ?? 0;
-  const xpToNextLevel = (currentLevel + 1) * 1000;
-  const xpProgress = Math.min(100, (currentXp % 1000) / 10);
+  // Fallbacks seguros para evitar crashes
+  const safeProfile = profile || { academy_level: 0, xp: 0 };
+  const currentLevel = safeProfile.academy_level ?? 0;
+  const currentXp = safeProfile.xp ?? 0;
+  
+  // 10 Níveis Fixos para garantir renderização
+  const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  const renderLevelMenu = (level: number) => {
-    switch (level) {
-      case 1: return <AcademyModuleMenu level={1} />;
-      case 2: return <AcademyLevel2Menu />;
-      case 3: return <AcademyLevel3Menu />;
-      case 4: return <AcademyLevel4Menu />;
-      case 5: return <AcademyLevel5Menu />;
-      case 6: return <AcademyLevel6Menu />;
-      case 7: return <AcademyLevel7Menu />;
-      case 8: return <AcademyLevel8Menu />;
-      case 9: return <AcademyLevel9Menu />;
-      case 10: return <AcademyLevel10Menu />;
-      default: return <AcademyModuleMenu level={level} />;
-    }
-  };
-
-  const activeLesson = useMemo(() => {
-    if (!selectedLevel) return null;
-    return academyLessons.find(l => l.level === selectedLevel);
-  }, [selectedLevel]);
-
-  // 1. Estado de Carregamento
+  // 1. Estado de Carregamento (Prevenção de Tela Preta)
   if (isAuthLoading || isProfileLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <div className="relative">
-          <div className="absolute inset-0 blur-2xl bg-primary/20 animate-pulse rounded-full" />
+          <div className="absolute inset-0 blur-3xl bg-primary/30 animate-pulse rounded-full" />
           <Loader2 className="h-16 w-16 text-primary animate-spin relative z-10" />
         </div>
-        <p className="text-muted-foreground animate-pulse mt-6 font-medium tracking-widest uppercase text-xs">
-          Sincronizando seu progresso vocal...
+        <p className="text-primary neon-blue-glow mt-8 font-black tracking-[0.2em] uppercase text-xs animate-pulse">
+          Sincronizando DNA Vocal...
         </p>
       </div>
     );
@@ -79,82 +50,88 @@ export default function Academy() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
-        <div className="max-w-md space-y-8 animate-in fade-in zoom-in duration-500">
-          <div className="p-6 rounded-full bg-primary/10 border-2 border-primary/30 inline-block mx-auto">
-            <Lock className="h-12 w-12 text-primary neon-blue-glow" />
+        <div className="max-w-md space-y-8 animate-in fade-in zoom-in duration-700">
+          <div className="p-8 rounded-full bg-primary/10 border-2 border-primary/30 inline-block mx-auto shadow-[0_0_50px_rgba(0,168,225,0.2)]">
+            <Lock className="h-16 w-16 text-primary neon-blue-glow" />
           </div>
-          <div className="space-y-2">
-            <h1 className="text-4xl font-black text-white tracking-tighter">ACADEMY <span className="text-primary">LOCKED</span></h1>
-            <p className="text-gray-400">O currículo científico de 10 níveis é exclusivo para membros da comunidade Karaoke Prime.</p>
+          <div className="space-y-4">
+            <h1 className="text-5xl font-black text-white tracking-tighter uppercase italic">
+              Academy <span className="text-primary">Locked</span>
+            </h1>
+            <p className="text-gray-400 text-lg leading-relaxed">
+              O currículo científico de 10 níveis é exclusivo para membros da elite Karaoke Prime.
+            </p>
           </div>
           <Button 
             onClick={() => navigate('/login')}
-            className="w-full py-8 bg-primary hover:bg-primary/90 text-black font-black rounded-2xl shadow-lg shadow-primary/20 text-lg"
+            className="w-full py-8 bg-primary hover:bg-primary/90 text-black font-black rounded-2xl shadow-[0_0_30px_rgba(0,168,225,0.4)] text-xl transition-all hover:scale-105"
           >
-            <LogIn className="mr-2 h-6 w-6" />
+            <LogIn className="mr-3 h-6 w-6" />
             ENTRAR PARA TREINAR
-          </Button>
-          <Button variant="ghost" onClick={() => navigate('/')} className="text-gray-500 hover:text-white">
-            Voltar para a Home
           </Button>
         </div>
       </div>
     );
   }
 
-  // 3. Renderização Principal
+  // 3. Renderização Principal (Autenticado)
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-32">
       {/* Hero Header */}
-      <div className="relative h-[40vh] w-full overflow-hidden flex items-center justify-center">
+      <div className="relative h-[45vh] w-full overflow-hidden flex items-center justify-center">
         <div 
-          className="absolute inset-0 bg-cover bg-center z-0 opacity-40"
+          className="absolute inset-0 bg-cover bg-center z-0 opacity-30 scale-110"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2000')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/60 to-background z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/80 to-background z-10" />
         
-        <div className="relative z-20 text-center px-4 animate-in fade-in slide-in-from-top-4 duration-1000">
-          <div className="flex justify-center mb-4">
+        <div className="relative z-20 text-center px-4 animate-in fade-in slide-in-from-top-8 duration-1000">
+          <div className="flex justify-center mb-6">
             <InstructorAvatar phase="rest" />
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
+          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none">
             Vocal <span className="text-primary neon-blue-glow">Academy</span>
           </h1>
-          <p className="text-gray-400 font-medium tracking-widest uppercase text-xs md:text-sm mt-2">
-            O Caminho Científico para a Maestria Vocal
+          <p className="text-gray-400 font-bold tracking-[0.3em] uppercase text-xs md:text-sm mt-4">
+            The Scientific Path to Vocal Mastery
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto max-w-6xl px-4 -mt-10 relative z-30">
+      <div className="container mx-auto max-w-6xl px-4 -mt-16 relative z-30">
         
-        {/* User Progress Dashboard */}
-        <Card className="glass-pillar border-2 border-primary/30 mb-12 overflow-hidden shadow-2xl">
-          <CardContent className="p-6 md:p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-              <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-2xl bg-primary/20 border-2 border-primary flex items-center justify-center shadow-[0_0_20px_rgba(0,168,225,0.3)]">
-                  <GraduationCap className="h-8 w-8 text-primary" />
+        {/* Dashboard de Progresso */}
+        <Card className="glass-pillar border-2 border-primary/40 mb-16 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem]">
+          <CardContent className="p-8 md:p-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
+              <div className="flex items-center gap-6">
+                <div className="h-20 w-20 rounded-[1.5rem] bg-primary/20 border-2 border-primary flex items-center justify-center shadow-[0_0_30px_rgba(0,168,225,0.4)]">
+                  <GraduationCap className="h-10 w-10 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Nível Atual</p>
-                  <h3 className="text-3xl font-black text-white">Nível {currentLevel}</h3>
+                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">Nível Atual</p>
+                  <h3 className="text-4xl font-black text-white italic">Nível {currentLevel}</h3>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-black uppercase tracking-widest">
-                  <span className="text-gray-500">Progresso de XP</span>
-                  <span className="text-primary">{currentXp} / {xpToNextLevel} XP</span>
+              <div className="space-y-3">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
+                  <span className="text-gray-500">Experiência (XP)</span>
+                  <span className="text-primary neon-blue-glow">{currentXp} XP</span>
                 </div>
-                <Progress value={xpProgress} className="h-2 bg-white/5" indicatorClassName="bg-primary shadow-[0_0_10px_rgba(0,168,225,0.8)]" />
+                <div className="h-3 bg-white/5 rounded-full overflow-hidden border border-white/10">
+                  <div 
+                    className="h-full bg-primary shadow-[0_0_15px_rgba(0,168,225,0.8)] transition-all duration-1000" 
+                    style={{ width: `${Math.min(100, (currentXp % 1000) / 10)}%` }} 
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end">
                 <div className="text-right">
-                  <p className="text-xs font-black text-gray-500 uppercase tracking-widest">Status da Carreira</p>
-                  <p className="text-xl font-bold text-accent neon-gold-glow">
-                    {currentLevel >= 8 ? "Pro-Vocal Artist" : currentLevel >= 4 ? "Intermediate Singer" : "Academy Student"}
+                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">Status</p>
+                  <p className="text-2xl font-black text-accent neon-gold-glow italic uppercase">
+                    {currentLevel >= 8 ? "Pro Artist" : "Academy Student"}
                   </p>
                 </div>
               </div>
@@ -163,181 +140,114 @@ export default function Academy() {
         </Card>
 
         {selectedLevel ? (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
             <Button 
               variant="ghost" 
               onClick={() => setSelectedLevel(null)}
-              className="mb-8 text-muted-foreground hover:text-primary group"
+              className="mb-12 text-gray-400 hover:text-primary group text-xs font-black uppercase tracking-widest"
             >
-              <ArrowLeft className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-              Voltar para o Currículo
+              <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-2 transition-transform" />
+              Voltar ao Currículo
             </Button>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-1 space-y-6">
-                <Card className="glass-pillar border-2 border-accent/50 overflow-hidden">
-                  <div 
-                    className="h-48 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${activeLesson?.bgImage || 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=800'})` }}
-                  />
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl font-black text-white mb-2">Nível {selectedLevel}: {activeLesson?.title || 'Lição'}</h2>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-6">{activeLesson?.description || 'Descrição não disponível.'}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+              <div className="lg:col-span-4 space-y-8">
+                <Card className="glass-pillar border-2 border-accent/40 overflow-hidden rounded-[2rem] shadow-2xl">
+                  <div className="h-48 bg-black/40 flex items-center justify-center border-b border-white/10">
+                    <InstructorAvatar phase="suspend" />
+                  </div>
+                  <CardContent className="p-8">
+                    <h2 className="text-3xl font-black text-white mb-4 italic uppercase tracking-tighter">Nível {selectedLevel}</h2>
+                    <p className="text-gray-400 text-sm leading-relaxed mb-8">
+                      {academyLessons.find(l => l.level === selectedLevel)?.description || "Módulos de treinamento intensivo."}
+                    </p>
                     
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
-                        <Target className="h-5 w-5 text-accent" />
+                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                        <Target className="h-6 w-6 text-accent" />
                         <div>
-                          <p className="text-[10px] font-black text-gray-500 uppercase">Foco Principal</p>
-                          <p className="text-sm font-bold text-white">{activeLesson?.focus || 'Técnica Vocal'}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
-                        <Zap className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="text-[10px] font-black text-gray-500 uppercase">Nota de Corte</p>
-                          <p className="text-sm font-bold text-white">{activeLesson?.required_score || 60}% de Precisão</p>
+                          <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Foco</p>
+                          <p className="text-sm font-bold text-white">Técnica Vocal</p>
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-
-                <div className="p-6 rounded-3xl bg-primary/10 border border-primary/30">
-                  <div className="flex items-center gap-2 text-primary mb-2">
-                    <BrainCircuit className="h-5 w-5" />
-                    <span className="text-xs font-black uppercase tracking-widest">Dica do Instrutor</span>
-                  </div>
-                  <p className="text-sm text-gray-300 italic">
-                    "A consistência é mais importante que a intensidade. Pratique 15 minutos todos os dias para ver resultados reais."
-                  </p>
-                </div>
               </div>
 
-              <div className="lg:col-span-2">
-                <div className="mb-6">
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Módulos de Treinamento</h3>
-                  <p className="text-gray-500 text-sm">Selecione um módulo para iniciar os exercícios práticos.</p>
+              <div className="lg:col-span-8">
+                <div className="mb-8">
+                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter italic">Módulos de Treino</h3>
+                  <p className="text-gray-500 text-sm font-medium">Apenas os módulos autorizados estão disponíveis.</p>
                 </div>
-                {renderLevelMenu(selectedLevel)}
+                {/* Renderiza o menu do nível 1 (com lógica de trava interna) */}
+                <AcademyModuleMenu level={selectedLevel} />
               </div>
             </div>
           </div>
         ) : (
-          <div className="space-y-12">
-            {recommendedPlan && (
-              <div className="p-8 rounded-3xl bg-accent/10 border-2 border-accent/50 animate-in slide-in-from-left duration-500 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <BrainCircuit className="h-24 w-24 text-accent" />
-                </div>
-                <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
-                  <div className="p-4 rounded-2xl bg-accent/20 border border-accent/40">
-                    <BrainCircuit className="h-10 w-10 text-accent" />
-                  </div>
-                  <div className="text-center md:text-left flex-grow">
-                    <h3 className="text-2xl font-black text-accent uppercase tracking-widest mb-1">Prescrição do Instrutor IA</h3>
-                    <p className="text-white text-lg font-medium">Baseado no seu último show, você deve focar em: <span className="text-accent font-black underline decoration-2 underline-offset-4">{recommendedPlan}</span></p>
-                  </div>
-                  <Button 
-                    onClick={() => setSelectedLevel(currentLevel + 1)}
-                    className="bg-accent hover:bg-accent/90 text-black font-black px-8 py-6 rounded-xl shadow-lg shadow-accent/20"
-                  >
-                    TREINAR AGORA
-                  </Button>
-                </div>
-              </div>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {levels.map((lvl) => {
+              // LÓGICA ESTRITA: Apenas Nível 1 desbloqueado
+              const isUnlocked = lvl === 1;
+              const lessonData = academyLessons.find(l => l.level === lvl);
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {academyLessons.map((lesson) => {
-                const isLocked = currentLevel < lesson.level - 1;
-                const isCompleted = currentLevel >= lesson.level;
-                const isCurrent = currentLevel === lesson.level - 1;
+              return (
+                <Card 
+                  key={lvl}
+                  className={cn(
+                    "relative overflow-hidden transition-all duration-500 border-2 group cursor-pointer rounded-[2rem]",
+                    !isUnlocked ? "bg-black/60 border-white/5 opacity-40 grayscale" : 
+                    "glass-pillar border-primary/40 hover:border-primary hover:scale-[1.03] shadow-xl hover:shadow-primary/20"
+                  )}
+                  onClick={() => isUnlocked && setSelectedLevel(lvl)}
+                >
+                  {!isUnlocked && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20 backdrop-blur-[2px]">
+                      <Lock className="h-12 w-12 text-white/20 mb-2" />
+                      <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Locked</span>
+                    </div>
+                  )}
 
-                return (
-                  <Card 
-                    key={lesson.level}
-                    className={cn(
-                      "relative overflow-hidden transition-all duration-500 border-2 group cursor-pointer",
-                      isLocked ? "bg-black/40 border-white/5 opacity-60 grayscale-[0.5]" : 
-                      isCompleted ? "glass-pillar border-green-500/50 hover:border-green-500" :
-                      "glass-pillar border-primary/50 hover:border-primary hover:scale-[1.02]"
-                    )}
-                    onClick={() => !isLocked && setSelectedLevel(lesson.level)}
-                  >
-                    {isLocked && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-20">
-                        <div className="flex flex-col items-center gap-2">
-                          <Lock className="h-10 w-10 text-white/50" />
-                          <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.3em]">Nível Trancado</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div className={cn(
-                          "h-10 w-10 rounded-xl border flex items-center justify-center font-black text-lg",
-                          isLocked ? "border-white/10 bg-white/5 text-gray-500" : 
-                          isCompleted ? "border-green-500/50 bg-green-500/10 text-green-500" :
-                          "border-primary/50 bg-primary/10 text-primary"
-                        )}>
-                          {lesson.level}
-                        </div>
-                        {isCompleted ? (
-                          <Star className="h-5 w-5 text-green-500 fill-current" />
-                        ) : isCurrent ? (
-                          <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-                        ) : null}
-                      </div>
-                      <CardTitle className={cn(
-                        "text-xl font-bold mt-4",
-                        isLocked ? "text-gray-500" : "text-white"
+                  <CardHeader className="p-8 pb-4">
+                    <div className="flex justify-between items-start">
+                      <div className={cn(
+                        "h-12 w-12 rounded-2xl border-2 flex items-center justify-center font-black text-xl italic",
+                        !isUnlocked ? "border-white/10 text-gray-600" : "border-primary/40 bg-primary/10 text-primary neon-blue-glow"
                       )}>
-                        {lesson.title}
-                      </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="space-y-4">
-                      <p className="text-sm text-gray-400 leading-relaxed line-clamp-2">
-                        {lesson.description}
-                      </p>
-                      
-                      <div className="flex items-center gap-2 text-[10px] font-black text-accent uppercase tracking-widest">
-                        <Target className="h-3 w-3" />
-                        Foco: {lesson.focus}
+                        {lvl}
                       </div>
+                      {isUnlocked && <Sparkles className="h-6 w-6 text-primary animate-pulse" />}
+                    </div>
+                    <CardTitle className={cn(
+                      "text-2xl font-black mt-6 uppercase tracking-tighter italic",
+                      !isUnlocked ? "text-gray-600" : "text-white"
+                    )}>
+                      {lessonData?.title || `Nível ${lvl}`}
+                    </CardTitle>
+                  </CardHeader>
 
-                      <div className="pt-4 border-t border-white/5">
-                        <Button 
-                          variant="ghost"
-                          className={cn(
-                            "w-full rounded-xl font-black uppercase tracking-wider text-xs py-6",
-                            isLocked ? "text-gray-600" : "text-primary hover:bg-primary/10"
-                          )}
-                        >
-                          {isLocked ? "Bloqueado" : isCompleted ? "Revisar Nível" : "Iniciar Treino"}
-                          {!isLocked && <ChevronRight className="ml-2 h-4 w-4" />}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {!selectedLevel && (
-          <div className="mt-20 text-center pb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest mb-6">
-              <Star className="h-3 w-3 fill-current" />
-              Certificação Pro-Vocal
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Pronto para o Próximo Nível?</h2>
-            <p className="text-gray-400 max-w-xl mx-auto mb-8">
-              Complete todos os 10 níveis para receber seu selo de Artista Verificado e desbloquear o acesso ao Backstage.
-            </p>
+                  <CardContent className="p-8 pt-0 space-y-6">
+                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 font-medium">
+                      {lessonData?.description || "Treinamento avançado de performance."}
+                    </p>
+                    
+                    <div className="pt-6 border-t border-white/5">
+                      <Button 
+                        variant="ghost"
+                        className={cn(
+                          "w-full rounded-xl font-black uppercase tracking-[0.2em] text-[10px] py-6",
+                          !isUnlocked ? "text-gray-700" : "text-primary hover:bg-primary/10"
+                        )}
+                      >
+                        {isUnlocked ? "Iniciar Treino" : "Bloqueado"}
+                        {isUnlocked && <ChevronRight className="ml-2 h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
