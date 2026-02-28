@@ -11,7 +11,6 @@ export const searchYouTube = async (query: string) => {
   await new Promise(resolve => setTimeout(resolve, 800));
 
   // Mock de resultados para demonstração
-  // Em uma implementação real, faríamos um fetch para a API do YouTube
   return [
     {
       id: { videoId: "oVbXpK_BRbw" },

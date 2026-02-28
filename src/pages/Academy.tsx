@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Lock, PlayCircle, ChevronLeft, Trophy, Star, GraduationCap, Sparkles, Target, Zap, ArrowLeft } from 'lucide-react';
+import { BrainCircuit, Lock, PlayCircle, ChevronLeft, Trophy, Star, GraduationCap, Sparkles, Target, Zap, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -24,7 +24,7 @@ import AcademyLevel10Menu from '@/components/AcademyLevel10Menu';
 export default function Academy() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { data: profile } = useUserProfile();
+  const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   const recommendedPlan = location.state?.recommendedPlan;
 
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
@@ -53,6 +53,15 @@ export default function Academy() {
   const activeLesson = useMemo(() => {
     return academyLessons.find(l => l.level === selectedLevel);
   }, [selectedLevel]);
+
+  if (isProfileLoading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+        <p className="text-muted-foreground animate-pulse">Carregando seu currículo vocal...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -114,7 +123,6 @@ export default function Academy() {
         </Card>
 
         {selectedLevel ? (
-          /* Level Detail View */
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Button 
               variant="ghost" 
@@ -176,7 +184,6 @@ export default function Academy() {
             </div>
           </div>
         ) : (
-          /* Curriculum Grid View */
           <div className="space-y-12">
             {recommendedPlan && (
               <div className="p-8 rounded-3xl bg-accent/10 border-2 border-accent/50 animate-in slide-in-from-left duration-500 relative overflow-hidden">
@@ -238,7 +245,7 @@ export default function Academy() {
                           {lesson.level}
                         </div>
                         {isCompleted ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                          <Star className="h-5 w-5 text-green-500 fill-current" />
                         ) : isCurrent ? (
                           <Sparkles className="h-5 w-5 text-primary animate-pulse" />
                         ) : null}
@@ -281,7 +288,6 @@ export default function Academy() {
           </div>
         )}
 
-        {/* Footer Certification Info */}
         {!selectedLevel && (
           <div className="mt-20 text-center pb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest mb-6">
@@ -298,5 +304,3 @@ export default function Academy() {
     </div>
   );
 }
-
-import { CheckCircle2 } from 'lucide-react';

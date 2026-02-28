@@ -3,8 +3,8 @@ import { GraduationCap, Star, Lock, Music, Trophy, Sparkles } from "lucide-react
 import { cn } from "../utils/cn";
 import RegionalTopHits from "@/components/RegionalTopHits";
 import RecentlyAdded from "@/components/RecentlyAdded";
-import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 import TrendSingersFeed from "@/components/TrendSingersFeed";
+import TrendTopicsFeed from "@/components/TrendTopicsFeed";
 import RankingTables from "@/components/RankingTables";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -23,7 +23,6 @@ const HeroSection = () => (
       backgroundPosition: 'center'
     }}
   >
-    {/* Dark Overlay for Readability */}
     <div className="absolute inset-0 bg-black/60" />
     
     <div className="relative z-10 p-4">
@@ -136,7 +135,6 @@ const Index = () => {
       <HeroSection />
 
       <div className="container mx-auto px-4 -mt-20 relative z-20">
-        {/* Uniform 5-Column Grid for Desktop */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 pb-8">
           <ElitePillarCard 
             title="Básico" 
