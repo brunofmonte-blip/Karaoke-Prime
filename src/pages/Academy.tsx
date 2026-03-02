@@ -82,12 +82,18 @@ export default function Academy() {
              {isLevelUnlocked ? (
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Module A - Unlocked */}
-                  <button className="flex items-center justify-between p-4 border border-cyan-500/50 rounded-xl bg-cyan-900/20 hover:bg-cyan-500/20 transition-all cursor-pointer group">
+                  <button 
+                    onClick={() => navigate('/lesson')}
+                    className="flex items-center justify-between p-4 border border-cyan-500/50 rounded-xl bg-cyan-900/20 hover:bg-cyan-500/20 transition-all cursor-pointer group"
+                  >
                      <span className="text-white font-bold tracking-wide group-hover:text-cyan-400">MÓDULO A: BREATHING GYM</span>
                      <ChevronRight className="text-cyan-500 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
                   {/* Module B - Unlocked */}
-                  <button className="flex items-center justify-between p-4 border border-cyan-500/50 rounded-xl bg-cyan-900/20 hover:bg-cyan-500/20 transition-all cursor-pointer group">
+                  <button 
+                    onClick={() => navigate('/lesson')}
+                    className="flex items-center justify-between p-4 border border-cyan-500/50 rounded-xl bg-cyan-900/20 hover:bg-cyan-500/20 transition-all cursor-pointer group"
+                  >
                      <span className="text-white font-bold tracking-wide group-hover:text-cyan-400">MÓDULO B: SOVT & RESISTÊNCIA</span>
                      <ChevronRight className="text-cyan-500 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
