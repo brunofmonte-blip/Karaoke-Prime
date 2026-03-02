@@ -34,7 +34,7 @@ const Duel = () => {
 
   const handleSelectDuel = (vId: string) => {
     navigate('/duel-room?id=' + vId);
-  };
+  }; 
 
   return (
     <div className="min-h-screen bg-background pb-20">
