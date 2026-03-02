@@ -32,9 +32,16 @@ const Duel = () => {
     performSearch("popular");
   }, [performSearch]);
 
-  const handleSelectDuel = (vId: string) => {
-    navigate('/duel-room?id=' + vId);
-  }; 
+  const handleSelectDuel = (song: any) => {
+    // Safely get ID whether it's an object or string
+    const vId = song?.id?.videoId || (typeof song.id === 'string' ? song.id : null);
+    if (vId) {
+      navigate('/duel-room?id=' + vId);
+    } else {
+      console.error("Video ID not found", song);
+      toast.error("Não foi possível iniciar o duelo: ID do vídeo ausente.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -67,11 +74,11 @@ const Duel = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {results.map((song) => (
-            <Card key={song.id.videoId} className="group overflow-hidden border-2 border-white/5 bg-card/30 hover:border-destructive/50 transition-all duration-500 rounded-2xl flex flex-col">
+            <Card key={song.id.videoId || Math.random()} className="group overflow-hidden border-2 border-white/5 bg-card/30 hover:border-destructive/50 transition-all duration-500 rounded-2xl flex flex-col">
               <div 
                 className="h-40 bg-cover bg-center relative cursor-pointer"
                 style={{ backgroundImage: `url(${song.snippet.thumbnails.high.url})` }}
-                onClick={() => handleSelectDuel(song.id.videoId)}
+                onClick={() => handleSelectDuel(song)}
               >
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <PlayCircle className="h-12 w-12 text-destructive" />
@@ -83,7 +90,7 @@ const Duel = () => {
                   <p className="text-xs text-gray-500 mb-4">{song.snippet.channelTitle}</p>
                 </div>
                 <Button 
-                  onClick={() => handleSelectDuel(song.id.videoId)}
+                  onClick={() => handleSelectDuel(song)}
                   className="w-full bg-destructive hover:bg-destructive/90 text-white font-bold rounded-xl shadow-lg shadow-destructive/20"
                 >
                   <Sword className="h-4 w-4 mr-2" />

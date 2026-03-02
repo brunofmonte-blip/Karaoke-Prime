@@ -1,102 +1,200 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Sword, Search, PlayCircle, Loader2 } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Sword, Trophy, ArrowLeft, Mic, Activity, Zap, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { searchYouTube } from '@/services/youtubeService';
-import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+import { useDuel } from '@/hooks/use-duel-engine';
+import { Progress } from '@/components/ui/progress';
 
-const Duel = () => {
+const DuelRoom = () => {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const songId = searchParams.get('id');
+  
+  const { 
+    stopAnalysis, 
+    pitchHistory, 
+    ghostTrace, 
+    currentTime, 
+    totalDuration,
+    pitchData,
+    isPitchStable
+  } = useVocalSandbox();
+  
+  const { duelSong, clearDuel } = useDuel();
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  const performSearch = useCallback(async (searchTerm: string) => {
-    if (!searchTerm.trim()) return;
-    setLoading(true);
-    try {
-      const items = await searchYouTube(searchTerm + ' karaoke');
-      setResults(items || []);
-    } catch (error) {
-      toast.error("Erro na busca do YouTube.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Bypass state block using URL parameters
+  const activeSong = duelSong || (songId ? { 
+    title: 'Live Duel', 
+    artist: 'YouTube', 
+    difficulty: 'Hard', 
+    videoId: songId, 
+    lyrics: [] 
+  } : null);
+
+  useEffect(() => { 
+    if (!activeSong) { 
+      navigate('/duel'); 
+    } 
+  }, [activeSong, navigate]);
 
   useEffect(() => {
-    performSearch("popular");
-  }, [performSearch]);
+    const enableMedia = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setMediaStream(stream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (err) {
+        console.error("Camera/Mic permission denied", err);
+      }
+    };
+    enableMedia();
+    return () => {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
-  const handleSelectDuel = (vId: string) => {
-    console.log("🔥 INICIANDO DUELO! Redirecionando para a Arena:", vId);
-    navigate('/duel-room?id=' + vId);
+  const handleExit = () => {
+    stopAnalysis();
+    clearDuel();
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+    }
+    navigate('/duel');
   };
 
+  if (!activeSong) return null;
+
+  const progressValue = (currentTime / totalDuration) * 100;
+  
+  // Simulação de pontuação em tempo real para o Duelo
+  const userScore = Math.floor(pitchHistory.reduce((acc, curr) => acc + curr.pitch, 0) / (pitchHistory.length || 1)) * 10;
+  const aiScore = Math.floor(ghostTrace.slice(0, pitchHistory.length).reduce((acc, curr) => acc + curr.pitch, 0) / (pitchHistory.length || 1)) * 10;
+
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="relative h-[35vh] w-full overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-cover bg-center z-0 opacity-30" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000')" }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/80 to-background z-10" />
-        <div className="relative z-20 text-center px-4">
-          <div className="inline-flex p-4 rounded-2xl bg-destructive/20 border-2 border-destructive mb-4 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
-            <Sword className="h-10 w-10 text-destructive animate-pulse" />
+    <div className="min-h-screen bg-background flex flex-col p-4 md:p-8 relative overflow-hidden">
+      {/* Background FX */}
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)] pointer-events-none" />
+      
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8 relative z-10">
+        <Button variant="ghost" onClick={handleExit} className="text-muted-foreground hover:text-destructive">
+          <ArrowLeft className="mr-2 h-5 w-5" /> Abandonar Batalha
+        </Button>
+        
+        <div className="flex flex-col items-center">
+          <div className="px-6 py-2 rounded-full bg-destructive/20 border-2 border-destructive shadow-[0_0_20px_rgba(220,38,38,0.3)] flex items-center gap-3">
+            <Sword className="h-5 w-5 text-destructive animate-pulse" />
+            <span className="text-lg font-black text-white italic uppercase tracking-tighter">Duel Arena</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
-            Duel <span className="text-destructive neon-red-glow">Arena</span>
-          </h1>
-          <p className="text-gray-400 font-medium tracking-widest uppercase text-xs md:text-sm mt-2">Busque uma música e desafie a IA</p>
+          <p className="text-xs text-muted-foreground mt-2 font-bold uppercase tracking-widest">
+            {activeSong.title} — {activeSong.artist}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
+          <span className="text-xs font-black text-white uppercase tracking-widest">Live Battle</span>
         </div>
       </div>
 
-      <div className="container mx-auto max-w-6xl px-4 -mt-10 relative z-30">
-        <div className="max-w-2xl mx-auto mb-12 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
-          <Input 
-            placeholder="Buscar música para o duelo..." 
-            className="pl-12 h-16 text-lg rounded-2xl bg-card/50 border-destructive/30 focus:border-destructive transition-all text-white"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && performSearch(query)}
-          />
-          {loading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 text-destructive animate-spin" />}
+      {/* Battle Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow relative z-10">
+        
+        {/* Left: User Stats */}
+        <div className="lg:col-span-3 space-y-6">
+          <Card className="glass-pillar border-primary/50 overflow-hidden rounded-3xl shadow-2xl">
+            <CardContent className="p-6 text-center">
+              <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">Seu Score</p>
+              <div className="relative inline-block">
+                <div className="absolute inset-0 blur-xl bg-primary/20 rounded-full animate-pulse" />
+                <span className="text-6xl font-black text-white relative z-10 tabular-nums">{userScore}</span>
+              </div>
+
+              {/* Webcam Feed */}
+              <div className="mt-4 w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-primary bg-black shadow-[0_0_15px_rgba(0,168,225,0.4)]">
+                <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
+              </div>
+
+              <div className="mt-6 space-y-3">
+                <div className="flex justify-between text-xs font-bold uppercase text-muted-foreground">
+                  <span>Estabilidade</span>
+                  <span className={cn(isPitchStable ? "text-green-400" : "text-primary")}>{isPitchStable ? "PERFEITA" : "OSCILANDO"}</span>
+                </div>
+                <Progress value={pitchData} className="h-1.5 bg-primary/10" indicatorClassName="bg-primary shadow-[0_0_10px_rgba(0,168,225,0.8)]" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <Mic className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-gray-500 uppercase">Input Ativo</p>
+              <p className="text-sm font-bold text-white">Microfone Padrão</p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {results.map((song) => (
-            <Card key={song.id?.videoId || Math.random()} className="group overflow-hidden border-2 border-white/5 bg-card/30 hover:border-destructive/50 transition-all duration-500 rounded-2xl flex flex-col">
-              <div 
-                className="h-40 bg-cover bg-center relative cursor-pointer"
-                style={{ backgroundImage: `url(${song.snippet?.thumbnails?.high?.url || song.snippet?.thumbnails?.default?.url})` }}
-                onClick={() => handleSelectDuel(song.id.videoId)}
-              >
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <PlayCircle className="h-12 w-12 text-destructive" />
+        {/* Center: YouTube Player */}
+        <div className="lg:col-span-6 flex flex-col gap-6">
+          <div className="aspect-video rounded-3xl overflow-hidden border-2 border-destructive/30 shadow-2xl bg-black w-full mb-6 relative z-20">
+             <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${activeSong.videoId}?autoplay=1&modestbranding=1`} title="Duel Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+              <span>Progresso da Música</span>
+              <span>{progressValue.toFixed(0)}%</span>
+            </div>
+            <Progress value={progressValue} className="h-2 bg-white/5" indicatorClassName="bg-destructive shadow-[0_0_15px_rgba(220,38,38,0.6)]" />
+          </div>
+        </div>
+
+        {/* Right: AI Stats */}
+        <div className="lg:col-span-3 space-y-6">
+          <Card className="glass-pillar border-destructive/50 overflow-hidden rounded-3xl shadow-2xl">
+            <CardContent className="p-6 text-center">
+              <p className="text-[10px] font-black text-destructive uppercase tracking-[0.2em] mb-4">AI Opponent</p>
+              <div className="relative inline-block">
+                <div className="absolute inset-0 blur-xl bg-destructive/20 rounded-full animate-pulse" />
+                <span className="text-6xl font-black text-white relative z-10 tabular-nums">{aiScore}</span>
+              </div>
+              <div className="mt-6 space-y-3">
+                <div className="flex justify-between text-xs font-bold uppercase text-muted-foreground">
+                  <span>Dificuldade</span>
+                  <span className="text-destructive">{activeSong.difficulty}</span>
+                </div>
+                <div className="flex gap-1 justify-center">
+                  {[...Array(3)].map((_, i) => (
+                    <Flame key={i} className="h-4 w-4 text-destructive fill-destructive" />
+                  ))}
                 </div>
               </div>
-              <CardContent className="p-5 flex-grow flex flex-col justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-white line-clamp-2 mb-1" dangerouslySetInnerHTML={{ __html: song.snippet?.title || "Música" }} />
-                  <p className="text-xs text-gray-500 mb-4">{song.snippet?.channelTitle || "YouTube"}</p>
-                </div>
-                <Button 
-                  onClick={() => handleSelectDuel(song.id.videoId)}
-                  className="w-full bg-destructive hover:bg-destructive/90 text-white font-bold rounded-xl shadow-lg shadow-destructive/20 cursor-pointer"
-                >
-                  <Sword className="h-4 w-4 mr-2" />
-                  DUELAR AGORA
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+            </CardContent>
+          </Card>
+
+          <div className="p-6 rounded-3xl bg-destructive/10 border border-destructive/30 text-center">
+            <Trophy className="h-8 w-8 text-destructive mx-auto mb-2" />
+            <h4 className="text-sm font-black text-white uppercase italic">Prêmio da Vitória</h4>
+            <p className="text-xs text-gray-400 mt-1">+50 XP & Badge Duelist</p>
+          </div>
         </div>
+
       </div>
     </div>
   );
 };
 
-export default Duel;
+export default DuelRoom;
