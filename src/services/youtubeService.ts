@@ -28,11 +28,13 @@ export const searchYouTube = async (query: string) => {
       }
     });
 
-    // Retorna os itens reais da API
+    // Retorna os itens reais da API ou um array vazio se não houver dados
     return response.data.items || [];
   } catch (error: any) {
-    console.error("Erro na busca do YouTube API:", error.response?.data || error.message);
-    // Lança o erro para que a UI possa tratar (ex: mostrar toast de erro de cota ou chave inválida)
-    throw error;
+    // Log detalhado para depuração conforme solicitado
+    console.error("YOUTUBE API ERROR:", error.response?.data || error.message);
+    
+    // Retorna array vazio para evitar que a UI quebre, mas o erro estará no console
+    return [];
   }
 };
