@@ -125,7 +125,7 @@ export default function BasicLobby() {
                 "cursor-pointer transition-all duration-300 border-2 bg-card/40 backdrop-blur-md",
                 activeMode === 'duel' ? "border-primary shadow-lg shadow-primary/20 scale-[1.02]" : "border-border/50 hover:border-primary/50"
               )}
-              onClick={() => setActiveMode('duel')}
+              onClick={() => navigate('/duel')}
             >
               <CardContent className="p-6 flex flex-col items-center text-center gap-4">
                 <div className="p-4 rounded-2xl bg-primary/10 border border-primary/30">
