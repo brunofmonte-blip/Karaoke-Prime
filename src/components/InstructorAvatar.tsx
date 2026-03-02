@@ -1,79 +1,112 @@
-import React from "react";
-import { cn } from "@/lib/utils";
-import { BreathingPhase, ConservatoryModule, CalibrationSubModule } from "@/hooks/use-vocal-sandbox";
+"use client";
 
-interface InstructorAvatarProps {
-  phase?: BreathingPhase;
-  moduleType?: ConservatoryModule;
-  subModule?: CalibrationSubModule;
-  actionPhaseName?: string;
-}
+import React, { useState, useCallback, useEffect } from 'react';
+import { Sword, Search, PlayCircle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { searchYouTube } from '@/services/youtubeService';
+import { toast } from 'sonner';
 
-export default function InstructorAvatar({ 
-  phase = 'idle', 
-  moduleType = 'none', 
-  subModule = 'none',
-  actionPhaseName 
-}: InstructorAvatarProps) {
-  const isExhaling = phase === 'exhale';
-  const isInhaling = phase === 'inhale';
-  const isSuspending = phase === 'suspend';
-  const isResting = phase === 'rest';
+const Duel = () => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Determine the display name for the action phase (exhale/sing)
-  const displayActionName = actionPhaseName || (moduleType === 'pitch-calibration' ? 'CANTAR' : 'EXPIRAR');
+  const performSearch = useCallback(async (searchTerm: string) => {
+    if (!searchTerm.trim()) return;
+    setLoading(true);
+    try {
+      const items = await searchYouTube(searchTerm + ' karaoke');
+      setResults(items || []);
+    } catch (error) {
+      toast.error("Erro na busca do YouTube.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    performSearch("popular");
+  }, [performSearch]);
+
+  // 🔥 O comando que leva para a tela de Convidar!
+  const handleSelectDuel = (song: any) => {
+    const videoId = typeof song.id === 'string' ? song.id : song.id?.videoId;
+    
+    if (!videoId) {
+      toast.error("Erro: Link da música não encontrado pelo YouTube.");
+      return;
+    }
+    
+    window.location.href = `/duel-invite?id=${videoId}`;
+  };
 
   return (
-    <div className="relative w-48 h-64 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-700">
-      {/* Aura Glow */}
-      <div className={cn(
-        "absolute inset-0 rounded-full filter blur-3xl transition-all duration-1000",
-        isInhaling ? "bg-primary/40 scale-110" : 
-        isExhaling ? "bg-accent/40 scale-105" : 
-        isSuspending ? "bg-yellow-500/30 scale-100" :
-        "bg-primary/20 scale-100"
-      )} />
-      
-      {/* Photographic Model */}
-      <div className="relative w-40 h-40 z-10">
-        <div className={cn(
-          "w-full h-full rounded-full border-4 transition-all duration-500 overflow-hidden shadow-2xl",
-          isInhaling ? "border-primary scale-105" : 
-          isExhaling ? "border-accent scale-100" : 
-          "border-primary/50 scale-100"
-        )}>
-          <img 
-            src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=500" 
-            alt="AI Vocal Coach" 
-            className={cn(
-              "w-full h-full object-cover transition-all duration-1000",
-              phase === 'idle' ? "grayscale" : "grayscale-0",
-              isInhaling ? "scale-110" : "scale-100"
-            )}
-          />
+    <div className="min-h-screen bg-background pb-20">
+      <div className="relative h-[35vh] w-full overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-cover bg-center z-0 opacity-30" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000')" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/80 to-background z-10" />
+        <div className="relative z-20 text-center px-4">
+          <div className="inline-flex p-4 rounded-2xl bg-destructive/20 border-2 border-destructive mb-4 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+            <Sword className="h-10 w-10 text-destructive animate-pulse" />
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
+            Duel <span className="text-destructive neon-red-glow">Arena</span>
+          </h1>
+          <p className="text-gray-400 font-medium tracking-widest uppercase text-xs md:text-sm mt-2">Busque uma música e convide um desafiante</p>
         </div>
-        
-        {/* Status Indicator */}
-        <div className={cn(
-          "absolute bottom-2 right-2 w-6 h-6 border-4 border-background rounded-full shadow-lg transition-colors duration-500",
-          isInhaling ? "bg-primary animate-pulse" : 
-          isExhaling ? "bg-accent animate-bounce" : 
-          isSuspending ? "bg-yellow-500" :
-          "bg-green-500"
-        )} />
       </div>
 
-      {/* Status Badge */}
-      <div className="mt-6 bg-primary/20 text-primary text-[10px] font-black px-6 py-2 rounded-full border border-primary/40 uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(0,168,225,0.3)] backdrop-blur-md">
-        {phase === 'idle' ? 'AI VOCAL COACH' : `FASE: ${isExhaling ? displayActionName : phase.toUpperCase()}`}
-      </div>
-      
-      {/* Active Indicator */}
-      <div className="mt-3 flex items-center gap-2">
-        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-          {isInhaling ? "Inhaling Oxygen..." : isExhaling ? "Analyzing Pitch..." : "Neural Engine Active"}
-        </span>
+      <div className="container mx-auto max-w-6xl px-4 -mt-10 relative z-30">
+        <div className="max-w-2xl mx-auto mb-12 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
+          <Input 
+            placeholder="Buscar música para o duelo..." 
+            className="pl-12 h-16 text-lg rounded-2xl bg-card/50 border-destructive/30 focus:border-destructive transition-all text-white"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && performSearch(query)}
+          />
+          {loading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 text-destructive animate-spin" />}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {results.map((song, index) => {
+            const videoId = typeof song.id === 'string' ? song.id : song.id?.videoId;
+            if (!videoId) return null;
+            
+            return (
+              <Card key={videoId || index} className="group overflow-hidden border-2 border-white/5 bg-card/30 hover:border-destructive/50 transition-all duration-500 rounded-2xl flex flex-col">
+                <div 
+                  className="h-40 bg-cover bg-center relative cursor-pointer"
+                  style={{ backgroundImage: `url(${song.snippet?.thumbnails?.high?.url || song.snippet?.thumbnails?.default?.url})` }}
+                  onClick={() => handleSelectDuel(song)}
+                >
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <PlayCircle className="h-12 w-12 text-destructive" />
+                  </div>
+                </div>
+                <CardContent className="p-5 flex-grow flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-white line-clamp-2 mb-1" dangerouslySetInnerHTML={{ __html: song.snippet?.title || "Música" }} />
+                    <p className="text-xs text-gray-500 mb-4">{song.snippet?.channelTitle || "YouTube"}</p>
+                  </div>
+                  <Button 
+                    onClick={() => handleSelectDuel(song)}
+                    className="w-full bg-destructive hover:bg-destructive/90 text-white font-bold rounded-xl shadow-lg shadow-destructive/20 cursor-pointer"
+                  >
+                    <Sword className="h-4 w-4 mr-2" />
+                    DUELAR AGORA
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Duel;
