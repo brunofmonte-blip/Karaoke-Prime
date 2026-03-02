@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react' ;
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Trophy, Sword, ArrowLeft, Search, Flame, Star, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
