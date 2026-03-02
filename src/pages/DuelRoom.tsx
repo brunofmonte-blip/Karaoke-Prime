@@ -171,4 +171,4 @@ const DuelRoom = () => {
   );
 };
 
-export default DuelRoom;
+export default DuelRoom; 
