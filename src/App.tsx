@@ -18,6 +18,7 @@ import KaraokeRoom from "./pages/KaraokeRoom";
 import BasicLobby from "./pages/BasicLobby";
 import Duel from "./pages/Duel";
 import DuelRoom from "./pages/DuelRoom";
+import DuelInviteLobby from "./pages/DuelInviteLobby";
 import Talent from "./pages/Talent";
 import NextSuccess from "./pages/NextSuccess";
 import ScoreResult from "./pages/ScoreResult";
@@ -62,6 +63,7 @@ const App = () => (
                       <Route path="/room" element={<KaraokeRoom />} />
                       <Route path="/basic" element={<BasicLobby />} />
                       <Route path="/duel" element={<Duel />} />
+                      <Route path="/duel-invite" element={<DuelInviteLobby />} />
                       <Route path="/duel-room" element={<DuelRoom />} />
                       <Route path="/talent" element={<Talent />} />
                       <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />

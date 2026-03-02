@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { Sword, Search, PlayCircle, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Sword, Search, PlayCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { searchYouTube } from '@/services/youtubeService';
 import { toast } from 'sonner';
 
 const Duel = () => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -30,18 +32,16 @@ const Duel = () => {
     performSearch("popular");
   }, [performSearch]);
 
-  // 🔥 A FORÇA BRUTA: Extração segura e navegação direta
   const handleSelectDuel = (song: any) => {
-    // Garante que vai achar o ID da música, não importa como o Google mande
-    const videoId = typeof song.id === 'string' ? song.id : song.id?.videoId;
-    
-    if (!videoId) {
-      toast.error("Erro: Link da música não encontrado pelo YouTube.");
-      return;
+    // Safely get ID whether it's an object or string
+    const vId = song?.id?.videoId || (typeof song.id === 'string' ? song.id : null);
+    if (vId) {
+      // Redireciona para o novo Lobby de Convite
+      navigate('/duel-invite?v=' + vId);
+    } else {
+      console.error("Video ID not found", song);
+      toast.error("Não foi possível iniciar o duelo: ID do vídeo ausente.");
     }
-    
-    // Força o navegador a recarregar a página do zero, matando o cache velho
-    window.location.href = `/duel-room?id=${videoId}`;
   };
 
   return (
@@ -74,38 +74,44 @@ const Duel = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {results.map((song, index) => {
-            const videoId = typeof song.id === 'string' ? song.id : song.id?.videoId;
-            if (!videoId) return null;
-            
-            return (
-              <Card key={videoId || index} className="group overflow-hidden border-2 border-white/5 bg-card/30 hover:border-destructive/50 transition-all duration-500 rounded-2xl flex flex-col">
-                <div 
-                  className="h-40 bg-cover bg-center relative cursor-pointer"
-                  style={{ backgroundImage: `url(${song.snippet?.thumbnails?.high?.url || song.snippet?.thumbnails?.default?.url})` }}
-                  onClick={() => handleSelectDuel(song)}
-                >
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <PlayCircle className="h-12 w-12 text-destructive" />
-                  </div>
+          {results.map((song) => (
+            <Card key={song.id.videoId || Math.random()} className="group overflow-hidden border-2 border-white/5 bg-card/30 hover:border-destructive/50 transition-all duration-500 rounded-2xl flex flex-col">
+              <div 
+                className="h-40 bg-cover bg-center relative cursor-pointer"
+                style={{ backgroundImage: `url(${song.snippet.thumbnails.high.url})` }}
+                onClick={() => handleSelectDuel(song)}
+              >
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <PlayCircle className="h-12 w-12 text-destructive" />
                 </div>
-                <CardContent className="p-5 flex-grow flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-white line-clamp-2 mb-1" dangerouslySetInnerHTML={{ __html: song.snippet?.title || "Música" }} />
-                    <p className="text-xs text-gray-500 mb-4">{song.snippet?.channelTitle || "YouTube"}</p>
-                  </div>
-                  <Button 
-                    onClick={() => handleSelectDuel(song)}
-                    className="w-full bg-destructive hover:bg-destructive/90 text-white font-bold rounded-xl shadow-lg shadow-destructive/20 cursor-pointer"
-                  >
-                    <Sword className="h-4 w-4 mr-2" />
-                    DUELAR AGORA
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
+              </div>
+              <CardContent className="p-5 flex-grow flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-white line-clamp-2 mb-1" dangerouslySetInnerHTML={{ __html: song.snippet.title }} />
+                  <p className="text-xs text-gray-500 mb-4">{song.snippet.channelTitle}</p>
+                </div>
+                <Button 
+                  onClick={() => handleSelectDuel(song)}
+                  className="w-full bg-destructive hover:bg-destructive/90 text-white font-bold rounded-xl shadow-lg shadow-destructive/20"
+                >
+                  <Sword className="h-4 w-4 mr-2" />
+                  DUELAR AGORA
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      </div>
+
+      <div className="fixed bottom-8 left-8 z-50">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/')}
+          className="rounded-full bg-background/80 backdrop-blur-md border-white/10 hover:bg-white/10"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar
+        </Button>
       </div>
     </div>
   );
