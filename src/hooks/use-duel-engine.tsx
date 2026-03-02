@@ -24,7 +24,7 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   if (typeof window === 'undefined') return <>{children}</>;
 
   const { user } = useAuth();
-  const { startAnalysis, openOverlay, closeOverlay, clearUnlockedBadges } = useVocalSandbox();
+  const { startAnalysis, closeOverlay, clearUnlockedBadges } = useVocalSandbox();
   
   const [isDuelActive, setIsDuelActive] = useState(false);
   const [duelSong, setDuelSong] = useState<PublicDomainSong | null>(null);
@@ -57,11 +57,11 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setDuelSong(song);
     setIsDuelActive(true);
     
-    await startAnalysis(song, true, ghostTrace); 
-    openOverlay();
+    // Iniciamos a análise mas NÃO abrimos o overlay, pois navegaremos para a DuelRoom
+    await startAnalysis(song, true, 'none', 'none', '', ''); 
     
     toast.info(`AI Duel Started! Beat the AI's 85% target.`, { duration: 4000 });
-  }, [user, startAnalysis, openOverlay]);
+  }, [user, startAnalysis]);
 
   const getDuelFeedback = useCallback((userId: string) => {
     if (!duelSummary || !duelSong) {
@@ -97,16 +97,18 @@ export const DuelProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [duelSummary, duelSong]);
 
   return (
-    <DuelContext.Provider value={{ 
-      isDuelActive, 
-      duelSong, 
-      duelSummary,
-      startLocalDuel, 
-      clearDuel,
-      getDuelFeedback,
-    }}>
-      {children}
-    </DuelContext.Provider>
+    <div key="duel-provider-root">
+      <DuelContext.Provider value={{ 
+        isDuelActive, 
+        duelSong, 
+        duelSummary,
+        startLocalDuel, 
+        clearDuel,
+        getDuelFeedback,
+      }}>
+        {children}
+      </DuelContext.Provider>
+    </div>
   );
 };
 

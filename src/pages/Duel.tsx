@@ -24,7 +24,8 @@ const Duel = () => {
 
   const handleStartDuel = (song: PublicDomainSong) => {
     startLocalDuel(song);
-    // O hook startLocalDuel já abre o overlay do sandbox
+    // Navega para a sala de duelo dedicada
+    navigate(`/duel-room?id=${song.id}`);
   };
 
   return (
