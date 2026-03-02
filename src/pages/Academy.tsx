@@ -12,6 +12,9 @@ import { useAuth } from '@/integrations/supabase/auth';
 import { academyLessons } from '@/data/lessons';
 import AcademyModuleMenu from '@/components/AcademyModuleMenu';
 
+// Hardcoded fallback levels to ensure .map() never fails
+const ACADEMY_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
 export default function Academy() {
   const navigate = useNavigate();
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -19,13 +22,7 @@ export default function Academy() {
   
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
 
-  // Fallbacks seguros
-  const safeProfile = profile || { academy_level: 0, xp: 0 };
-  const currentLevel = safeProfile.academy_level ?? 0;
-  const currentXp = safeProfile.xp ?? 0;
-  const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-  // 1. Estado de Carregamento
+  // 1. Loading State - Safe and centered
   if (isAuthLoading || isProfileLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -37,7 +34,7 @@ export default function Academy() {
     );
   }
 
-  // 2. AUTHENTICATION GATE: Tela de Bloqueio
+  // 2. AUTHENTICATION GATE: Locked screen for non-logged users
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
@@ -65,28 +62,32 @@ export default function Academy() {
     );
   }
 
-  // 3. Renderização Principal (Usuário Logado)
+  // Safe data extraction with nullish coalescing
+  const currentLevel = profile?.academy_level ?? 0;
+  const currentXp = profile?.xp ?? 0;
+  const userName = user?.displayName || (user as any)?.user_metadata?.full_name || "Vocalist";
+
   return (
     <div className="min-h-screen bg-background pb-32">
-      {/* Header Section - Sem margens negativas para evitar overlap */}
-      <div className="relative w-full pt-16 pb-12 flex flex-col items-center justify-center text-center overflow-hidden">
+      {/* Header Section - Clean stacking, no negative margins */}
+      <div className="relative w-full pt-20 pb-16 flex flex-col items-center justify-center text-center overflow-hidden border-b border-white/5">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2000')] bg-cover bg-center opacity-10" />
         <div className="relative z-10 px-4">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-8">
             <InstructorAvatar phase="rest" />
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic leading-none">
             VOCAL <span className="text-primary neon-blue-glow">ACADEMY</span>
           </h1>
-          <p className="text-gray-500 font-bold tracking-[0.3em] uppercase text-xs mt-4">
+          <p className="text-gray-500 font-bold tracking-[0.3em] uppercase text-xs mt-6">
             The Scientific Path to Vocal Mastery
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto max-w-6xl px-4 space-y-12">
+      <div className="container mx-auto max-w-6xl px-4 mt-12 space-y-12">
         
-        {/* Status Card - Stacked Cleanly */}
+        {/* Status Card - Cleanly separated from header */}
         <Card className="glass-pillar border-2 border-primary/40 overflow-hidden shadow-2xl rounded-[2rem]">
           <CardContent className="p-8 md:p-10">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
@@ -95,7 +96,7 @@ export default function Academy() {
                   <GraduationCap className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Nível Atual</p>
+                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Artista: {userName}</p>
                   <h3 className="text-3xl font-black text-white italic">Nível {currentLevel}</h3>
                 </div>
               </div>
@@ -143,7 +144,7 @@ export default function Academy() {
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-black text-white mb-2 italic uppercase">Nível {selectedLevel}</h2>
                     <p className="text-gray-400 text-xs leading-relaxed mb-6">
-                      {academyLessons.find(l => l.level === selectedLevel)?.description || "Módulos de treinamento intensivo."}
+                      {academyLessons?.find(l => l.level === selectedLevel)?.description || "Módulos de treinamento intensivo."}
                     </p>
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
                       <Target className="h-5 w-5 text-accent" />
@@ -163,9 +164,10 @@ export default function Academy() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {levels.map((lvl) => {
-              const isUnlocked = lvl === 1;
-              const lessonData = academyLessons.find(l => l.level === lvl);
+            {ACADEMY_LEVELS.map((lvl) => {
+              // Logic: Level 1 is always unlocked. Others require previous level.
+              const isUnlocked = lvl === 1 || currentLevel >= lvl - 1;
+              const lessonData = academyLessons?.find(l => l.level === lvl);
 
               return (
                 <Card 
