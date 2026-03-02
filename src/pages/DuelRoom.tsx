@@ -1,13 +1,12 @@
-"use client";
-
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Sword, Trophy, ArrowLeft, Mic, Activity, Zap, Flame } from 'lucide-react';
+import { Sword, Trophy, ArrowLeft, Mic, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useDuel } from '@/hooks/use-duel-engine';
+import VocalEvolutionChart from '@/components/VocalEvolutionChart';
 import { Progress } from '@/components/ui/progress';
 
 const DuelRoom = () => {
@@ -16,6 +15,7 @@ const DuelRoom = () => {
   const songId = searchParams.get('id');
   
   const { 
+    isAnalyzing, 
     stopAnalysis, 
     pitchHistory, 
     ghostTrace, 
@@ -27,19 +27,20 @@ const DuelRoom = () => {
   
   const { duelSong, clearDuel } = useDuel();
 
-  // Bypass state block using URL parameters
+  // O "Passe VIP": Cria os dados da música se vier do clique no Lobby
   const activeSong = duelSong || (songId ? { 
-    title: 'Live Duel', 
-    artist: 'YouTube', 
+    title: 'Desafio Global', 
+    artist: 'Adversário IA', 
     difficulty: 'Hard', 
     videoId: songId, 
     lyrics: [] 
   } : null);
 
-  useEffect(() => { 
-    if (!activeSong) { 
-      navigate('/duel'); 
-    } 
+  // O Novo Leão de Chácara (mais tolerante)
+  useEffect(() => {
+    if (!activeSong) {
+      navigate('/duel');
+    }
   }, [activeSong, navigate]);
 
   const handleExit = () => {
@@ -50,18 +51,15 @@ const DuelRoom = () => {
 
   if (!activeSong) return null;
 
-  const progressValue = (currentTime / totalDuration) * 100;
+  const progressValue = totalDuration > 0 ? (currentTime / totalDuration) * 100 : 0;
   
-  // Simulação de pontuação em tempo real para o Duelo
-  const userScore = Math.floor(pitchHistory.reduce((acc, curr) => acc + curr.pitch, 0) / (pitchHistory.length || 1)) * 10;
-  const aiScore = Math.floor(ghostTrace.slice(0, pitchHistory.length).reduce((acc, curr) => acc + curr.pitch, 0) / (pitchHistory.length || 1)) * 10;
+  const userScore = Math.floor(pitchHistory.reduce((acc, curr) => acc + curr.pitch, 0) / (pitchHistory.length || 1)) * 10 || 0;
+  const aiScore = Math.floor(ghostTrace.slice(0, pitchHistory.length).reduce((acc, curr) => acc + curr.pitch, 0) / (pitchHistory.length || 1)) * 10 || 0;
 
   return (
     <div className="min-h-screen bg-background flex flex-col p-4 md:p-8 relative overflow-hidden">
-      {/* Background FX */}
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)] pointer-events-none" />
       
-      {/* Header */}
       <div className="flex justify-between items-center mb-8 relative z-10">
         <Button variant="ghost" onClick={handleExit} className="text-muted-foreground hover:text-destructive">
           <ArrowLeft className="mr-2 h-5 w-5" /> Abandonar Batalha
@@ -83,10 +81,9 @@ const DuelRoom = () => {
         </div>
       </div>
 
-      {/* Battle Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow relative z-10">
         
-        {/* Left: User Stats */}
+        {/* Painel do Usuário */}
         <div className="lg:col-span-3 space-y-6">
           <Card className="glass-pillar border-primary/50 overflow-hidden rounded-3xl shadow-2xl">
             <CardContent className="p-6 text-center">
@@ -116,22 +113,30 @@ const DuelRoom = () => {
           </div>
         </div>
 
-        {/* Center: YouTube Player */}
+        {/* Centro: O Player de YouTube! */}
         <div className="lg:col-span-6 flex flex-col gap-6">
-          <div className="aspect-video rounded-3xl overflow-hidden border-2 border-destructive/30 shadow-2xl bg-black w-full mb-6 relative z-20">
-             <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${activeSong.videoId}?autoplay=1&modestbranding=1`} title="Duel Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+          <div className="aspect-video rounded-3xl overflow-hidden border-2 border-destructive/30 shadow-2xl bg-black w-full relative z-20">
+            <iframe 
+              width="100%" 
+              height="100%" 
+              src={`https://www.youtube.com/embed/${activeSong.videoId}?autoplay=1&modestbranding=1&rel=0&origin=${window.location.origin}`} 
+              title="Duel Video" 
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen
+            ></iframe>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-              <span>Progresso da Música</span>
-              <span>{progressValue.toFixed(0)}%</span>
-            </div>
-            <Progress value={progressValue} className="h-2 bg-white/5" indicatorClassName="bg-destructive shadow-[0_0_15px_rgba(220,38,38,0.6)]" />
+          <div className="flex-grow min-h-[200px]">
+            <VocalEvolutionChart 
+              title="Sincronia de Batalha (Você vs AI)" 
+              data={pitchHistory} 
+              opponentTrace={ghostTrace}
+            />
           </div>
         </div>
 
-        {/* Right: AI Stats */}
+        {/* Painel da IA */}
         <div className="lg:col-span-3 space-y-6">
           <Card className="glass-pillar border-destructive/50 overflow-hidden rounded-3xl shadow-2xl">
             <CardContent className="p-6 text-center">
