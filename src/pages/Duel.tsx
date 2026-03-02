@@ -1,28 +1,20 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Users, Trophy, Sword, ArrowLeft, Search, Flame, Star, Zap, PlayCircle, Loader2, Mic, Activity } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Sword, Search, PlayCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { useUserProfile } from '@/hooks/use-user-profile';
 import { searchYouTube } from '@/services/youtubeService';
 import { toast } from 'sonner';
-import { Progress } from '@/components/ui/progress';
 
 const Duel = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const videoId = searchParams.get('v');
-  const { data: profile } = useUserProfile();
-  
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // --- LÓGICA DO LOBBY (BUSCA) ---
   const performSearch = useCallback(async (searchTerm: string) => {
     if (!searchTerm.trim()) return;
     setLoading(true);
@@ -37,86 +29,13 @@ const Duel = () => {
   }, []);
 
   useEffect(() => {
-    if (!videoId) {
-      performSearch("popular");
-    }
-  }, [videoId, performSearch]);
+    performSearch("popular");
+  }, [performSearch]);
 
-  const handleSelectDuel = (vId: string) => {
-    navigate('/duel?v=' + vId);
+  const handleSelectDuel = (song: any) => {
+    navigate('/duel-room?id=' + song.id.videoId);
   };
 
-  // --- RENDERIZAÇÃO DA ARENA DE DUELO ---
-  if (videoId) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col p-4 md:p-8 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(220,38,38,0.1),transparent_70%)] pointer-events-none" />
-        
-        <div className="flex justify-between items-center mb-8 relative z-10">
-          <Button variant="ghost" onClick={() => navigate('/duel')} className="text-muted-foreground hover:text-destructive">
-            <ArrowLeft className="mr-2 h-5 w-5" /> Sair do Duelo
-          </Button>
-          
-          <div className="px-6 py-2 rounded-full bg-destructive/20 border-2 border-destructive shadow-[0_0_20px_rgba(220,38,38,0.3)] flex items-center gap-3">
-            <Sword className="h-5 w-5 text-destructive animate-pulse" />
-            <span className="text-lg font-black text-white italic uppercase tracking-tighter">Duel Arena</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
-            <span className="text-xs font-black text-white uppercase tracking-widest">Live Battle</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow relative z-10">
-          {/* Player Central */}
-          <div className="lg:col-span-9 aspect-video rounded-3xl overflow-hidden border-2 border-destructive/30 shadow-2xl bg-black">
-            <iframe 
-              width="100%" 
-              height="100%" 
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0&enablejsapi=1&origin=${window.location.origin}`} 
-              title="Duel Video" 
-              frameBorder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowFullScreen
-            ></iframe>
-          </div>
-
-          {/* Stats Lateral */}
-          <div className="lg:col-span-3 space-y-6">
-            <Card className="glass-pillar border-primary/50 p-6 text-center">
-              <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-2">Seu Score</p>
-              <span className="text-5xl font-black text-white tabular-nums">0</span>
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase">
-                  <span>Estabilidade</span>
-                  <span className="text-green-400">ANALISANDO...</span>
-                </div>
-                <Progress value={40} className="h-1 bg-primary/10" indicatorClassName="bg-primary" />
-              </div>
-            </Card>
-
-            <Card className="glass-pillar border-destructive/50 p-6 text-center">
-              <p className="text-[10px] font-black text-destructive uppercase tracking-widest mb-2">AI Opponent</p>
-              <span className="text-5xl font-black text-white tabular-nums">0</span>
-              <div className="mt-4 flex justify-center gap-1">
-                <Flame className="h-4 w-4 text-destructive fill-destructive" />
-                <Flame className="h-4 w-4 text-destructive fill-destructive" />
-                <Flame className="h-4 w-4 text-destructive fill-destructive" />
-              </div>
-            </Card>
-
-            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center gap-3">
-              <Mic className="h-5 w-5 text-primary" />
-              <span className="text-xs font-bold text-white uppercase">Vocal Engine Ativo</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- RENDERIZAÇÃO DO LOBBY ---
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="relative h-[35vh] w-full overflow-hidden flex items-center justify-center">
@@ -152,7 +71,7 @@ const Duel = () => {
               <div 
                 className="h-40 bg-cover bg-center relative cursor-pointer"
                 style={{ backgroundImage: `url(${song.snippet.thumbnails.high.url})` }}
-                onClick={() => handleSelectDuel(song.id.videoId)}
+                onClick={() => handleSelectDuel(song)}
               >
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <PlayCircle className="h-12 w-12 text-destructive" />
@@ -164,7 +83,7 @@ const Duel = () => {
                   <p className="text-xs text-gray-500 mb-4">{song.snippet.channelTitle}</p>
                 </div>
                 <Button 
-                  onClick={() => handleSelectDuel(song.id.videoId)}
+                  onClick={() => handleSelectDuel(song)}
                   className="w-full bg-destructive hover:bg-destructive/90 text-white font-bold rounded-xl shadow-lg shadow-destructive/20"
                 >
                   <Sword className="h-4 w-4 mr-2" />
@@ -174,6 +93,17 @@ const Duel = () => {
             </Card>
           ))}
         </div>
+      </div>
+
+      <div className="fixed bottom-8 left-8 z-50">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/')}
+          className="rounded-full bg-background/80 backdrop-blur-md border-white/10 hover:bg-white/10"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar
+        </Button>
       </div>
     </div>
   );

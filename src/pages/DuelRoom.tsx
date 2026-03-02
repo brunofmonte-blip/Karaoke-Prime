@@ -8,8 +8,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
 import { useDuel } from '@/hooks/use-duel-engine';
-import LyricPlayer from '@/components/LyricPlayer';
-import VocalEvolutionChart from '@/components/VocalEvolutionChart';
 import { Progress } from '@/components/ui/progress';
 
 const DuelRoom = () => {
@@ -18,25 +16,31 @@ const DuelRoom = () => {
   const songId = searchParams.get('id');
   
   const { 
-    isAnalyzing, 
     stopAnalysis, 
     pitchHistory, 
     ghostTrace, 
-    currentSong, 
     currentTime, 
     totalDuration,
     pitchData,
     isPitchStable
   } = useVocalSandbox();
   
-  const { isDuelActive, duelSong, clearDuel } = useDuel();
+  const { duelSong, clearDuel } = useDuel();
 
-  // Se não houver duelo ativo ou música, volta para o lobby
-  useEffect(() => {
-    if (!isDuelActive || !duelSong) {
-      navigate('/duel');
-    }
-  }, [isDuelActive, duelSong, navigate]);
+  // Bypass state block using URL parameters
+  const activeSong = duelSong || (songId ? { 
+    title: 'Live Duel', 
+    artist: 'YouTube', 
+    difficulty: 'Hard', 
+    videoId: songId, 
+    lyrics: [] 
+  } : null);
+
+  useEffect(() => { 
+    if (!activeSong) { 
+      navigate('/duel'); 
+    } 
+  }, [activeSong, navigate]);
 
   const handleExit = () => {
     stopAnalysis();
@@ -44,7 +48,7 @@ const DuelRoom = () => {
     navigate('/duel');
   };
 
-  if (!duelSong) return null;
+  if (!activeSong) return null;
 
   const progressValue = (currentTime / totalDuration) * 100;
   
@@ -69,7 +73,7 @@ const DuelRoom = () => {
             <span className="text-lg font-black text-white italic uppercase tracking-tighter">Duel Arena</span>
           </div>
           <p className="text-xs text-muted-foreground mt-2 font-bold uppercase tracking-widest">
-            {duelSong.title} — {duelSong.artist}
+            {activeSong.title} — {activeSong.artist}
           </p>
         </div>
 
@@ -112,21 +116,11 @@ const DuelRoom = () => {
           </div>
         </div>
 
-        {/* Center: Visualizer & Lyrics */}
+        {/* Center: YouTube Player */}
         <div className="lg:col-span-6 flex flex-col gap-6">
-          <div className="flex-grow min-h-[300px]">
-            <VocalEvolutionChart 
-              title="Sincronia de Batalha (Você vs AI)" 
-              data={pitchHistory} 
-              opponentTrace={ghostTrace}
-            />
+          <div className="aspect-video rounded-3xl overflow-hidden border-2 border-destructive/30 shadow-2xl bg-black w-full mb-6 relative z-20">
+             <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${activeSong.videoId}?autoplay=1&modestbranding=1`} title="Duel Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
           </div>
-
-          <Card className="glass-pillar border-white/10 rounded-3xl overflow-hidden">
-            <CardContent className="p-8">
-              <LyricPlayer lyrics={duelSong.lyrics} currentTime={currentTime} />
-            </CardContent>
-          </Card>
 
           <div className="space-y-2">
             <div className="flex justify-between text-[10px] font-black text-muted-foreground uppercase tracking-widest">
@@ -149,7 +143,7 @@ const DuelRoom = () => {
               <div className="mt-6 space-y-3">
                 <div className="flex justify-between text-xs font-bold uppercase text-muted-foreground">
                   <span>Dificuldade</span>
-                  <span className="text-destructive">{duelSong.difficulty}</span>
+                  <span className="text-destructive">{activeSong.difficulty}</span>
                 </div>
                 <div className="flex gap-1 justify-center">
                   {[...Array(3)].map((_, i) => (
