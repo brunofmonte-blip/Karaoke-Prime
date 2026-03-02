@@ -1,52 +1,43 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { BrainCircuit, Lock, Trophy, Star, GraduationCap, Sparkles, Target, Zap, ArrowLeft, Loader2, LogIn, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Lock, GraduationCap, Sparkles, Target, ArrowLeft, Loader2, LogIn, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import InstructorAvatar from '@/components/InstructorAvatar';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { useAuth } from '@/integrations/supabase/auth';
 import { academyLessons } from '@/data/lessons';
-
-// Importação dos menus de nível
 import AcademyModuleMenu from '@/components/AcademyModuleMenu';
 
 export default function Academy() {
-  const location = useNavigate();
   const navigate = useNavigate();
   const { user, isLoading: isAuthLoading } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useUserProfile();
   
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
 
-  // Fallbacks seguros para evitar crashes
+  // Fallbacks seguros
   const safeProfile = profile || { academy_level: 0, xp: 0 };
   const currentLevel = safeProfile.academy_level ?? 0;
   const currentXp = safeProfile.xp ?? 0;
-  
-  // 10 Níveis Fixos para garantir renderização
   const levels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  // 1. Estado de Carregamento (Prevenção de Tela Preta)
+  // 1. Estado de Carregamento
   if (isAuthLoading || isProfileLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-        <div className="relative">
-          <div className="absolute inset-0 blur-3xl bg-primary/30 animate-pulse rounded-full" />
-          <Loader2 className="h-16 w-16 text-primary animate-spin relative z-10" />
-        </div>
-        <p className="text-primary neon-blue-glow mt-8 font-black tracking-[0.2em] uppercase text-xs animate-pulse">
-          Sincronizando DNA Vocal...
+        <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+        <p className="text-primary neon-blue-glow font-bold uppercase tracking-widest text-xs">
+          Sincronizando Academy...
         </p>
       </div>
     );
   }
 
-  // 2. Estado Não Logado
+  // 2. AUTHENTICATION GATE: Tela de Bloqueio
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
@@ -55,11 +46,11 @@ export default function Academy() {
             <Lock className="h-16 w-16 text-primary neon-blue-glow" />
           </div>
           <div className="space-y-4">
-            <h1 className="text-5xl font-black text-white tracking-tighter uppercase italic">
-              Academy <span className="text-primary">Locked</span>
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic">
+              ACADEMY <span className="text-primary">LOCKED</span>
             </h1>
             <p className="text-gray-400 text-lg leading-relaxed">
-              O currículo científico de 10 níveis é exclusivo para membros da elite Karaoke Prime.
+              O currículo de 10 níveis é exclusivo para membros.
             </p>
           </div>
           <Button 
@@ -74,121 +65,105 @@ export default function Academy() {
     );
   }
 
-  // 3. Renderização Principal (Autenticado)
+  // 3. Renderização Principal (Usuário Logado)
   return (
     <div className="min-h-screen bg-background pb-32">
-      {/* Hero Header */}
-      <div className="relative h-[45vh] w-full overflow-hidden flex items-center justify-center">
-        <div 
-          className="absolute inset-0 bg-cover bg-center z-0 opacity-30 scale-110"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2000')" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/80 to-background z-10" />
-        
-        <div className="relative z-20 text-center px-4 animate-in fade-in slide-in-from-top-8 duration-1000">
+      {/* Header Section - Sem margens negativas para evitar overlap */}
+      <div className="relative w-full pt-16 pb-12 flex flex-col items-center justify-center text-center overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2000')] bg-cover bg-center opacity-10" />
+        <div className="relative z-10 px-4">
           <div className="flex justify-center mb-6">
             <InstructorAvatar phase="rest" />
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none">
-            Vocal <span className="text-primary neon-blue-glow">Academy</span>
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic leading-none">
+            VOCAL <span className="text-primary neon-blue-glow">ACADEMY</span>
           </h1>
-          <p className="text-gray-400 font-bold tracking-[0.3em] uppercase text-xs md:text-sm mt-4">
+          <p className="text-gray-500 font-bold tracking-[0.3em] uppercase text-xs mt-4">
             The Scientific Path to Vocal Mastery
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto max-w-6xl px-4 -mt-16 relative z-30">
+      <div className="container mx-auto max-w-6xl px-4 space-y-12">
         
-        {/* Dashboard de Progresso */}
-        <Card className="glass-pillar border-2 border-primary/40 mb-16 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem]">
-          <CardContent className="p-8 md:p-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
+        {/* Status Card - Stacked Cleanly */}
+        <Card className="glass-pillar border-2 border-primary/40 overflow-hidden shadow-2xl rounded-[2rem]">
+          <CardContent className="p-8 md:p-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
               <div className="flex items-center gap-6">
-                <div className="h-20 w-20 rounded-[1.5rem] bg-primary/20 border-2 border-primary flex items-center justify-center shadow-[0_0_30px_rgba(0,168,225,0.4)]">
-                  <GraduationCap className="h-10 w-10 text-primary" />
+                <div className="h-16 w-16 rounded-2xl bg-primary/20 border-2 border-primary flex items-center justify-center shadow-[0_0_20px_rgba(0,168,225,0.3)]">
+                  <GraduationCap className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">Nível Atual</p>
-                  <h3 className="text-4xl font-black text-white italic">Nível {currentLevel}</h3>
+                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Nível Atual</p>
+                  <h3 className="text-3xl font-black text-white italic">Nível {currentLevel}</h3>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em]">
-                  <span className="text-gray-500">Experiência (XP)</span>
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                  <span className="text-gray-500">Experiência</span>
                   <span className="text-primary neon-blue-glow">{currentXp} XP</span>
                 </div>
-                <div className="h-3 bg-white/5 rounded-full overflow-hidden border border-white/10">
+                <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/10">
                   <div 
-                    className="h-full bg-primary shadow-[0_0_15px_rgba(0,168,225,0.8)] transition-all duration-1000" 
+                    className="h-full bg-primary shadow-[0_0_10px_rgba(0,168,225,0.8)] transition-all duration-1000" 
                     style={{ width: `${Math.min(100, (currentXp % 1000) / 10)}%` }} 
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <div className="text-right">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">Status</p>
-                  <p className="text-2xl font-black text-accent neon-gold-glow italic uppercase">
-                    {currentLevel >= 8 ? "Pro Artist" : "Academy Student"}
-                  </p>
-                </div>
+              <div className="text-right">
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Status</p>
+                <p className="text-xl font-black text-accent neon-gold-glow italic uppercase">
+                  {currentLevel >= 8 ? "Pro Artist" : "Academy Student"}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {selectedLevel ? (
-          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Button 
               variant="ghost" 
               onClick={() => setSelectedLevel(null)}
-              className="mb-12 text-gray-400 hover:text-primary group text-xs font-black uppercase tracking-widest"
+              className="mb-8 text-gray-400 hover:text-primary group text-xs font-black uppercase tracking-widest"
             >
-              <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-2 transition-transform" />
+              <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
               Voltar ao Currículo
             </Button>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-              <div className="lg:col-span-4 space-y-8">
-                <Card className="glass-pillar border-2 border-accent/40 overflow-hidden rounded-[2rem] shadow-2xl">
-                  <div className="h-48 bg-black/40 flex items-center justify-center border-b border-white/10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="lg:col-span-4">
+                <Card className="glass-pillar border-2 border-accent/40 overflow-hidden rounded-[2rem] sticky top-24">
+                  <div className="h-40 bg-black/40 flex items-center justify-center border-b border-white/10">
                     <InstructorAvatar phase="suspend" />
                   </div>
-                  <CardContent className="p-8">
-                    <h2 className="text-3xl font-black text-white mb-4 italic uppercase tracking-tighter">Nível {selectedLevel}</h2>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-8">
+                  <CardContent className="p-6">
+                    <h2 className="text-2xl font-black text-white mb-2 italic uppercase">Nível {selectedLevel}</h2>
+                    <p className="text-gray-400 text-xs leading-relaxed mb-6">
                       {academyLessons.find(l => l.level === selectedLevel)?.description || "Módulos de treinamento intensivo."}
                     </p>
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-                        <Target className="h-6 w-6 text-accent" />
-                        <div>
-                          <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Foco</p>
-                          <p className="text-sm font-bold text-white">Técnica Vocal</p>
-                        </div>
-                      </div>
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                      <Target className="h-5 w-5 text-accent" />
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Foco: Técnica Vocal</span>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
               <div className="lg:col-span-8">
-                <div className="mb-8">
-                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter italic">Módulos de Treino</h3>
-                  <p className="text-gray-500 text-sm font-medium">Apenas os módulos autorizados estão disponíveis.</p>
+                <div className="mb-6">
+                  <h3 className="text-2xl font-black text-white uppercase italic">Módulos de Treino</h3>
                 </div>
-                {/* Renderiza o menu do nível 1 (com lógica de trava interna) */}
                 <AcademyModuleMenu level={selectedLevel} />
               </div>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {levels.map((lvl) => {
-              // LÓGICA ESTRITA: Apenas Nível 1 desbloqueado
               const isUnlocked = lvl === 1;
               const lessonData = academyLessons.find(l => l.level === lvl);
 
@@ -198,52 +173,49 @@ export default function Academy() {
                   className={cn(
                     "relative overflow-hidden transition-all duration-500 border-2 group cursor-pointer rounded-[2rem]",
                     !isUnlocked ? "bg-black/60 border-white/5 opacity-40 grayscale" : 
-                    "glass-pillar border-primary/40 hover:border-primary hover:scale-[1.03] shadow-xl hover:shadow-primary/20"
+                    "glass-pillar border-primary/40 hover:border-primary hover:scale-[1.02] shadow-xl"
                   )}
                   onClick={() => isUnlocked && setSelectedLevel(lvl)}
                 >
                   {!isUnlocked && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20 backdrop-blur-[2px]">
-                      <Lock className="h-12 w-12 text-white/20 mb-2" />
-                      <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">Locked</span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20 backdrop-blur-[1px]">
+                      <Lock className="h-8 w-8 text-white/20 mb-2" />
+                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Locked</span>
                     </div>
                   )}
 
-                  <CardHeader className="p-8 pb-4">
+                  <CardHeader className="p-6 pb-2">
                     <div className="flex justify-between items-start">
                       <div className={cn(
-                        "h-12 w-12 rounded-2xl border-2 flex items-center justify-center font-black text-xl italic",
+                        "h-10 w-10 rounded-xl border-2 flex items-center justify-center font-black text-lg italic",
                         !isUnlocked ? "border-white/10 text-gray-600" : "border-primary/40 bg-primary/10 text-primary neon-blue-glow"
                       )}>
                         {lvl}
                       </div>
-                      {isUnlocked && <Sparkles className="h-6 w-6 text-primary animate-pulse" />}
+                      {isUnlocked && <Sparkles className="h-5 w-5 text-primary animate-pulse" />}
                     </div>
                     <CardTitle className={cn(
-                      "text-2xl font-black mt-6 uppercase tracking-tighter italic",
+                      "text-xl font-black mt-4 uppercase italic",
                       !isUnlocked ? "text-gray-600" : "text-white"
                     )}>
                       {lessonData?.title || `Nível ${lvl}`}
                     </CardTitle>
                   </CardHeader>
 
-                  <CardContent className="p-8 pt-0 space-y-6">
-                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 font-medium">
+                  <CardContent className="p-6 pt-0">
+                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-6">
                       {lessonData?.description || "Treinamento avançado de performance."}
                     </p>
-                    
-                    <div className="pt-6 border-t border-white/5">
-                      <Button 
-                        variant="ghost"
-                        className={cn(
-                          "w-full rounded-xl font-black uppercase tracking-[0.2em] text-[10px] py-6",
-                          !isUnlocked ? "text-gray-700" : "text-primary hover:bg-primary/10"
-                        )}
-                      >
-                        {isUnlocked ? "Iniciar Treino" : "Bloqueado"}
-                        {isUnlocked && <ChevronRight className="ml-2 h-4 w-4" />}
-                      </Button>
-                    </div>
+                    <Button 
+                      variant="ghost"
+                      className={cn(
+                        "w-full rounded-xl font-black uppercase tracking-widest text-[9px] py-4",
+                        !isUnlocked ? "text-gray-700" : "text-primary hover:bg-primary/10"
+                      )}
+                    >
+                      {isUnlocked ? "Iniciar Treino" : "Bloqueado"}
+                      {isUnlocked && <ChevronRight className="ml-2 h-3 w-3" />}
+                    </Button>
                   </CardContent>
                 </Card>
               );
