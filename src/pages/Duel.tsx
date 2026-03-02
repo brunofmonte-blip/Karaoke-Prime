@@ -32,8 +32,8 @@ const Duel = () => {
     performSearch("popular");
   }, [performSearch]);
 
-  const handleSelectDuel = (song: any) => {
-    navigate('/duel-room?id=' + song.id.videoId);
+  const handleSelectDuel = (vId: string) => {
+    navigate('/duel-room?id=' + vId);
   };
 
   return (
@@ -71,7 +71,7 @@ const Duel = () => {
               <div 
                 className="h-40 bg-cover bg-center relative cursor-pointer"
                 style={{ backgroundImage: `url(${song.snippet.thumbnails.high.url})` }}
-                onClick={() => handleSelectDuel(song)}
+                onClick={() => handleSelectDuel(song.id.videoId)}
               >
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <PlayCircle className="h-12 w-12 text-destructive" />
@@ -83,7 +83,7 @@ const Duel = () => {
                   <p className="text-xs text-gray-500 mb-4">{song.snippet.channelTitle}</p>
                 </div>
                 <Button 
-                  onClick={() => handleSelectDuel(song)}
+                  onClick={() => handleSelectDuel(song.id.videoId)}
                   className="w-full bg-destructive hover:bg-destructive/90 text-white font-bold rounded-xl shadow-lg shadow-destructive/20"
                 >
                   <Sword className="h-4 w-4 mr-2" />
