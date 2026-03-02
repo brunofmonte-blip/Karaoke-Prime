@@ -1,40 +1,26 @@
-import axios from 'axios';
-
 /**
  * Serviço para busca de vídeos no YouTube.
  * Realiza chamadas reais à API do Google.
- * Requer a variável de ambiente VITE_YOUTUBE_API_KEY configurada.
  */
+const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+
 export const searchYouTube = async (query: string) => {
-  const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+  // Previne buscas vazias que causam o erro "Nenhuma música encontrada"
+  if (!query || query.trim() === '') return [];
   
-  if (!API_KEY) {
-    console.error("[YouTube Service] Erro: VITE_YOUTUBE_API_KEY não configurada nas variáveis de ambiente.");
-    return [];
-  }
-
-  console.log(`[YouTube Service] Realizando busca real por: "${query}"`);
-
   try {
-    const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-      params: {
-        part: 'snippet',
-        q: query,
-        type: 'video',
-        videoEmbeddable: 'true', // Filtra apenas vídeos que permitem reprodução em sites externos
-        videoSyndicated: 'true',  // Garante que o vídeo possa ser reproduzido fora do youtube.com
-        maxResults: 15,
-        key: API_KEY
-      }
-    });
-
-    // Retorna os itens reais da API ou um array vazio se não houver dados
-    return response.data.items || [];
-  } catch (error: any) {
-    // Log detalhado para depuração conforme solicitado
-    console.error("YOUTUBE API ERROR:", error.response?.data || error.message);
+    // Use a constante da API_KEY que já existe no seu arquivo aqui
+    const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(query)}&type=video&videoEmbeddable=true&key=${API_KEY}`);
+    const data = await response.json();
     
-    // Retorna array vazio para evitar que a UI quebre, mas o erro estará no console
+    if (data.error) {
+      console.error("YouTube API Error:", data.error.message);
+      return [];
+    }
+    
+    return data.items || [];
+  } catch (error) {
+    console.error("Fetch error:", error);
     return [];
   }
 };
