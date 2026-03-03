@@ -1,172 +1,112 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Search, Globe, Download, Users, PlayCircle, Loader2, Music } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Sword, Search, PlayCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { useNavigate } from 'react-router-dom';
 import { searchYouTube } from '@/services/youtubeService';
+import { toast } from 'sonner';
 
-const PRIORITY_CHANNELS = ["@ViguibaKaraoke", "@ClubinhodoKaraoke", "@singerkaraoke", "@singkingkaraoke"];
-
-const Library: React.FC = () => {
+const Duel = () => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'offline' | 'duel'>('all');
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const searchSongs = async (searchQuery: string = "") => {
-    setIsLoading(true);
+  const performSearch = useCallback(async (searchTerm: string) => {
+    if (!searchTerm.trim()) return;
+    setLoading(true);
     try {
-      const enhancedQuery = searchQuery ? `${searchQuery} karaoke` : `popular karaoke ${PRIORITY_CHANNELS.join(" ")}`;
-      const items = await searchYouTube(enhancedQuery);
+      const items = await searchYouTube(searchTerm + ' karaoke');
       setResults(items || []);
     } catch (error) {
-      console.error("Library search failed:", error);
-      setResults([]);
+      toast.error("Erro na busca do YouTube.");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    searchSongs();
   }, []);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      searchSongs(query);
+  useEffect(() => {
+    performSearch("popular");
+  }, [performSearch]);
+
+  const handleSelectDuel = (song: any) => {
+    const videoId = typeof song.id === 'string' ? song.id : song.id?.videoId;
+    
+    if (!videoId) {
+      toast.error("Erro: Link da música não encontrado pelo YouTube.");
+      return;
     }
+    
+    // Rota corrigida para a tela de Convite!
+    window.location.href = `/duel-invite?id=${videoId}`;
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-8 min-h-[80vh]">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-primary neon-blue-glow mb-4">
-          Busca em Tempo Real
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Explore milhões de faixas de karaoke via YouTube Engine.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <Button 
-          onClick={() => { setActiveFilter('all'); searchSongs("popular"); }}
-          variant="outline"
-          className={cn(
-            "h-32 rounded-2xl border-2 flex flex-col gap-2 transition-all duration-300",
-            activeFilter === 'all' ? "border-primary bg-primary/10 shadow-lg shadow-primary/20" : "border-border/50 hover:border-primary/50"
-          )}
-        >
-          <Globe className="h-8 w-8 text-primary" />
-          <div className="text-center">
-            <p className="font-bold text-lg">Cantar Online</p>
-            <p className="text-xs text-muted-foreground">YouTube Search Engine</p>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="relative h-[35vh] w-full overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-cover bg-center z-0 opacity-30" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000')" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/80 to-background z-10" />
+        <div className="relative z-20 text-center px-4">
+          <div className="inline-flex p-4 rounded-2xl bg-destructive/20 border-2 border-destructive mb-4 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+            <Sword className="h-10 w-10 text-destructive animate-pulse" />
           </div>
-        </Button>
-
-        <Button 
-          onClick={() => setActiveFilter('offline')}
-          variant="outline"
-          className={cn(
-            "h-32 rounded-2xl border-2 flex flex-col gap-2 transition-all duration-300",
-            activeFilter === 'offline' ? "border-accent bg-accent/10 shadow-lg shadow-accent/20" : "border-border/50 hover:border-accent/50"
-          )}
-        >
-          <Download className="h-8 w-8 text-accent" />
-          <div className="text-center">
-            <p className="font-bold text-lg">Cantar Offline</p>
-            <p className="text-xs text-muted-foreground">Músicas baixadas</p>
-          </div>
-        </Button>
-
-        <Button 
-          onClick={() => navigate('/duel')}
-          variant="outline"
-          className={cn(
-            "h-32 rounded-2xl border-2 flex flex-col gap-2 transition-all duration-300",
-            activeFilter === 'duel' ? "border-destructive bg-destructive/10 shadow-lg shadow-destructive/20" : "border-border/50 hover:border-destructive/50"
-          )}
-        >
-          <Users className="h-8 w-8 text-destructive" />
-          <div className="text-center">
-            <p className="font-bold text-lg">Duelo</p>
-            <p className="text-xs text-muted-foreground">Desafie amigos ou a AI</p>
-          </div>
-        </Button>
-      </div>
-
-      <form onSubmit={handleSearchSubmit} className="max-w-xl mx-auto mb-10 relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="O que você quer cantar hoje?"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className={cn(
-            "w-full pl-10 pr-4 py-3 rounded-xl border-2 border-border/50 bg-card/50 backdrop-blur-md",
-            "focus:border-primary transition-all duration-300"
-          )}
-        />
-        <Button 
-          type="submit" 
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 bg-primary text-primary-foreground rounded-lg"
-          disabled={isLoading}
-        >
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Buscar"}
-        </Button>
-      </form>
-
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <Loader2 className="h-12 w-12 text-primary animate-spin" />
-          <p className="text-muted-foreground animate-pulse">Consultando motor de busca...</p>
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
+            Duel <span className="text-destructive neon-red-glow">Arena</span>
+          </h1>
+          <p className="text-gray-400 font-medium tracking-widest uppercase text-xs md:text-sm mt-2">Busque uma música e convide um desafiante</p>
         </div>
-      ) : results.length > 0 ? (
+      </div>
+
+      <div className="container mx-auto max-w-6xl px-4 -mt-10 relative z-30">
+        <div className="max-w-2xl mx-auto mb-12 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
+          <Input 
+            placeholder="Buscar música para o duelo..." 
+            className="pl-12 h-16 text-lg rounded-2xl bg-card/50 border-destructive/30 focus:border-destructive transition-all text-white"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && performSearch(query)}
+          />
+          {loading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 text-destructive animate-spin" />}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {results.map((item) => (
-            <Card key={item.id.videoId} className={cn(
-              "rounded-xl overflow-hidden border-2 border-border/50 transition-all duration-300 flex flex-col h-full",
-              "bg-card/50 backdrop-blur-md hover:border-primary hover:shadow-primary/50 shadow-lg"
-            )}>
-              <div 
-                className="h-40 bg-cover bg-center relative group cursor-pointer"
-                style={{ backgroundImage: `url(${item.snippet.thumbnails.high.url})` }}
-                onClick={() => navigate(`/song/${item.id.videoId}`)}
-              >
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <PlayCircle className="h-12 w-12 text-primary icon-neon-glow" />
-                </div>
-              </div>
-              <CardContent className="p-4 flex flex-col flex-grow justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-primary line-clamp-2 mb-1" dangerouslySetInnerHTML={{ __html: item.snippet.title }} />
-                  <p className="text-xs text-muted-foreground mb-3">{item.snippet.channelTitle}</p>
-                </div>
-                <Button 
-                  onClick={() => navigate(`/song/${item.id.videoId}`)}
-                  className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-lg shadow-md shadow-accent/30 h-9"
+          {results.map((song, index) => {
+            const videoId = typeof song.id === 'string' ? song.id : song.id?.videoId;
+            if (!videoId) return null;
+            
+            return (
+              <Card key={videoId || index} className="group overflow-hidden border-2 border-white/5 bg-card/30 hover:border-destructive/50 transition-all duration-500 rounded-2xl flex flex-col">
+                <div 
+                  className="h-40 bg-cover bg-center relative cursor-pointer"
+                  style={{ backgroundImage: `url(${song.snippet?.thumbnails?.high?.url || song.snippet?.thumbnails?.default?.url})` }}
+                  onClick={() => handleSelectDuel(song)}
                 >
-                  <PlayCircle className="h-4 w-4 mr-2" />
-                  Cantar Agora
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <PlayCircle className="h-12 w-12 text-destructive" />
+                  </div>
+                </div>
+                <CardContent className="p-5 flex-grow flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-white line-clamp-2 mb-1" dangerouslySetInnerHTML={{ __html: song.snippet?.title || "Música" }} />
+                    <p className="text-xs text-gray-500 mb-4">{song.snippet?.channelTitle || "YouTube"}</p>
+                  </div>
+                  <Button 
+                    onClick={() => handleSelectDuel(song)}
+                    className="w-full bg-destructive hover:bg-destructive/90 text-white font-bold rounded-xl shadow-lg shadow-destructive/20 cursor-pointer"
+                  >
+                    <Sword className="h-4 w-4 mr-2" />
+                    DUELAR AGORA
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
-      ) : (
-        <div className="text-center p-20 text-white flex flex-col items-center gap-4 animate-in fade-in duration-500">
-          <Music className="h-16 w-16 opacity-20" />
-          <p className="text-xl font-medium">Nenhuma música encontrada. Tente buscar por outro termo ou artista.</p>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default Library;
+export default Duel;
