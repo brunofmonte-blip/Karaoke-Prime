@@ -109,4 +109,4 @@ const Duel = () => {
   );
 };
 
-export default Duel;
+export default Duel; 
