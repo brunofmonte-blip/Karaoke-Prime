@@ -80,7 +80,6 @@ const App = () => (
                   <VocalSandboxOverlay />
                   <PerformanceSummaryModal />
                   <BadgeUnlockedModal />
-                  <DuelSummaryModal />
                 </DuelProvider>
               </BrowserRouter>
             </VocalSandboxProvider>
