@@ -1,6 +1,24 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import React from 'react';
+// Verify these imports match your actual file structure
+import Header from './Header';
+import Footer from './Footer';
+import BottomNavigationBar from './BottomNavigationBar';
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+interface LayoutProps {
+  children: React.ReactNode;
 }
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      <main className="flex-grow pb-16 md:pb-0">
+        {children}
+      </main>
+      <Footer />
+      <BottomNavigationBar />
+    </div>
+  );
+};
+
+export default Layout;
