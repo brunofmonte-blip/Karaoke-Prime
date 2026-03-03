@@ -30,7 +30,6 @@ const Duel = () => {
     performSearch("popular");
   }, [performSearch]);
 
-  // 🔥 O comando que leva para a tela de Convidar!
   const handleSelectDuel = (song: any) => {
     const videoId = typeof song.id === 'string' ? song.id : song.id?.videoId;
     
@@ -39,6 +38,7 @@ const Duel = () => {
       return;
     }
     
+    // Rota corrigida para a tela de Convite!
     window.location.href = `/duel-invite?id=${videoId}`;
   };
 
