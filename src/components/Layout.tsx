@@ -1,5 +1,4 @@
 import React from 'react';
-// Verify these imports match your actual file structure
 import Header from './Header';
 import Footer from './Footer';
 import BottomNavigationBar from './BottomNavigationBar';
