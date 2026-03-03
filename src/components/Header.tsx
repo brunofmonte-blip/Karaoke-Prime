@@ -1,52 +1,82 @@
-import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Mic2, ShieldCheck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+"use client";
 
-const Header = () => {
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Globe, Download, Users, ArrowLeft, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+
+const BasicLobby = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-white/5">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        
-        {/* LOGO - Agora aponta corretamente para a Home (/) */}
-        <Link to="/" className="flex flex-col cursor-pointer group">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-white tracking-tighter">
-              Karaoke <span className="text-primary neon-blue-glow">Prime</span>
-            </h1>
-          </div>
-          <Mic2 className="h-3 w-3 text-gray-500 group-hover:text-primary transition-colors ml-1 -mt-1" />
-        </Link>
+    <div className="min-h-screen bg-background p-4 md:p-8 relative">
+      {/* Background Escuro e Elegante */}
+      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000')" }} />
+      <div className="absolute inset-0 bg-black/80 z-0" />
 
-        {/* MENU DE NAVEGAÇÃO - Links corrigidos */}
-        <nav className="hidden md:flex items-center gap-6">
-          <Link to="/basic" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Basic</Link>
-          <Link to="/academy" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Academy</Link>
-          <Link to="/talent" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Next Talent</Link>
-          <Link to="/backstage" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Backstage</Link>
-          <Link to="/next-success" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Next Success</Link>
-        </nav>
+      <div className="relative z-10 max-w-6xl mx-auto pt-20">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 transition-colors">
+          <ArrowLeft size={20} /> Voltar para Home
+        </button>
 
-        {/* BOTÕES LATERAIS */}
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-xs font-medium">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Security Verified</span>
-          </div>
-          <Button 
-            variant="outline" 
-            className="rounded-full border-primary/50 text-primary hover:bg-primary hover:text-black transition-all"
-            onClick={() => navigate('/login')}
+        <h1 className="text-4xl md:text-5xl font-black text-primary neon-blue-glow mb-2 tracking-tighter">Lobby de Karaokê</h1>
+        <p className="text-white font-bold uppercase tracking-widest mb-10 text-sm">Escolha o modo de jogo</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          
+          {/* Card 1: Solo Online */}
+          <div
+            onClick={() => navigate('/library')}
+            className="group cursor-pointer p-8 rounded-2xl border border-primary/50 bg-black/40 hover:bg-primary/10 transition-all flex flex-col items-center text-center shadow-[0_0_15px_rgba(0,168,225,0.2)]"
           >
-            Sign In
-          </Button>
+            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Globe className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Solo Online</h3>
+            <p className="text-gray-400 text-xs">Cante com o catálogo completo do YouTube.</p>
+          </div>
+
+          {/* Card 2: Solo Offline (Trancado) */}
+          <div
+            onClick={() => navigate('/premium')}
+            className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:bg-white/5 transition-all flex flex-col items-center text-center relative"
+          >
+            <div className="absolute top-4 right-4 text-orange-500">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <div className="h-16 w-16 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Download className="h-8 w-8 text-orange-500" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-300 mb-2">Solo Offline</h3>
+            <p className="text-gray-500 text-xs">Músicas baixadas (Premium).</p>
+          </div>
+
+          {/* Card 3: Dueto / Batalha (O LINK CORRIGIDO ESTÁ AQUI!) */}
+          <div
+            onClick={() => navigate('/duel')} 
+            className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:border-destructive/50 hover:bg-destructive/10 transition-all flex flex-col items-center text-center"
+          >
+            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform group-hover:bg-destructive/20">
+              <Users className="h-8 w-8 text-white group-hover:text-destructive" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Dueto / Batalha</h3>
+            <p className="text-gray-400 text-xs">Cante com um amigo ou desafie o mundo.</p>
+          </div>
+
+        </div>
+
+        {/* Barra de Busca Inferior */}
+        <div className="max-w-3xl mx-auto relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Qual música vamos cantar hoje? (Pressione Enter)"
+            className="pl-12 h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary transition-colors"
+          />
         </div>
 
       </div>
-    </header>
+    </div>
   );
 };
 
-export default Header;
+export default BasicLobby;
