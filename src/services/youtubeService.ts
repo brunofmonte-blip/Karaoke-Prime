@@ -1,4 +1,4 @@
-// Substitua 'SUA_CHAVE_AQUI' pela chave real gerada no Google Cloud
+// Substitua 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548' pela chave real gerada no Google Cloud
 const API_KEY = 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548'; 
 
 export const searchYouTube = async (query: string) => {
