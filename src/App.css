@@ -1,1 +1,94 @@
-r
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+import Layout from "./components/Layout";
+import { AuthProvider } from "./integrations/supabase/auth";
+import { LoginModalProvider, useLoginModal } from "./hooks/use-login-modal";
+import LoginModal from "./components/LoginModal";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Academy from "./pages/Academy";
+import Backstage from "./pages/Backstage";
+import Library from "./pages/Library";
+import SongPlayer from "./pages/SongPlayer";
+import KaraokeRoom from "./pages/KaraokeRoom";
+import BasicLobby from "./pages/BasicLobby";
+import Duel from "./pages/Duel";
+import DuelRoom from "./pages/DuelRoom";
+import DuelInviteLobby from "./pages/DuelInviteLobby";
+import Talent from "./pages/Talent";
+import NextSuccess from "./pages/NextSuccess";
+import ScoreResult from "./pages/ScoreResult";
+import Premium from "./pages/Premium";
+import Lesson from "./pages/Lesson";
+import Login from "./pages/Login";
+import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
+import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
+import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
+import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
+import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
+import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
+import { DuelProvider } from "./hooks/use-duel-engine";
+import DuelSummaryModal from "./components/DuelSummaryModal";
+import ScrollToTop from "./components/ScrollToTop";
+
+const queryClient = new QueryClient();
+
+const LoginModalWrapper = () => {
+  const { isModalOpen, closeModal } = useLoginModal();
+  return <LoginModal isOpen={isModalOpen} onClose={closeModal} />;
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <AuthProvider>
+        <LoginModalProvider>
+          <PrimeSubscriptionProvider>
+            <VocalSandboxProvider key="vocal-sandbox-root">
+              <BrowserRouter>
+                <ScrollToTop />
+                <DuelProvider>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/academy" element={<Academy />} />
+                      <Route path="/library" element={<Library />} />
+                      <Route path="/song/:id" element={<SongPlayer />} />
+                      <Route path="/room" element={<KaraokeRoom />} />
+                      <Route path="/basic" element={<BasicLobby />} />
+                      <Route path="/duel" element={<Duel />} />
+                      <Route path="/duel-invite" element={<DuelInviteLobby />} />
+                      <Route path="/duel-room" element={<DuelRoom />} />
+                      <Route path="/talent" element={<Talent />} />
+                      <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
+                      <Route path="/next-success" element={<NextSuccess />} />
+                      <Route path="/score" element={<ScoreResult />} />
+                      <Route path="/premium" element={<Premium />} />
+                      <Route path="/lesson" element={<Lesson />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Layout>
+                  <LoginModalWrapper />
+                  <PrimeSubscriptionModal />
+                  <VocalSandboxOverlay />
+                  <PerformanceSummaryModal />
+                  <BadgeUnlockedModal />
+                  <DuelSummaryModal />
+                </DuelProvider>
+              </BrowserRouter>
+            </VocalSandboxProvider>
+          </PrimeSubscriptionProvider>
+        </LoginModalProvider>
+      </AuthProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
