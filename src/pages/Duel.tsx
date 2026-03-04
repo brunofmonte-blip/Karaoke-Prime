@@ -22,7 +22,7 @@ const Duel = () => {
   const filteredUsers = users.filter(u => u.toLowerCase().includes(userQuery.toLowerCase()) && userQuery.length > 1);
 
   // 🔴 COLE SUA CHAVE API DO YOUTUBE AQUI:
-  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
+  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
 
   const searchYouTube = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && musicQuery.trim() !== '') {
