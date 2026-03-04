@@ -1,86 +1,153 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Lock, Trophy, Star, BookOpen, PlayCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import React from 'react';
+import { useUserProfile } from '@/hooks/use-user-profile';
+import { useAuth } from '@/integrations/supabase/auth';
+import UserProfileCard from '@/components/UserProfileCard';
+import VocalEvolutionChart from '@/components/VocalEvolutionChart';
+import AchievementsSection from '@/components/AchievementsSection';
+import RankingTables from '@/components/RankingTables';
+import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity, History, Music, Star, Trophy } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-const Academy = () => {
-  const navigate = useNavigate();
-  const [showLocked, setShowLocked] = useState(false);
+const Backstage = () => {
+  const { data: profile, isLoading } = useUserProfile();
+  const { user } = useAuth();
+  const { pitchHistory } = useVocalSandbox();
 
-  // Se clicou em um módulo bloqueado, exibe a tela ACADEMY LOCKED
-  if (showLocked) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,168,225,0.1),transparent_50%)]" />
-        <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="h-24 w-24 rounded-full border border-primary/30 flex items-center justify-center mb-8 bg-primary/10 shadow-[0_0_30px_rgba(0,168,225,0.3)]">
-            <Lock className="h-10 w-10 text-primary" />
-          </div>
-          <h1 className="text-5xl font-black text-white italic mb-4">ACADEMY <span className="text-primary">LOCKED</span></h1>
-          <p className="text-gray-400 max-w-md">O currículo de 10 níveis é exclusivo para membros Premium.</p>
-          <Button onClick={() => navigate('/login')} className="mt-8 h-14 px-8 bg-primary hover:bg-primary/90 text-black font-bold text-lg rounded-full w-full max-w-xs shadow-[0_0_20px_rgba(0,168,225,0.4)]">
-            → ENTRAR PARA TREINAR
-          </Button>
-          <Button onClick={() => setShowLocked(false)} variant="ghost" className="mt-4 text-gray-500 hover:text-white">Voltar</Button>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-primary animate-pulse font-black tracking-widest uppercase">Carregando Backstage...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 pt-28 px-4 max-w-7xl mx-auto">
-      {/* Header Corrigido com Espaçamento */}
-      <div className="text-center mb-16">
-        <GraduationCap className="h-14 w-14 text-primary mx-auto mb-6" />
-        <h1 className="text-5xl md:text-7xl font-black text-white italic tracking-tighter">VOCAL <span className="text-primary">ACADEMY</span></h1>
-        <p className="text-gray-400 mt-6 uppercase tracking-widest text-sm font-bold">Do iniciante ao pro-vocal em 10 estágios</p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <Card className="bg-black/40 border-primary/20"><CardContent className="p-6 flex items-center gap-4"><Trophy className="text-primary h-8 w-8" /><div><p className="text-xs text-gray-500 uppercase font-bold">Nível Atual</p><p className="text-3xl font-black text-white">0</p></div></CardContent></Card>
-        <Card className="bg-black/40 border-orange-500/20"><CardContent className="p-6 flex items-center gap-4"><Star className="text-orange-500 h-8 w-8" /><div><p className="text-xs text-gray-500 uppercase font-bold">XP Acumulado</p><p className="text-3xl font-black text-white">0</p></div></CardContent></Card>
-        <Card className="bg-black/40 border-white/10"><CardContent className="p-6 flex items-center gap-4"><BookOpen className="text-gray-400 h-8 w-8" /><div><p className="text-xs text-gray-500 uppercase font-bold">Lições Concluídas</p><p className="text-3xl font-black text-white">0 / 10</p></div></CardContent></Card>
-      </div>
-
-      {/* Grid de Exercícios */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Nível 1 - Destravado */}
-        <Card className="bg-black/60 border-primary shadow-[0_0_15px_rgba(0,168,225,0.2)] flex flex-col">
-          <CardContent className="p-6 flex-grow flex flex-col">
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold text-primary">Nível 1: Steady Breath</h3>
-              <span className="text-[10px] px-2 py-1 rounded-full border border-primary text-primary">Foco Atual</span>
+    <div className="min-h-screen bg-background pb-20 pt-24 px-4 md:px-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-end gap-4 mb-8">
+          <div>
+            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic">
+              YOUR <span className="text-primary neon-blue-glow">BACKSTAGE</span>
+            </h1>
+            <p className="text-gray-400 font-medium tracking-widest uppercase text-xs mt-2">Análise profunda da sua jornada vocal</p>
+          </div>
+          <div className="flex gap-4">
+            <div className="px-4 py-2 rounded-xl bg-primary/10 border border-primary/30 text-center">
+              <p className="text-[10px] font-black text-primary uppercase">Total XP</p>
+              <p className="text-xl font-black text-white">{(profile?.xp || 0).toLocaleString()}</p>
             </div>
-            <p className="text-sm text-gray-400 mb-6 flex-grow">Mastering diaphragmatic breathing for sustained notes.</p>
-            <Button onClick={() => navigate('/lesson')} className="w-full bg-primary text-black font-bold hover:bg-primary/90"><PlayCircle className="mr-2 h-5 w-5" /> Iniciar Lição</Button>
-          </CardContent>
-        </Card>
+            <div className="px-4 py-2 rounded-xl bg-accent/10 border border-accent/30 text-center">
+              <p className="text-[10px] font-black text-accent uppercase">Badges</p>
+              <p className="text-xl font-black text-white">{profile?.badges?.length || 0}</p>
+            </div>
+          </div>
+        </div>
 
-        {/* Nível 2 - Trancado */}
-        <Card onClick={() => setShowLocked(true)} className="bg-black/40 border-white/5 cursor-pointer hover:border-white/20 transition-all flex flex-col relative group">
-          <CardContent className="p-6 flex-grow flex flex-col opacity-50 group-hover:opacity-100">
-            <Lock className="absolute top-6 right-6 text-gray-500 h-5 w-5" />
-            <h3 className="text-xl font-bold text-white mb-4 pr-8">Nível 2: Pitch Calibration</h3>
-            <p className="text-sm text-gray-400 mb-6 flex-grow">Introduction to hitting target notes accurately.</p>
-            <div className="w-full py-2 border border-white/10 rounded-md text-center text-xs text-gray-500 font-bold uppercase flex items-center justify-center gap-2"><Lock className="h-3 w-3" /> Trancado</div>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* Left Column: Profile & Stats */}
+          <div className="lg:col-span-4 space-y-6">
+            <UserProfileCard 
+              userName={profile?.username || user?.email?.split('@')[0] || "Cantor Prime"}
+              avatarUrl={profile?.avatar_url}
+              bestNote={profile?.best_note || 0}
+              academyLevel={profile?.academy_level || 0}
+              rankingOnline={profile?.ranking_position || 999}
+              rankingOffline={12}
+              earnedBadgeIds={profile?.badges as any[]}
+            />
 
-        {/* Nível 3 - Trancado */}
-        <Card onClick={() => setShowLocked(true)} className="bg-black/40 border-white/5 cursor-pointer hover:border-white/20 transition-all flex flex-col relative group">
-          <CardContent className="p-6 flex-grow flex flex-col opacity-50 group-hover:opacity-100">
-            <Lock className="absolute top-6 right-6 text-gray-500 h-5 w-5" />
-            <h3 className="text-xl font-bold text-white mb-4 pr-8">Nível 3: Rhythm Basics</h3>
-            <p className="text-sm text-gray-400 mb-6 flex-grow">Keeping time and syncing vocals with tracks.</p>
-            <div className="w-full py-2 border border-white/10 rounded-md text-center text-xs text-gray-500 font-bold uppercase flex items-center justify-center gap-2"><Lock className="h-3 w-3" /> Trancado</div>
-          </CardContent>
-        </Card>
+            <Card className="glass-pillar border-primary/30">
+              <CardHeader>
+                <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-primary" />
+                  Vocal Health Index
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-gray-400">Estabilidade</span>
+                    <span className="text-primary">88%</span>
+                  </div>
+                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary w-[88%] shadow-[0_0_10px_rgba(0,168,225,0.5)]" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className="text-gray-400">Resistência</span>
+                    <span className="text-accent">72%</span>
+                  </div>
+                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-accent w-[72%] shadow-[0_0_10px_rgba(255,153,0,0.5)]" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column: Charts & Rankings */}
+          <div className="lg:col-span-8 space-y-8">
+            <div className="h-[400px]">
+              <VocalEvolutionChart 
+                title="Evolução de Pitch (Última Sessão)" 
+                data={pitchHistory} 
+              />
+            </div>
+
+            <div className="space-y-6">
+              <h2 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+                <Trophy className="h-6 w-6 text-accent" />
+                Classificações em Tempo Real
+              </h2>
+              <RankingTables />
+            </div>
+          </div>
+
+        </div>
+
+        {/* Achievements Section */}
+        <div className="pt-12 border-t border-white/5">
+          <AchievementsSection />
+        </div>
+
+        {/* Recent History Placeholder */}
+        <div className="space-y-6">
+          <h2 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+            <History className="h-6 w-6 text-primary" />
+            Histórico de Performances
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-black/40 flex items-center justify-center">
+                    <Music className="h-6 w-6 text-gray-500" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-white">Performance #{i + 124}</p>
+                    <p className="text-xs text-gray-500">Há 2 dias • 84.2% Precisão</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-black text-primary">+450 XP</p>
+                  <Star className="h-3 w-3 text-accent ml-auto mt-1 fill-accent" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );
 };
-export default Academy; 
+
+export default Backstage;
