@@ -14,4 +14,4 @@ export const db: any = {};
 
 export const googleProvider: any = {};
 
-export default firebaseConfig;
+export default firebaseConfig; 
