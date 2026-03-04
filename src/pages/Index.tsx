@@ -15,7 +15,6 @@ const Index = () => {
       
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center p-4">
-        {/* Correção: Usando tag <img /> blindada em vez de background-image no CSS */}
         <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000" alt="Studio Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.55]" />
         <div className="absolute inset-0 z-0" />
 
@@ -115,19 +114,18 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 5. TREND TOPICS (SINGERS) - Correção: Usando <img /> blindada */}
+      {/* 5. TREND TOPICS (SINGERS) - URLs desbloqueadas via picsum e pravatar */}
       <section className="max-w-7xl mx-auto px-4 w-full mb-32">
         <h2 className="text-3xl font-black text-white mb-2">Trend Topics (Singers) <span className="text-orange-500">🔥</span></h2>
         <p className="text-gray-400 mb-8 text-sm">Os talentos mais curtidos da semana</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { img: 'https://images.unsplash.com/photo-1516280440502-a2f011ba2dc9?q=80&w=600', av: 'https://randomuser.me/api/portraits/women/44.jpg', u: '@VocalQueen', s: 'Rolling in the Deep' },
-            { img: 'https://images.unsplash.com/photo-1520635360276-857508eec9b1?q=80&w=600', av: 'https://randomuser.me/api/portraits/men/32.jpg', u: '@RockStar_Leo', s: 'Bohemian Rhapsody' },
-            { img: 'https://images.unsplash.com/photo-1493225457124-a1a2a5f5f40f?q=80&w=600', av: 'https://randomuser.me/api/portraits/women/68.jpg', u: '@Anya_Sings', s: 'Shallow' },
-            { img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600', av: 'https://randomuser.me/api/portraits/men/88.jpg', u: '@JazzMaster_J', s: 'Fly Me to the Moon' }
+            { img: 'https://picsum.photos/seed/singer1/600/800', av: 'https://i.pravatar.cc/150?img=5', u: '@VocalQueen', s: 'Rolling in the Deep' },
+            { img: 'https://picsum.photos/seed/singer2/600/800', av: 'https://i.pravatar.cc/150?img=11', u: '@RockStar_Leo', s: 'Bohemian Rhapsody' },
+            { img: 'https://picsum.photos/seed/singer3/600/800', av: 'https://i.pravatar.cc/150?img=47', u: '@Anya_Sings', s: 'Shallow' },
+            { img: 'https://picsum.photos/seed/singer4/600/800', av: 'https://i.pravatar.cc/150?img=60', u: '@JazzMaster_J', s: 'Fly Me to the Moon' }
           ].map((item, i) => (
             <div key={i} className="relative aspect-[9/16] rounded-2xl overflow-hidden group cursor-pointer border border-white/10 bg-gray-900">
-              {/* Imagem blindada no lugar do bg-image */}
               <img src={item.img} alt={item.u} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent p-4 flex flex-col justify-end z-10">
                 <div className="flex items-center gap-2 mb-2">
@@ -145,19 +143,18 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 6. RECENTLY ADDED & TAGS - Correção: Usando <img /> blindada */}
+      {/* 6. RECENTLY ADDED & TAGS - URLs desbloqueadas via picsum */}
       <section className="max-w-7xl mx-auto px-4 w-full mb-32 space-y-16">
         <div>
           <h2 className="text-3xl font-black text-white mb-8">Recently Added</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { t: 'Evidências', a: 'Chitãozinho & Xororó', img: 'https://images.unsplash.com/photo-1583796541783-a970e7a685e9?q=80&w=300' },
-              { t: 'Tennessee Whiskey', a: 'Chris Stapleton', img: 'https://images.unsplash.com/photo-1520635360276-857508eec9b1?q=80&w=300' },
-              { t: 'Coração Radiante', a: 'Grupo Revelação', img: 'https://images.unsplash.com/photo-1563214372-97b77051a89c?q=80&w=300' },
-              { t: 'Electro Beat', a: 'DJ Zedd', img: 'https://images.unsplash.com/photo-1516280440502-a2f011ba2dc9?q=80&w=300' }
+              { t: 'Evidências', a: 'Chitãozinho & Xororó', img: 'https://picsum.photos/seed/sertanejo/300/300' },
+              { t: 'Tennessee Whiskey', a: 'Chris Stapleton', img: 'https://picsum.photos/seed/country/300/300' },
+              { t: 'Coração Radiante', a: 'Grupo Revelação', img: 'https://picsum.photos/seed/pagode/300/300' },
+              { t: 'Electro Beat', a: 'DJ Zedd', img: 'https://picsum.photos/seed/electro/300/300' }
             ].map((item, i) => (
               <Card key={i} className="bg-black/40 border-white/5 p-4 hover:bg-white/5 transition-colors cursor-pointer rounded-xl">
-                {/* Imagem blindada no lugar do bg-image */}
                 <div className="aspect-square rounded-xl mb-4 border border-white/10 bg-gray-900 overflow-hidden relative">
                   <img src={item.img} alt={item.t} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
                 </div>
@@ -173,17 +170,16 @@ const Index = () => {
           <p className="text-gray-400 mb-8 text-sm">Os gêneros e desafios mais comentados da comunidade</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { t: 'Sertanejo2026', n: '45.1k', p: '+22%', av:'https://images.unsplash.com/photo-1583796541783-a970e7a685e9?q=80&w=600' },
-              { t: 'RockClassics', n: '12.4k', p: '+15%', av:'https://images.unsplash.com/photo-1493225457124-a1a2a5f5f40f?q=80&w=600' },
-              { t: 'VocalAcademyChallenge', n: '8.9k', p: '+40%', av:'https://images.unsplash.com/photo-1516280440502-a2f011ba2dc9?q=80&w=600' },
-              { t: 'AnimeHits', n: '15.2k', p: '+5%', av:'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=600' },
-              { t: 'Kpop', n: '38.7k', p: '+31%', av:'https://images.unsplash.com/photo-1621508654686-809f23efdabc?q=80&w=600' },
-              { t: 'GlobalTalentAuditions', n: '30.5k', p: '+12%', av:'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=600' }
+              { t: 'Sertanejo2026', n: '45.1k', p: '+22%', av:'https://picsum.photos/seed/tag1/200/200' },
+              { t: 'RockClassics', n: '12.4k', p: '+15%', av:'https://picsum.photos/seed/tag2/200/200' },
+              { t: 'VocalAcademyChallenge', n: '8.9k', p: '+40%', av:'https://picsum.photos/seed/tag3/200/200' },
+              { t: 'AnimeHits', n: '15.2k', p: '+5%', av:'https://picsum.photos/seed/tag4/200/200' },
+              { t: 'Kpop', n: '38.7k', p: '+31%', av:'https://picsum.photos/seed/tag5/200/200' },
+              { t: 'GlobalTalentAuditions', n: '30.5k', p: '+12%', av:'https://picsum.photos/seed/tag6/200/200' }
             ].map((item, i) => (
               <div key={i} className="bg-black/40 border border-white/10 rounded-xl p-6 flex items-center justify-between hover:border-primary/50 cursor-pointer transition-colors">
                 <div className="flex items-center gap-4">
-                  {/* Imagem blindada no lugar do bg-image para as tags */}
-                  <div className="relative h-12 w-12 rounded-lg border border-primary/20 overflow-hidden flex items-center justify-center text-white font-black drop-shadow-md">
+                  <div className="relative h-12 w-12 rounded-lg border border-primary/20 overflow-hidden flex items-center justify-center text-white font-black drop-shadow-md bg-gray-900">
                      <img src={item.av} alt="tag background" className="absolute inset-0 w-full h-full object-cover opacity-50" />
                      <span className="relative z-10">#</span>
                   </div>
@@ -196,7 +192,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 7. RANKINGS GLOBAIS */}
+      {/* 7. RANKINGS GLOBAIS - URLs desbloqueadas via pravatar */}
       <section className="max-w-7xl mx-auto px-4 w-full mb-32">
         <h2 className="text-4xl font-black text-primary text-center mb-12 drop-shadow-[0_0_15px_rgba(0,168,225,0.5)] uppercase italic tracking-tighter">Rankings Globais</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -204,11 +200,11 @@ const Index = () => {
             <h3 className="text-xl font-black text-primary text-center mb-6">Global Top 5</h3>
             <div className="space-y-4">
               {[ 
-                {n:'VocalPro_88', s:'98.5', img:'https://randomuser.me/api/portraits/women/12.jpg'}, 
-                {n:'SingStar_JP', s:'97.1', img:'https://randomuser.me/api/portraits/men/22.jpg'}, 
-                {n:'OperaQueen', s:'96.9', img:'https://randomuser.me/api/portraits/women/33.jpg'}, 
-                {n:'MikeDrop', s:'95.8', img:'https://randomuser.me/api/portraits/men/44.jpg'}, 
-                {n:'MelodyX', s:'95.5', img:'https://randomuser.me/api/portraits/women/55.jpg'} 
+                {n:'VocalPro_88', s:'98.5', img:'https://i.pravatar.cc/150?img=12'}, 
+                {n:'SingStar_JP', s:'97.1', img:'https://i.pravatar.cc/150?img=33'}, 
+                {n:'OperaQueen', s:'96.9', img:'https://i.pravatar.cc/150?img=44'}, 
+                {n:'MikeDrop', s:'95.8', img:'https://i.pravatar.cc/150?img=14'}, 
+                {n:'MelodyX', s:'95.5', img:'https://i.pravatar.cc/150?img=5' } 
               ].map((u, i) => (
                 <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                   <div className="flex gap-4 items-center">
@@ -225,9 +221,9 @@ const Index = () => {
             <h3 className="text-xl font-black text-orange-500 text-center mb-6">Nacional Top 3</h3>
             <div className="space-y-4">
               {[ 
-                {n:'LocalHero_NY', s:'95.2', img:'https://randomuser.me/api/portraits/men/66.jpg'}, 
-                {n:'TexasTenor', s:'94.8', img:'https://randomuser.me/api/portraits/men/77.jpg'}, 
-                {n:'CaliSinger', s:'94.1', img:'https://randomuser.me/api/portraits/women/88.jpg'} 
+                {n:'LocalHero_NY', s:'95.2', img:'https://i.pravatar.cc/150?img=60'}, 
+                {n:'TexasTenor', s:'94.8', img:'https://i.pravatar.cc/150?img=11'}, 
+                {n:'CaliSinger', s:'94.1', img:'https://i.pravatar.cc/150?img=20'} 
               ].map((u, i) => (
                 <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                   <div className="flex gap-4 items-center">
@@ -244,8 +240,8 @@ const Index = () => {
             <h3 className="text-xl font-black text-white text-center mb-6">Local Top 2</h3>
             <div className="space-y-4">
               {[ 
-                {n:'DowntownDiva', s:'93.5', img:'https://randomuser.me/api/portraits/women/90.jpg'}, 
-                {n:'BaritoneBob', s:'92.9', img:'https://randomuser.me/api/portraits/men/91.jpg'} 
+                {n:'DowntownDiva', s:'93.5', img:'https://i.pravatar.cc/150?img=42'}, 
+                {n:'BaritoneBob', s:'92.9', img:'https://i.pravatar.cc/150?img=59'} 
               ].map((u, i) => (
                 <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                   <div className="flex gap-4 items-center">
@@ -275,7 +271,7 @@ const Index = () => {
         <Card className="bg-black/40 border-white/10 rounded-3xl h-full">
           <CardContent className="p-8">
             <div className="flex items-center gap-6 mb-10 pb-10 border-b border-white/10">
-              <img src="https://randomuser.me/api/portraits/lego/1.jpg" alt="Ca" className="h-20 w-20 bg-primary rounded-full flex items-center justify-center border border-primary/30 object-cover" />
+              <img src="https://i.pravatar.cc/150?img=68" alt="Ca" className="h-20 w-20 bg-primary rounded-full flex items-center justify-center border border-primary/30 object-cover" />
               <div><h3 className="text-2xl font-bold text-white mb-1">Cantor Convidado</h3><p className="text-orange-500 text-sm font-bold tracking-widest uppercase">Prime Member</p></div>
             </div>
             <div className="space-y-6 text-base text-gray-300">
