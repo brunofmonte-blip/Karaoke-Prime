@@ -42,23 +42,23 @@ const Academy = () => {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header Section */}
-      <div className="relative h-[30vh] w-full overflow-hidden flex items-center justify-center">
+      <div className="relative min-h-[40vh] w-full overflow-hidden flex items-center justify-center py-12">
         <div className="absolute inset-0 bg-cover bg-center z-0 opacity-20" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2000')" }} />
         <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/80 to-background z-10" />
-        <div className="relative z-20 text-center px-4">
-          <div className="inline-flex p-4 rounded-2xl bg-primary/20 border-2 border-primary mb-4 shadow-[0_0_30px_rgba(0,168,225,0.3)]">
+        <div className="relative z-20 text-center px-4 flex flex-col items-center">
+          <div className="inline-flex p-4 rounded-2xl bg-primary/20 border-2 border-primary mb-6 shadow-[0_0_30px_rgba(0,168,225,0.3)]">
             <GraduationCap className="h-10 w-10 text-primary animate-pulse" />
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
             Vocal <span className="text-primary neon-blue-glow">Academy</span>
           </h1>
-          <p className="text-gray-400 font-medium tracking-widest uppercase text-xs md:text-sm mt-2">
+          <p className="text-gray-400 font-bold tracking-[0.2em] uppercase text-xs md:text-sm mt-8 mb-12 max-w-prose">
             Do iniciante ao Pro-Vocal em 10 estágios
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto max-w-6xl px-4 -mt-10 relative z-30">
+      <div className="container mx-auto max-w-6xl px-4 relative z-30">
         {selectedLevel ? (
           <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
             <div className="flex items-center justify-between">
