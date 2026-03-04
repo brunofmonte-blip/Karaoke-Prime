@@ -13,7 +13,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col pt-16 font-sans">
       
-      {/* 1. HERO SECTION (Bateria ao fundo e Texto Correto - Clareado em ~25%) */}
+      {/* 1. HERO SECTION (Bateria ao fundo e Texto Correto - Clareado em ~5%) */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center p-4">
         {/* Usando uma imagem de estúdio musical/bateria - Clareado de opacity-30 para opacity-55 */}
         <div className="absolute inset-0 bg-cover bg-center opacity-55" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000')" }} />
