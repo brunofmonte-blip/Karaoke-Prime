@@ -26,4 +26,4 @@ export const searchYouTube = async (query: string) => {
     console.error("🔴 ERRO DE CONEXÃO COM O YOUTUBE:", error);
     return [];
   }
-};
+}; 
