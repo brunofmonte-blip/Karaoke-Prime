@@ -3,89 +3,54 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
-import { AuthProvider } from "./integrations/supabase/auth";
-import { LoginModalProvider, useLoginModal } from "./hooks/use-login-modal";
-import LoginModal from "./components/LoginModal";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Academy from "./pages/Academy";
-import Backstage from "./pages/Backstage";
-import Library from "./pages/Library";
-import SongPlayer from "./pages/SongPlayer";
-import KaraokeRoom from "./pages/KaraokeRoom";
+
+// 1. Telas que NÓS consertamos e sabemos que estão perfeitas:
+import Index from "./pages/Index";
 import BasicLobby from "./pages/BasicLobby";
+import Academy from "./pages/Academy";
 import Duel from "./pages/Duel";
-import DuelRoom from "./pages/DuelRoom";
-import DuelInviteLobby from "./pages/DuelInviteLobby";
-import Talent from "./pages/Talent";
-import NextSuccess from "./pages/NextSuccess";
-import ScoreResult from "./pages/ScoreResult";
-import Premium from "./pages/Premium";
-import Lesson from "./pages/Lesson";
-import Login from "./pages/Login";
-import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
-import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
-import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
-import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
-import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
-import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
-import { DuelProvider } from "./hooks/use-duel-engine";
-import DuelSummaryModal from "./components/DuelSummaryModal";
-import ScrollToTop from "./components/ScrollToTop";
+
+// 2. Criamos uma tela "Falsa" para proteger o site das telas que o DYAD quebrou.
+// Se você clicar em algo e ver essa tela preta, já sabemos qual arquivo o DYAD apagou!
+const Placeholder = ({ name }: { name: string }) => (
+  <div className="min-h-screen flex items-center justify-center bg-black">
+    <h1 className="text-2xl font-bold text-white uppercase tracking-widest border border-white/20 p-8 rounded-2xl bg-white/5">
+      Página {name} em Recuperação 🚧
+    </h1>
+  </div>
+);
 
 const queryClient = new QueryClient();
-
-const LoginModalWrapper = () => {
-  const { isModalOpen, closeModal } = useLoginModal();
-  return <LoginModal isOpen={isModalOpen} onClose={closeModal} />;
-};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <LoginModalProvider>
-          <PrimeSubscriptionProvider>
-            <VocalSandboxProvider key="vocal-sandbox-root">
-              <BrowserRouter>
-                <ScrollToTop />
-                <DuelProvider>
-                  <Layout>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/academy" element={<Academy />} />
-                      <Route path="/library" element={<Library />} />
-                      <Route path="/song/:id" element={<SongPlayer />} />
-                      <Route path="/room" element={<KaraokeRoom />} />
-                      <Route path="/basic" element={<BasicLobby />} />
-                      <Route path="/duel" element={<Duel />} />
-                      <Route path="/duel-invite" element={<DuelInviteLobby />} />
-                      <Route path="/duel-room" element={<DuelRoom />} />
-                      <Route path="/talent" element={<Talent />} />
-                      <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
-                      <Route path="/next-success" element={<NextSuccess />} />
-                      <Route path="/score" element={<ScoreResult />} />
-                      <Route path="/premium" element={<Premium />} />
-                      <Route path="/lesson" element={<Lesson />} />
-                      <Route path="/login" element={<Login />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Layout>
-                  <LoginModalWrapper />
-                  <PrimeSubscriptionModal />
-                  <VocalSandboxOverlay />
-                  <PerformanceSummaryModal />
-                  <BadgeUnlockedModal />
-                </DuelProvider>
-              </BrowserRouter>
-            </VocalSandboxProvider>
-          </PrimeSubscriptionProvider>
-        </LoginModalProvider>
-      </AuthProvider>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            {/* Rotas Seguras */}
+            <Route path="/" element={<Index />} />
+            <Route path="/basic" element={<BasicLobby />} />
+            <Route path="/academy" element={<Academy />} />
+            <Route path="/duel" element={<Duel />} />
+            
+            {/* Rotas Blindadas (Evitam a Tela Preta Geral) */}
+            <Route path="/library" element={<Placeholder name="Solo Online (Library)" />} />
+            <Route path="/duel-invite" element={<Placeholder name="Convite de Duelo" />} />
+            <Route path="/duel-room" element={<Placeholder name="Arena de Duelo" />} />
+            <Route path="/talent" element={<Placeholder name="Next Talent" />} />
+            <Route path="/backstage" element={<Placeholder name="Backstage" />} />
+            <Route path="/next-success" element={<Placeholder name="Next Success" />} />
+            <Route path="/premium" element={<Placeholder name="Premium" />} />
+            <Route path="/lesson" element={<Placeholder name="Lição do Academy" />} />
+            <Route path="/login" element={<Placeholder name="Login" />} />
+            <Route path="*" element={<Placeholder name="Não Encontrada" />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
