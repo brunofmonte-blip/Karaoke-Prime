@@ -29,7 +29,7 @@ const BasicLobby = () => {
   const [vocalAnalysis, setVocalAnalysis] = useState<any>(null);
 
   // 🔴 ADICIONE SUA CHAVE API AQUI
-  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
+  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
 
   // Função para carregar a API do YouTube apenas quando necessário
   useEffect(() => {
