@@ -1,116 +1,107 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, UserPlus, Swords, Mic2, Send, Loader2, XCircle, PlayCircle } from 'lucide-react';
+import { ArrowLeft, Search, UserPlus, Swords, Mic2, Send, Loader2, XCircle, PlayCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 
 const Duel = () => {
   const navigate = useNavigate();
-  // Status da tela: 'config' (configurando), 'waiting' (aguardando), 'rejected' (recusado), 'accepted' (aceito)
   const [status, setStatus] = useState<'config' | 'waiting' | 'rejected' | 'accepted'>('config');
   const [mode, setMode] = useState<'dueto' | 'batalha'>('batalha');
+  const [userQuery, setUserQuery] = useState("");
 
-  const handleSendInvite = () => {
-    setStatus('waiting');
-  };
+  const users = ["@VocalQueen", "@RockStar_Leo", "@Anya_Sings", "@JazzMaster_J"];
+  const filteredUsers = users.filter(u => u.toLowerCase().includes(userQuery.toLowerCase()) && userQuery.length > 1);
 
   return (
-    <div className="min-h-screen bg-background relative flex flex-col p-4 md:p-8">
-      <img src="https://images.unsplash.com/photo-1516280440502-a2f011ba2dc9?q=80&w=2000" alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.15]" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-background to-background z-0" />
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* BACKGROUND RESTAURADO */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1516280440502-a2f011ba2dc9?q=80&w=2000" 
+          className="w-full h-full object-cover opacity-20"
+          alt="Duelo Background"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent" />
+      </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto w-full pt-16">
-        <button onClick={() => navigate('/basic')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors">
-          <ArrowLeft size={20} /> Voltar para o Lobby
+      <div className="relative z-10 max-w-4xl mx-auto w-full pt-16 p-4 md:p-8">
+        <button onClick={() => navigate('/basic')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
+          <ArrowLeft size={16} /> Voltar para o Lobby
         </button>
 
-        {/* TELA 1: CONFIGURAÇÕES DA PARTIDA */}
         {status === 'config' && (
-          <Card className="bg-black/60 border-white/10 rounded-3xl shadow-[0_0_30px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-500">
+          <Card className="bg-black/80 border-white/10 rounded-[2rem] shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-500 overflow-hidden">
             <CardContent className="p-8 md:p-12">
-              <h2 className="text-3xl font-black text-white mb-8 text-center tracking-tighter uppercase italic">Configurações da Partida</h2>
+              {/* FRASE CORRIGIDA */}
+              <h2 className="text-4xl font-black text-white mb-10 text-center tracking-tighter uppercase italic drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                Configurações do Dueto / Batalha
+              </h2>
               
-              <div className="space-y-8">
-                {/* Selecionar Música */}
+              <div className="space-y-10">
                 <div>
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 block">1. Selecione a Música</label>
+                  <label className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-4 block">1. Selecione a Música</label>
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
-                    <Input placeholder="Buscar artista ou música..." className="pl-12 h-14 bg-black/40 border-white/20 text-white rounded-xl focus:border-primary text-lg" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-500" />
+                    <Input placeholder="Qual hit vamos cantar?" className="pl-14 h-16 bg-white/5 border-white/10 text-white rounded-2xl focus:border-primary text-lg font-medium" />
                   </div>
                 </div>
 
-                {/* Convidar Oponente */}
-                <div>
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 block">2. Convide um Oponente ou Amigo</label>
+                <div className="relative">
+                  <label className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-4 block">2. Convide um Cantor</label>
                   <div className="relative">
-                    <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
-                    <Input placeholder="Buscar por @username..." className="pl-12 h-14 bg-black/40 border-white/20 text-white rounded-xl focus:border-primary text-lg" />
+                    <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-500" />
+                    <Input 
+                      value={userQuery}
+                      onChange={(e) => setUserQuery(e.target.value)}
+                      placeholder="Buscar por @username..." 
+                      className="pl-14 h-16 bg-white/5 border-white/10 text-white rounded-2xl focus:border-primary text-lg font-medium" 
+                    />
                   </div>
+                  {filteredUsers.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-white/10 rounded-2xl p-2 z-50">
+                       {filteredUsers.map(u => (
+                         <div key={u} onClick={() => setUserQuery(u)} className="p-4 hover:bg-primary/20 rounded-xl cursor-pointer flex items-center justify-between text-white font-bold transition-colors">
+                           {u} <CheckCircle2 size={16} className="text-primary"/>
+                         </div>
+                       ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Modo de Jogo */}
                 <div>
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 block">3. Modo de Jogo</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div onClick={() => setMode('dueto')} className={`cursor-pointer p-6 rounded-xl border-2 flex flex-col items-center justify-center text-center transition-all ${mode === 'dueto' ? 'bg-primary/20 border-primary shadow-[0_0_15px_rgba(0,168,225,0.3)]' : 'bg-black/40 border-white/10 hover:bg-white/5'}`}>
-                      <Mic2 className={`h-10 w-10 mb-3 ${mode === 'dueto' ? 'text-primary' : 'text-gray-400'}`} />
-                      <h3 className={`font-black text-lg mb-1 ${mode === 'dueto' ? 'text-white' : 'text-gray-300'}`}>DUETO</h3>
-                      <p className="text-xs text-gray-500">Colaborativo. Cantem juntos em harmonia.</p>
+                  <label className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-4 block">3. Estilo da Partida</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div onClick={() => setMode('dueto')} className={`cursor-pointer group p-8 rounded-3xl border-2 flex flex-col items-center justify-center text-center transition-all duration-300 ${mode === 'dueto' ? 'bg-primary/20 border-primary shadow-[0_0_30px_rgba(0,168,225,0.4)] scale-105' : 'bg-white/5 border-white/5 hover:border-white/20'}`}>
+                      <Mic2 className={`h-12 w-12 mb-4 ${mode === 'dueto' ? 'text-primary' : 'text-gray-500'}`} />
+                      <h3 className={`font-black text-2xl mb-2 ${mode === 'dueto' ? 'text-white' : 'text-gray-400'}`}>DUETO</h3>
+                      <p className="text-xs text-gray-500 font-medium leading-relaxed">Colaborativo. Cantem juntos e unam suas notas para um show incrível.</p>
                     </div>
-                    <div onClick={() => setMode('batalha')} className={`cursor-pointer p-6 rounded-xl border-2 flex flex-col items-center justify-center text-center transition-all ${mode === 'batalha' ? 'bg-destructive/20 border-destructive shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-black/40 border-white/10 hover:bg-white/5'}`}>
-                      <Swords className={`h-10 w-10 mb-3 ${mode === 'batalha' ? 'text-destructive' : 'text-gray-400'}`} />
-                      <h3 className={`font-black text-lg mb-1 ${mode === 'batalha' ? 'text-white' : 'text-gray-300'}`}>BATALHA</h3>
-                      <p className="text-xs text-gray-500">Competitivo. Quem atinge a maior nota?</p>
+                    <div onClick={() => setMode('batalha')} className={`cursor-pointer group p-8 rounded-3xl border-2 flex flex-col items-center justify-center text-center transition-all duration-300 ${mode === 'batalha' ? 'bg-destructive/20 border-destructive shadow-[0_0_30px_rgba(239,68,68,0.4)] scale-105' : 'bg-white/5 border-white/5 hover:border-white/20'}`}>
+                      <Swords className={`h-12 w-12 mb-4 ${mode === 'batalha' ? 'text-destructive' : 'text-gray-500'}`} />
+                      <h3 className={`font-black text-2xl mb-2 ${mode === 'batalha' ? 'text-white' : 'text-gray-400'}`}>BATALHA</h3>
+                      <p className="text-xs text-gray-500 font-medium leading-relaxed">Competitivo. Desafie o oponente e descubra quem domina o palco.</p>
                     </div>
                   </div>
                 </div>
 
-                <Button onClick={handleSendInvite} className="w-full h-16 rounded-xl font-black text-lg bg-white text-black hover:bg-primary transition-colors mt-4">
-                  <Send className="mr-2 h-5 w-5" /> ENVIAR CONVITE
+                <Button onClick={() => setStatus('waiting')} className="w-full h-20 rounded-2xl font-black text-2xl bg-white text-black hover:bg-primary hover:scale-[1.02] transition-all mt-6 shadow-2xl">
+                  <Send className="mr-3 h-6 w-6" /> ENVIAR CONVITE
                 </Button>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* TELA 2: AGUARDANDO OPONENTE */}
         {status === 'waiting' && (
           <div className="flex flex-col items-center justify-center text-center pt-20 animate-in fade-in duration-500">
-            <Loader2 className="h-20 w-20 text-primary animate-spin mb-8" />
-            <h2 className="text-4xl font-black text-white mb-4">Aguardando Resposta...</h2>
-            <p className="text-gray-400 text-lg mb-16">O convite foi enviado para o usuário. Assim que ele aceitar, a música vai começar!</p>
-            
-            <div className="flex gap-4 p-4 border border-white/10 rounded-xl bg-white/5">
-               <p className="text-xs text-gray-500 font-bold uppercase mr-4 flex items-center">Painel de Teste Visual:</p>
-               <Button onClick={() => setStatus('accepted')} variant="outline" className="border-green-500 text-green-400 hover:bg-green-500 hover:text-black">Simular: Aceitou</Button>
-               <Button onClick={() => setStatus('rejected')} variant="outline" className="border-destructive text-destructive hover:bg-destructive hover:text-white">Simular: Recusou</Button>
+            <Loader2 className="h-24 w-24 text-primary animate-spin mb-10" />
+            <h2 className="text-5xl font-black text-white mb-6 italic tracking-tighter uppercase">Aguardando Resposta...</h2>
+            <div className="flex gap-4 p-6 border border-white/10 rounded-3xl bg-black/60">
+               <Button onClick={() => setStatus('accepted')} variant="outline" className="border-green-500 text-green-400 font-bold px-6">Aceitar</Button>
+               <Button onClick={() => setStatus('rejected')} variant="outline" className="border-destructive text-destructive font-bold px-6">Recusar</Button>
             </div>
-          </div>
-        )}
-
-        {/* TELA 3: CONVITE RECUSADO */}
-        {status === 'rejected' && (
-          <div className="flex flex-col items-center justify-center text-center pt-20 animate-in zoom-in duration-500">
-            <XCircle className="h-24 w-24 text-destructive mb-8 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
-            <h2 className="text-5xl font-black text-white mb-4">Convite Recusado</h2>
-            <p className="text-gray-400 text-lg mb-10">O usuário está ocupado ou não pôde aceitar no momento.</p>
-            <Button onClick={() => setStatus('config')} className="h-14 px-8 rounded-full font-bold text-black bg-primary hover:bg-primary/80">
-              <Search className="mr-2 h-5 w-5" /> Convidar outro Cantor
-            </Button>
-          </div>
-        )}
-
-        {/* TELA 4: CONVITE ACEITO */}
-        {status === 'accepted' && (
-          <div className="flex flex-col items-center justify-center text-center pt-20 animate-in zoom-in duration-500">
-            <PlayCircle className="h-24 w-24 text-green-400 mb-8 drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]" />
-            <h2 className="text-5xl font-black text-white mb-4 italic uppercase">Desafio Aceito!</h2>
-            <p className="text-green-400 text-lg mb-10 font-bold tracking-widest uppercase">Iniciando a sala de duelo...</p>
-            <Button onClick={() => setStatus('config')} variant="outline" className="border-white/20 text-gray-300 hover:text-white">
-              Voltar (Modo Teste)
-            </Button>
           </div>
         )}
       </div>
