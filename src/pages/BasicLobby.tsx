@@ -27,7 +27,7 @@ const BasicLobby = () => {
   const [cameraActive, setCameraActive] = useState(false);
   const [vocalAnalysis, setVocalAnalysis] = useState<any>(null);
 
-  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
+  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
 
   // Função vital para liberar a câmera e o player ao sair
   const cleanup = () => {
