@@ -1,94 +1,82 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Layout from "./components/Layout";
-import { AuthProvider } from "./integrations/supabase/auth";
-import { LoginModalProvider, useLoginModal } from "./hooks/use-login-modal";
-import LoginModal from "./components/LoginModal";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Academy from "./pages/Academy";
-import Backstage from "./pages/Backstage";
-import Library from "./pages/Library";
-import SongPlayer from "./pages/SongPlayer";
-import KaraokeRoom from "./pages/KaraokeRoom";
-import BasicLobby from "./pages/BasicLobby";
-import Duel from "./pages/Duel";
-import DuelRoom from "./pages/DuelRoom";
-import DuelInviteLobby from "./pages/DuelInviteLobby";
-import Talent from "./pages/Talent";
-import NextSuccess from "./pages/NextSuccess";
-import ScoreResult from "./pages/ScoreResult";
-import Premium from "./pages/Premium";
-import Lesson from "./pages/Lesson";
-import Login from "./pages/Login";
-import { VocalSandboxProvider } from "./hooks/use-vocal-sandbox";
-import VocalSandboxOverlay from "./components/VocalSandboxOverlay";
-import { PrimeSubscriptionProvider } from "./hooks/use-prime-subscription";
-import PrimeSubscriptionModal from "./components/PrimeSubscriptionModal";
-import PerformanceSummaryModal from "./components/PerformanceSummaryModal";
-import BadgeUnlockedModal from "./components/BadgeUnlockedModal";
-import { DuelProvider } from "./hooks/use-duel-engine";
-import DuelSummaryModal from "./components/DuelSummaryModal";
-import ScrollToTop from "./components/ScrollToTop";
+"use client";
 
-const queryClient = new QueryClient();
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Globe, Download, Users, ArrowLeft, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
-const LoginModalWrapper = () => {
-  const { isModalOpen, closeModal } = useLoginModal();
-  return <LoginModal isOpen={isModalOpen} onClose={closeModal} />;
+const BasicLobby = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="min-h-screen bg-background p-4 md:p-8 relative">
+      {/* Background Escuro e Elegante */}
+      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000')" }} />
+      <div className="absolute inset-0 bg-black/80 z-0" />
+
+      <div className="relative z-10 max-w-6xl mx-auto pt-20">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 transition-colors">
+          <ArrowLeft size={20} /> Voltar para Home
+        </button>
+
+        <h1 className="text-4xl md:text-5xl font-black text-primary neon-blue-glow mb-2 tracking-tighter">Lobby de Karaokê</h1>
+        <p className="text-white font-bold uppercase tracking-widest mb-10 text-sm">Escolha o modo de jogo</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          
+          {/* Card 1: Solo Online */}
+          <div
+            onClick={() => navigate('/library')}
+            className="group cursor-pointer p-8 rounded-2xl border border-primary/50 bg-black/40 hover:bg-primary/10 transition-all flex flex-col items-center text-center shadow-[0_0_15px_rgba(0,168,225,0.2)]"
+          >
+            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Globe className="h-8 w-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Solo Online</h3>
+            <p className="text-gray-400 text-xs">Cante com o catálogo completo do YouTube.</p>
+          </div>
+
+          {/* Card 2: Solo Offline (Trancado) */}
+          <div
+            onClick={() => navigate('/premium')}
+            className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:bg-white/5 transition-all flex flex-col items-center text-center relative"
+          >
+            <div className="absolute top-4 right-4 text-orange-500">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <div className="h-16 w-16 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Download className="h-8 w-8 text-orange-500" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-300 mb-2">Solo Offline</h3>
+            <p className="text-gray-500 text-xs">Músicas baixadas (Premium).</p>
+          </div>
+
+          {/* Card 3: Dueto / Batalha (O LINK PARA O DUEL ESTÁ AQUI!) */}
+          <div
+            onClick={() => navigate('/duel')} 
+            className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:border-destructive/50 hover:bg-destructive/10 transition-all flex flex-col items-center text-center"
+          >
+            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform group-hover:bg-destructive/20">
+              <Users className="h-8 w-8 text-white group-hover:text-destructive" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Dueto / Batalha</h3>
+            <p className="text-gray-400 text-xs">Cante com um amigo ou desafie o mundo.</p>
+          </div>
+
+        </div>
+
+        {/* Barra de Busca Inferior */}
+        <div className="max-w-3xl mx-auto relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Qual música vamos cantar hoje? (Pressione Enter)"
+            className="pl-12 h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary transition-colors"
+          />
+        </div>
+
+      </div>
+    </div>
+  );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthProvider>
-        <LoginModalProvider>
-          <PrimeSubscriptionProvider>
-            <VocalSandboxProvider key="vocal-sandbox-root">
-              <BrowserRouter>
-                <ScrollToTop />
-                <DuelProvider>
-                  <Layout>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/academy" element={<Academy />} />
-                      <Route path="/library" element={<Library />} />
-                      <Route path="/song/:id" element={<SongPlayer />} />
-                      <Route path="/room" element={<KaraokeRoom />} />
-                      <Route path="/basic" element={<BasicLobby />} />
-                      <Route path="/duel" element={<Duel />} />
-                      <Route path="/duel-invite" element={<DuelInviteLobby />} />
-                      <Route path="/duel-room" element={<DuelRoom />} />
-                      <Route path="/talent" element={<Talent />} />
-                      <Route path="/backstage" element={<ProtectedRoute element={<Backstage />} />} />
-                      <Route path="/next-success" element={<NextSuccess />} />
-                      <Route path="/score" element={<ScoreResult />} />
-                      <Route path="/premium" element={<Premium />} />
-                      <Route path="/lesson" element={<Lesson />} />
-                      <Route path="/login" element={<Login />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Layout>
-                  <LoginModalWrapper />
-                  <PrimeSubscriptionModal />
-                  <VocalSandboxOverlay />
-                  <PerformanceSummaryModal />
-                  <BadgeUnlockedModal />
-                  <DuelSummaryModal />
-                </DuelProvider>
-              </BrowserRouter>
-            </VocalSandboxProvider>
-          </PrimeSubscriptionProvider>
-        </LoginModalProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
-
-export default App;
+export default BasicLobby;
