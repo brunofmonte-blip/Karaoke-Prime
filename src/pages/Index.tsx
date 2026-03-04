@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mic2, GraduationCap, Star, Lock, Music } from 'lucide-react';
 
 const Index = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   return (
     <div className="min-h-screen bg-background relative flex flex-col items-center justify-center overflow-hidden">
