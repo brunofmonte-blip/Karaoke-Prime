@@ -1,12 +1,19 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Globe, Download, Users, ArrowLeft, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const BasicLobby = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/library?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 relative">
@@ -51,7 +58,7 @@ const BasicLobby = () => {
             <p className="text-gray-500 text-xs">Músicas baixadas (Premium).</p>
           </div>
 
-          {/* Card 3: Dueto / Batalha (O LINK CORRIGIDO ESTÁ AQUI!) */}
+          {/* Card 3: Dueto / Batalha */}
           <div
             onClick={() => navigate('/duel')} 
             className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:border-destructive/50 hover:bg-destructive/10 transition-all flex flex-col items-center text-center"
@@ -71,6 +78,9 @@ const BasicLobby = () => {
           <Input
             placeholder="Qual música vamos cantar hoje? (Pressione Enter)"
             className="pl-12 h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary transition-colors"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleSearch}
           />
         </div>
 
