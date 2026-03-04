@@ -16,7 +16,7 @@ const BasicLobby = () => {
   const navigate = useNavigate();
   const playerRef = useRef<any>(null);
   const webcamRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null); // Referência direta para desligar o hardware
+  const streamRef = useRef<MediaStream | null>(null);
   
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
@@ -27,14 +27,10 @@ const BasicLobby = () => {
   const [cameraActive, setCameraActive] = useState(false);
   const [vocalAnalysis, setVocalAnalysis] = useState<any>(null);
 
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
+  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
 
-  // Limpeza de segurança ao desmontar o componente ou trocar de tela
-  useEffect(() => {
-    return () => stopAllHardware();
-  }, []);
-
-  const stopAllHardware = () => {
+  // Função vital para liberar a câmera e o player ao sair
+  const cleanup = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -45,6 +41,10 @@ const BasicLobby = () => {
     }
     setCameraActive(false);
   };
+
+  useEffect(() => {
+    return () => cleanup();
+  }, []);
 
   useEffect(() => {
     if (selectedVideo && !showScore) {
@@ -79,34 +79,27 @@ const BasicLobby = () => {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 480, height: 480 }, 
-        audio: true 
-      });
-      
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
-      setCameraActive(true);
-      
-      setTimeout(() => {
-        if (webcamRef.current) {
-          webcamRef.current.srcObject = stream;
-          webcamRef.current.play().catch(console.error);
-        }
-      }, 100);
+      if (webcamRef.current) {
+        webcamRef.current.srcObject = stream;
+        setCameraActive(true);
+      }
     } catch (err) {
       alert("Permissão de câmera negada.");
     }
   };
 
-  const closePerformance = () => {
-    stopAllHardware();
+  const handleBackToLobby = () => {
+    cleanup();
     setSelectedVideo(null);
     setShowScore(false);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white relative overflow-x-hidden font-sans">
       
+      {/* 1. LOBBY */}
       {!selectedVideo && (
         <div className="relative z-10 p-4 md:p-8 max-w-6xl mx-auto pt-20 text-center animate-in fade-in duration-500">
           <button onClick={() => navigate('/')} className="text-gray-500 mb-6 uppercase text-[10px] flex items-center gap-2 mx-auto hover:text-white transition-colors">
@@ -115,23 +108,23 @@ const BasicLobby = () => {
           <h1 className="text-4xl md:text-6xl font-black text-primary italic uppercase mb-10 tracking-tighter">Lobby de Karaokê</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <div className="p-8 rounded-[2rem] border border-primary/50 bg-zinc-900/50">
-              <Globe className="mx-auto mb-4 text-primary" size={32} />
+            <div className="p-8 rounded-[2rem] border border-primary/50 bg-zinc-900/50 flex flex-col items-center">
+              <Globe className="mb-4 text-primary" size={32} />
               <h3 className="font-black italic">ONLINE</h3>
             </div>
-            <div className="opacity-20 p-8 rounded-[2rem] border border-white/10 bg-zinc-900/50">
-              <Download className="mx-auto mb-4 text-gray-500" size={32} />
+            <div className="opacity-20 p-8 rounded-[2rem] border border-white/10 bg-zinc-900/50 flex flex-col items-center">
+              <Download className="mb-4 text-gray-500" size={32} />
               <h3 className="font-black italic">OFFLINE</h3>
             </div>
-            <div onClick={() => navigate('/duel')} className="p-8 rounded-[2rem] border border-white/10 bg-zinc-900/50 cursor-pointer hover:bg-white/5 transition-all">
-              <Users className="mx-auto mb-4 text-white" size={32} />
+            <div onClick={() => navigate('/duel')} className="p-8 rounded-[2rem] border border-white/10 bg-zinc-900/50 cursor-pointer hover:bg-white/5 transition-all flex flex-col items-center">
+              <Users className="mb-4 text-white" size={32} />
               <h3 className="font-black italic">DUETO / BATALHA</h3>
             </div>
           </div>
 
           <div className="max-w-4xl mx-auto relative mb-16">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
-            <Input placeholder="Buscar música..." value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleSearch} className="pl-12 h-16 bg-zinc-900 border-primary/30 text-white rounded-2xl" />
+            <Input placeholder="Qual música vamos cantar?" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleSearch} className="pl-12 h-16 bg-zinc-900 border-primary/30 text-white rounded-2xl focus:border-primary transition-all" />
           </div>
 
           <div className="max-w-4xl mx-auto space-y-4 pb-20">
@@ -145,6 +138,7 @@ const BasicLobby = () => {
         </div>
       )}
 
+      {/* 2. SHOW TIME */}
       {selectedVideo && !showScore && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col lg:flex-row items-center justify-center p-8 gap-12 animate-in zoom-in duration-300">
           <div className="flex-1 w-full aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 bg-zinc-950">
@@ -152,7 +146,7 @@ const BasicLobby = () => {
           </div>
 
           <div className="flex flex-col items-center gap-10">
-            <div className="h-64 w-64 md:h-80 md:w-80 rounded-full border-2 border-primary overflow-hidden bg-zinc-900 relative shadow-[0_0_40px_rgba(0,168,225,0.3)]">
+            <div className="h-64 w-64 md:h-80 md:w-80 rounded-full border-2 border-primary overflow-hidden bg-zinc-900 relative">
               {!cameraActive ? (
                 <div onClick={startCamera} className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-zinc-800 hover:bg-zinc-700 transition-all text-center p-4">
                   <Camera className="mb-3 text-primary" size={32} />
@@ -165,21 +159,20 @@ const BasicLobby = () => {
             
             <div className="flex flex-col gap-6 w-full max-w-[280px]">
               <Button onClick={() => setShowScore(true)} className="h-16 rounded-full bg-primary text-black font-black text-xl italic hover:bg-white transition-all">FINALIZAR SHOW</Button>
-              <div className="flex justify-center">
-                 <button onClick={closePerformance} className="text-destructive/60 hover:text-destructive uppercase font-black text-[10px] flex items-center gap-2"><Ban size={14}/> Cancelar e Voltar</button>
-              </div>
+              <button onClick={handleBackToLobby} className="text-destructive/60 hover:text-destructive uppercase font-black text-[10px] flex items-center justify-center gap-2 transition-colors"><Ban size={14}/> Cancelar e Voltar</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* 3. SCORE */}
       {showScore && (
-        <div className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-6 animate-in fade-in">
-          <Card className="max-w-xl w-full bg-zinc-950 border-white/10 rounded-[3rem] p-10 text-center shadow-[0_0_100px_rgba(0,168,225,0.1)]">
+        <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center p-6 animate-in fade-in">
+          <Card className="max-w-xl w-full bg-zinc-950 border-white/10 rounded-[3rem] p-10 text-center">
             <Trophy className="mx-auto text-primary mb-6" size={64} />
             <div className="mb-10 text-9xl font-black text-primary italic">0.0</div>
             <p className="text-zinc-400 italic mb-10 text-sm">"Áudio não detectado pela IA Prime."</p>
-            <Button onClick={closePerformance} className="w-full h-16 bg-primary text-black font-black rounded-2xl text-xl italic">VOLTAR AO LOBBY</Button>
+            <Button onClick={handleBackToLobby} className="w-full h-16 bg-primary text-black font-black rounded-2xl text-xl italic hover:bg-white transition-all">VOLTAR AO LOBBY</Button>
           </Card>
         </div>
       )}
