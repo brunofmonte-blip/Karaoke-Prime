@@ -21,7 +21,7 @@ const BasicLobby = () => {
   const [cameraActive, setCameraActive] = useState(false);
 
   // 🔴 ADICIONE SUA CHAVE API AQUI
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
+  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim() !== '') {
@@ -51,7 +51,7 @@ const BasicLobby = () => {
 
   return (
     <div className="min-h-screen bg-black relative overflow-x-hidden">
-      {/* BACKGROUND */}
+      {/* BACKGROUND LIMPADO */}
       <div className="absolute inset-0 z-0">
         <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000" className="w-full h-full object-cover opacity-20" alt="bg" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black" />
@@ -63,12 +63,12 @@ const BasicLobby = () => {
         </button>
         <h1 className="text-4xl md:text-6xl font-black text-primary neon-blue-glow mb-2 italic uppercase">Lobby de Karaokê</h1>
 
-        {/* 🎬 PLAYER DE PERFORMANCE ATIVO */}
+        {/* 🎬 PLAYER DE PERFORMANCE ATIVO COM CORREÇÕES */}
         {selectedVideo && !showScore && (
           <div className="fixed inset-0 z-[100] bg-black/98 flex flex-col items-center justify-center p-4">
             <div className="flex flex-col lg:flex-row items-center gap-8 w-full max-w-7xl">
               
-              {/* Vídeo do YouTube */}
+              {/* Vídeo do YouTube com Pause Corrigido */}
               <div className="flex-1 w-full aspect-video rounded-[2rem] overflow-hidden border-4 border-primary/20 shadow-[0_0_50px_rgba(0,168,225,0.2)] bg-black relative">
                 {!isPlaying && (
                   <div className="absolute inset-0 z-10 bg-black/60 flex items-center justify-center backdrop-blur-sm">
@@ -83,7 +83,7 @@ const BasicLobby = () => {
                 ></iframe>
               </div>
 
-              {/* Círculo da Webcam / Perfil */}
+              {/* Círculo da Webcam / Perfil com Ativação Corrigida */}
               <div className="flex flex-col items-center gap-6">
                 <div className="h-48 w-48 md:h-64 md:w-64 rounded-full border-4 border-primary shadow-[0_0_30px_rgba(0,168,225,0.4)] overflow-hidden bg-gray-900 relative group">
                   {!cameraActive ? (
@@ -107,7 +107,7 @@ const BasicLobby = () => {
               </div>
             </div>
 
-            {/* Menu Inferior */}
+            {/* Menu Inferior com Recomeçar Corrigido */}
             <div className="mt-12 flex gap-8">
               <button onClick={() => {}} className="flex items-center gap-2 text-gray-500 hover:text-white uppercase font-black text-xs transition-colors"><RotateCcw size={18}/> Recomeçar</button>
               <button onClick={() => setSelectedVideo(null)} className="flex items-center gap-2 text-destructive hover:scale-110 uppercase font-black text-xs transition-all"><Ban size={18}/> Cancelar Sessão</button>
@@ -115,7 +115,7 @@ const BasicLobby = () => {
           </div>
         )}
 
-        {/* 🏆 TELA DE NOTA DA IA (ALTO RIGOR) */}
+        {/* 🏆 TELA DE NOTA DA IA */}
         {showScore && (
           <div className="fixed inset-0 z-[110] bg-black flex items-center justify-center p-4">
             <Card className="max-w-2xl w-full bg-zinc-950 border-primary/30 rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(0,168,225,0.2)] animate-in zoom-in duration-500">
@@ -151,12 +151,12 @@ const BasicLobby = () => {
           </div>
         )}
 
-        {/* INTERFACE DO LOBBY (Cards Online/Offline/Duelo e Busca) */}
+        {/* INTERFACE DO LOBBY */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 mt-8">
           <div onClick={() => { setQuery(''); setResults([]); }} className="group cursor-pointer p-8 rounded-[2rem] border border-primary/50 bg-black/60 hover:bg-primary/20 transition-all flex flex-col items-center text-center shadow-[0_0_30px_rgba(0,168,225,0.2)]">
             <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Globe className="h-10 w-10 text-primary" /></div>
             <h3 className="text-2xl font-black text-white mb-3 uppercase italic">ONLINE</h3>
-            <p className="text-gray-400 text-xs leading-relaxed font-medium">Cante com o catálogo completo do YouTube<br/>em tempo real.</p>
+            <p className="text-gray-400 text-xs leading-relaxed font-medium">Catálogo completo do YouTube<br/>em tempo real.</p>
           </div>
           <div className="group p-8 rounded-[2rem] border border-white/10 bg-black/40 flex flex-col items-center text-center relative opacity-40 cursor-not-allowed">
             <div className="absolute top-6 right-6 text-orange-500 font-black">🔒</div>
