@@ -1,82 +1,149 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Globe, Download, Users, ArrowLeft, Search } from 'lucide-react';
+import { Sword, Search, UserPlus, Music, ArrowLeft, Loader2, PlayCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { searchYouTube } from '@/services/youtubeService';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-const BasicLobby = () => {
+const Duel = () => {
   const navigate = useNavigate();
+  const [songQuery, setSongQuery] = useState("");
+  const [userQuery, setUserQuery] = useState("");
+  const [songResults, setSongResults] = useState<any[]>([]);
+  const [loadingSongs, setLoadingSongs] = useState(false);
+  const [selectedSong, setSelectedSong] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+
+  const handleSongSearch = useCallback(async () => {
+    if (!songQuery.trim()) return;
+    setLoadingSongs(true);
+    try {
+      const items = await searchYouTube(songQuery + ' karaoke');
+      setSongResults(items || []);
+    } catch (error) {
+      toast.error("Erro na busca do YouTube.");
+    } finally {
+      setLoadingSongs(false);
+    }
+  }, [songQuery]);
+
+  const handleStartDuel = () => {
+    if (!selectedSong) {
+      toast.error("Selecione uma música primeiro!");
+      return;
+    }
+    const videoId = selectedSong.id?.videoId;
+    navigate(`/duel-room?id=${videoId}${selectedUser ? `&opponent=${selectedUser}` : ''}`);
+  };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 relative">
-      {/* Background Escuro e Elegante */}
-      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000')" }} />
-      <div className="absolute inset-0 bg-black/80 z-0" />
-
-      <div className="relative z-10 max-w-6xl mx-auto pt-20">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 transition-colors">
-          <ArrowLeft size={20} /> Voltar para Home
-        </button>
-
-        <h1 className="text-4xl md:text-5xl font-black text-primary neon-blue-glow mb-2 tracking-tighter">Lobby de Karaokê</h1>
-        <p className="text-white font-bold uppercase tracking-widest mb-10 text-sm">Escolha o modo de jogo</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          
-          {/* Card 1: Solo Online */}
-          <div
-            onClick={() => navigate('/library')}
-            className="group cursor-pointer p-8 rounded-2xl border border-primary/50 bg-black/40 hover:bg-primary/10 transition-all flex flex-col items-center text-center shadow-[0_0_15px_rgba(0,168,225,0.2)]"
-          >
-            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Globe className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">Solo Online</h3>
-            <p className="text-gray-400 text-xs">Cante com o catálogo completo do YouTube.</p>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="relative h-[30vh] w-full overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 bg-cover bg-center z-0 opacity-30" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2000')" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/80 to-background z-10" />
+        <div className="relative z-20 text-center px-4">
+          <div className="inline-flex p-4 rounded-2xl bg-destructive/20 border-2 border-destructive mb-4 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+            <Sword className="h-10 w-10 text-destructive animate-pulse" />
           </div>
-
-          {/* Card 2: Solo Offline (Trancado) */}
-          <div
-            onClick={() => navigate('/premium')}
-            className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:bg-white/5 transition-all flex flex-col items-center text-center relative"
-          >
-            <div className="absolute top-4 right-4 text-orange-500">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            </div>
-            <div className="h-16 w-16 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Download className="h-8 w-8 text-orange-500" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-300 mb-2">Solo Offline</h3>
-            <p className="text-gray-500 text-xs">Músicas baixadas (Premium).</p>
-          </div>
-
-          {/* Card 3: Dueto / Batalha (O LINK CORRIGIDO ESTÁ AQUI!) */}
-          <div
-            onClick={() => navigate('/duel')} 
-            className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:border-destructive/50 hover:bg-destructive/10 transition-all flex flex-col items-center text-center"
-          >
-            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform group-hover:bg-destructive/20">
-              <Users className="h-8 w-8 text-white group-hover:text-destructive" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">Dueto / Batalha</h3>
-            <p className="text-gray-400 text-xs">Cante com um amigo ou desafie o mundo.</p>
-          </div>
-
+          <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
+            Configurações <span className="text-destructive neon-red-glow">da Batalha</span>
+          </h1>
         </div>
+      </div>
 
-        {/* Barra de Busca Inferior */}
-        <div className="max-w-3xl mx-auto relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Qual música vamos cantar hoje? (Pressione Enter)"
-            className="pl-12 h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary transition-colors"
-          />
+      <div className="container mx-auto max-w-6xl px-4 -mt-10 relative z-30 space-y-8">
+        <Button variant="ghost" onClick={() => navigate('/basic')} className="text-muted-foreground hover:text-white">
+          <ArrowLeft className="mr-2 h-5 w-5" /> Voltar ao Lobby
+        </Button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Song Selection */}
+          <Card className="glass-pillar border-2 border-white/10">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Music className="h-5 w-5 text-primary" />
+                1. Escolha a Música
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar música..." 
+                  className="pl-10 h-12 rounded-xl bg-black/50 border-white/10 focus:border-primary"
+                  value={songQuery}
+                  onChange={(e) => setSongQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSongSearch()}
+                />
+                {loadingSongs && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-primary" />}
+              </div>
+
+              <div className="max-h-[400px] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                {songResults.map((song) => (
+                  <div 
+                    key={song.id?.videoId}
+                    onClick={() => setSelectedSong(song)}
+                    className={cn(
+                      "p-3 rounded-xl border-2 cursor-pointer transition-all flex items-center gap-4",
+                      selectedSong?.id?.videoId === song.id?.videoId 
+                        ? "border-primary bg-primary/10" 
+                        : "border-white/5 bg-white/5 hover:bg-white/10"
+                    )}
+                  >
+                    <img src={song.snippet?.thumbnails?.default?.url} className="h-12 w-12 rounded-lg object-cover" alt="" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white truncate" dangerouslySetInnerHTML={{ __html: song.snippet?.title }} />
+                      <p className="text-xs text-gray-500 truncate">{song.snippet?.channelTitle}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Opponent Selection */}
+          <div className="space-y-8">
+            <Card className="glass-pillar border-2 border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <UserPlus className="h-5 w-5 text-accent" />
+                  2. Convide um Oponente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input 
+                    placeholder="Buscar usuário por ID ou Nome..." 
+                    className="pl-10 h-12 rounded-xl bg-black/50 border-white/10 focus:border-accent"
+                    value={userQuery}
+                    onChange={(e) => setUserQuery(e.target.value)}
+                  />
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center">
+                  <p className="text-xs text-gray-500 italic">Ou desafie o AI Opponent por padrão</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Button 
+              onClick={handleStartDuel}
+              disabled={!selectedSong}
+              className="w-full py-12 rounded-3xl bg-destructive hover:bg-destructive/90 text-white font-black text-2xl shadow-2xl shadow-destructive/30 transition-all hover:scale-[1.02]"
+            >
+              <Sword className="mr-4 h-8 w-8" />
+              INICIAR DUELO
+            </Button>
+          </div>
         </div>
-
       </div>
     </div>
   );
 };
 
-export default BasicLobby;
+export default Duel;

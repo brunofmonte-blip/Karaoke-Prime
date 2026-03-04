@@ -24,8 +24,6 @@ const Header = () => {
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest">
             <Link to="/basic" className="text-muted-foreground hover:text-primary transition-colors">Lobby</Link>
             <Link to="/academy" className="text-muted-foreground hover:text-primary transition-colors">Academy</Link>
-            <Link to="/library" className="text-muted-foreground hover:text-primary transition-colors">Library</Link>
-            <Link to="/duel" className="text-muted-foreground hover:text-destructive transition-colors">Duel</Link>
           </nav>
         </div>
 
