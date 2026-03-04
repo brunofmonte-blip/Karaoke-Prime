@@ -1,141 +1,124 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, UserPlus, Swords, Mic2, Send, Loader2, XCircle, PlayCircle, CheckCircle2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Globe, Download, Users, ArrowLeft, Search, PlayCircle, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 
-const Duel = () => {
+const BasicLobby = () => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<'config' | 'waiting' | 'rejected' | 'accepted'>('config');
-  const [mode, setMode] = useState<'dueto' | 'batalha'>('batalha');
-  
-  // Simulação de busca de usuário
-  const [userQuery, setUserQuery] = useState("");
-  const users = ["@VocalQueen", "@RockStar_Leo", "@Anya_Sings", "@JazzMaster_J"];
-  const filteredUsers = users.filter(u => u.toLowerCase().includes(userQuery.toLowerCase()) && userQuery.length > 1);
+  const [query, setQuery] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && query.trim() !== '') {
+      setShowResults(true);
+    }
+  };
+
+  const mockResults = [
+    { id: "1", videoId: "I_fW0X_oG_0", title: "Não Quero Dinheiro - Tim Maia - Karaokê", channel: "Viguiba Karaokê", img: "https://picsum.photos/seed/tm1/160/90" },
+    { id: "2", videoId: "L9Xv6MAnkS0", title: "Descobridor dos Sete Mares - Tim Maia - Karaokê", channel: "Karaokê Show Oficial", img: "https://picsum.photos/seed/tm2/160/90" },
+    { id: "3", videoId: "8_v-D-GzK80", title: "Gostava Tanto de Você - Karaokê", channel: "Viguiba Karaokê", img: "https://picsum.photos/seed/tm3/160/90" },
+  ];
 
   return (
-    <div className="min-h-screen bg-background relative flex flex-col p-4 md:p-8 overflow-hidden">
-      {/* 💡 FUNDO DINÂMICO DE PALCO */}
-      <img src="https://images.unsplash.com/photo-1516280440502-a2f011ba2dc9?q=80&w=2000" alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.25]" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-transparent z-0" />
+    <div className="min-h-screen bg-background p-4 md:p-8 relative overflow-x-hidden">
+      <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000" alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.15]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-background to-background z-0" />
 
-      <div className="relative z-10 max-w-4xl mx-auto w-full pt-16">
-        <button onClick={() => navigate('/basic')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors font-bold uppercase tracking-widest text-xs">
-          <ArrowLeft size={16} /> Voltar para o Lobby
+      <div className="relative z-10 max-w-6xl mx-auto pt-20 animate-in fade-in duration-700">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 transition-colors font-bold uppercase tracking-widest text-xs">
+          <ArrowLeft size={16} /> Voltar para Home
         </button>
+        
+        <h1 className="text-4xl md:text-6xl font-black text-primary neon-blue-glow mb-2 tracking-tighter italic uppercase">Lobby de Karaokê</h1>
+        <p className="text-white font-bold uppercase tracking-widest mb-10 text-sm opacity-70">Escolha o modo de jogo</p>
 
-        {status === 'config' && (
-          <Card className="bg-black/80 border-white/10 rounded-[2rem] shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-in fade-in zoom-in-95 duration-500 overflow-hidden">
-            <CardContent className="p-8 md:p-12">
-              <h2 className="text-4xl font-black text-white mb-10 text-center tracking-tighter uppercase italic drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-                DUETO / BATALHA
-              </h2>
-              
-              <div className="space-y-10">
-                {/* 1. Selecionar Música (Simulada para visual) */}
-                <div>
-                  <label className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-4 block">1. Selecione a Música</label>
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-500" />
-                    <Input placeholder="Qual hit vamos cantar?" className="pl-14 h-16 bg-white/5 border-white/10 text-white rounded-2xl focus:border-primary text-lg font-medium" />
-                  </div>
-                </div>
-
-                {/* 2. Convidar Oponente (Com simulação de busca) */}
-                <div className="relative">
-                  <label className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-4 block">2. Convide um Cantor</label>
-                  <div className="relative">
-                    <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-500" />
-                    <Input 
-                      value={userQuery}
-                      onChange={(e) => setUserQuery(e.target.value)}
-                      placeholder="Buscar por @username..." 
-                      className="pl-14 h-16 bg-white/5 border-white/10 text-white rounded-2xl focus:border-primary text-lg font-medium" 
-                    />
-                  </div>
-                  {filteredUsers.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-white/10 rounded-2xl p-2 z-50 shadow-2xl">
-                       {filteredUsers.map(u => (
-                         <div key={u} onClick={() => {setUserQuery(u); setUserQuery("")}} className="p-4 hover:bg-primary/20 rounded-xl cursor-pointer flex items-center justify-between text-white font-bold transition-colors">
-                           {u} <CheckCircle2 size={16} className="text-primary"/>
-                         </div>
-                       ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 3. Modo de Jogo */}
-                <div>
-                  <label className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-4 block">3. Estilo da Partida</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div onClick={() => setMode('dueto')} className={`cursor-pointer group p-8 rounded-3xl border-2 flex flex-col items-center justify-center text-center transition-all duration-300 ${mode === 'dueto' ? 'bg-primary/20 border-primary shadow-[0_0_30px_rgba(0,168,225,0.4)] scale-105' : 'bg-white/5 border-white/5 hover:border-white/20'}`}>
-                      <Mic2 className={`h-12 w-12 mb-4 transition-transform group-hover:scale-110 ${mode === 'dueto' ? 'text-primary' : 'text-gray-500'}`} />
-                      <h3 className={`font-black text-2xl mb-2 ${mode === 'dueto' ? 'text-white' : 'text-gray-400'}`}>DUETO</h3>
-                      <p className="text-xs text-gray-500 font-medium leading-relaxed">Colaborativo. Cantem juntos e unam suas notas para um show incrível.</p>
-                    </div>
-                    <div onClick={() => setMode('batalha')} className={`cursor-pointer group p-8 rounded-3xl border-2 flex flex-col items-center justify-center text-center transition-all duration-300 ${mode === 'batalha' ? 'bg-destructive/20 border-destructive shadow-[0_0_30px_rgba(239,68,68,0.4)] scale-105' : 'bg-white/5 border-white/5 hover:border-white/20'}`}>
-                      <Swords className={`h-12 w-12 mb-4 transition-transform group-hover:scale-110 ${mode === 'batalha' ? 'text-destructive' : 'text-gray-500'}`} />
-                      <h3 className={`font-black text-2xl mb-2 ${mode === 'batalha' ? 'text-white' : 'text-gray-400'}`}>BATALHA</h3>
-                      <p className="text-xs text-gray-500 font-medium leading-relaxed">Competitivo. Desafie o oponente e descubra quem domina o palco.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Button onClick={() => setStatus('waiting')} className="w-full h-20 rounded-2xl font-black text-2xl bg-white text-black hover:bg-primary hover:scale-[1.02] active:scale-95 transition-all mt-6 shadow-2xl">
-                  <Send className="mr-3 h-6 w-6" /> ENVIAR CONVITE
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Player de Vídeo Real do YouTube */}
+        {selectedVideo && (
+          <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 backdrop-blur-md">
+            <button onClick={() => setSelectedVideo(null)} className="absolute top-10 right-10 text-white hover:text-primary transition-colors flex items-center gap-2 font-black tracking-tighter text-xl underline italic">
+               FECHAR PLAYER <X size={32} />
+            </button>
+            <div className="w-full max-w-5xl aspect-video rounded-[2rem] overflow-hidden border-4 border-primary/30 shadow-[0_0_80px_rgba(0,168,225,0.4)]">
+              <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${selectedVideo}?autoplay=1`} title="Karaoke Player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen></iframe>
+            </div>
+            <div className="mt-10 text-center">
+              <p className="text-primary font-black text-3xl animate-pulse tracking-[0.2em] uppercase italic drop-shadow-lg">Performance Vocal em Curso</p>
+              <p className="text-white/40 text-xs mt-2 uppercase font-bold tracking-widest">Sua nota será calculada ao final da canção</p>
+            </div>
+          </div>
         )}
 
-        {/* TELA DE AGUARDANDO (Agora com fundo) */}
-        {status === 'waiting' && (
-          <div className="flex flex-col items-center justify-center text-center pt-20 animate-in fade-in duration-500">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-              <Loader2 className="h-24 w-24 text-primary animate-spin mb-10 relative z-10" />
+        {/* Cards de Modo de Jogo */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div onClick={() => { setQuery(''); setShowResults(false); }} className="group cursor-pointer p-8 rounded-[2rem] border border-primary/50 bg-black/60 hover:bg-primary/20 transition-all flex flex-col items-center text-center shadow-[0_0_30px_rgba(0,168,225,0.2)]">
+            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Globe className="h-10 w-10 text-primary" /></div>
+            <h3 className="text-2xl font-black text-white mb-2 uppercase italic tracking-tighter">Solo Online</h3>
+            <p className="text-gray-400 text-xs leading-relaxed font-medium">Cante com o catálogo completo do YouTube em tempo real.</p>
+          </div>
+
+          <div className="group p-8 rounded-[2rem] border border-white/10 bg-black/40 flex flex-col items-center text-center relative opacity-40 cursor-not-allowed">
+            <div className="absolute top-6 right-6 text-orange-500 font-black">🔒</div>
+            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6"><Download className="h-10 w-10 text-gray-500" /></div>
+            <h3 className="text-2xl font-black text-gray-500 mb-2 uppercase italic tracking-tighter">Solo Offline</h3>
+            <p className="text-gray-500 text-xs leading-relaxed font-medium">Músicas baixadas para cantar sem internet (Premium).</p>
+          </div>
+
+          <div onClick={() => navigate('/duel')} className="group cursor-pointer p-8 rounded-[2rem] border border-white/10 bg-black/60 hover:border-destructive/50 hover:bg-destructive/10 transition-all flex flex-col items-center text-center shadow-lg">
+            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform group-hover:bg-destructive/20"><Users className="h-10 w-10 text-white group-hover:text-destructive" /></div>
+            <h3 className="text-2xl font-black text-white mb-2 uppercase italic tracking-tighter">Dueto / Batalha</h3>
+            <p className="text-gray-400 text-xs leading-relaxed font-medium">Convide um amigo ou desafie cantores ao redor do mundo.</p>
+          </div>
+        </div>
+
+        {/* Busca Avançada */}
+        <div className="max-w-4xl mx-auto relative mb-16">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-7 w-7 text-gray-500" />
+          <Input 
+            placeholder="Qual música vamos cantar hoje? (Pressione Enter)" 
+            value={query} 
+            onChange={(e) => setQuery(e.target.value)} 
+            onKeyDown={handleSearch} 
+            className="pl-16 h-20 bg-black/80 border-primary/30 text-white rounded-3xl focus:border-primary transition-all text-xl font-bold placeholder:text-gray-600 shadow-2xl" 
+          />
+        </div>
+
+        {/* Resultados Reais */}
+        {showResults && (
+          <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-10 duration-1000 pb-32">
+            <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
+               <h3 className="text-xs font-black text-primary uppercase tracking-[0.3em] flex items-center gap-3 italic">
+                 <div className="h-2 w-2 bg-primary rounded-full animate-ping"/> Hits encontrados no YouTube
+               </h3>
+               <span className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">3 resultados para "{query}"</span>
             </div>
-            <h2 className="text-5xl font-black text-white mb-6 italic tracking-tighter uppercase">Aguardando Resposta...</h2>
-            <p className="text-gray-300 text-xl mb-20 max-w-lg mx-auto font-medium">O convite foi enviado para o palco do oponente. Prepare o fôlego!</p>
             
-            <div className="flex gap-4 p-6 border border-white/10 rounded-3xl bg-black/60 backdrop-blur-md">
-               <p className="text-[10px] text-primary font-black uppercase tracking-widest mr-4 flex items-center">Simulador de Aceite:</p>
-               <Button onClick={() => setStatus('accepted')} variant="outline" className="border-green-500/50 text-green-400 hover:bg-green-500 hover:text-black font-bold px-6">Aceitar</Button>
-               <Button onClick={() => setStatus('rejected')} variant="outline" className="border-destructive/50 text-destructive hover:bg-destructive hover:text-white font-bold px-6">Recusar</Button>
+            <div className="space-y-6">
+              {mockResults.map((result) => (
+                <div key={result.id} onClick={() => setSelectedVideo(result.videoId)} className="bg-black/60 border border-white/5 rounded-[2.5rem] p-5 flex items-center gap-8 hover:bg-white/5 transition-all cursor-pointer group hover:border-primary/50 shadow-xl overflow-hidden relative">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative w-56 h-32 overflow-hidden rounded-2xl border border-white/10 flex-shrink-0">
+                    <img src={result.img} alt={result.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                       <PlayCircle className="text-primary h-14 w-14 drop-shadow-[0_0_15px_rgba(0,168,225,0.6)]" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-black text-white text-2xl mb-2 group-hover:text-primary transition-colors italic tracking-tighter">🎤 {result.title}</h4>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">{result.channel}</p>
+                  </div>
+                  <button className="rounded-full h-16 w-16 flex items-center justify-center bg-primary/10 text-primary border border-primary/20 group-hover:bg-primary group-hover:text-black transition-all mr-6 shadow-lg">
+                    <PlayCircle size={32} />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}
-
-        {/* TELAS DE RESULTADO (RECURSADO / ACEITO) */}
-        {status === 'rejected' && (
-          <div className="flex flex-col items-center justify-center text-center pt-20 animate-in zoom-in duration-500">
-            <XCircle className="h-32 w-32 text-destructive mb-10 drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]" />
-            <h2 className="text-6xl font-black text-white mb-6 uppercase italic tracking-tighter">Convite Negado</h2>
-            <p className="text-gray-400 text-xl mb-12 font-medium">O cantor está em outra sessão ou não pode atender agora.</p>
-            <Button onClick={() => setStatus('config')} className="h-16 px-12 rounded-full font-black text-lg bg-primary text-black hover:bg-primary/80 transition-all shadow-xl hover:scale-105">
-              <Search className="mr-2 h-6 w-6" /> Tentar outro Cantor
-            </Button>
-          </div>
-        )}
-
-        {status === 'accepted' && (
-          <div className="flex flex-col items-center justify-center text-center pt-20 animate-in zoom-in duration-500">
-            <PlayCircle className="h-32 w-32 text-green-400 mb-10 drop-shadow-[0_0_30px_rgba(74,222,128,0.5)] animate-pulse" />
-            <h2 className="text-7xl font-black text-white mb-6 italic uppercase tracking-tighter">LET'S ROCK!</h2>
-            <p className="text-green-400 text-2xl mb-12 font-black tracking-[0.3em] uppercase">Convite Aceito pelo Oponente</p>
-            <div className="flex flex-col gap-4">
-               <span className="text-white/40 text-sm font-bold animate-bounce uppercase italic">Carregando Sala de Performance...</span>
-               <Button onClick={() => setStatus('config')} variant="outline" className="border-white/10 text-gray-500 hover:text-white">Voltar (Teste)</Button>
-            </div>
-          </div>
-        )}
-
       </div>
     </div>
   );
 };
 
-export default Duel;
+export default BasicLobby;
