@@ -19,7 +19,7 @@ const Placeholder = ({ name }: { name: string }) => (
       Página {name} em Recuperação 🚧
     </h1>
   </div>
-);
+); 
 
 const queryClient = new QueryClient();
 
