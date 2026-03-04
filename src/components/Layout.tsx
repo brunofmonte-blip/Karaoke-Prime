@@ -28,7 +28,7 @@ const BasicLobby = () => {
   const [vocalAnalysis, setVocalAnalysis] = useState<any>(null);
 
   // 🔴 ADICIONE SUA CHAVE API DO YOUTUBE AQUI
-  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
+  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
 
   // Efeito para carregar e controlar o Player do YouTube
   useEffect(() => {
