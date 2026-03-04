@@ -83,4 +83,4 @@ const Academy = () => {
     </div>
   );
 };
-export default Academy;
+export default Academy; 
