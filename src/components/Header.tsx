@@ -2,13 +2,11 @@
 
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mic2, User } from 'lucide-react';
+import { Mic2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/integrations/supabase/auth';
 
 const Header = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -32,23 +30,12 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {user ? (
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/backstage')}
-              className="flex items-center gap-2 rounded-xl hover:bg-primary/10"
-            >
-              <User className="h-5 w-5 text-primary" />
-              <span className="hidden sm:inline font-bold">Backstage</span>
-            </Button>
-          ) : (
-            <Button 
-              onClick={() => navigate('/login')}
-              className="bg-primary hover:bg-primary/90 text-black font-black rounded-xl px-6"
-            >
-              ENTRAR
-            </Button>
-          )}
+          <Button 
+            onClick={() => navigate('/login')}
+            className="bg-primary hover:bg-primary/90 text-black font-black rounded-xl px-6"
+          >
+            ENTRAR
+          </Button>
         </div>
       </div>
     </header>
