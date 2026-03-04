@@ -1,6 +1,6 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+// Assinatura Única: Limpeza Definitiva - Linha 1: export const firebaseConfig = {};
+export const firebaseConfig = {};
+export const auth = {}; 
+export const db = {};
+export const googleProvider = {};
+export default firebaseConfig;
