@@ -1,82 +1,58 @@
 "use client";
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Globe, Download, Users, ArrowLeft, Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mic2, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/integrations/supabase/auth';
 
-const BasicLobby = () => {
+const Header = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8 relative">
-      {/* Background Escuro e Elegante */}
-      <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000')" }} />
-      <div className="absolute inset-0 bg-black/80 z-0" />
-
-      <div className="relative z-10 max-w-6xl mx-auto pt-20">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 transition-colors">
-          <ArrowLeft size={20} /> Voltar para Home
-        </button>
-
-        <h1 className="text-4xl md:text-5xl font-black text-primary neon-blue-glow mb-2 tracking-tighter">Lobby de Karaokê</h1>
-        <p className="text-white font-bold uppercase tracking-widest mb-10 text-sm">Escolha o modo de jogo</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="p-1.5 rounded-lg bg-primary/20 border border-primary/30">
+              <Mic2 className="h-6 w-6 text-primary neon-blue-glow" />
+            </div>
+            <span className="hidden font-black text-xl tracking-tighter uppercase italic md:inline-block">
+              KARAOKE <span className="text-primary neon-blue-glow">PRIME</span>
+            </span>
+          </Link>
           
-          {/* Card 1: Solo Online */}
-          <div
-            onClick={() => navigate('/library')}
-            className="group cursor-pointer p-8 rounded-2xl border border-primary/50 bg-black/40 hover:bg-primary/10 transition-all flex flex-col items-center text-center shadow-[0_0_15px_rgba(0,168,225,0.2)]"
-          >
-            <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Globe className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">Solo Online</h3>
-            <p className="text-gray-400 text-xs">Cante com o catálogo completo do YouTube.</p>
-          </div>
-
-          {/* Card 2: Solo Offline (Trancado) */}
-          <div
-            onClick={() => navigate('/premium')}
-            className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:bg-white/5 transition-all flex flex-col items-center text-center relative"
-          >
-            <div className="absolute top-4 right-4 text-orange-500">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            </div>
-            <div className="h-16 w-16 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Download className="h-8 w-8 text-orange-500" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-300 mb-2">Solo Offline</h3>
-            <p className="text-gray-500 text-xs">Músicas baixadas (Premium).</p>
-          </div>
-
-          {/* Card 3: Dueto / Batalha (O LINK CORRIGIDO ESTÁ AQUI!) */}
-          <div
-            onClick={() => navigate('/duel')} 
-            className="group cursor-pointer p-8 rounded-2xl border border-white/10 bg-black/40 hover:border-destructive/50 hover:bg-destructive/10 transition-all flex flex-col items-center text-center"
-          >
-            <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform group-hover:bg-destructive/20">
-              <Users className="h-8 w-8 text-white group-hover:text-destructive" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">Dueto / Batalha</h3>
-            <p className="text-gray-400 text-xs">Cante com um amigo ou desafie o mundo.</p>
-          </div>
-
+          <nav className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest">
+            <Link to="/basic" className="text-muted-foreground hover:text-primary transition-colors">Lobby</Link>
+            <Link to="/academy" className="text-muted-foreground hover:text-primary transition-colors">Academy</Link>
+            <Link to="/library" className="text-muted-foreground hover:text-primary transition-colors">Library</Link>
+            <Link to="/duel" className="text-muted-foreground hover:text-destructive transition-colors">Duel</Link>
+          </nav>
         </div>
 
-        {/* Barra de Busca Inferior */}
-        <div className="max-w-3xl mx-auto relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Qual música vamos cantar hoje? (Pressione Enter)"
-            className="pl-12 h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary transition-colors"
-          />
+        <div className="flex items-center gap-4">
+          {user ? (
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/backstage')}
+              className="flex items-center gap-2 rounded-xl hover:bg-primary/10"
+            >
+              <User className="h-5 w-5 text-primary" />
+              <span className="hidden sm:inline font-bold">Backstage</span>
+            </Button>
+          ) : (
+            <Button 
+              onClick={() => navigate('/login')}
+              className="bg-primary hover:bg-primary/90 text-black font-black rounded-xl px-6"
+            >
+              ENTRAR
+            </Button>
+          )}
         </div>
-
       </div>
-    </div>
+    </header>
   );
 };
 
-export default BasicLobby;
+export default Header;
