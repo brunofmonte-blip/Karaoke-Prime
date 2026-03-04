@@ -15,7 +15,8 @@ const Index = () => {
       
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center p-4">
-        <div className="absolute inset-0 bg-cover bg-center opacity-55" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000')" }} />
+        {/* Correção: Usando tag <img /> blindada em vez de background-image no CSS */}
+        <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000" alt="Studio Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.55]" />
         <div className="absolute inset-0 z-0" />
 
         <div className="relative z-10 text-center mt-10 mb-20 animate-in fade-in slide-in-from-top-8 duration-1000">
@@ -27,7 +28,7 @@ const Index = () => {
           </p>
         </div>
 
-        {/* 5 Produtos Principais - Textos Corrigidos */}
+        {/* 5 Produtos Principais */}
         <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 w-full max-w-7xl px-4">
           <Card onClick={() => navigate('/basic')} className="cursor-pointer group p-6 rounded-2xl border border-primary/50 bg-black/60 hover:bg-primary/20 transition-all flex flex-col justify-between h-48">
             <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform"><Music size={20} /></div>
@@ -69,7 +70,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 3. CONQUISTAS (BADGES) - Traduzidos para o Português */}
+      {/* 3. CONQUISTAS (BADGES) */}
       <section className="max-w-7xl mx-auto px-4 w-full mb-32">
         <h2 className="text-4xl font-black text-orange-500 text-center mb-8 drop-shadow-[0_0_15px_rgba(249,115,22,0.7)] neon-gold-glow">Conquistas (Badges)</h2>
         <div className="max-w-2xl mx-auto bg-black/40 border border-primary/30 p-8 rounded-2xl text-center mb-12">
@@ -93,7 +94,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 4. MÚSICAS POR PAÍS (Bandeiras Originais Restauradas) */}
+      {/* 4. MÚSICAS POR PAÍS */}
       <section className="max-w-7xl mx-auto px-4 w-full mb-32">
         <h2 className="text-4xl font-black text-white text-center mb-12 flex items-center justify-center gap-4"><Globe className="text-primary h-10 w-10" /> Músicas Mais Cantadas por País</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -114,7 +115,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 5. TREND TOPICS (SINGERS) - Imagens corrigidas */}
+      {/* 5. TREND TOPICS (SINGERS) - Correção: Usando <img /> blindada */}
       <section className="max-w-7xl mx-auto px-4 w-full mb-32">
         <h2 className="text-3xl font-black text-white mb-2">Trend Topics (Singers) <span className="text-orange-500">🔥</span></h2>
         <p className="text-gray-400 mb-8 text-sm">Os talentos mais curtidos da semana</p>
@@ -126,15 +127,16 @@ const Index = () => {
             { img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600', av: 'https://randomuser.me/api/portraits/men/88.jpg', u: '@JazzMaster_J', s: 'Fly Me to the Moon' }
           ].map((item, i) => (
             <div key={i} className="relative aspect-[9/16] rounded-2xl overflow-hidden group cursor-pointer border border-white/10 bg-gray-900">
-              <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: `url(${item.img})` }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent p-4 flex flex-col justify-end">
+              {/* Imagem blindada no lugar do bg-image */}
+              <img src={item.img} alt={item.u} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent p-4 flex flex-col justify-end z-10">
                 <div className="flex items-center gap-2 mb-2">
                    <img src={item.av} alt={item.u} className="h-8 w-8 rounded-full border border-white/10 bg-black" />
                    <p className="font-bold text-white text-sm">{item.u}</p>
                 </div>
                 <p className="text-xs text-primary truncate">🎵 {item.s}</p>
               </div>
-              <div className="absolute right-4 bottom-20 flex flex-col gap-6 opacity-90">
+              <div className="absolute right-4 bottom-20 flex flex-col gap-6 opacity-90 z-10">
                 <div className="flex flex-col items-center"><Heart className="text-white h-6 w-6" /><span className="text-[10px] text-white mt-1">12.5k</span></div>
                 <div className="flex flex-col items-center"><MessageCircle className="text-white h-6 w-6" /><span className="text-[10px] text-white mt-1">842</span></div>
               </div>
@@ -143,7 +145,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 6. RECENTLY ADDED & TAGS (Tags Expandidas e Imagens Corrigidas) */}
+      {/* 6. RECENTLY ADDED & TAGS - Correção: Usando <img /> blindada */}
       <section className="max-w-7xl mx-auto px-4 w-full mb-32 space-y-16">
         <div>
           <h2 className="text-3xl font-black text-white mb-8">Recently Added</h2>
@@ -155,7 +157,10 @@ const Index = () => {
               { t: 'Electro Beat', a: 'DJ Zedd', img: 'https://images.unsplash.com/photo-1516280440502-a2f011ba2dc9?q=80&w=300' }
             ].map((item, i) => (
               <Card key={i} className="bg-black/40 border-white/5 p-4 hover:bg-white/5 transition-colors cursor-pointer rounded-xl">
-                <div className="aspect-square bg-cover bg-center rounded-xl mb-4 border border-white/10 bg-gray-900" style={{ backgroundImage: `url(${item.img})` }} />
+                {/* Imagem blindada no lugar do bg-image */}
+                <div className="aspect-square rounded-xl mb-4 border border-white/10 bg-gray-900 overflow-hidden relative">
+                  <img src={item.img} alt={item.t} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+                </div>
                 <h4 className="font-bold text-white text-sm truncate">{item.t}</h4>
                 <p className="text-xs text-gray-500">{item.a}</p>
               </Card>
@@ -168,8 +173,8 @@ const Index = () => {
           <p className="text-gray-400 mb-8 text-sm">Os gêneros e desafios mais comentados da comunidade</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { t: 'RockClassics', n: '12.4k', p: '+15%', av:'https://images.unsplash.com/photo-1493225457124-a1a2a5f5f40f?q=80&w=600' },
               { t: 'Sertanejo2026', n: '45.1k', p: '+22%', av:'https://images.unsplash.com/photo-1583796541783-a970e7a685e9?q=80&w=600' },
+              { t: 'RockClassics', n: '12.4k', p: '+15%', av:'https://images.unsplash.com/photo-1493225457124-a1a2a5f5f40f?q=80&w=600' },
               { t: 'VocalAcademyChallenge', n: '8.9k', p: '+40%', av:'https://images.unsplash.com/photo-1516280440502-a2f011ba2dc9?q=80&w=600' },
               { t: 'AnimeHits', n: '15.2k', p: '+5%', av:'https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=600' },
               { t: 'Kpop', n: '38.7k', p: '+31%', av:'https://images.unsplash.com/photo-1621508654686-809f23efdabc?q=80&w=600' },
@@ -177,7 +182,11 @@ const Index = () => {
             ].map((item, i) => (
               <div key={i} className="bg-black/40 border border-white/10 rounded-xl p-6 flex items-center justify-between hover:border-primary/50 cursor-pointer transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-cover bg-center border border-primary/20 flex items-center justify-center text-white font-black drop-shadow-md" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${item.av})` }}>#</div>
+                  {/* Imagem blindada no lugar do bg-image para as tags */}
+                  <div className="relative h-12 w-12 rounded-lg border border-primary/20 overflow-hidden flex items-center justify-center text-white font-black drop-shadow-md">
+                     <img src={item.av} alt="tag background" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+                     <span className="relative z-10">#</span>
+                  </div>
                   <div><p className="font-bold text-white text-sm">{item.t}</p><p className="text-xs text-gray-500">{item.n} cantores</p></div>
                 </div>
                 <div className="text-right"><span className="text-green-400 text-xs font-bold">{item.p} ↗</span></div>
@@ -187,7 +196,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* 7. RANKINGS GLOBAIS (Restaurado com os Perfis Fake) */}
+      {/* 7. RANKINGS GLOBAIS */}
       <section className="max-w-7xl mx-auto px-4 w-full mb-32">
         <h2 className="text-4xl font-black text-primary text-center mb-12 drop-shadow-[0_0_15px_rgba(0,168,225,0.5)] uppercase italic tracking-tighter">Rankings Globais</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -204,7 +213,7 @@ const Index = () => {
                 <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                   <div className="flex gap-4 items-center">
                     <span className="text-gray-500 font-bold text-sm w-4">{i+1}</span>
-                    <img src={u.img} alt={u.n} className="h-8 w-8 rounded-full border border-primary/30 bg-gray-800" />
+                    <img src={u.img} alt={u.n} className="h-8 w-8 rounded-full border border-primary/30 bg-gray-800 object-cover" />
                     <span className="text-white font-bold text-sm">{u.n}</span>
                   </div>
                   <span className="text-orange-500 font-black">{u.s}</span>
@@ -223,7 +232,7 @@ const Index = () => {
                 <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                   <div className="flex gap-4 items-center">
                     <span className="text-gray-500 font-bold text-sm w-4">{i+1}</span>
-                    <img src={u.img} alt={u.n} className="h-8 w-8 rounded-full border border-orange-500/30 bg-gray-800" />
+                    <img src={u.img} alt={u.n} className="h-8 w-8 rounded-full border border-orange-500/30 bg-gray-800 object-cover" />
                     <span className="text-white font-bold text-sm">{u.n}</span>
                   </div>
                   <span className="text-orange-500 font-black">{u.s}</span>
@@ -241,7 +250,7 @@ const Index = () => {
                 <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
                   <div className="flex gap-4 items-center">
                     <span className="text-gray-500 font-bold text-sm w-4">{i+1}</span>
-                    <img src={u.img} alt={u.n} className="h-8 w-8 rounded-full border border-white/30 bg-gray-800" />
+                    <img src={u.img} alt={u.n} className="h-8 w-8 rounded-full border border-white/30 bg-gray-800 object-cover" />
                     <span className="text-white font-bold text-sm">{u.n}</span>
                   </div>
                   <span className="text-orange-500 font-black">{u.s}</span>
