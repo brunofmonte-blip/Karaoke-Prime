@@ -1,136 +1,131 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Globe, Download, Users, ArrowLeft, Search, Camera, Ban } from 'lucide-react';
+import { Globe, Download, Users, ArrowLeft, Search, PlayCircle, X, RotateCcw, Ban, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 
 const BasicLobby = () => {
   const navigate = useNavigate();
-  const webcamRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
-  const [cameraActive, setCameraActive] = useState(false);
+  const [showScore, setShowScore] = useState(false);
 
-  // Limpeza absoluta de hardware ao sair ou desmontar
-  const handleForceExit = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setCameraActive(false);
-    setSelectedVideo(null);
-  };
+  // 🔴 ADICIONE SUA CHAVE API AQUI
+  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
 
-  useEffect(() => {
-    return () => handleForceExit();
-  }, []);
-
-  const handleSearch = async (e: any) => {
+  const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim() !== '') {
+      setIsLoading(true);
       try {
-        const resp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=3&q=${encodeURIComponent(query + " karaoke")}&type=video&key=SUA_CHAVE_AQUI`);
-        const data = await resp.json();
-        setResults(data.items || []);
-      } catch (err) { console.error("Erro na busca"); }
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query + " karaoke")}&type=video&key=${YOUTUBE_API_KEY}`
+        );
+        const data = await response.json();
+        if (data.items) setResults(data.items);
+      } catch (error) {
+        console.error("Erro na busca:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      streamRef.current = stream;
-      setCameraActive(true);
-      
-      // Delay necessário para o Electron processar o stream no PC
-      setTimeout(() => {
-        if (webcamRef.current) {
-          webcamRef.current.srcObject = stream;
-          webcamRef.current.play();
-        }
-      }, 500);
-    } catch (e) { alert("Hardware ocupado ou sem permissão."); }
+  const closePerformance = () => {
+    setSelectedVideo(null);
+    setShowScore(false);
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 font-sans flex flex-col items-center">
-      {!selectedVideo ? (
-        <div className="w-full max-w-4xl pt-10 text-center animate-in fade-in duration-500">
-          <button onClick={() => navigate('/')} className="mb-10 flex items-center gap-2 text-zinc-500 hover:text-white uppercase text-[10px] mx-auto transition-colors">
+    <div className="min-h-screen bg-black text-white relative overflow-x-hidden font-sans">
+      
+      {/* 1. LOBBY PRINCIPAL (Só renderiza se não houver vídeo selecionado) */}
+      {!selectedVideo && (
+        <div className="relative z-10 p-4 md:p-8 max-w-6xl mx-auto pt-20 text-center animate-in fade-in duration-700">
+          <button 
+            onClick={() => navigate('/')} 
+            className="text-gray-500 hover:text-white mb-6 flex items-center gap-2 font-bold uppercase text-[10px] mx-auto transition-colors"
+          >
             <ArrowLeft size={14} /> Voltar para Home
           </button>
           
-          <h1 className="text-5xl font-black text-primary italic mb-12 tracking-tighter shadow-sm">LOBBY DE KARAOKÊ</h1>
-          
+          <h1 className="text-4xl md:text-6xl font-black text-primary neon-blue-glow mb-10 italic uppercase tracking-tighter">
+            Lobby de Karaokê
+          </h1>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <div className="p-8 rounded-[2rem] border border-primary/40 bg-zinc-900/50 flex flex-col items-center shadow-md">
-              <Globe className="mb-3 text-primary" size={32} />
-              <span className="font-black italic uppercase">Online</span>
+            {/* ONLINE */}
+            <div onClick={() => { setQuery(''); setResults([]); }} className="group cursor-pointer p-8 rounded-[2rem] border border-primary/50 bg-black/60 hover:bg-primary/20 transition-all flex flex-col items-center">
+              <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Globe className="h-10 w-10 text-primary" />
+              </div>
+              <h3 className="text-2xl font-black text-white mb-3 uppercase italic">ONLINE</h3>
+              <p className="text-gray-400 text-xs leading-relaxed font-medium">
+                Cante com o catálogo completo do YouTube<br/>em tempo real.
+              </p>
             </div>
-            <div className="p-8 rounded-[2rem] border border-white/5 bg-zinc-900/50 opacity-20 flex flex-col items-center">
-              <Download className="mb-3 text-zinc-500" size={32} />
-              <span className="font-black italic uppercase">Offline</span>
+
+            {/* OFFLINE */}
+            <div className="opacity-20 p-8 rounded-[2rem] border border-white/10 bg-black/40 flex flex-col items-center relative cursor-not-allowed">
+              <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6">
+                <Download className="h-10 w-10 text-gray-500" />
+              </div>
+              <h3 className="text-2xl font-black text-gray-500 mb-3 uppercase italic">OFFLINE</h3>
+              <p className="text-gray-500 text-xs leading-relaxed font-medium">
+                Músicas baixadas para cantar<br/>sem internet (Premium).
+              </p>
             </div>
-            <div onClick={() => navigate('/duel')} className="p-8 rounded-[2rem] border border-white/10 bg-zinc-900/50 cursor-pointer hover:bg-white/5 flex flex-col items-center transition-all shadow-md">
-              <Users className="mb-3 text-white" size={32} />
-              <span className="font-black italic uppercase text-white">Duelo</span>
+
+            {/* DUETO */}
+            <div onClick={() => navigate('/duel')} className="group cursor-pointer p-8 rounded-[2rem] border border-white/10 bg-black/60 hover:border-destructive/50 transition-all flex flex-col items-center shadow-xl">
+              <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Users className="h-10 w-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-black text-white mb-3 uppercase italic">DUETO / BATALHA</h3>
+              <p className="text-gray-400 text-xs leading-relaxed font-medium">
+                Convide um amigo ou desafie cantores<br/>ao redor do mundo.
+              </p>
             </div>
           </div>
 
-          <div className="relative max-w-2xl mx-auto mb-12">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
+          {/* BARRA DE BUSCA */}
+          <div className="max-w-4xl mx-auto relative mb-16 group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-7 w-7 text-gray-500 group-focus-within:text-primary transition-colors" />
             <Input 
-              placeholder="Pesquisar hit..." 
+              placeholder="Qual música vamos cantar hoje? (Pressione Enter)" 
               value={query} 
               onChange={(e) => setQuery(e.target.value)} 
               onKeyDown={handleSearch} 
-              className="h-16 pl-12 bg-zinc-900 border-zinc-800 rounded-2xl focus:border-primary text-white"
+              className="pl-16 h-20 bg-black/80 border-primary/30 text-white rounded-3xl focus:border-primary text-xl font-bold shadow-2xl" 
             />
           </div>
 
-          <div className="space-y-4 max-w-2xl mx-auto pb-20">
-            {results.map((v) => (
-              <div key={v.id.videoId} onClick={() => setSelectedVideo(v.id.videoId)} className="p-4 bg-zinc-900 rounded-xl flex items-center gap-6 cursor-pointer hover:bg-zinc-800 border border-transparent hover:border-primary transition-all">
-                <img src={v.snippet.thumbnails.default.url} className="w-24 rounded-lg" alt="thumb" />
-                <span className="font-bold text-left">{v.snippet.title}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="fixed inset-0 bg-black flex flex-col lg:flex-row items-center justify-center p-8 gap-12 z-[100] animate-in zoom-in duration-300">
-          <div className="flex-1 w-full aspect-video bg-zinc-950 rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
-            <iframe 
-              width="100%" 
-              height="100%" 
-              src={`https://www.youtube.com/embed/${selectedVideo}?autoplay=1&controls=1`} 
-              frameBorder="0" 
-              allow="autoplay; encrypted-media" 
-              allowFullScreen
-            ></iframe>
-          </div>
-          
-          <div className="flex flex-col items-center gap-10">
-            <div className="w-72 h-72 rounded-full border-2 border-primary bg-zinc-900 overflow-hidden relative shadow-[0_0_40px_rgba(0,168,225,0.2)]">
-              {!cameraActive ? (
-                <button onClick={startCamera} className="absolute inset-0 flex flex-col items-center justify-center text-[10px] font-black hover:bg-zinc-800 transition-colors">
-                  <Camera className="text-primary mb-2" size={32} /> ATIVAR CÂMERA
-                </button>
-              ) : (
-                <video ref={webcamRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
-              )}
+          {/* RESULTADOS */}
+          {results.length > 0 && (
+            <div className="max-w-4xl mx-auto space-y-6 pb-20 animate-in slide-in-from-bottom-5 duration-700">
+              {results.map((video) => (
+                <div 
+                  key={video.id.videoId} 
+                  onClick={() => setSelectedVideo(video.id.videoId)} 
+                  className="bg-black/60 border border-white/5 rounded-[2.5rem] p-5 flex items-center gap-8 hover:bg-white/5 cursor-pointer group hover:border-primary/50 transition-all shadow-xl"
+                >
+                  <div className="relative w-56 h-32 overflow-hidden rounded-2xl">
+                    <img src={video.snippet.thumbnails.high.url} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-500" alt="thumb" />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <PlayCircle className="text-primary h-14 w-14" />
+                    </div>
+                  </div>
+                  <div className="flex-1 text-left truncate">
+                    <h4 className="font-black text-white text-2xl group-hover:text-primary italic truncate">🎤 {video.snippet.title}</h4>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">{video.snippet.channelTitle}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            
-            <Button onClick={handleForceExit} className="bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white font-black uppercase text-xs flex items-center gap-2 px-8 py-4 rounded-full transition-all">
-              <Ban size={16} /> Cancelar e Sair
-            </Button>
-          </div>
+          )}
         </div>
       )}
-    </div>
-  );
-};
 
-export default BasicLobby;
+      {/* 2. SAL
