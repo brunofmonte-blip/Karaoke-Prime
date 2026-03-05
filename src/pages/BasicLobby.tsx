@@ -31,7 +31,7 @@ const BasicLobby = () => {
   const metricsRef = useRef({ volumes: [] as number[], peaks: 0, drops: 0, totalFrames: 0, maxVolume: 0 });
 
   // 🔴 ADICIONE SUA CHAVE API AQUI
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
+  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
 
   // Limpeza de Hardware ao sair da página
   useEffect(() => {
@@ -299,4 +299,57 @@ const BasicLobby = () => {
                   <Button onClick={restartVideo} variant="outline" className="flex-1 h-14 rounded-2xl border-white/20 text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-colors">
                     <RotateCcw size={16} className="mr-2"/> Recomeçar
                   </Button>
-                  <Button onClick={()
+                  <Button onClick={() => { setSelectedVideo(null); stopHardware(); }} variant="outline" className="flex-1 h-14 rounded-2xl border-destructive/50 text-destructive font-bold uppercase tracking-widest text-xs hover:bg-destructive hover:text-white transition-colors">
+                    <Ban size={16} className="mr-2"/> Cancelar
+                  </Button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. RELATÓRIO VOCAL JUILLIARD */}
+      {showScore && vocalAnalysis && (
+        <div className="fixed inset-0 z-[120] bg-black/95 flex items-center justify-center p-4 backdrop-blur-xl animate-in zoom-in duration-300">
+          <Card className="max-w-2xl w-full bg-zinc-950 border-primary/40 rounded-[3rem] overflow-hidden shadow-[0_0_150px_rgba(0,168,225,0.2)]">
+            <CardContent className="p-10 text-center text-white">
+              <Trophy className={`mx-auto mb-6 h-20 w-20 ${parseFloat(vocalAnalysis.score) < 50 ? "text-gray-600" : "text-orange-500 drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]"}`} />
+              <h2 className="text-3xl font-black uppercase italic tracking-tighter border-b border-white/10 pb-6">Análise Técnica Prime</h2>
+              
+              <div className="my-8">
+                <span className={`text-8xl md:text-9xl font-black tracking-tighter italic ${parseFloat(vocalAnalysis.score) < 50 ? "text-destructive drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" : "text-primary drop-shadow-[0_0_30px_rgba(0,168,225,0.5)]"}`}>
+                   {vocalAnalysis.score}
+                </span>
+                <p className="text-gray-500 font-black uppercase tracking-[0.4em] mt-2 text-xs">Score Global</p>
+              </div>
+
+              <div className="space-y-6 text-left bg-black/50 p-8 rounded-[2rem] border border-white/5 mb-8">
+                <div>
+                  <h4 className="text-primary font-black text-xs uppercase mb-3 tracking-widest flex items-center gap-2"><Mic2 size={14}/> Feedback do Motor IA:</h4>
+                  <p className="text-gray-300 text-sm md:text-base leading-relaxed italic font-medium">"{vocalAnalysis.note}"</p>
+                </div>
+                <div className="pt-6 border-t border-white/5">
+                  <h4 className="text-orange-500 font-black text-xs uppercase mb-4 flex items-center gap-2 tracking-widest"><Star size={14}/> Prescrição de Treino:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {vocalAnalysis.recom.map((r: string) => (
+                      <span key={r} className="px-4 py-2 bg-orange-500/10 border border-orange-500/30 text-orange-500 rounded-xl text-[10px] font-black uppercase tracking-widest">{r}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <Button onClick={() => { setShowScore(false); setSelectedVideo(null); setVocalAnalysis(null); }} className="w-full h-16 rounded-[1.5rem] bg-primary text-black font-black text-xl italic tracking-tighter hover:bg-white transition-all">
+                VOLTAR AO LOBBY
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default BasicLobby;
