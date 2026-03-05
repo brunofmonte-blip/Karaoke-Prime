@@ -1,23 +1,8 @@
-import React from 'react';
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./globals.css";
 
-// Se você tiver componentes de Header ou Footer, pode importá-los aqui no futuro.
-// import Header from './Header';
-// import BottomNavigationBar from './BottomNavigationBar';
+// 💡 Comando de choque para forçar a limpeza do cache de tela branca no DYAD
+console.log("🚀 Iniciando Karaoke Prime - Cache Limpo e Sistema Restaurado!");
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* <Header /> */}
-      <main className="flex-grow w-full relative">
-        {children}
-      </main>
-      {/* <BottomNavigationBar /> */}
-    </div>
-  );
-};
-
-export default Layout;
+createRoot(document.getElementById("root")!).render(<App />);
