@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Star, LayoutDashboard, Sparkles, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// 💡 IMPORTAÇÃO CORRETA: O Layout está na pasta components!
+// Importando o Layout da pasta certa
 import Layout from "./components/Layout";
 
 import Index from "./pages/Index";
