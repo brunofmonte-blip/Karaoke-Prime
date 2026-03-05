@@ -14,7 +14,7 @@ const BasicLobby = () => {
   const [showScore, setShowScore] = useState(false);
 
   // 🔴 COLOQUE SUA CHAVE AQUI
-  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
+  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim() !== '') {
