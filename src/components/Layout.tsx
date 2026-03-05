@@ -1,7 +1,10 @@
 import React from 'react';
-import Header from './Header';
-import Footer from './Footer';
-import BottomNavigationBar from './BottomNavigationBar';
+
+// 🛑 AS IMPORTAÇÕES FORAM COMENTADAS PARA ISOLAR O ERRO
+// Se o erro estiver nestes arquivos, a tela vai voltar a aparecer sem eles.
+// import Header from './Header';
+// import Footer from './Footer';
+// import BottomNavigationBar from './BottomNavigationBar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,18 +12,11 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      {/* O Header traz o topo do seu site de volta */}
-      <Header />
-      
-      {/* O 'children' é onde as páginas (Home, Lobby, Duelo) vão aparecer */}
+    <div className="min-h-screen flex flex-col bg-black text-white">
       <main className="flex-grow w-full relative">
+        {/* Aqui é onde o seu Index.tsx vai ser injetado */}
         {children}
       </main>
-      
-      {/* O Footer e a Barra de Navegação trazem a base do site de volta */}
-      <Footer />
-      <BottomNavigationBar />
     </div>
   );
 };
