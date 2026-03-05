@@ -10,7 +10,6 @@ const Login = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Estados do Formulário
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -23,12 +22,19 @@ const Login = () => {
     }
     
     setIsLoading(true);
-    // Simulando o tempo de conexão com o Banco de Dados (Firebase/Supabase)
     setTimeout(() => {
       setIsLoading(false);
+      // 💡 A MÁGICA: Salvando o "Token" no navegador do usuário
+      localStorage.setItem('@KaraokePrime:loggedIn', 'true');
       alert(isRegistering ? "✅ Cadastro realizado com sucesso! Bem-vindo ao Prime." : "✅ Login efetuado com sucesso!");
-      navigate('/academy'); // Redireciona para a Academy após logar
+      
+      // Forçamos o reload da página para o Header e a Academy lerem o novo Token
+      window.location.href = '/academy'; 
     }, 1500);
+  };
+
+  const handleGoogle = () => {
+    alert("Integração com Google Auth será ativada no Backend em breve!");
   };
 
   return (
@@ -42,7 +48,7 @@ const Login = () => {
 
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10 animate-in fade-in slide-in-from-bottom-10 duration-700 mt-16">
         
-        {/* Lado Esquerdo - Copywriting */}
+        {/* Lado Esquerdo */}
         <div className="space-y-8 hidden md:block">
           <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-white mb-4">
             <Mic2 size={16} className="text-primary" /> <span className="font-black italic tracking-tighter">KARAOKE <span className="text-primary">PRIME</span></span>
@@ -62,12 +68,12 @@ const Login = () => {
             <div className="bg-zinc-900 border border-white/10 p-4 rounded-2xl flex-1">
               <ShieldCheck className="text-green-500 h-8 w-8 mb-2" />
               <h4 className="font-black text-white text-sm">Segurança</h4>
-              <p className="text-[10px] text-gray-500 uppercase font-bold mt-1">Dados 100% criptografados.</p>
+              <p className="text-[10px] text-gray-500 uppercase font-bold mt-1">Dados criptografados.</p>
             </div>
           </div>
         </div>
 
-        {/* Lado Direito - Formulário Autêntico */}
+        {/* Lado Direito - Formulário */}
         <Card className="bg-zinc-950/80 backdrop-blur-xl border-white/10 rounded-[3rem] shadow-2xl p-8 md:p-12 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-orange-500 to-primary"></div>
           
@@ -80,7 +86,7 @@ const Login = () => {
             </p>
           </div>
 
-          <Button onClick={() => alert("Integração com Google Auth será ativada no Backend!")} variant="outline" className="w-full h-14 rounded-2xl border-white/20 bg-white text-black hover:bg-gray-200 font-black mb-8 transition-colors flex items-center justify-center gap-3">
+          <Button type="button" onClick={handleGoogle} variant="outline" className="w-full h-14 rounded-2xl border-white/20 bg-white text-black hover:bg-gray-200 font-black mb-8 transition-colors flex items-center justify-center gap-3">
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="h-5 w-5" /> Continuar com Google
           </Button>
 
@@ -117,10 +123,3 @@ const Login = () => {
               {isRegistering ? 'Faça Login' : 'Registre-se'}
             </span>
           </p>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-export default Login;
