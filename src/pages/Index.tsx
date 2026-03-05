@@ -11,9 +11,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-black flex flex-col pt-16 font-sans text-white overflow-x-hidden">
       
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION COM A IMAGEM OFICIAL DO ESTÚDIO */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center p-4">
-        <img src="https://picsum.photos/seed/karaokeprime/1920/1080" alt="Studio Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.25]" />
+        <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000" alt="Studio Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.35]" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black z-0" />
 
         <div className="relative z-10 text-center mt-10 mb-20 animate-in fade-in slide-in-from-top-8 duration-1000">
