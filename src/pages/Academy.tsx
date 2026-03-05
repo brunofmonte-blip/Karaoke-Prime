@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Lock, Trophy, Star, BookOpen, PlayCircle, ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react';
+// 💡 CORREÇÃO: Ícone Mic2 adicionado aqui no topo para não quebrar a tela!
+import { GraduationCap, Lock, Trophy, Star, BookOpen, PlayCircle, ArrowLeft, ShieldCheck, Sparkles, Mic2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
