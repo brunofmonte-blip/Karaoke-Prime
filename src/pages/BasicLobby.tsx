@@ -31,7 +31,7 @@ const BasicLobby = () => {
   const metricsRef = useRef({ volumes: [] as number[], peaks: 0, drops: 0, totalFrames: 0 });
 
   // 🔴 ADICIONE SUA CHAVE API AQUI
-  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
+  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
 
   // Limpeza de Hardware ao sair da página
   useEffect(() => {
