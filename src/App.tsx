@@ -2,8 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Star, LayoutDashboard, Sparkles, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// 💡 IMPORTAÇÃO DO LAYOUT REMOVIDA PARA TESTE DE ISOLAMENTO
+import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import BasicLobby from "./pages/BasicLobby";
 import Academy from "./pages/Academy";
@@ -31,19 +30,20 @@ const ComingSoon = ({ title, subtitle, bgImage, icon: Icon, color, bgOpacityClas
 
 const App = () => (
   <BrowserRouter>
-    {/* 💡 O LAYOUT FOI REMOVIDO DAQUI. RENDERIZANDO AS ROTAS DIRETAMENTE */}
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/basic" element={<BasicLobby />} />
-      <Route path="/academy" element={<Academy />} />
-      <Route path="/duel" element={<Duel />} />
-      
-      <Route path="/talent" element={<ComingSoon title="Next Talent" subtitle="O palco global aguarda por você. Prepare-se para audições gamificadas que vão transformar sua carreira." bgImage="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=2000" icon={Star} color="text-yellow-400" />} />
-      <Route path="/backstage" element={<ComingSoon title="Backstage" subtitle="Seu QG de evolução vocal. Um dashboard premium para analisar cada detalhe da sua voz está chegando." bgImage="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000" icon={LayoutDashboard} color="text-gray-400" bgOpacityClass="opacity-50" />} />
-      <Route path="/next-success" element={<ComingSoon title="Next Success" subtitle="Deixe a Inteligência Artificial compor o seu próximo hit. O espaço definitivo para transformar ideias em músicas." bgImage="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2000" icon={Sparkles} color="text-primary" />} />
-      
-      <Route path="*" element={<ComingSoon title="Em Breve" subtitle="Esta página está sendo construída." bgImage="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000" icon={Star} color="text-white" />} />
-    </Routes>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/basic" element={<BasicLobby />} />
+        <Route path="/academy" element={<Academy />} />
+        <Route path="/duel" element={<Duel />} />
+        
+        <Route path="/talent" element={<ComingSoon title="Next Talent" subtitle="O palco global aguarda por você. Prepare-se para audições gamificadas que vão transformar sua carreira." bgImage="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=2000" icon={Star} color="text-yellow-400" />} />
+        <Route path="/backstage" element={<ComingSoon title="Backstage" subtitle="Seu QG de evolução vocal. Um dashboard premium para analisar cada detalhe da sua voz está chegando." bgImage="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000" icon={LayoutDashboard} color="text-gray-400" bgOpacityClass="opacity-50" />} />
+        <Route path="/next-success" element={<ComingSoon title="Next Success" subtitle="Deixe a Inteligência Artificial compor o seu próximo hit. O espaço definitivo para transformar ideias em músicas." bgImage="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2000" icon={Sparkles} color="text-primary" />} />
+        
+        <Route path="*" element={<ComingSoon title="Em Breve" subtitle="Esta página está sendo construída." bgImage="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000" icon={Star} color="text-white" />} />
+      </Routes>
+    </Layout>
   </BrowserRouter>
 );
 
