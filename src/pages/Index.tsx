@@ -194,3 +194,109 @@ const Index = () => {
           <Card className="bg-zinc-950 border-primary shadow-[0_0_30px_rgba(0,168,225,0.15)] p-8 rounded-[2rem]">
             <h3 className="text-2xl font-black text-primary text-center mb-8 uppercase italic tracking-tighter">Global Top 5</h3>
             <div className="space-y-6">
+              {[ 
+                {n:'VocalPro_88', s:'98.5', img:'https://picsum.photos/seed/u1/150/150'}, 
+                {n:'SingStar_JP', s:'97.1', img:'https://picsum.photos/seed/u2/150/150'}, 
+                {n:'OperaQueen', s:'96.9', img:'https://picsum.photos/seed/u3/150/150'}, 
+                {n:'MikeDrop', s:'95.8', img:'https://picsum.photos/seed/u4/150/150'}, 
+                {n:'MelodyX', s:'95.5', img:'https://picsum.photos/seed/u5/150/150'} 
+              ].map((u, i) => (
+                <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                  <div className="flex gap-4 items-center">
+                    <span className="text-gray-500 font-black text-base w-4">{i+1}</span>
+                    <img src={u.img} alt={u.n} className="h-10 w-10 rounded-full border-2 border-primary/30 object-cover" />
+                    <span className="text-white font-bold text-sm">{u.n}</span>
+                  </div>
+                  <span className="text-orange-500 font-black text-lg">{u.s}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+          <Card className="bg-zinc-950 border-orange-500 shadow-[0_0_30px_rgba(251,146,60,0.15)] p-8 rounded-[2rem]">
+            <h3 className="text-2xl font-black text-orange-500 text-center mb-8 uppercase italic tracking-tighter">Nacional Top 3</h3>
+            <div className="space-y-6">
+              {[ 
+                {n:'LocalHero_BR', s:'95.2', img:'https://picsum.photos/seed/u6/150/150'}, 
+                {n:'SambaKing', s:'94.8', img:'https://picsum.photos/seed/u7/150/150'}, 
+                {n:'CaliSinger', s:'94.1', img:'https://picsum.photos/seed/u8/150/150'} 
+              ].map((u, i) => (
+                <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                  <div className="flex gap-4 items-center">
+                    <span className="text-gray-500 font-black text-base w-4">{i+1}</span>
+                    <img src={u.img} alt={u.n} className="h-10 w-10 rounded-full border-2 border-orange-500/30 object-cover" />
+                    <span className="text-white font-bold text-sm">{u.n}</span>
+                  </div>
+                  <span className="text-orange-500 font-black text-lg">{u.s}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+          <Card className="bg-zinc-950 border-white/10 p-8 rounded-[2rem]">
+            <h3 className="text-2xl font-black text-white text-center mb-8 uppercase italic tracking-tighter">Local Top 2</h3>
+            <div className="space-y-6">
+              {[ 
+                {n:'DowntownDiva', s:'93.5', img:'https://picsum.photos/seed/u9/150/150'}, 
+                {n:'BaritoneBob', s:'92.9', img:'https://picsum.photos/seed/u10/150/150'} 
+              ].map((u, i) => (
+                <div key={i} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                  <div className="flex gap-4 items-center">
+                    <span className="text-gray-500 font-black text-base w-4">{i+1}</span>
+                    <img src={u.img} alt={u.n} className="h-10 w-10 rounded-full border-2 border-white/30 object-cover" />
+                    <span className="text-white font-bold text-sm">{u.n}</span>
+                  </div>
+                  <span className="text-orange-500 font-black text-lg">{u.s}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* 8. DASHBOARD */}
+      <section className="max-w-7xl mx-auto px-4 w-full mb-32 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 className="text-4xl font-black text-primary mb-12 uppercase italic tracking-tighter drop-shadow-[0_0_10px_rgba(0,168,225,0.5)]">Evolução Vocal<br/><span className="text-white text-2xl">Últimas 5 Sessões</span></h2>
+          <div className="text-center space-y-6 bg-zinc-950 border border-white/10 p-12 rounded-[2.5rem]">
+            <div className="h-24 w-24 rounded-full border-2 border-primary mx-auto flex items-center justify-center text-primary bg-primary/10 mb-6 shadow-xl"><Music className="h-10 w-10" /></div>
+            <h3 className="text-3xl font-black text-white italic">Bem-vindo ao Dashboard!</h3>
+            <p className="text-gray-400 font-medium">Sua jornada vocal começa aqui. Cante sua primeira música para gerar os gráficos!</p>
+            <p className="text-orange-500 font-black uppercase tracking-[0.3em] text-xs pt-6 flex items-center justify-center gap-2"><Sparkles className="h-5 w-5" /> IA Pronta para Analisar</p>
+          </div>
+        </div>
+        <Card className="bg-zinc-950 border-white/10 rounded-[2.5rem] h-full shadow-2xl">
+          <CardContent className="p-10">
+            <div className="flex items-center gap-6 mb-10 pb-10 border-b border-white/10">
+              <img src="https://picsum.photos/seed/user_profile/150/150" alt="Avatar" className="h-24 w-24 rounded-full border-2 border-primary/50 object-cover shadow-lg" />
+              <div><h3 className="text-3xl font-black text-white mb-2 italic tracking-tighter">Cantor Convidado</h3><p className="text-orange-500 text-xs font-black tracking-widest uppercase bg-orange-500/10 inline-block px-3 py-1 rounded-md">Prime Member</p></div>
+            </div>
+            <div className="space-y-6 text-base text-gray-300">
+              <div className="flex justify-between py-3 border-b border-white/5"><span className="flex items-center gap-4 font-bold uppercase text-xs tracking-widest"><Star className="h-6 w-6 text-orange-500"/> Melhor Nota</span><span className="font-black text-white text-xl">0.0%</span></div>
+              <div className="flex justify-between py-3 border-b border-white/5"><span className="flex items-center gap-4 font-bold uppercase text-xs tracking-widest"><GraduationCap className="h-6 w-6 text-orange-500"/> Nível Academy</span><span className="font-black text-white text-xl">0</span></div>
+              <div className="flex justify-between py-3 border-b border-white/5"><span className="flex items-center gap-4 font-bold uppercase text-xs tracking-widest"><Trophy className="h-6 w-6 text-orange-500"/> Ranking Online</span><span className="font-black text-white text-xl">9999</span></div>
+              <div className="flex justify-between py-3 border-b border-white/5"><span className="flex items-center gap-4 font-bold uppercase text-xs tracking-widest"><Medal className="h-6 w-6 text-orange-500"/> Ranking Offline</span><span className="font-black text-white text-xl">9999</span></div>
+            </div>
+            <div className="mt-10 pt-8 border-t border-white/10">
+              <p className="text-xs text-gray-500 uppercase tracking-[0.3em] font-black mb-6">Badges Earned (0)</p>
+              <div className="flex gap-4">
+                <div className="h-12 w-12 rounded-full border-2 border-orange-500/50 flex items-center justify-center opacity-30"><Medal className="h-6 w-6 text-orange-500" /></div>
+                <div className="h-12 w-12 rounded-full border-2 border-primary/50 flex items-center justify-center opacity-30"><Star className="h-6 w-6 text-primary" /></div>
+                <div className="h-12 w-12 rounded-full border-2 border-destructive/50 flex items-center justify-center opacity-30"><Mic2 className="h-6 w-6 text-destructive" /></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* 9. RODAPÉ DE DESTAQUE */}
+      <div className="text-center pb-24 pt-16 border-t border-white/10 bg-zinc-950">
+        <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter italic uppercase mb-10 drop-shadow-lg">
+          CANTE. EVOLUA. <span className="text-primary neon-blue-glow">CONQUISTE.</span>
+        </h2>
+        <p className="text-xs text-gray-500 font-black tracking-[0.3em] uppercase">© 2026 KARAOKE PRIME - ALL RIGHTS RESERVED</p>
+      </div>
+
+    </div>
+  );
+};
+
+export default Index;
