@@ -123,3 +123,10 @@ const Login = () => {
               {isRegistering ? 'Faça Login' : 'Registre-se'}
             </span>
           </p>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
