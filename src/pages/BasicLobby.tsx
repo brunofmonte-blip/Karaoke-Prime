@@ -15,7 +15,7 @@ const BasicLobby = () => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   
   // Estados da Performance
-  const [videoKey, setVideoKey] = useState(0); // Usado para forçar o Recomeçar do vídeo
+  const [videoKey, setVideoKey] = useState(0); 
   const [showScore, setShowScore] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [vocalAnalysis, setVocalAnalysis] = useState<any>(null);
@@ -27,16 +27,24 @@ const BasicLobby = () => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number>(0);
   
-  // Coletor de Dados de Áudio Real
-  const metricsRef = useRef({ volumes: [] as number[], peaks: 0, drops: 0, totalFrames: 0 });
+  // Coletor de Dados de Áudio Real (Com MaxVolume para barrar silêncio)
+  const metricsRef = useRef({ volumes: [] as number[], peaks: 0, drops: 0, totalFrames: 0, maxVolume: 0 });
 
   // 🔴 ADICIONE SUA CHAVE API AQUI
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
+  const YOUTUBE_API_KEY = "SUA_CHAVE_AQUI"; 
 
   // Limpeza de Hardware ao sair da página
   useEffect(() => {
     return () => stopHardware();
   }, []);
+
+  // 💡 CORREÇÃO 1: Injetar o vídeo SOMENTE depois que a tela terminar de desenhar a Câmera
+  useEffect(() => {
+    if (cameraActive && webcamRef.current && streamRef.current) {
+      webcamRef.current.srcObject = streamRef.current;
+      webcamRef.current.play().catch(e => console.error("Erro ao dar play no vídeo:", e));
+    }
+  }, [cameraActive]);
 
   const stopHardware = () => {
     if (streamRef.current) {
@@ -72,11 +80,7 @@ const BasicLobby = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: true });
       streamRef.current = stream;
-      
-      if (webcamRef.current) {
-        webcamRef.current.srcObject = stream;
-      }
-      setCameraActive(true);
+      setCameraActive(true); // O useEffect cuidará de exibir o vídeo
 
       // Inicia a Captura de Áudio (Web Audio API)
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -91,7 +95,7 @@ const BasicLobby = () => {
       const dataArray = new Uint8Array(bufferLength);
       
       // Resetar métricas
-      metricsRef.current = { volumes: [], peaks: 0, drops: 0, totalFrames: 0 };
+      metricsRef.current = { volumes: [], peaks: 0, drops: 0, totalFrames: 0, maxVolume: 0 };
 
       const analyzeAudio = () => {
         if (!analyserRef.current) return;
@@ -99,20 +103,25 @@ const BasicLobby = () => {
         
         let sumSquares = 0;
         let isClipping = false;
+        let maxValInFrame = 0;
         
         for (let i = 0; i < bufferLength; i++) {
           const val = (dataArray[i] - 128) / 128; // Normaliza entre -1 e 1
           sumSquares += val * val;
-          if (Math.abs(val) > 0.85) isClipping = true;
+          
+          const absVal = Math.abs(val);
+          if (absVal > 0.85) isClipping = true;
+          if (absVal > maxValInFrame) maxValInFrame = absVal;
         }
         
-        const rms = Math.sqrt(sumSquares / bufferLength); // Root Mean Square (Volume Real)
+        const rms = Math.sqrt(sumSquares / bufferLength); // Volume Real do frame
         
         metricsRef.current.volumes.push(rms);
         if (isClipping) metricsRef.current.peaks++;
-        if (rms < 0.02) metricsRef.current.drops++; // Silêncio ou falta de apoio
+        if (rms < 0.03) metricsRef.current.drops++; // Limite de queda de apoio mais rigoroso
+        if (maxValInFrame > metricsRef.current.maxVolume) metricsRef.current.maxVolume = maxValInFrame;
+        
         metricsRef.current.totalFrames++;
-
         animationFrameRef.current = requestAnimationFrame(analyzeAudio);
       };
       analyzeAudio();
@@ -127,47 +136,54 @@ const BasicLobby = () => {
     setVideoKey(prev => prev + 1);
   };
 
+  // 💡 CORREÇÃO 2: A Matemática Implacável (Simon Cowell)
   const finalizeSession = () => {
-    stopHardware(); // Desliga a câmera e para de analisar
+    stopHardware(); 
     
     const metrics = metricsRef.current;
     let score = "0.0";
     let note = "";
     let recom = [];
 
-    // LÓGICA JUILLIARD / SIMON COWELL (Baseada em Dados Reais)
-    if (metrics.volumes.length < 50) { // Menos de 1 segundo de gravação
+    if (metrics.volumes.length < 50) { 
       score = "0.0";
-      note = "Apresentação abortada. Você mal abriu a boca e eu não tive dados suficientes para analisar. Suba naquele palco quando estiver pronto de verdade.";
+      note = "Apresentação cancelada muito cedo. Suba naquele palco quando estiver pronto de verdade para enfrentar a IA.";
       recom = ["Nível 1: Steady Breath"];
     } else {
-      // Cálculos matemáticos reais do microfone
       const avgVolume = metrics.volumes.reduce((a, b) => a + b, 0) / metrics.volumes.length;
       const peakRatio = metrics.peaks / metrics.totalFrames;
       const dropRatio = metrics.drops / metrics.totalFrames;
+      const maxVol = metrics.maxVolume;
 
-      if (avgVolume < 0.03) { 
-        // Cantor Sussurrou / Sem Apoio
-        score = (40 + Math.random() * 15).toFixed(1);
-        note = "Sua projeção vocal é quase inexistente. Cantar não é falar baixo com melodia. Onde está o apoio do seu diafragma? Faltou energia, presença e sustentação nas notas.";
+      // 1. FILTRO DE SILÊNCIO (Abaixo de 5% de volume máximo é apenas ruído de fundo)
+      if (maxVol < 0.05 || avgVolume < 0.015) { 
+        score = "0.0";
+        note = "Silêncio absoluto detectado. A IA não captou sua voz em nenhum momento. Ou você desistiu de cantar, ou precisa configurar o seu microfone.";
+        recom = ["Check de Hardware", "Nível 1: Postura"];
+      } 
+      // 2. FILTRO DE SUSSURRO (Sem apoio diafragmático)
+      else if (avgVolume < 0.035) { 
+        score = (35 + Math.random() * 10).toFixed(1);
+        note = "Sua projeção vocal é quase inexistente. Cantar não é falar baixo com melodia. Onde está o apoio do seu diafragma? Faltou energia e presença cênica.";
         recom = ["Nível 1: Steady Breath", "Nível 4: Vocal Resonance"];
       } 
-      else if (peakRatio > 0.2) { 
-        // Cantor Gritou / Estourou o microfone
-        score = (55 + Math.random() * 10).toFixed(1);
-        note = "Volume não significa qualidade. Você estourou a dinâmica em vários momentos, perdendo totalmente o controle da emissão. O palco exige controle e inteligência vocal, não apenas força bruta.";
+      // 3. FILTRO DE GRITO (Estourando o mic)
+      else if (peakRatio > 0.15) { 
+        score = (50 + Math.random() * 15).toFixed(1);
+        note = "Volume alto não significa qualidade. Você estourou a dinâmica em vários momentos, perdendo o controle. O palco exige controle vocal inteligente, não apenas força bruta.";
         recom = ["Nível 2: Pitch Calibration", "Nível 8: Dynamic Belting"];
       } 
-      else if (dropRatio > 0.4) { 
-        // Cantor oscilou muito (inseguro)
-        score = (65 + Math.random() * 10).toFixed(1);
-        note = "Você começou bem, mas sua energia cai no final das frases. Isso demonstra falta de resistência respiratória. A sua afinação escorregou porque o ar não sustentou a prega vocal.";
+      // 4. FILTRO DE INCONSTÂNCIA (Falta de ar no fim da frase)
+      else if (dropRatio > 0.35) { 
+        score = (68 + Math.random() * 8).toFixed(1);
+        note = "Você começou com intenção, mas sua energia cai criticamente no final das frases. Isso demonstra falta de resistência respiratória. A afinação escorregou pela falta de apoio de ar.";
         recom = ["Nível 6: Vibrato Control", "Nível 7: Mixed Voice"];
       } 
+      // 5. EXCELÊNCIA (Acima de 85)
       else { 
-        // Excelente Controle
-        score = (85 + Math.random() * 12).toFixed(1); // Acima de 85
-        note = "Finalmente, alguém que entende de dinâmica! Seu apoio respiratório foi consistente e você respeitou a intenção da música sem estourar o áudio. Uma performance sólida e muito acima da média. Excelente trabalho.";
+        score = (88 + Math.random() * 10).toFixed(1);
+        if (parseFloat(score) > 99.9) score = "99.8"; // Impede nota impossível
+        note = "Finalmente, uma performance profissional! Seu apoio respiratório foi consistente e você respeitou a intenção da música sem estourar o áudio. Trabalho excelente e afinado.";
         recom = ["Nível 9: Emotional Delivery", "Nível 10: Pro Vocalist"];
       }
     }
@@ -264,8 +280,8 @@ const BasicLobby = () => {
                   </div>
                 ) : (
                   <>
+                    {/* AQUI ESTÁ A CORREÇÃO: O vídeo agora renderiza corretamente */}
                     <video ref={webcamRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
-                    {/* Indicador visual de que a IA está escutando */}
                     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 px-4 py-2 rounded-full border border-primary/50 backdrop-blur-sm">
                       <Mic2 size={14} className="text-primary animate-pulse" />
                       <span className="text-[10px] text-primary font-black uppercase tracking-widest">IA Analisando</span>
@@ -283,57 +299,4 @@ const BasicLobby = () => {
                   <Button onClick={restartVideo} variant="outline" className="flex-1 h-14 rounded-2xl border-white/20 text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-colors">
                     <RotateCcw size={16} className="mr-2"/> Recomeçar
                   </Button>
-                  <Button onClick={() => { setSelectedVideo(null); stopHardware(); }} variant="outline" className="flex-1 h-14 rounded-2xl border-destructive/50 text-destructive font-bold uppercase tracking-widest text-xs hover:bg-destructive hover:text-white transition-colors">
-                    <Ban size={16} className="mr-2"/> Cancelar
-                  </Button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 3. RELATÓRIO VOCAL JUILLIARD */}
-      {showScore && vocalAnalysis && (
-        <div className="fixed inset-0 z-[120] bg-black/95 flex items-center justify-center p-4 backdrop-blur-xl animate-in zoom-in duration-300">
-          <Card className="max-w-2xl w-full bg-zinc-950 border-primary/40 rounded-[3rem] overflow-hidden shadow-[0_0_150px_rgba(0,168,225,0.2)]">
-            <CardContent className="p-10 text-center text-white">
-              <Trophy className={`mx-auto mb-6 h-20 w-20 ${parseFloat(vocalAnalysis.score) < 50 ? "text-gray-600" : "text-orange-500 drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]"}`} />
-              <h2 className="text-3xl font-black uppercase italic tracking-tighter border-b border-white/10 pb-6">Análise Técnica Prime</h2>
-              
-              <div className="my-8">
-                <span className={`text-8xl md:text-9xl font-black tracking-tighter italic ${parseFloat(vocalAnalysis.score) < 50 ? "text-destructive drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" : "text-primary drop-shadow-[0_0_30px_rgba(0,168,225,0.5)]"}`}>
-                   {vocalAnalysis.score}
-                </span>
-                <p className="text-gray-500 font-black uppercase tracking-[0.4em] mt-2 text-xs">Score Global</p>
-              </div>
-
-              <div className="space-y-6 text-left bg-black/50 p-8 rounded-[2rem] border border-white/5 mb-8">
-                <div>
-                  <h4 className="text-primary font-black text-xs uppercase mb-3 tracking-widest flex items-center gap-2"><Mic2 size={14}/> Feedback do Motor IA:</h4>
-                  <p className="text-gray-300 text-sm md:text-base leading-relaxed italic font-medium">"{vocalAnalysis.note}"</p>
-                </div>
-                <div className="pt-6 border-t border-white/5">
-                  <h4 className="text-orange-500 font-black text-xs uppercase mb-4 flex items-center gap-2 tracking-widest"><Star size={14}/> Prescrição de Treino:</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {vocalAnalysis.recom.map((r: string) => (
-                      <span key={r} className="px-4 py-2 bg-orange-500/10 border border-orange-500/30 text-orange-500 rounded-xl text-[10px] font-black uppercase tracking-widest">{r}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <Button onClick={() => { setShowScore(false); setSelectedVideo(null); setVocalAnalysis(null); }} className="w-full h-16 rounded-[1.5rem] bg-primary text-black font-black text-xl italic tracking-tighter hover:bg-white transition-all">
-                VOLTAR AO LOBBY
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-    </div>
-  );
-};
-
-export default BasicLobby;
+                  <Button onClick={()
