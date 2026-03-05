@@ -2,6 +2,8 @@ import React from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Star, LayoutDashboard, Sparkles, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+// 💡 Caminho corrigido para evitar o erro de "import resolution"
 import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import BasicLobby from "./pages/BasicLobby";
@@ -47,4 +49,4 @@ const App = () => (
   </BrowserRouter>
 );
 
-export default App; 
+export default App;
