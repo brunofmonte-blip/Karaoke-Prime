@@ -42,7 +42,7 @@ const Lesson = () => {
         id: 3,
         title: "Sustentação Vocal",
         hasIntro: false,
-        lessonYoutubeId: "COLOQUE_O_ID_DA_AULA_3_AQUI", // 🚨 Pegue no YouTube depois
+        lessonYoutubeId: "X65IOyha6EQ", // 🚨 Pegue no YouTube depois
         description: "A aplicação do fluxo de ar, mas agora usando a voz de verdade em vez de apenas chiado.",
         exercise: "Sustentação de Nota Única",
         practiceDesc: "Segure uma nota confortável no microfone pelo máximo de tempo possível. Nossa IA avaliará a firmeza do som.",
