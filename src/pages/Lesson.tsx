@@ -12,10 +12,10 @@ const Lesson = () => {
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
   const [step, setStep] = useState<'video' | 'practice'>('video');
   
-  // ESTADOS DO NOVO MOTOR DE TREINAMENTO
+  // ESTADOS DO MOTOR DE TREINAMENTO
   const [trainingStatus, setTrainingStatus] = useState<'idle' | 'countdown' | 'active' | 'finished'>('idle');
   const [countdown, setCountdown] = useState(3);
-  const [timeLeft, setTimeLeft] = useState(60); // 60 segundos de treino
+  const [timeLeft, setTimeLeft] = useState(60); 
 
   // PLAYLIST DE AULAS
   const moduleContent = {
@@ -38,26 +38,55 @@ const Lesson = () => {
 
   const currentLesson = moduleContent.lessons[activeLessonIndex];
 
-  // 💡 LÓGICA DO CRONÔMETRO DE 60 SEGUNDOS
+  // LÓGICA DO CRONÔMETRO
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    
     if (trainingStatus === 'countdown') {
-      if (countdown > 0) {
-        timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      } else {
-        setTrainingStatus('active');
-        setTimeLeft(60); // Inicia os 60 segundos reais
-      }
+      if (countdown > 0) timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      else { setTrainingStatus('active'); setTimeLeft(60); }
     } else if (trainingStatus === 'active') {
-      if (timeLeft > 0) {
-        timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      } else {
-        setTrainingStatus('finished');
-      }
+      if (timeLeft > 0) timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      else setTrainingStatus('finished');
     }
     return () => clearTimeout(timer);
   }, [trainingStatus, countdown, timeLeft]);
+
+  // LÓGICA VISUAL DO CICLO
+  const getCycleState = () => {
+    const elapsed = 60 - timeLeft; 
+    const cycleTime = elapsed % 22; 
+
+    if (cycleTime < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
+    if (cycleTime < 8) return { phase: 'SEGURAR', instruction: 'Segura por 4 segundos', color: 'orange', icon: Lock };
+    if (cycleTime < 18) return { phase: 'EXPIRAR', instruction: 'Expira por 10 segundos', color: 'blue', icon: Mic2 };
+    return { phase: 'DESCANSAR', instruction: 'Descansa por 4 segundos', color: 'gray', icon: Coffee };
+  };
+
+  const cycleState = getCycleState();
+  const CycleIcon = cycleState.icon;
+
+  // 💡 NOVO: MOTOR DE VOZ NATIVA DO NAVEGADOR
+  useEffect(() => {
+    if (trainingStatus === 'active' && cycleState.instruction) {
+      // 1. Cancela a fala anterior para não "encavalar" vozes
+      window.speechSynthesis.cancel();
+      
+      // 2. Cria a nova locução com o texto atual da tela
+      const locucao = new SpeechSynthesisUtterance(cycleState.instruction);
+      locucao.lang = 'pt-BR'; // Força o sotaque em português
+      locucao.rate = 1.1; // Velocidade um pouquinho mais ágil
+      
+      // 3. Pede para o sistema falar
+      window.speechSynthesis.speak(locucao);
+    }
+    
+    // Se o treino acabar ou for pausado, cala a boca do robô
+    return () => {
+      if (trainingStatus !== 'active') {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [cycleState.instruction, trainingStatus]); // 💡 O gatilho: roda toda vez que a instrução muda!
 
   const startTraining = () => {
     setTrainingStatus('countdown');
@@ -69,23 +98,9 @@ const Lesson = () => {
     setActiveLessonIndex(index);
     setStep('video');
     setTrainingStatus('idle');
+    window.speechSynthesis.cancel(); // Garante silêncio ao trocar de aula
   };
 
-  // 💡 LÓGICA VISUAL DINÂMICA (O CICLO 4-4-10-4)
-  const getCycleState = () => {
-    const elapsed = 60 - timeLeft; // Segundos passados
-    const cycleTime = elapsed % 22; // 22s é o total do ciclo (4+4+10+4)
-
-    if (cycleTime < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
-    if (cycleTime < 8) return { phase: 'SEGURAR', instruction: 'Segura por 4 segundos', color: 'orange', icon: Lock };
-    if (cycleTime < 18) return { phase: 'EXPIRAR', instruction: 'Expira por 10 segundos', color: 'blue', icon: Mic2 };
-    return { phase: 'DESCANSAR', instruction: 'Descansa por 4 segundos', color: 'gray', icon: Coffee };
-  };
-
-  const cycleState = getCycleState();
-  const CycleIcon = cycleState.icon;
-
-  // Calculando o círculo (Relógio de 60s)
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (timeLeft / 60) * circumference;
@@ -118,7 +133,6 @@ const Lesson = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           
           <div className="lg:col-span-3">
-            {/* TELA DE VÍDEO */}
             {step === 'video' && (
               <div className="animate-in slide-in-from-bottom-10 duration-500">
                 <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,168,225,0.15)] bg-zinc-900 mb-8 relative">
@@ -145,11 +159,9 @@ const Lesson = () => {
               </div>
             )}
 
-            {/* TELA DE PRÁTICA (MOTOR DE IA) */}
             {step === 'practice' && currentLesson.hasPractice && (
               <Card className="bg-zinc-950/80 backdrop-blur-xl border-primary/30 rounded-[3rem] shadow-[0_0_50px_rgba(0,168,225,0.1)] p-8 md:p-12 animate-in zoom-in-95 duration-500 min-h-[500px] flex flex-col justify-center items-center">
                 
-                {/* 1. PARADO */}
                 {trainingStatus === 'idle' && (
                   <div className="flex flex-col items-center text-center animate-in fade-in zoom-in">
                     <div className="h-24 w-24 rounded-full border-4 border-primary/30 bg-primary/10 flex items-center justify-center mb-6">
@@ -168,7 +180,6 @@ const Lesson = () => {
                   </div>
                 )}
 
-                {/* 2. PREPARAÇÃO */}
                 {trainingStatus === 'countdown' && (
                   <div className="flex flex-col items-center text-center animate-in zoom-in">
                     <h2 className="text-2xl font-black text-primary uppercase tracking-widest mb-8">Prepare-se</h2>
@@ -176,16 +187,13 @@ const Lesson = () => {
                   </div>
                 )}
 
-                {/* 3. TREINAMENTO ATIVO (O RELÓGIO DE 60s) */}
                 {trainingStatus === 'active' && (
                   <div className="flex flex-col items-center text-center w-full animate-in fade-in">
                     <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-8">Treinamento em Andamento</h2>
                     
                     <div className="relative flex items-center justify-center mb-8">
-                      {/* Círculo de Fundo */}
                       <svg className="w-56 h-56 transform -rotate-90">
                         <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent" className="text-zinc-800" />
-                        {/* Círculo de Progresso */}
                         <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent"
                           strokeDasharray={circumference}
                           strokeDashoffset={strokeDashoffset}
@@ -194,7 +202,6 @@ const Lesson = () => {
                         />
                       </svg>
                       
-                      {/* Ícone Pulsante no Centro */}
                       <div className={`absolute flex items-center justify-center h-28 w-28 rounded-full border-4 animate-pulse backdrop-blur-md
                         ${cycleState.color === 'cyan' ? 'border-cyan-400 bg-cyan-400/20 shadow-[0_0_40px_rgba(34,211,238,0.4)]' : 
                           cycleState.color === 'orange' ? 'border-orange-500 bg-orange-500/20 shadow-[0_0_40px_rgba(249,115,22,0.4)]' : 
@@ -204,7 +211,6 @@ const Lesson = () => {
                       </div>
                     </div>
 
-                    {/* Instrução Dinâmica */}
                     <div className="mb-4 h-8">
                       <p className={`text-xl font-black uppercase tracking-widest animate-in slide-in-from-bottom-2 fade-in
                         ${cycleState.color === 'cyan' ? 'text-cyan-400' : cycleState.color === 'orange' ? 'text-orange-500' : cycleState.color === 'blue' ? 'text-blue-500' : 'text-gray-400'}`}>
@@ -216,7 +222,6 @@ const Lesson = () => {
                   </div>
                 )}
 
-                {/* 4. RESULTADO FINAL (SEM NOTA, COM FEEDBACK) */}
                 {trainingStatus === 'finished' && (
                   <div className="flex flex-col items-center text-center animate-in zoom-in-95 duration-500 w-full">
                     <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-sm mb-6 bg-cyan-400/10 px-6 py-2 rounded-full border border-cyan-400/30 shadow-[0_0_30px_rgba(34,211,238,0.2)]">
@@ -225,7 +230,6 @@ const Lesson = () => {
                     
                     <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-8">Bom Trabalho!</h1>
                     
-                    {/* Quadro de Observações em Ciano */}
                     <div className="bg-cyan-950/30 border border-cyan-500/30 rounded-3xl p-8 mb-10 text-left w-full max-w-2xl shadow-[0_0_40px_rgba(34,211,238,0.05)]">
                       <h4 className="text-cyan-400 font-black uppercase tracking-widest text-sm mb-6 flex items-center gap-3">
                         <Info size={18} /> Observações e Recomendações
@@ -258,7 +262,6 @@ const Lesson = () => {
             )}
           </div>
 
-          {/* COLUNA DIREITA: PLAYLIST LATERAL */}
           <div className="lg:col-span-1 space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
             <div className="flex items-center gap-2 text-white font-black uppercase tracking-widest text-sm mb-6 sticky top-0 bg-black/90 py-2 z-10 backdrop-blur-md">
               <ListVideo size={18} className="text-primary" /> Playlist
