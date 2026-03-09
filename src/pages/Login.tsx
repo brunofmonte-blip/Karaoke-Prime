@@ -1,3 +1,4 @@
+// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/Login.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, Sparkles, Mic2, Loader2 } from 'lucide-react';
@@ -14,6 +15,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
+  // Login via E-mail
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || (isRegistering && !name)) {
@@ -24,17 +26,21 @@ const Login = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      // 💡 A MÁGICA: Salvando o "Token" no navegador do usuário
       localStorage.setItem('@KaraokePrime:loggedIn', 'true');
-      alert(isRegistering ? "✅ Cadastro realizado com sucesso! Bem-vindo ao Prime." : "✅ Login efetuado com sucesso!");
-      
-      // Forçamos o reload da página para o Header e a Academy lerem o novo Token
       window.location.href = '/academy'; 
     }, 1500);
   };
 
+  // 💡 NOVO: Login via Google (Simulado VIP para testes de MVP)
   const handleGoogle = () => {
-    alert("Integração com Google Auth será ativada no Backend em breve!");
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      // Salva o token VIP no navegador
+      localStorage.setItem('@KaraokePrime:loggedIn', 'true');
+      // Redireciona e destranca a Academy
+      window.location.href = '/academy';
+    }, 1200);
   };
 
   return (
@@ -86,8 +92,13 @@ const Login = () => {
             </p>
           </div>
 
-          <Button type="button" onClick={handleGoogle} variant="outline" className="w-full h-14 rounded-2xl border-white/20 bg-white text-black hover:bg-gray-200 font-black mb-8 transition-colors flex items-center justify-center gap-3">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="h-5 w-5" /> Continuar com Google
+          {/* O NOVO BOTÃO DO GOOGLE (PASSE VIP) */}
+          <Button type="button" onClick={handleGoogle} disabled={isLoading} variant="outline" className="w-full h-14 rounded-2xl border-white/20 bg-white text-black hover:bg-gray-200 font-black mb-8 transition-colors flex items-center justify-center gap-3">
+            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+              <>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="h-5 w-5" /> Continuar com Google
+              </>
+            )}
           </Button>
 
           <div className="flex items-center gap-4 mb-8 opacity-50">
