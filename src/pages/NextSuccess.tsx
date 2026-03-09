@@ -1,172 +1,73 @@
-"use client";
-
+// 🚨 ESTE É O LOGIN.TSX
 import React, { useState } from 'react';
-import { Sparkles, Music, Mic2, Save, Play, Send, BrainCircuit, Layers, Disc, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ShieldCheck, Sparkles, Mic2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { Card } from '@/components/ui/card';
 
-const NextSuccess = () => {
-  const [prompt, setPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedLyrics, setGeneratedLyrics] = useState<string | null>(null);
+const Login = () => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGenerate = () => {
-    if (!prompt.trim()) {
-      toast.error("Descreva sua ideia primeiro!");
-      return;
-    }
-    setIsGenerating(true);
-    // Simulate AI generation
+  const forceLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsLoading(true);
     setTimeout(() => {
-      setGeneratedLyrics(
-        `[Verso 1]\nCaminhando sob as luzes da cidade\nBuscando um sonho, uma nova realidade\nO microfone na mão, o coração a pulsar\nEu sei que o meu momento vai chegar...\n\n[Refrão]\nSou Karaoke Prime, sou a voz do amanhã\nBrilhando mais forte que o sol da manhã\nDo palco local ao topo do mundo\nEu sinto esse ritmo em cada segundo!`
-      );
-      setIsGenerating(false);
-      toast.success("Música gerada com sucesso pelo motor neural!");
-    }, 3000);
+      setIsLoading(false);
+      localStorage.setItem('@KaraokePrime:loggedIn', 'true');
+      window.location.href = '/academy';
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="container mx-auto max-w-5xl">
-        <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tighter">
-            NEXT <span className="text-accent neon-gold-glow">SUCCESS</span>
+    <div className="min-h-screen bg-black relative flex items-center justify-center p-4 font-sans overflow-hidden">
+      <img src="https://picsum.photos/seed/loginbg/1920/1080" alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.15]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/80 z-0" />
+      
+      <button onClick={() => navigate(-1)} className="absolute top-24 left-8 text-gray-400 hover:text-white flex items-center gap-2 font-bold uppercase tracking-widest text-xs z-50 transition-colors">
+        <ArrowLeft size={16} /> Voltar
+      </button>
+
+      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10 animate-in fade-in slide-in-from-bottom-10 duration-700 mt-16">
+        
+        <div className="space-y-8 hidden md:block">
+          <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-white mb-4">
+            <Mic2 size={16} className="text-primary" /> <span className="font-black italic tracking-tighter">KARAOKE <span className="text-primary">PRIME</span></span>
+          </div>
+          <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[1.1]">
+            Acesso <span className="text-orange-500 neon-gold-glow italic">VIP</span> Liberado.
           </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            O espaço do compositor. Transforme suas ideias em hits de estúdio usando nossa IA proprietária.
+          <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-md">
+            O Firebase foi desativado temporariamente para que você possa testar a Masterclass de vídeo.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Input Section */}
-          <div className="space-y-6">
-            <Card className="glass-pillar border-2 border-accent/30">
-              <CardHeader>
-                <CardTitle className="text-accent flex items-center gap-2">
-                  <BrainCircuit className="h-5 w-5" />
-                  Brainstorming Neural
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Sobre o que é a música?</label>
-                  <Textarea 
-                    placeholder="Ex: Uma balada rock sobre superação e as luzes de São Paulo..."
-                    className="bg-black/50 border-white/10 min-h-[150px] rounded-xl focus:border-accent"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Gênero</label>
-                    <select className="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-white">
-                      <option>Pop</option>
-                      <option>Rock</option>
-                      <option>Sertanejo</option>
-                      <option>Jazz</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Mood</label>
-                    <select className="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-white">
-                      <option>Energético</option>
-                      <option>Melancólico</option>
-                      <option>Inspirador</option>
-                      <option>Romântico</option>
-                    </select>
-                  </div>
-                </div>
-                <Button 
-                  onClick={handleGenerate}
-                  disabled={isGenerating}
-                  className="w-full bg-accent hover:bg-accent/90 text-black font-black py-6 rounded-xl shadow-lg shadow-accent/20"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      COMPONDO...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-5 w-5 mr-2" />
-                      GERAR HIT
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 bg-white/5 border border-white/10 rounded-2xl text-center">
-                <Layers className="h-6 w-6 text-primary mx-auto mb-2" />
-                <p className="text-[10px] font-bold text-gray-500 uppercase">Tracks</p>
-                <p className="text-lg font-bold text-white">12</p>
-              </div>
-              <div className="p-4 bg-white/5 border border-white/10 rounded-2xl text-center">
-                <Disc className="h-6 w-6 text-accent mx-auto mb-2" />
-                <p className="text-[10px] font-bold text-gray-500 uppercase">BPM</p>
-                <p className="text-lg font-bold text-white">128</p>
-              </div>
-              <div className="p-4 bg-white/5 border border-white/10 rounded-2xl text-center">
-                <Mic2 className="h-6 w-6 text-primary mx-auto mb-2" />
-                <p className="text-[10px] font-bold text-gray-500 uppercase">Vocal FX</p>
-                <p className="text-lg font-bold text-white">Ativo</p>
-              </div>
-            </div>
+        <Card className="bg-zinc-950/80 backdrop-blur-xl border-white/10 rounded-[3rem] shadow-2xl p-8 md:p-12 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-orange-500 to-primary"></div>
+          
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-2">Entrar na Conta</h2>
+            <p className="text-gray-500 text-sm font-medium">Bypass de segurança ativado.</p>
           </div>
 
-          {/* Output Section */}
-          <Card className="glass-pillar border-2 border-primary/30 flex flex-col">
-            <CardHeader className="border-b border-white/10">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-primary flex items-center gap-2">
-                  <Music className="h-5 w-5" />
-                  Studio Preview
-                </CardTitle>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white"><Save className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white"><Send className="h-4 w-4" /></Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow p-6 flex flex-col">
-              {generatedLyrics ? (
-                <div className="space-y-6 animate-in fade-in duration-500">
-                  <div className="bg-black/30 p-6 rounded-2xl border border-white/5 font-mono text-sm leading-relaxed whitespace-pre-wrap text-gray-300">
-                    {generatedLyrics}
-                  </div>
-                  <div className="mt-auto space-y-4">
-                    <div className="h-12 bg-primary/10 rounded-xl border border-primary/30 flex items-center px-4 gap-4">
-                      <Play className="h-5 w-5 text-primary fill-primary" />
-                      <div className="flex-grow h-1 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary w-1/3 shadow-[0_0_10px_rgba(0,168,225,0.8)]" />
-                      </div>
-                      <span className="text-xs font-mono text-primary">01:24 / 03:45</span>
-                    </div>
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-black font-bold rounded-xl">
-                      EXPORTAR PARA O PALCO
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-grow flex flex-col items-center justify-center text-center opacity-30">
-                  <Music className="h-16 w-16 mb-4" />
-                  <p className="text-lg font-medium">Aguardando sua inspiração...</p>
-                  <p className="text-sm">Descreva sua música à esquerda para começar.</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+          <Button type="button" onClick={() => forceLogin()} disabled={isLoading} variant="outline" className="w-full h-14 rounded-2xl border-white/20 bg-white text-black hover:bg-gray-200 font-black mb-8 transition-colors flex items-center justify-center gap-3">
+            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+              <>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="h-5 w-5" /> Continuar com Google VIP
+              </>
+            )}
+          </Button>
+
+          <form onSubmit={forceLogin} className="space-y-5">
+            <Button type="submit" disabled={isLoading} className="w-full h-16 rounded-2xl bg-primary hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(0,168,225,0.3)] transition-all">
+              {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'FORÇAR ENTRADA VIP'}
+            </Button>
+          </form>
+        </Card>
       </div>
     </div>
   );
 };
 
-export default NextSuccess;
+export default Login;
