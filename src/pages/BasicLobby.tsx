@@ -36,7 +36,7 @@ const BasicLobby = () => {
       return;
     }
 
-    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") {
+    if (YOUTUBE_API_KEY === "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548") {
       alert("⚠️ Comandante, você precisa colar sua chave da API do YouTube na linha 15 do código!");
       return;
     }
