@@ -15,7 +15,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
-  // Login via E-mail
+  // 💡 A MÁGICA: Login simulado para testar a plataforma sem o Firebase barrar
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || (isRegistering && !name)) {
@@ -26,19 +26,18 @@ const Login = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      localStorage.setItem('@KaraokePrime:loggedIn', 'true');
-      window.location.href = '/academy'; 
-    }, 1500);
+      localStorage.setItem('@KaraokePrime:loggedIn', 'true'); // Gera a chave VIP
+      window.location.href = '/academy'; // Abre a porta da Academy
+    }, 1000);
   };
 
-  // 💡 Login via Google (Simulado VIP)
   const handleGoogle = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      localStorage.setItem('@KaraokePrime:loggedIn', 'true');
-      window.location.href = '/academy';
-    }, 1200);
+      localStorage.setItem('@KaraokePrime:loggedIn', 'true'); // Gera a chave VIP
+      window.location.href = '/academy'; // Abre a porta da Academy
+    }, 1000);
   };
 
   return (
@@ -61,7 +60,7 @@ const Login = () => {
             Sua jornada para o <span className="text-orange-500 neon-gold-glow italic">Estrelato</span> começa aqui.
           </h1>
           <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-md">
-            Acesse o Academy, participe de audições mundiais e transforme sua voz com nossa IA proprietária.
+            Acesse o Academy para transformar sua voz com nossa IA proprietária.
           </p>
           <div className="flex gap-6 pt-6">
             <div className="bg-zinc-900 border border-white/10 p-4 rounded-2xl flex-1">
@@ -71,8 +70,8 @@ const Login = () => {
             </div>
             <div className="bg-zinc-900 border border-white/10 p-4 rounded-2xl flex-1">
               <ShieldCheck className="text-green-500 h-8 w-8 mb-2" />
-              <h4 className="font-black text-white text-sm">Segurança</h4>
-              <p className="text-[10px] text-gray-500 uppercase font-bold mt-1">Dados criptografados.</p>
+              <h4 className="font-black text-white text-sm">Acesso VIP</h4>
+              <p className="text-[10px] text-gray-500 uppercase font-bold mt-1">Firebase Bypass Ativo.</p>
             </div>
           </div>
         </div>
@@ -86,21 +85,21 @@ const Login = () => {
               {isRegistering ? 'Criar Conta' : 'Entrar na Conta'}
             </h2>
             <p className="text-gray-500 text-sm font-medium">
-              {isRegistering ? 'Junte-se à elite vocal global.' : 'Bem-vindo de volta, artista!'}
+              Acesso VIP de Teste Liberado.
             </p>
           </div>
 
           <Button type="button" onClick={handleGoogle} disabled={isLoading} variant="outline" className="w-full h-14 rounded-2xl border-white/20 bg-white text-black hover:bg-gray-200 font-black mb-8 transition-colors flex items-center justify-center gap-3">
             {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
               <>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="h-5 w-5" /> Continuar com Google
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="h-5 w-5" /> Continuar com Google VIP
               </>
             )}
           </Button>
 
           <div className="flex items-center gap-4 mb-8 opacity-50">
             <div className="flex-1 h-px bg-white/20"></div>
-            <span className="text-[10px] uppercase font-black tracking-widest text-white">ou use seu e-mail</span>
+            <span className="text-[10px] uppercase font-black tracking-widest text-white">ou use qualquer dado</span>
             <div className="flex-1 h-px bg-white/20"></div>
           </div>
 
@@ -108,12 +107,12 @@ const Login = () => {
             {isRegistering && (
               <div>
                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Nome de Artista</label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: VocalQueen" className="h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary px-4" />
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Maestro" className="h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary px-4" />
               </div>
             )}
             <div>
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">E-mail</label>
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" className="h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary px-4" />
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="teste@prime.com" className="h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary px-4" />
             </div>
             <div>
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Senha</label>
@@ -121,16 +120,9 @@ const Login = () => {
             </div>
 
             <Button type="submit" disabled={isLoading} className="w-full h-16 rounded-2xl bg-primary hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(0,168,225,0.3)] transition-all mt-4">
-              {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isRegistering ? 'CADASTRAR AGORA' : 'ENTRAR AGORA')}
+              {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'FORÇAR ENTRADA VIP'}
             </Button>
           </form>
-
-          <p className="text-center text-xs text-gray-500 font-medium">
-            {isRegistering ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
-            <span onClick={() => setIsRegistering(!isRegistering)} className="text-white font-bold cursor-pointer hover:text-primary transition-colors underline underline-offset-4">
-              {isRegistering ? 'Faça Login' : 'Registre-se'}
-            </span>
-          </p>
         </Card>
       </div>
     </div>
