@@ -5,13 +5,13 @@ import { getFirestore } from "firebase/firestore";
 
 // 🔑 COLOQUE AQUI AS CHAVES QUE VOCÊ PEGOU NO GOOGLE
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId: "SEU_APP_ID",
-  measurementId: "SEU_MEASUREMENT_ID"
+  apiKey: "AIzaSyDmJaH9jZUqI2fGQV_yAYC-8w8t3RmvrlI",
+  authDomain: "karaoke-prime-4f59e.firebaseapp.com",
+  projectId: "karaoke-prime-4f59e",
+  storageBucket: "karaoke-prime-4f59e.firebasestorage.app",
+  messagingSenderId: "1019002450289",
+  appId: "1:1019002450289:web:fd3801c55b5bdeb2c906d0",
+  measurementId: "G-H3J972N7FM"
 };
 
 const app = initializeApp(firebaseConfig);
