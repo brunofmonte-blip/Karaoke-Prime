@@ -80,7 +80,7 @@ const Academy = () => {
                 </div>
                 <p className="text-sm text-gray-400 mb-8 flex-grow font-medium leading-relaxed">{lvl.desc}</p>
                 {!lvl.locked ? (
-                  <Button onClick={() => alert('Próximo passo: Tela de Lição com seu Vídeo!')} className="w-full h-14 rounded-2xl bg-primary text-black font-black uppercase tracking-widest hover:bg-white shadow-xl">
+                  <Button onClick={() => navigate('/lesson/1')} className="w-full h-14 rounded-2xl bg-primary text-black font-black uppercase tracking-widest hover:bg-white shadow-xl">
                     <PlayCircle className="mr-2 h-5 w-5" /> Iniciar Lição
                   </Button>
                 ) : (
