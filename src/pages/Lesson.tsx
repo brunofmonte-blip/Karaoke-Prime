@@ -359,4 +359,41 @@ const Lesson = () => {
                   <Card 
                     key={lesson.id} 
                     onClick={() => changeLesson(idx)}
-                    className={`cursor-pointer transition-all duration-300 border p-4 rounded-2xl flex items-start gap
+                    className={`cursor-pointer transition-all duration-300 border p-4 rounded-2xl flex items-start gap-4 flex-shrink-0
+                      ${isActive 
+                        ? (lesson.hasPractice ? 'bg-primary/10 border-primary shadow-[0_0_20px_rgba(0,168,225,0.15)]' : 'bg-orange-500/10 border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.15)]') 
+                        : lesson.locked 
+                          ? 'bg-black/40 border-white/5 opacity-50 cursor-not-allowed'
+                          : 'bg-zinc-950 border-white/10 hover:border-white/30 hover:bg-zinc-900'
+                      }`}
+                  >
+                    <div className="mt-1">
+                      {lesson.locked ? (
+                        <Lock size={16} className="text-gray-500" />
+                      ) : isActive ? (
+                        <PlayCircle size={18} className={lesson.hasPractice ? "text-primary animate-pulse" : "text-orange-500 animate-pulse"} />
+                      ) : (
+                        <CheckCircle2 size={16} className="text-gray-600" />
+                      )}
+                    </div>
+                    <div>
+                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isActive ? (lesson.hasPractice ? 'text-primary' : 'text-orange-500') : 'text-gray-500'}`}>
+                        {lesson.displayTitle}
+                      </p>
+                      <h4 className={`text-sm font-black italic tracking-tighter leading-tight ${isActive ? 'text-white' : 'text-gray-300'}`}>
+                        {lesson.title}
+                      </h4>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Lesson;
