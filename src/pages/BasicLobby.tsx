@@ -4,14 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 
 const BasicLobby = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 💡 O NOSSO NOVO HISTÓRICO DE BUSCAS COM AS 6 LENDAS (IDs de Karaokê do YouTube)
+  // NOSSO HISTÓRICO DE BUSCAS COM AS 6 LENDAS
   const recentSearches = [
     { id: 1, title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
     { id: 2, title: "Let It Be", artist: "The Beatles", youtubeId: "c2hZ_bS3nN4" },
@@ -21,10 +20,14 @@ const BasicLobby = () => {
     { id: 6, title: "Essa Tal Liberdade", artist: "Só Pra Contrariar", youtubeId: "9T88wzEwX4Y" }
   ];
 
-  // Filtro simples de busca (pesquisa pelo nome da música ou artista)
+  // 💡 O NOVO CÉREBRO DA BUSCA (Ignora acentos e maiúsculas/minúsculas)
+  const normalizeText = (text: string) => {
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  };
+
   const filteredSongs = recentSearches.filter(song => 
-    song.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    song.artist.toLowerCase().includes(searchTerm.toLowerCase())
+    normalizeText(song.title).includes(normalizeText(searchTerm)) || 
+    normalizeText(song.artist).includes(normalizeText(searchTerm))
   );
 
   return (
@@ -74,7 +77,6 @@ const BasicLobby = () => {
           </div>
         )}
 
-        {/* TÍTULO DO KARAOKÊ SOLO */}
         <div className="mb-8 flex items-center gap-3">
           <Crown className="text-primary h-6 w-6" />
           <h2 className="text-2xl font-black text-white uppercase tracking-widest">Karaokê Solo</h2>
@@ -82,7 +84,6 @@ const BasicLobby = () => {
 
         {/* ÁREA PRINCIPAL: VÍDEO OU BUSCA */}
         {activeVideo ? (
-          // 📺 PLAYER DE VÍDEO ATIVO
           <div className="animate-in zoom-in-95 duration-500 mb-12">
             <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-primary/30 shadow-[0_0_80px_rgba(0,168,225,0.2)] bg-zinc-900 mb-6 relative">
               <iframe 
@@ -102,30 +103,27 @@ const BasicLobby = () => {
             </div>
           </div>
         ) : (
-          // 🔍 TELA DE BUSCA E CATÁLOGO
           <div className="animate-in slide-in-from-bottom-5">
             
-            {/* BARRA DE BUSCA */}
+            {/* 💡 A NOVA BARRA DE BUSCA NATIVA E INFALÍVEL */}
             <div className="relative mb-10 group max-w-3xl">
               <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
                 <Search className="h-6 w-6 text-gray-500 group-focus-within:text-primary transition-colors" />
               </div>
-              <Input 
+              <input 
                 type="text" 
                 placeholder="Busque por música, artista ou gênero..." 
-                className="w-full h-16 pl-16 pr-6 bg-zinc-950/80 backdrop-blur-xl border-white/10 focus:border-primary text-white text-lg rounded-full shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all"
+                className="w-full h-16 pl-16 pr-6 bg-zinc-950/80 backdrop-blur-xl border border-white/10 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary text-white text-lg rounded-full shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            {/* TÍTULO DAS ÚLTIMAS BUSCAS */}
             <div className="flex items-center gap-2 mb-6">
               <History className="text-gray-500 h-5 w-5" />
               <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Últimas Buscas</h3>
             </div>
 
-            {/* GRID COM AS 6 LENDAS (OU FILTRADAS) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredSongs.length > 0 ? (
                 filteredSongs.map((song) => (
@@ -142,8 +140,10 @@ const BasicLobby = () => {
                   </Card>
                 ))
               ) : (
-                <div className="col-span-full py-12 text-center">
-                  <p className="text-gray-500 font-medium text-lg">Nenhuma música encontrada para "{searchTerm}".</p>
+                <div className="col-span-full py-12 text-center bg-zinc-950/50 rounded-[2rem] border border-white/5">
+                  <Search className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Nenhuma música encontrada para "{searchTerm}".</p>
+                  <p className="text-gray-600 text-xs mt-2">No MVP, a busca filtra apenas as 6 músicas do histórico.</p>
                 </div>
               )}
             </div>
