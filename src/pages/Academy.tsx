@@ -16,4 +16,53 @@ const Academy = () => {
     { id: 2, title: 'Pitch Calibration', desc: 'Introdução para atingir as notas alvo com precisão.', locked: true },
     { id: 3, title: 'Rhythm Basics', desc: 'Mantendo o tempo e sincronizando os vocais.', locked: true },
     { id: 4, title: 'Vocal Resonance', desc: 'Explorando a ressonância de peito e cabeça.', locked: true },
-    { id:
+    { id: 5, title: 'Agility & Riffs', desc: 'Melismas básicos e agilidade vocal.', locked: true },
+    { id: 6, title: 'Vibrato Control', desc: 'Desenvolvendo um vibrato natural e controlado.', locked: true },
+    { id: 7, title: 'Mixed Voice', desc: 'Conectando os registros sem quebras na voz.', locked: true },
+    { id: 8, title: 'Dynamic Belting', desc: 'Potência vocal segura para os grandes refrões.', locked: true },
+    { id: 9, title: 'Emotional Delivery', desc: 'Expressão e interpretação avançada.', locked: true },
+    { id: 10, title: 'Pro Vocalist', desc: 'O teste final de maestria Prime.', locked: true },
+  ];
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center relative p-4 font-sans">
+        <div className="relative z-10 flex flex-col items-center animate-in zoom-in duration-700 max-w-2xl text-center pt-20">
+          <div className="h-32 w-32 rounded-full border-4 border-primary/30 bg-primary/5 flex items-center justify-center mb-8 shadow-[0_0_80px_rgba(0,168,225,0.2)]">
+            <Lock className="h-12 w-12 text-primary drop-shadow-[0_0_15px_rgba(0,168,225,0.8)]" />
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black text-white italic tracking-tighter mb-4 uppercase drop-shadow-lg">
+            ACADEMY <span className="text-primary neon-blue-glow">LOCKED</span>
+          </h1>
+          <p className="text-gray-400 font-medium text-lg mb-12">O currículo de elite é exclusivo para membros logados.</p>
+          <Button onClick={() => navigate('/login')} className="h-16 px-12 rounded-full bg-primary hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_40px_rgba(0,168,225,0.5)] transition-all hover:scale-105">
+            Entrar para Treinar
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans">
+      <img src="https://picsum.photos/seed/academy/1920/1080" alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.15]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black z-0" />
+      
+      <div className="max-w-7xl mx-auto relative z-10 animate-in fade-in duration-700">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
+          <ArrowLeft size={16} /> Voltar para Home
+        </button>
+        
+        <div className="text-center mb-16">
+          <GraduationCap className="h-16 w-16 text-primary mx-auto mb-6 drop-shadow-[0_0_15px_rgba(0,168,225,0.5)]" />
+          <h1 className="text-5xl md:text-7xl font-black text-white italic tracking-tighter drop-shadow-lg uppercase">
+            VOCAL <span className="text-primary neon-blue-glow">ACADEMY</span>
+          </h1>
+          <p className="text-gray-400 mt-6 uppercase tracking-widest text-sm font-bold">Do iniciante ao pro-vocal em 10 estágios</p>
+        </div>
+
+        {/* Dashboard Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <Card className="bg-black/60 border-primary/30 shadow-[0_0_20px_rgba(0,168,225,0.1)] rounded-3xl"><CardContent className="p-8 flex items-center gap-6"><Trophy className="text-primary h-10 w-10" /><div><p className="text-xs text-primary uppercase font-black tracking-widest mb-1">Nível Atual</p><p className="text-4xl font-black text-white italic">1</p></div></CardContent></Card>
+          <Card className="bg-black/60 border-orange-500/30 shadow-[0_0_20px_rgba(249,115,22,0.1)] rounded-3xl"><CardContent className="p-8 flex items-center gap-6"><Star className="text-orange-500 h-10 w-10" /><div><p className="text-xs text-orange-500 uppercase font-black tracking-widest mb-1">XP Acumulado</p><p className="text-4xl font-black text-white italic">0</p></div></CardContent></Card>
+          <Card className="bg-black/60 border-white/10 rounded-3xl"><CardContent className="p-8 flex items-center gap-6"><BookOpen className="text-gray-400 h-10 w-10" /><div><p className="text-xs text-gray-500 uppercase font-black tracking-widest mb-1">Lições Concluídas</p><p className="text-4xl font-black text-white italic">0 / 10
