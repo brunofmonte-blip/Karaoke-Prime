@@ -1,73 +1,88 @@
-// 🚨 ESTE É O LOGIN.TSX
+// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR NA SUA TELA DE LOGIN (ex: src/pages/Login.tsx)
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, Sparkles, Mic2, Loader2 } from 'lucide-react';
+import { Mic2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+
+// Importando a nossa conexão que acabamos de criar!
+import { auth, db, googleProvider } from '../firebase';
+import { signInWithPopup } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const Login = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  const forceLogin = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      // 1. Abre a janela do Google para o usuário escolher a conta
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // 2. Prepara os dados do usuário para salvar no Banco de Dados
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+
+      // 3. Se é a primeira vez dele, cria o perfil. Se não, apenas atualiza o status.
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          avatar: user.photoURL,
+          level: 1,
+          status: 'Online',
+          createdAt: new Date()
+        });
+      } else {
+        await setDoc(userRef, { status: 'Online' }, { merge: true });
+      }
+
+      // 4. Sucesso! Manda o usuário para a página inicial (ou Academy)
+      navigate('/');
+      
+    } catch (error) {
+      console.error("Erro no login:", error);
+      alert("Houve um erro ao tentar fazer login com o Google. Verifique o console.");
+    } finally {
       setIsLoading(false);
-      localStorage.setItem('@KaraokePrime:loggedIn', 'true');
-      window.location.href = '/academy';
-    }, 1000);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-black relative flex items-center justify-center p-4 font-sans overflow-hidden">
-      <img src="https://picsum.photos/seed/loginbg/1920/1080" alt="Background" className="absolute inset-0 w-full h-full object-cover opacity-[0.15]" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/80 z-0" />
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-black to-black z-0 opacity-50" />
       
-      <button onClick={() => navigate(-1)} className="absolute top-24 left-8 text-gray-400 hover:text-white flex items-center gap-2 font-bold uppercase tracking-widest text-xs z-50 transition-colors">
-        <ArrowLeft size={16} /> Voltar
-      </button>
-
-      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10 animate-in fade-in slide-in-from-bottom-10 duration-700 mt-16">
-        
-        <div className="space-y-8 hidden md:block">
-          <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-white mb-4">
-            <Mic2 size={16} className="text-primary" /> <span className="font-black italic tracking-tighter">KARAOKE <span className="text-primary">PRIME</span></span>
-          </div>
-          <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[1.1]">
-            Acesso <span className="text-orange-500 neon-gold-glow italic">VIP</span> Liberado.
-          </h1>
-          <p className="text-gray-400 text-lg font-medium leading-relaxed max-w-md">
-            O Firebase foi desativado temporariamente para que você possa testar a Masterclass de vídeo.
-          </p>
+      <div className="z-10 w-full max-w-md bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-[3rem] p-10 flex flex-col items-center text-center shadow-[0_0_80px_rgba(0,168,225,0.15)]">
+        <div className="w-20 h-20 rounded-full bg-black border border-white/10 flex items-center justify-center mb-6 shadow-lg shadow-primary/20">
+          <Mic2 className="h-10 w-10 text-primary" />
         </div>
+        
+        <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">
+          Karaoke <span className="text-primary neon-blue-glow">Prime</span>
+        </h1>
+        <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-10">
+          A maior arena vocal do mundo
+        </p>
 
-        <Card className="bg-zinc-950/80 backdrop-blur-xl border-white/10 rounded-[3rem] shadow-2xl p-8 md:p-12 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-orange-500 to-primary"></div>
-          
-          <div className="text-center mb-10">
-            <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-2">Entrar na Conta</h2>
-            <p className="text-gray-500 text-sm font-medium">Bypass de segurança ativado.</p>
-          </div>
-
-          <Button type="button" onClick={() => forceLogin()} disabled={isLoading} variant="outline" className="w-full h-14 rounded-2xl border-white/20 bg-white text-black hover:bg-gray-200 font-black mb-8 transition-colors flex items-center justify-center gap-3">
-            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
-              <>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="h-5 w-5" /> Continuar com Google VIP
-              </>
-            )}
-          </Button>
-
-          <form onSubmit={forceLogin} className="space-y-5">
-            <Button type="submit" disabled={isLoading} className="w-full h-16 rounded-2xl bg-primary hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(0,168,225,0.3)] transition-all">
-              {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : 'FORÇAR ENTRADA VIP'}
-            </Button>
-          </form>
-        </Card>
+        <Button 
+          onClick={handleGoogleLogin} 
+          disabled={isLoading}
+          className="w-full h-16 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3"
+        >
+          {isLoading ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : (
+            <>
+              <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-6 h-6" />
+              Entrar com o Google
+            </>
+          )}
+        </Button>
       </div>
     </div>
   );
 };
 
-export default Login; 
+export default Login;
