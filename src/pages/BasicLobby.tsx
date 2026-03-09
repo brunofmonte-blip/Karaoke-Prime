@@ -1,7 +1,7 @@
 // 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/BasicLobby.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History, Loader2 } from 'lucide-react';
+import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History, Loader2, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -9,15 +9,16 @@ const BasicLobby = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   
-  // Estados da Busca Real
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  
+  // 🎥 REF DA CÂMERA
+  const cameraRef = useRef<HTMLVideoElement>(null);
 
   // 🔑 COLOQUE SUA CHAVE DA API DO YOUTUBE AQUI ENTRE AS ASPAS:
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  const YOUTUBE_API_KEY = "SUA_CHAVE_API_DO_YOUTUBE_AQUI";
 
-  // Nosso histórico fixo (Aparece quando a busca está vazia)
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
     { id: "c2hZ_bS3nN4", title: "Let It Be", artist: "The Beatles", youtubeId: "c2hZ_bS3nN4" },
@@ -27,34 +28,54 @@ const BasicLobby = () => {
     { id: "9T88wzEwX4Y", title: "Essa Tal Liberdade", artist: "Só Pra Contrariar", youtubeId: "9T88wzEwX4Y" }
   ];
 
-  // 🚀 FUNÇÃO QUE FAZ A BUSCA REAL NO YOUTUBE
+  // 💡 LÓGICA DA CÂMERA: Liga ao abrir a música, desliga ao fechar
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+
+    if (activeVideo) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then((mediaStream) => {
+          stream = mediaStream;
+          if (cameraRef.current) {
+            cameraRef.current.srcObject = mediaStream;
+          }
+        })
+        .catch(err => console.error("Sem permissão ou sem câmera:", err));
+    }
+
+    return () => {
+      // Limpa a memória e desliga a luz da câmera ao sair da música
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [activeVideo]);
+
   const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault(); // Evita que a página recarregue
+    e.preventDefault(); 
     
     if (!searchTerm.trim()) {
-      setSearchResults([]); // Se estiver vazio, limpa os resultados
+      setSearchResults([]); 
       return;
     }
 
     if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") {
-      alert("⚠️ Comandante, você precisa colar sua chave da API do YouTube na linha 15 do código!");
+      alert("⚠️ Comandante, você precisa colar sua chave da API do YouTube na linha 20 do código!");
       return;
     }
 
     setIsSearching(true);
     
     try {
-      // Adicionamos "karaoke" de forma invisível para garantir que venham vídeos com letras
       const query = encodeURIComponent(`${searchTerm} karaoke`);
       const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=9&q=${query}&type=video&key=${YOUTUBE_API_KEY}`);
       const data = await response.json();
 
       if (data.items) {
-        // Mapeia os dados malucos do YouTube para o nosso formato limpo de Card
         const mappedResults = data.items.map((item: any) => ({
           id: item.id.videoId,
-          title: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'"), // Limpa caracteres estranhos
-          artist: item.snippet.channelTitle, // Usamos o nome do canal como artista/autor
+          title: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'"), 
+          artist: item.snippet.channelTitle, 
           youtubeId: item.id.videoId
         }));
         setSearchResults(mappedResults);
@@ -69,7 +90,6 @@ const BasicLobby = () => {
     }
   };
 
-  // Define o que vamos mostrar: Resultados da busca ou as "Últimas Buscas"
   const displaySongs = searchResults.length > 0 ? searchResults : recentSearches;
 
   return (
@@ -127,7 +147,11 @@ const BasicLobby = () => {
         {/* ÁREA PRINCIPAL: VÍDEO OU BUSCA */}
         {activeVideo ? (
           <div className="animate-in zoom-in-95 duration-500 mb-12">
+            
+            {/* 💡 O NOVO PALCO: YOUTUBE + CÂMERA FLUTUANTE */}
             <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-primary/30 shadow-[0_0_80px_rgba(0,168,225,0.2)] bg-zinc-900 mb-6 relative">
+              
+              {/* VÍDEO DO YOUTUBE (No fundo) */}
               <iframe 
                 width="100%" 
                 height="100%" 
@@ -136,8 +160,26 @@ const BasicLobby = () => {
                 frameBorder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowFullScreen
+                className="absolute inset-0 z-0"
               ></iframe>
+
+              {/* A SUA CÂMERA (Flutuando no canto inferior direito) */}
+              <div className="absolute bottom-6 right-6 w-32 md:w-56 aspect-video bg-black rounded-2xl overflow-hidden border-2 border-primary shadow-[0_0_30px_rgba(0,168,225,0.5)] z-10">
+                <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                  <span className="text-[8px] font-bold text-white uppercase tracking-widest">REC</span>
+                </div>
+                <video 
+                  ref={cameraRef} 
+                  autoPlay 
+                  playsInline 
+                  muted 
+                  className="w-full h-full object-cover transform scale-x-[-1]" /* 💡 scale-x-[-1] cria o efeito espelho perfeito */
+                ></video>
+              </div>
+
             </div>
+            
             <div className="flex justify-center">
               <Button onClick={() => setActiveVideo(null)} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs">
                 <ArrowLeft size={16} className="mr-2" /> Escolher Outra Música
@@ -147,7 +189,6 @@ const BasicLobby = () => {
         ) : (
           <div className="animate-in slide-in-from-bottom-5">
             
-            {/* 💡 BARRA DE BUSCA REAL (Transformada em Formulário para rodar no 'Enter') */}
             <form onSubmit={handleSearch} className="relative mb-10 group max-w-3xl flex gap-2">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
@@ -181,7 +222,6 @@ const BasicLobby = () => {
                     <div className="h-16 w-16 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)] shrink-0">
                       <Mic2 className="h-6 w-6 text-white group-hover:text-primary transition-colors" />
                     </div>
-                    {/* O YouTube traz títulos muito longos, então limitamos para não quebrar o layout (line-clamp) */}
                     <h3 className="text-lg font-black text-white italic tracking-tighter uppercase mb-1 line-clamp-2 min-h-[56px] flex items-center justify-center">{song.title}</h3>
                     <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-6 line-clamp-1">{song.artist}</p>
                     
