@@ -107,3 +107,34 @@ const Login = () => {
           <form onSubmit={handleAuth} className="space-y-5 mb-10">
             {isRegistering && (
               <div>
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Nome de Artista</label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: VocalQueen" className="h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary px-4" />
+              </div>
+            )}
+            <div>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">E-mail</label>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" className="h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary px-4" />
+            </div>
+            <div>
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Senha</label>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-14 bg-black/50 border-white/10 text-white rounded-xl focus:border-primary px-4" />
+            </div>
+
+            <Button type="submit" disabled={isLoading} className="w-full h-16 rounded-2xl bg-primary hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(0,168,225,0.3)] transition-all mt-4">
+              {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : (isRegistering ? 'CADASTRAR AGORA' : 'ENTRAR AGORA')}
+            </Button>
+          </form>
+
+          <p className="text-center text-xs text-gray-500 font-medium">
+            {isRegistering ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
+            <span onClick={() => setIsRegistering(!isRegistering)} className="text-white font-bold cursor-pointer hover:text-primary transition-colors underline underline-offset-4">
+              {isRegistering ? 'Faça Login' : 'Registre-se'}
+            </span>
+          </p>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
