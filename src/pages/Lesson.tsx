@@ -14,7 +14,7 @@ const Lesson = () => {
   const lessonData = {
     level: "Nível 1",
     titleIntro: "Fundamentos e Respiração",
-    introYoutubeId: "ID_DA_INTRODUCAO_AQUI", // 🚨 COLOQUE O ID DA INTRODUÇÃO AQUI
+    introYoutubeId: "m75jPge9QUM", // 🚨 COLOQUE O ID DA INTRODUÇÃO AQUI
     titleLesson: "A Base: Respiração Diafragmática",
     lessonYoutubeId: "Wl6xUHg9iAQ", // ✅ SEU ID DA AULA 1 JÁ ESTÁ AQUI
     description: "A fundação de tudo. Aprenda a parar de respirar pelo peito/ombros e a mandar o ar para o abdômen (diafragma).",
