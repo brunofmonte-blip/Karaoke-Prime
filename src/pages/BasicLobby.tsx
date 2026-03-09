@@ -1,34 +1,76 @@
 // 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/BasicLobby.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History } from 'lucide-react';
+import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 const BasicLobby = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  
+  // Estados da Busca Real
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  // NOSSO HISTÓRICO DE BUSCAS COM AS 6 LENDAS
+  // 🔑 COLOQUE SUA CHAVE DA API DO YOUTUBE AQUI ENTRE AS ASPAS:
+  const YOUTUBE_API_KEY = "SUA_CHAVE_API_DO_YOUTUBE_AQUI";
+
+  // Nosso histórico fixo (Aparece quando a busca está vazia)
   const recentSearches = [
-    { id: 1, title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
-    { id: 2, title: "Let It Be", artist: "The Beatles", youtubeId: "c2hZ_bS3nN4" },
-    { id: 3, title: "Amor Maior", artist: "Jota Quest", youtubeId: "A5iZ91B1A5M" },
-    { id: 4, title: "Evidências", artist: "Chitãozinho & Xororó", youtubeId: "bO2t3zHh9Q8" },
-    { id: 5, title: "When I Was Your Man", artist: "Bruno Mars", youtubeId: "8-XbS7lR-cM" },
-    { id: 6, title: "Essa Tal Liberdade", artist: "Só Pra Contrariar", youtubeId: "9T88wzEwX4Y" }
+    { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
+    { id: "c2hZ_bS3nN4", title: "Let It Be", artist: "The Beatles", youtubeId: "c2hZ_bS3nN4" },
+    { id: "A5iZ91B1A5M", title: "Amor Maior", artist: "Jota Quest", youtubeId: "A5iZ91B1A5M" },
+    { id: "bO2t3zHh9Q8", title: "Evidências", artist: "Chitãozinho & Xororó", youtubeId: "bO2t3zHh9Q8" },
+    { id: "8-XbS7lR-cM", title: "When I Was Your Man", artist: "Bruno Mars", youtubeId: "8-XbS7lR-cM" },
+    { id: "9T88wzEwX4Y", title: "Essa Tal Liberdade", artist: "Só Pra Contrariar", youtubeId: "9T88wzEwX4Y" }
   ];
 
-  // 💡 O NOVO CÉREBRO DA BUSCA (Ignora acentos e maiúsculas/minúsculas)
-  const normalizeText = (text: string) => {
-    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  // 🚀 FUNÇÃO QUE FAZ A BUSCA REAL NO YOUTUBE
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault(); // Evita que a página recarregue
+    
+    if (!searchTerm.trim()) {
+      setSearchResults([]); // Se estiver vazio, limpa os resultados
+      return;
+    }
+
+    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") {
+      alert("⚠️ Comandante, você precisa colar sua chave da API do YouTube na linha 15 do código!");
+      return;
+    }
+
+    setIsSearching(true);
+    
+    try {
+      // Adicionamos "karaoke" de forma invisível para garantir que venham vídeos com letras
+      const query = encodeURIComponent(`${searchTerm} karaoke`);
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=9&q=${query}&type=video&key=${YOUTUBE_API_KEY}`);
+      const data = await response.json();
+
+      if (data.items) {
+        // Mapeia os dados malucos do YouTube para o nosso formato limpo de Card
+        const mappedResults = data.items.map((item: any) => ({
+          id: item.id.videoId,
+          title: item.snippet.title.replace(/&quot;/g, '"').replace(/&#39;/g, "'"), // Limpa caracteres estranhos
+          artist: item.snippet.channelTitle, // Usamos o nome do canal como artista/autor
+          youtubeId: item.id.videoId
+        }));
+        setSearchResults(mappedResults);
+      } else if (data.error) {
+        alert(`Erro na API: ${data.error.message}`);
+      }
+    } catch (error) {
+      console.error("Erro na busca do YouTube:", error);
+      alert("Falha ao conectar com o YouTube. Verifique sua conexão.");
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const filteredSongs = recentSearches.filter(song => 
-    normalizeText(song.title).includes(normalizeText(searchTerm)) || 
-    normalizeText(song.artist).includes(normalizeText(searchTerm))
-  );
+  // Define o que vamos mostrar: Resultados da busca ou as "Últimas Buscas"
+  const displaySongs = searchResults.length > 0 ? searchResults : recentSearches;
 
   return (
     <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans">
@@ -105,36 +147,45 @@ const BasicLobby = () => {
         ) : (
           <div className="animate-in slide-in-from-bottom-5">
             
-            {/* 💡 A NOVA BARRA DE BUSCA NATIVA E INFALÍVEL */}
-            <div className="relative mb-10 group max-w-3xl">
-              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                <Search className="h-6 w-6 text-gray-500 group-focus-within:text-primary transition-colors" />
+            {/* 💡 BARRA DE BUSCA REAL (Transformada em Formulário para rodar no 'Enter') */}
+            <form onSubmit={handleSearch} className="relative mb-10 group max-w-3xl flex gap-2">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                  <Search className="h-6 w-6 text-gray-500 group-focus-within:text-primary transition-colors" />
+                </div>
+                <input 
+                  type="text" 
+                  placeholder="Busque por música, artista ou gênero..." 
+                  className="w-full h-16 pl-16 pr-6 bg-zinc-950/80 backdrop-blur-xl border border-white/10 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary text-white text-lg rounded-full shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-              <input 
-                type="text" 
-                placeholder="Busque por música, artista ou gênero..." 
-                className="w-full h-16 pl-16 pr-6 bg-zinc-950/80 backdrop-blur-xl border border-white/10 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary text-white text-lg rounded-full shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+              <Button type="submit" disabled={isSearching} className="h-16 px-8 rounded-full bg-primary hover:bg-white text-black font-black uppercase tracking-widest transition-all">
+                {isSearching ? <Loader2 className="h-6 w-6 animate-spin" /> : "BUSCAR"}
+              </Button>
+            </form>
 
             <div className="flex items-center gap-2 mb-6">
-              <History className="text-gray-500 h-5 w-5" />
-              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Últimas Buscas</h3>
+              {searchResults.length > 0 ? (
+                <><Search className="text-primary h-5 w-5" /><h3 className="text-sm font-bold text-primary uppercase tracking-widest">Resultados da Busca</h3></>
+              ) : (
+                <><History className="text-gray-500 h-5 w-5" /><h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Últimas Buscas</h3></>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredSongs.length > 0 ? (
-                filteredSongs.map((song) => (
+              {displaySongs.length > 0 ? (
+                displaySongs.map((song) => (
                   <Card key={song.id} className="bg-zinc-950/80 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center group">
-                    <div className="h-16 w-16 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)]">
+                    <div className="h-16 w-16 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)] shrink-0">
                       <Mic2 className="h-6 w-6 text-white group-hover:text-primary transition-colors" />
                     </div>
-                    <h3 className="text-xl font-black text-white italic tracking-tighter uppercase mb-1">{song.title}</h3>
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-6">{song.artist}</p>
+                    {/* O YouTube traz títulos muito longos, então limitamos para não quebrar o layout (line-clamp) */}
+                    <h3 className="text-lg font-black text-white italic tracking-tighter uppercase mb-1 line-clamp-2 min-h-[56px] flex items-center justify-center">{song.title}</h3>
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-6 line-clamp-1">{song.artist}</p>
                     
-                    <Button onClick={() => setActiveVideo(song.youtubeId)} className="w-full h-12 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest text-xs transition-all">
+                    <Button onClick={() => setActiveVideo(song.youtubeId)} className="w-full h-12 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest text-xs transition-all mt-auto">
                       CANTAR <PlayCircle className="ml-2 h-4 w-4" />
                     </Button>
                   </Card>
@@ -142,8 +193,7 @@ const BasicLobby = () => {
               ) : (
                 <div className="col-span-full py-12 text-center bg-zinc-950/50 rounded-[2rem] border border-white/5">
                   <Search className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                  <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Nenhuma música encontrada para "{searchTerm}".</p>
-                  <p className="text-gray-600 text-xs mt-2">No MVP, a busca filtra apenas as 6 músicas do histórico.</p>
+                  <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Nenhuma música encontrada.</p>
                 </div>
               )}
             </div>
