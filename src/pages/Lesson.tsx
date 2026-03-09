@@ -23,7 +23,7 @@ const Lesson = () => {
       { id: 0, displayTitle: "Introdução", title: "Fundamentos e Respiração", youtubeId: "m75jPge9QUM", description: "Bem-vindo ao seu primeiro passo.", hasPractice: false, locked: false },
       { id: 1, displayTitle: "Aula 1", title: "Respiração Diafragmática", youtubeId: "Wl6xUHg9iAQ", description: "A fundação de tudo.", hasPractice: true, exercise: "Ciclo 4-4-10-4", practiceDesc: "Inspirar (4s), Segurar (4s), Expirar (10s) e Descansar (4s).", locked: false },
       { id: 2, displayTitle: "Aula 2", title: "Controle de Fluxo de Ar", youtubeId: "fQKI_SFrrOo", description: "Cantar não é sobre a força do ar, mas sobre o controle.", hasPractice: true, exercise: "Emissão de 'S' (15s)", practiceDesc: "Treino de resistência e economia de ar.", locked: false },
-      { id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", description: "A aplicação do fluxo de ar, mas agora usando a voz de verdade.", hasPractice: true, exercise: "Sustentação de Nota Única", practiceDesc: "Treino de constância de afinação e fôlego.", locked: false },
+      { id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", description: "A aplicação do fluxo de ar, mas agora usando a voz de verdade.", hasPractice: true, exercise: "Sustentação de Nota", practiceDesc: "Treino de constância de afinação e fôlego.", locked: false },
       { id: 4, displayTitle: "Aula 4", title: "Aquecimento Labial", youtubeId: "3nL733b7rgQ", description: "O exercício mais famoso dos cantores.", hasPractice: true, exercise: "Lip Trill de 10s", practiceDesc: "Vibração contínua dos lábios.", locked: false },
       { id: 5, displayTitle: "Aula 5", title: "Soltando a Língua", youtubeId: "vImzV9TdLdo", description: "Exercício fundamental de vibração de língua.", hasPractice: true, exercise: "Trinado de Língua", practiceDesc: "Vibração de língua contínua.", locked: false },
       { id: 6, displayTitle: "Aula 6", title: "Sirene Vocal", youtubeId: "ZsvFS4u2P8I", description: "Conectando Graves e Agudos sem a voz 'quebrar'.", hasPractice: true, exercise: "Sirene Completa", practiceDesc: "Transição suave de registros.", locked: false },
@@ -48,48 +48,65 @@ const Lesson = () => {
     return () => clearTimeout(timer);
   }, [trainingStatus, countdown, timeLeft]);
 
-  // 💡 LÓGICA DO MOTOR MULTITAREFAS (COM SUAS CORREÇÕES)
+  // 💡 O CÉREBRO COMPLETO COM TODAS AS 9 AULAS
   const getCycleState = () => {
     const elapsed = 60 - timeLeft; 
     
     switch (currentLesson.id) {
-      case 1: { 
+      case 1: { // 4-4-10-4
         const t = elapsed % 22; 
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
         if (t < 8) return { phase: 'SEGURAR', instruction: 'Segura por 4 segundos', color: 'orange', icon: Lock };
         if (t < 18) return { phase: 'EXPIRAR', instruction: 'Expira por 10 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 4 segundos', color: 'gray', icon: Coffee };
       }
-      case 2: { 
+      case 2: { // Som de S
         const t = elapsed % 22;
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
-        // 💡 FRASE CORRIGIDA PARA "PNEU ESVAZIANDO" AQUI:
         if (t < 19) return { phase: 'EMITIR S', instruction: 'Solte o ar com som de pneu esvaziando por 15 segundos', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 3 segundos', color: 'gray', icon: Coffee };
       }
-      case 3: { 
+      case 3: { // Sustentação
         const t = elapsed % 22;
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
-        if (t < 19) return { phase: 'SUSTENTAR', instruction: 'Sustente uma nota constante por 15 segundos', color: 'blue', icon: Mic2 };
+        if (t < 19) return { phase: 'SUSTENTAR', instruction: 'Sustente uma nota confortável por 15 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 3 segundos', color: 'gray', icon: Coffee };
       }
-      case 4: { 
+      case 4: { // Lip Trill
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
-        if (t < 13) return { phase: 'LIP TRILL', instruction: 'Faça a vibração dos lábios por 10 segundos', color: 'blue', icon: Activity };
+        if (t < 13) return { phase: 'LIP TRILL', instruction: 'Faça a vibração dos lábios contínua por 10 segundos', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 5: { 
+      case 5: { // Trinado de Língua
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
-        if (t < 13) return { phase: 'LÍNGUA', instruction: 'Trinado de língua por 10 segundos', color: 'blue', icon: Mic2 };
+        if (t < 13) return { phase: 'LÍNGUA', instruction: 'Trinado de língua contínuo por 10 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 6: { 
+      case 6: { // Sirene
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
-        if (t < 13) return { phase: 'SIRENE', instruction: 'Faça a sirene subindo e descendo', color: 'blue', icon: Activity };
+        if (t < 13) return { phase: 'SIRENE', instruction: 'Faça o som de sirene subindo e descendo', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
+      }
+      case 7: { // Articulação
+        const t = elapsed % 15;
+        if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
+        if (t < 13) return { phase: 'ARTICULAR', instruction: 'Leia o texto abrindo bem a boca nas vogais', color: 'blue', icon: Mic2 };
+        return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
+      }
+      case 8: { // Ataque Suave
+        const t = elapsed % 15;
+        if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
+        if (t < 13) return { phase: 'ATAQUE SUAVE', instruction: 'Inicie o som com um sopro, falando Aga-Amor', color: 'blue', icon: Activity };
+        return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
+      }
+      case 9: { // Humming
+        const t = elapsed % 22;
+        if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
+        if (t < 19) return { phase: 'HUMMING', instruction: 'Faça o som de Hummmm sentindo vibrar o rosto', color: 'blue', icon: Mic2 };
+        return { phase: 'DESCANSAR', instruction: 'Descansa por 3 segundos', color: 'gray', icon: Coffee };
       }
       default: { 
         const t = elapsed % 15;
@@ -239,15 +256,14 @@ const Lesson = () => {
                       </div>
                     </div>
 
-                    <div className="mb-4 h-8 flex items-center justify-center">
+                    <div className="mb-4 h-8 flex items-center justify-center text-center px-4">
                       <p className={`text-xl font-black uppercase tracking-widest animate-in slide-in-from-bottom-2 fade-in
                         ${cycleState.color === 'cyan' ? 'text-cyan-400' : cycleState.color === 'orange' ? 'text-orange-500' : cycleState.color === 'blue' ? 'text-blue-500' : 'text-gray-400'}`}>
-                        {/* 💡 REMOVIDO "LOCUÇÃO:" E OS COLCHETES */}
                         {cycleState.instruction}
                       </p>
                     </div>
 
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">Tempo restante: {timeLeft}s</p>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-sm mt-4">Tempo restante: {timeLeft}s</p>
                   </div>
                 )}
 
@@ -265,8 +281,8 @@ const Lesson = () => {
                       </h4>
                       <ul className="space-y-4 text-gray-300 text-sm font-medium leading-relaxed">
                         <li className="flex items-start gap-3"><CheckCircle2 size={18} className="text-cyan-500 shrink-0 mt-0.5" /> <span>Pratique este exercício 3 vezes ao dia durante uma semana para fixar a memória muscular.</span></li>
-                        <li className="flex items-start gap-3"><CheckCircle2 size={18} className="text-cyan-500 shrink-0 mt-0.5" /> <span>Automatize o controle do seu diafragma para sustentar notas longas sem cansar as cordas vocais.</span></li>
-                        <li className="flex items-start gap-3"><CheckCircle2 size={18} className="text-cyan-500 shrink-0 mt-0.5" /> <span>Lembre-se: mantenha os ombros relaxados. O peito não deve subir durante a inspiração.</span></li>
+                        <li className="flex items-start gap-3"><CheckCircle2 size={18} className="text-cyan-500 shrink-0 mt-0.5" /> <span>Mantenha a postura ereta e relaxe os ombros.</span></li>
+                        <li className="flex items-start gap-3"><CheckCircle2 size={18} className="text-cyan-500 shrink-0 mt-0.5" /> <span>Beba água em temperatura ambiente para hidratar as pregas vocais.</span></li>
                       </ul>
                     </div>
                     
