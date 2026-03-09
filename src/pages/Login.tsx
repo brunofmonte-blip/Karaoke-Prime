@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mic2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Apontando para o arquivo que acabamos de limpar no Passo 1!
+// Apontando para o arquivo do Firebase
 import { auth, db, googleProvider } from '@/lib/firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -40,7 +40,7 @@ const Login = () => {
       
     } catch (error) {
       console.error("Erro no login:", error);
-      alert("Houve um erro ao tentar fazer login com o Google. Verifique o console.");
+      alert("Houve um erro ao tentar fazer login com o Google. Verifique as chaves do Firebase.");
     } finally {
       setIsLoading(false);
     }
@@ -81,4 +81,5 @@ const Login = () => {
   );
 };
 
+// 👇 ESTA É A LINHA QUE ESTAVA FALTANDO! 👇
 export default Login;
