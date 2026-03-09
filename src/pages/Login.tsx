@@ -1,20 +1,4 @@
-// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR NO ARQUIVO src/lib/firebase.ts
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-
-// 🔑 AS CHAVES DO SEU PROJETO FIREBASE (Com o measurementId incluído)
-const firebaseConfig = {
-  apiKey: "AIzaSyDmJaH9jZUqI2fGQV_yAYC-8w8t3RmvrlI",
-  authDomain: "karaoke-prime-4f59e.firebaseapp.com",
-  projectId: "karaoke-prime-4f59e",
-  storageBucket: "karaoke-prime-4f59e.firebasestorage.app",
-  messagingSenderId: "1019002450289",
-  appId: "1:1019002450289:web:fd3801c55b5bdeb2c906d0",
-  measurementId: "G-H3J972N7FM"
-};
-
-// Inicializando os serviços do Firebase// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR NO ARQUIVO src/pages/Login.tsx
+// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR NO ARQUIVO src/pages/Login.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mic2, Loader2 } from 'lucide-react';
@@ -102,9 +86,3 @@ const Login = () => {
 };
 
 export default Login;
-const app = initializeApp(firebaseConfig);
-
-// Exportando para usarmos no resto do aplicativo
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider(); 
