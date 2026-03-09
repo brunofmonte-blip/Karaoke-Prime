@@ -1,4 +1,4 @@
-// 🚨 ESTE É O APP.TSX
+// 🚨 ESTE É O APP.TSX 
 import React from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Star, LayoutDashboard, Sparkles, ArrowLeft } from "lucide-react";
