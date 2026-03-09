@@ -13,7 +13,7 @@ const Lesson = () => {
     title: "A Base: Respiração Diafragmática",
     level: "Nível 1",
     // 🚨 COLOQUE O ID DO SEU VÍDEO DO YOUTUBE AQUI DENTRO DAS ASPAS:
-    youtubeId: "https://youtu.be/Wl6xUHg9iAQ", 
+    youtubeId: "Wl6xUHg9iAQ", 
     description: "A fundação de tudo. Aprenda a parar de respirar pelo peito/ombros e a mandar o ar para o abdômen (diafragma).",
     exercise: "Ciclo 4-4-10-4",
     practiceDesc: "Inspirar (4s), Segurar (4s), Expirar (10s) e Descansar (4s). A IA vai analisar a estabilidade do seu fluxo de ar."
