@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Mic2 } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Mic2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 const Lesson = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Pega o número da lição na URL
-  const [step, setStep] = useState<'video' | 'practice'>('video');
+  const { id } = useParams();
+  
+  // 💡 O MOTOR AGORA TEM 3 ESTÁGIOS: Introdução -> Aula -> Prática
+  const [step, setStep] = useState<'intro' | 'video' | 'practice'>('intro');
 
   const lessonData = {
-    title: "A Base: Respiração Diafragmática",
     level: "Nível 1",
-    // 🚨 COLOQUE O ID DO SEU VÍDEO DO YOUTUBE AQUI DENTRO DAS ASPAS:
-    youtubeId: "Wl6xUHg9iAQ", 
+    titleIntro: "Fundamentos e Respiração",
+    introYoutubeId: "ID_DA_INTRODUCAO_AQUI", // 🚨 COLOQUE O ID DA INTRODUÇÃO AQUI
+    titleLesson: "A Base: Respiração Diafragmática",
+    lessonYoutubeId: "Wl6xUHg9iAQ", // ✅ SEU ID DA AULA 1 JÁ ESTÁ AQUI
     description: "A fundação de tudo. Aprenda a parar de respirar pelo peito/ombros e a mandar o ar para o abdômen (diafragma).",
     exercise: "Ciclo 4-4-10-4",
     practiceDesc: "Inspirar (4s), Segurar (4s), Expirar (10s) e Descansar (4s). A IA vai analisar a estabilidade do seu fluxo de ar."
@@ -32,33 +35,58 @@ const Lesson = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
           <div>
             <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-              <PlayCircle size={14} /> Masterclass • {lessonData.level}
+              <PlayCircle size={14} /> Masterclass • {lessonData.level} 
+              {step === 'intro' && " (Introdução)"}
+              {step === 'video' && " (Aula Prática)"}
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase drop-shadow-lg leading-tight">
-              {lessonData.title.split(':')[0]}:<br/><span className="text-primary neon-blue-glow">{lessonData.title.split(':')[1]}</span>
-            </h1>
+            
+            {/* Título Dinâmico dependendo da etapa */}
+            {step === 'intro' ? (
+              <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase drop-shadow-lg leading-tight">
+                Boas-vindas:<br/><span className="text-orange-500 neon-gold-glow">{lessonData.titleIntro}</span>
+              </h1>
+            ) : (
+              <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase drop-shadow-lg leading-tight">
+                {lessonData.titleLesson.split(':')[0]}:<br/><span className="text-primary neon-blue-glow">{lessonData.titleLesson.split(':')[1]}</span>
+              </h1>
+            )}
           </div>
+          
           <div className="text-right">
-            <p className="text-gray-400 text-sm font-medium max-w-sm">{lessonData.description}</p>
+            <p className="text-gray-400 text-sm font-medium max-w-sm">
+              {step === 'intro' ? "Assista a esta introdução para entender a mentalidade e os fundamentos necessários antes de ir para a técnica." : lessonData.description}
+            </p>
           </div>
         </div>
 
-        {/* MÓDULO 1: O VÍDEO DO YOUTUBE (AULA TEÓRICA) */}
+        {/* ========================================== */}
+        {/* ESTÁGIO 1: VÍDEO DE INTRODUÇÃO */}
+        {/* ========================================== */}
+        {step === 'intro' && (
+          <div className="animate-in slide-in-from-bottom-10 duration-500">
+            <div className="w-full aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(249,115,22,0.15)] bg-zinc-900 mb-8 relative group">
+              <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${lessonData.introYoutubeId}?rel=0&modestbranding=1`} title="Intro Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => setStep('video')} className="h-16 px-12 rounded-full bg-orange-500 hover:bg-white text-black font-black text-xl italic uppercase tracking-tighter shadow-[0_0_30px_rgba(249,115,22,0.3)] transition-all">
+                Ir para a Aula Técnica <ArrowLeft size={20} className="ml-3 rotate-180" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================== */}
+        {/* ESTÁGIO 2: VÍDEO DA AULA 1 */}
+        {/* ========================================== */}
         {step === 'video' && (
           <div className="animate-in slide-in-from-bottom-10 duration-500">
             <div className="w-full aspect-video rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,168,225,0.15)] bg-zinc-900 mb-8 relative group">
-              <iframe 
-                width="100%" 
-                height="100%" 
-                src={`https://www.youtube.com/embed/${lessonData.youtubeId}?rel=0&modestbranding=1`} 
-                title="Lesson Video" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
-              ></iframe>
+              <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${lessonData.lessonYoutubeId}?rel=0&modestbranding=1`} title="Lesson Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
             </div>
-
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
+              <Button onClick={() => setStep('intro')} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white hover:bg-white hover:text-black font-bold uppercase tracking-widest text-xs transition-all">
+                <ArrowLeft size={16} className="mr-2" /> Rever Introdução
+              </Button>
               <Button onClick={() => setStep('practice')} className="h-16 px-12 rounded-full bg-primary hover:bg-white text-black font-black text-xl italic uppercase tracking-tighter shadow-[0_0_30px_rgba(0,168,225,0.3)] transition-all">
                 Ir para a Prática (Gravar) <ArrowLeft size={20} className="ml-3 rotate-180" />
               </Button>
@@ -66,7 +94,9 @@ const Lesson = () => {
           </div>
         )}
 
-        {/* MÓDULO 2: A PRÁTICA (MOTOR IA) */}
+        {/* ========================================== */}
+        {/* ESTÁGIO 3: O EXERCÍCIO PRÁTICO COM IA */}
+        {/* ========================================== */}
         {step === 'practice' && (
           <Card className="bg-zinc-950/80 backdrop-blur-xl border-primary/30 rounded-[3rem] shadow-[0_0_50px_rgba(0,168,225,0.1)] p-8 md:p-12 animate-in zoom-in-95 duration-500">
             <div className="flex flex-col items-center text-center">
@@ -84,7 +114,7 @@ const Lesson = () => {
               </div>
 
               <div className="flex gap-4 w-full max-w-md">
-                <Button onClick={() => alert("A IA de Avaliação será injetada aqui!")} className="flex-1 h-16 rounded-full bg-orange-500 hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(249,115,22,0.3)] transition-all">
+                <Button onClick={() => alert("A IA de Avaliação Respiratória será injetada aqui na próxima etapa!")} className="flex-1 h-16 rounded-full bg-orange-500 hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(249,115,22,0.3)] transition-all">
                   INICIAR GRAVAÇÃO
                 </Button>
                 <Button onClick={() => setStep('video')} variant="outline" className="h-16 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs">
