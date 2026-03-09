@@ -8,7 +8,7 @@ import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import BasicLobby from "./pages/BasicLobby";
 import Academy from "./pages/Academy";
-import Lesson from "./pages/Lesson"; // 💡 IMPORTANDO A NOSSA MASTERCLASS AQUI
+import Lesson from "./pages/Lesson"; // 💡 A Sala de Aula VIP conectada aqui!
 import Duel from "./pages/Duel";
 import Login from "./pages/Login";
 
@@ -31,24 +31,26 @@ const ComingSoon = ({ title, subtitle, bgImage, icon: Icon, color, bgOpacityClas
   );
 };
 
-const App = () => (
-  <BrowserRouter>
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/basic" element={<BasicLobby />} />
-        <Route path="/academy" element={<Academy />} />
-        <Route path="/lesson/:id" element={<Lesson />} /> {/* 💡 A ROTA PARA OS VÍDEOS ESTÁ AQUI */}
-        <Route path="/duel" element={<Duel />} />
-        <Route path="/login" element={<Login />} />
-        
-        <Route path="/talent" element={<ComingSoon title="Next Talent" subtitle="Audições globais estão chegando." bgImage="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=2000" icon={Star} color="text-yellow-400" />} />
-        <Route path="/backstage" element={<ComingSoon title="Backstage" subtitle="Dashboard premium bloqueado." bgImage="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000" icon={LayoutDashboard} color="text-gray-400" bgOpacityClass="opacity-50" />} />
-        <Route path="/next-success" element={<ComingSoon title="Next Success" subtitle="Crie hits com IA." bgImage="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2000" icon={Sparkles} color="text-primary" />} />
-        <Route path="*" element={<ComingSoon title="Em Breve" subtitle="Página em construção." bgImage="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000" icon={Star} color="text-white" />} />
-      </Routes>
-    </Layout>
-  </BrowserRouter>
-);
+const App = () => {
+  return (
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/basic" element={<BasicLobby />} />
+          <Route path="/academy" element={<Academy />} />
+          <Route path="/lesson/:id" element={<Lesson />} />
+          <Route path="/duel" element={<Duel />} />
+          <Route path="/login" element={<Login />} />
+          
+          <Route path="/talent" element={<ComingSoon title="Next Talent" subtitle="Audições globais estão chegando." bgImage="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=2000" icon={Star} color="text-yellow-400" />} />
+          <Route path="/backstage" element={<ComingSoon title="Backstage" subtitle="Dashboard premium bloqueado." bgImage="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000" icon={LayoutDashboard} color="text-gray-400" bgOpacityClass="opacity-50" />} />
+          <Route path="/next-success" element={<ComingSoon title="Next Success" subtitle="Crie hits com IA." bgImage="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2000" icon={Sparkles} color="text-primary" />} />
+          <Route path="*" element={<ComingSoon title="Em Breve" subtitle="Página em construção." bgImage="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000" icon={Star} color="text-white" />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
+  );
+};
 
 export default App;
