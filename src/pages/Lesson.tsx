@@ -48,50 +48,50 @@ const Lesson = () => {
     return () => clearTimeout(timer);
   }, [trainingStatus, countdown, timeLeft]);
 
-  // 💡 A MÁGICA ACONTECE AQUI: O CÉREBRO AGORA SABE EM QUAL AULA ESTAMOS!
+  // 💡 LÓGICA DO MOTOR MULTITAREFAS (COM SUAS CORREÇÕES)
   const getCycleState = () => {
     const elapsed = 60 - timeLeft; 
     
-    // Desvio condicional (Switch) baseado no ID da aula atual
     switch (currentLesson.id) {
-      case 1: { // Aula 1: 4-4-10-4 (Ciclo de 22s)
+      case 1: { 
         const t = elapsed % 22; 
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
         if (t < 8) return { phase: 'SEGURAR', instruction: 'Segura por 4 segundos', color: 'orange', icon: Lock };
         if (t < 18) return { phase: 'EXPIRAR', instruction: 'Expira por 10 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 4 segundos', color: 'gray', icon: Coffee };
       }
-      case 2: { // Aula 2: Som de S (Ciclo de 22s)
+      case 2: { 
         const t = elapsed % 22;
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
-        if (t < 19) return { phase: 'EMITIR S', instruction: 'Solte o ar com som de SSSS por 15 segundos', color: 'blue', icon: Activity };
+        // 💡 FRASE CORRIGIDA PARA "PNEU ESVAZIANDO" AQUI:
+        if (t < 19) return { phase: 'EMITIR S', instruction: 'Solte o ar com som de pneu esvaziando por 15 segundos', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 3 segundos', color: 'gray', icon: Coffee };
       }
-      case 3: { // Aula 3: Sustentação (Ciclo de 22s)
+      case 3: { 
         const t = elapsed % 22;
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
         if (t < 19) return { phase: 'SUSTENTAR', instruction: 'Sustente uma nota constante por 15 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 3 segundos', color: 'gray', icon: Coffee };
       }
-      case 4: { // Aula 4: Lip Trill (Ciclo de 15s)
+      case 4: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'LIP TRILL', instruction: 'Faça a vibração dos lábios por 10 segundos', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 5: { // Aula 5: Língua (Ciclo de 15s)
+      case 5: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'LÍNGUA', instruction: 'Trinado de língua por 10 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 6: { // Aula 6: Sirene (Ciclo de 15s)
+      case 6: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'SIRENE', instruction: 'Faça a sirene subindo e descendo', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      default: { // Aulas 7, 8, 9, 10 (Ciclo genérico de 15s adaptável)
+      default: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'PRATICAR', instruction: 'Execute o exercício focado na técnica', color: 'blue', icon: Mic2 };
@@ -239,10 +239,11 @@ const Lesson = () => {
                       </div>
                     </div>
 
-                    <div className="mb-4 h-8">
+                    <div className="mb-4 h-8 flex items-center justify-center">
                       <p className={`text-xl font-black uppercase tracking-widest animate-in slide-in-from-bottom-2 fade-in
                         ${cycleState.color === 'cyan' ? 'text-cyan-400' : cycleState.color === 'orange' ? 'text-orange-500' : cycleState.color === 'blue' ? 'text-blue-500' : 'text-gray-400'}`}>
-                        [ Locução: {cycleState.instruction} ]
+                        {/* 💡 REMOVIDO "LOCUÇÃO:" E OS COLCHETES */}
+                        {cycleState.instruction}
                       </p>
                     </div>
 
