@@ -8,7 +8,7 @@ import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import BasicLobby from "./pages/BasicLobby";
 import Academy from "./pages/Academy";
-import Lesson from "./pages/Lesson"; // 💡 A Sala de Aula VIP conectada aqui!
+import Lesson from "./pages/Lesson"; // 💡 A nossa Masterclass conectada!
 import Duel from "./pages/Duel";
 import Login from "./pages/Login";
 
