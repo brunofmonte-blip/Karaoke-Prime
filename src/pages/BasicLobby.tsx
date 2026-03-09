@@ -23,7 +23,7 @@ const BasicLobby = () => {
   const cameraRef = useRef<HTMLVideoElement>(null);
 
   // 🔑 COLOQUE SUA CHAVE DA API DO YOUTUBE AQUI ENTRE AS ASPAS:
-  const YOUTUBE_API_KEY = "SUA_CHAVE_API_DO_YOUTUBE_AQUI";
+  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
 
   // MOCK DO BANCO DE DADOS: Últimas Buscas de Músicas
   const recentSearches = [
