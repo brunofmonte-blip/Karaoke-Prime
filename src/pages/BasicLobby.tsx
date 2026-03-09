@@ -1,353 +1,192 @@
-import React, { useState, useRef, useEffect } from 'react';
+// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/BasicLobby.tsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Globe, Download, Users, ArrowLeft, Search, PlayCircle, X, Loader2, Camera, RotateCcw, Ban, Trophy, Star, Mic2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { ArrowLeft, Mic2, PlayCircle, Star, Activity, CheckCircle2, Trophy, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 
 const BasicLobby = () => {
   const navigate = useNavigate();
   
-  // Estados do Lobby
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  // Estados do Palco: 'selecao' (escolhendo música) -> 'cantando' (karaoke) -> 'resultado' (nota)
+  const [stage, setStage] = useState<'selecao' | 'cantando' | 'resultado'>('selecao');
   
-  // Estados da Performance
-  const [videoKey, setVideoKey] = useState(0); 
-  const [showScore, setShowScore] = useState(false);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [vocalAnalysis, setVocalAnalysis] = useState<any>(null);
+  const [selectedSong, setSelectedSong] = useState<any>(null);
+  const [progress, setProgress] = useState(0);
+  const [score, setScore] = useState(0);
 
-  // Refs para Hardware e Áudio
-  const webcamRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationFrameRef = useRef<number>(0);
-  
-  // Coletor de Dados de Áudio Real (Com MaxVolume para barrar silêncio)
-  const metricsRef = useRef({ volumes: [] as number[], peaks: 0, drops: 0, totalFrames: 0, maxVolume: 0 });
+  // Músicas de demonstração para o MVP
+  const songs = [
+    { id: 1, title: "Someone Like You", artist: "Adele", difficulty: "Avançado", duration: 15 },
+    { id: 2, title: "Evidências", artist: "Chitãozinho & Xororó", difficulty: "Intermediário", duration: 15 },
+    { id: 3, title: "Yellow", artist: "Coldplay", difficulty: "Iniciante", duration: 15 }
+  ];
 
-  // 🔴 ADICIONE SUA CHAVE API AQUI
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548"; 
-
-  // Limpeza de Hardware ao sair da página
+  // Lógica de simulação do Karaokê (15 segundos para MVP)
   useEffect(() => {
-    return () => stopHardware();
-  }, []);
-
-  // 💡 CORREÇÃO 1: Injetar o vídeo SOMENTE depois que a tela terminar de desenhar a Câmera
-  useEffect(() => {
-    if (cameraActive && webcamRef.current && streamRef.current) {
-      webcamRef.current.srcObject = streamRef.current;
-      webcamRef.current.play().catch(e => console.error("Erro ao dar play no vídeo:", e));
-    }
-  }, [cameraActive]);
-
-  const stopHardware = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close();
-      audioContextRef.current = null;
-    }
-    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    setCameraActive(false);
-  };
-
-  const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && query.trim() !== '') {
-      setIsLoading(true);
-      try {
-        const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query + " karaoke")}&type=video&key=${YOUTUBE_API_KEY}`
-        );
-        const data = await response.json();
-        if (data.items) setResults(data.items);
-      } catch (error) {
-        console.error("Erro na busca:", error);
-      } finally {
-        setIsLoading(false);
+    let timer: NodeJS.Timeout;
+    if (stage === 'cantando') {
+      if (progress < 100) {
+        timer = setTimeout(() => setProgress(progress + 1), 150); // 15s total aprox
+      } else {
+        setScore(Math.floor(Math.random() * 15) + 80); // Nota entre 80 e 95
+        setStage('resultado');
       }
     }
+    return () => clearTimeout(timer);
+  }, [stage, progress]);
+
+  const handleStartSinging = (song: any) => {
+    setSelectedSong(song);
+    setProgress(0);
+    setStage('cantando');
   };
 
-  const startCameraAndMic = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: true });
-      streamRef.current = stream;
-      setCameraActive(true); // O useEffect cuidará de exibir o vídeo
-
-      // Inicia a Captura de Áudio (Web Audio API)
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      audioContextRef.current = audioCtx;
-      const source = audioCtx.createMediaStreamSource(stream);
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 2048;
-      source.connect(analyser);
-      analyserRef.current = analyser;
-
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      
-      // Resetar métricas
-      metricsRef.current = { volumes: [], peaks: 0, drops: 0, totalFrames: 0, maxVolume: 0 };
-
-      const analyzeAudio = () => {
-        if (!analyserRef.current) return;
-        analyserRef.current.getByteTimeDomainData(dataArray);
-        
-        let sumSquares = 0;
-        let isClipping = false;
-        let maxValInFrame = 0;
-        
-        for (let i = 0; i < bufferLength; i++) {
-          const val = (dataArray[i] - 128) / 128; // Normaliza entre -1 e 1
-          sumSquares += val * val;
-          
-          const absVal = Math.abs(val);
-          if (absVal > 0.85) isClipping = true;
-          if (absVal > maxValInFrame) maxValInFrame = absVal;
-        }
-        
-        const rms = Math.sqrt(sumSquares / bufferLength); // Volume Real do frame
-        
-        metricsRef.current.volumes.push(rms);
-        if (isClipping) metricsRef.current.peaks++;
-        if (rms < 0.03) metricsRef.current.drops++; // Limite de queda de apoio mais rigoroso
-        if (maxValInFrame > metricsRef.current.maxVolume) metricsRef.current.maxVolume = maxValInFrame;
-        
-        metricsRef.current.totalFrames++;
-        animationFrameRef.current = requestAnimationFrame(analyzeAudio);
-      };
-      analyzeAudio();
-
-    } catch (err) {
-      console.error("Erro ao acessar hardware:", err);
-      alert("Acesso à câmera e microfone bloqueado pelo navegador.");
-    }
-  };
-
-  const restartVideo = () => {
-    setVideoKey(prev => prev + 1);
-  };
-
-  // 💡 CORREÇÃO 2: A Matemática Implacável (Simon Cowell)
-  const finalizeSession = () => {
-    stopHardware(); 
-    
-    const metrics = metricsRef.current;
-    let score = "0.0";
-    let note = "";
-    let recom = [];
-
-    if (metrics.volumes.length < 50) { 
-      score = "0.0";
-      note = "Apresentação cancelada muito cedo. Suba naquele palco quando estiver pronto de verdade para enfrentar a IA.";
-      recom = ["Nível 1: Steady Breath"];
-    } else {
-      const avgVolume = metrics.volumes.reduce((a, b) => a + b, 0) / metrics.volumes.length;
-      const peakRatio = metrics.peaks / metrics.totalFrames;
-      const dropRatio = metrics.drops / metrics.totalFrames;
-      const maxVol = metrics.maxVolume;
-
-      // 1. FILTRO DE SILÊNCIO (Abaixo de 5% de volume máximo é apenas ruído de fundo)
-      if (maxVol < 0.05 || avgVolume < 0.015) { 
-        score = "0.0";
-        note = "Silêncio absoluto detectado. A IA não captou sua voz em nenhum momento. Ou você desistiu de cantar, ou precisa configurar o seu microfone.";
-        recom = ["Check de Hardware", "Nível 1: Postura"];
-      } 
-      // 2. FILTRO DE SUSSURRO (Sem apoio diafragmático)
-      else if (avgVolume < 0.035) { 
-        score = (35 + Math.random() * 10).toFixed(1);
-        note = "Sua projeção vocal é quase inexistente. Cantar não é falar baixo com melodia. Onde está o apoio do seu diafragma? Faltou energia e presença cênica.";
-        recom = ["Nível 1: Steady Breath", "Nível 4: Vocal Resonance"];
-      } 
-      // 3. FILTRO DE GRITO (Estourando o mic)
-      else if (peakRatio > 0.15) { 
-        score = (50 + Math.random() * 15).toFixed(1);
-        note = "Volume alto não significa qualidade. Você estourou a dinâmica em vários momentos, perdendo o controle. O palco exige controle vocal inteligente, não apenas força bruta.";
-        recom = ["Nível 2: Pitch Calibration", "Nível 8: Dynamic Belting"];
-      } 
-      // 4. FILTRO DE INCONSTÂNCIA (Falta de ar no fim da frase)
-      else if (dropRatio > 0.35) { 
-        score = (68 + Math.random() * 8).toFixed(1);
-        note = "Você começou com intenção, mas sua energia cai criticamente no final das frases. Isso demonstra falta de resistência respiratória. A afinação escorregou pela falta de apoio de ar.";
-        recom = ["Nível 6: Vibrato Control", "Nível 7: Mixed Voice"];
-      } 
-      // 5. EXCELÊNCIA (Acima de 85)
-      else { 
-        score = (88 + Math.random() * 10).toFixed(1);
-        if (parseFloat(score) > 99.9) score = "99.8"; // Impede nota impossível
-        note = "Finalmente, uma performance profissional! Seu apoio respiratório foi consistente e você respeitou a intenção da música sem estourar o áudio. Trabalho excelente e afinado.";
-        recom = ["Nível 9: Emotional Delivery", "Nível 10: Pro Vocalist"];
-      }
-    }
-
-    setVocalAnalysis({ score, note, recom });
-    setShowScore(true);
+  const handleReset = () => {
+    setStage('selecao');
+    setSelectedSong(null);
+    setProgress(0);
   };
 
   return (
-    <div className="min-h-screen bg-black relative overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans">
+      {/* Background dinâmico baseado no estágio */}
+      <img src="https://images.unsplash.com/photo-1516280440502-6178bc57c0e8?q=80&w=2000" alt="Stage" className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${stage === 'cantando' ? 'opacity-30' : 'opacity-10'}`} />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black z-0" />
       
-      {/* BACKGROUND LOBBY */}
-      <div className="absolute inset-0 z-0">
-        <img src="https://picsum.photos/seed/studio/1920/1080" className="w-full h-full object-cover opacity-20" alt="Background" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black" />
-      </div>
+      <div className="max-w-6xl mx-auto relative z-10 animate-in fade-in duration-700">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
+          <ArrowLeft size={16} /> Voltar para o Início
+        </button>
 
-      {/* 1. INTERFACE DO LOBBY */}
-      {!selectedVideo && (
-        <div className="relative z-10 p-4 md:p-8 max-w-6xl mx-auto pt-20 animate-in fade-in duration-700 text-center">
-          <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 font-bold uppercase tracking-widest text-[10px] mx-auto transition-colors">
-            <ArrowLeft size={14} /> Voltar para Home
-          </button>
-          
-          <h1 className="text-4xl md:text-6xl font-black text-primary neon-blue-glow mb-2 tracking-tighter italic uppercase">Lobby de Karaokê</h1>
-          <p className="text-white font-bold uppercase tracking-widest mb-10 text-xs opacity-60">Escolha o seu palco</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            <div onClick={() => { setQuery(''); setResults([]); }} className="group cursor-pointer p-8 rounded-[2rem] border border-primary/50 bg-black/60 hover:bg-primary/20 transition-all flex flex-col items-center text-center shadow-xl">
-              <div className="h-16 w-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><Globe className="h-10 w-10 text-primary" /></div>
-              <h3 className="text-2xl font-black text-white mb-3 uppercase italic tracking-tighter">ONLINE</h3>
-              <p className="text-gray-400 text-xs leading-relaxed font-medium">Cante com o catálogo do YouTube em tempo real.</p>
+        {/* 1. ESTADO: SELEÇÃO DE MÚSICAS */}
+        {stage === 'selecao' && (
+          <div className="animate-in slide-in-from-bottom-10">
+            <div className="mb-12 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                <Music size={14} /> Palco Livre
+              </div>
+              <h1 className="text-5xl md:text-7xl font-black text-white italic tracking-tighter uppercase drop-shadow-lg leading-tight mb-4">
+                Escolha o seu <span className="text-primary neon-blue-glow">Hit</span>
+              </h1>
+              <p className="text-gray-400 text-lg font-medium max-w-2xl mx-auto md:mx-0">
+                Coloque em prática o que aprendeu na Academy. Nossa IA vai monitorar sua afinação, ritmo e sustentação em tempo real.
+              </p>
             </div>
-            <div className="group p-8 rounded-[2rem] border border-white/10 bg-black/40 flex flex-col items-center text-center relative opacity-40 cursor-not-allowed">
-              <div className="absolute top-6 right-6 text-orange-500 font-black">🔒</div>
-              <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6"><Download className="h-10 w-10 text-gray-500" /></div>
-              <h3 className="text-2xl font-black text-gray-500 mb-3 uppercase italic tracking-tighter">OFFLINE</h3>
-              <p className="text-gray-500 text-xs leading-relaxed font-medium">Músicas baixadas para cantar sem internet.</p>
-            </div>
-            <div onClick={() => navigate('/duel')} className="group cursor-pointer p-8 rounded-[2rem] border border-white/10 bg-black/60 hover:border-destructive/50 transition-all flex flex-col items-center text-center shadow-xl">
-              <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform group-hover:bg-destructive/20"><Users className="h-10 w-10 text-white group-hover:text-destructive" /></div>
-              <h3 className="text-2xl font-black text-white mb-3 uppercase italic tracking-tighter">DUETO / BATALHA</h3>
-              <p className="text-gray-400 text-xs leading-relaxed font-medium">Convide um amigo ou desafie o mundo.</p>
-            </div>
-          </div>
 
-          <div className="max-w-4xl mx-auto relative mb-16 group">
-            {isLoading ? <Loader2 className="absolute left-6 top-1/2 -translate-y-1/2 h-7 w-7 text-primary animate-spin" /> : <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-7 w-7 text-gray-500 group-focus-within:text-primary transition-colors" />}
-            <Input placeholder="Qual hit vamos cantar hoje? (Pressione Enter)" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleSearch} className="pl-16 h-20 bg-black/80 border-primary/30 text-white rounded-3xl focus:border-primary text-xl font-bold shadow-2xl transition-all" />
-          </div>
-
-          {results.length > 0 && (
-            <div className="max-w-4xl mx-auto animate-in slide-in-from-bottom-10 duration-700 pb-32">
-              <div className="space-y-6">
-                {results.map((video) => (
-                  <div key={video.id.videoId} onClick={() => setSelectedVideo(video.id.videoId)} className="bg-black/60 border border-white/5 rounded-[2.5rem] p-5 flex items-center gap-8 hover:bg-white/5 transition-all cursor-pointer group hover:border-primary/50 shadow-xl text-left">
-                    <div className="relative w-56 h-32 overflow-hidden rounded-2xl border border-white/10">
-                      <img src={video.snippet.thumbnails.high.url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={video.snippet.title} />
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><PlayCircle className="text-primary h-14 w-14 drop-shadow-lg" /></div>
-                    </div>
-                    <div className="flex-1 overflow-hidden">
-                      <h4 className="font-black text-white text-xl md:text-2xl group-hover:text-primary italic truncate tracking-tighter">🎤 {video.snippet.title}</h4>
-                      <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] truncate mt-1">{video.snippet.channelTitle}</p>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {songs.map((song) => (
+                <Card key={song.id} className="bg-zinc-950/80 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center group">
+                  <div className="h-20 w-20 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)]">
+                    <Mic2 className="h-8 w-8 text-white group-hover:text-primary transition-colors" />
                   </div>
+                  <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase mb-1">{song.title}</h3>
+                  <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-6">{song.artist}</p>
+                  
+                  <div className="w-full flex justify-between items-center mb-6 px-4 py-2 bg-black/50 rounded-full border border-white/5">
+                    <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Dificuldade</span>
+                    <span className={`text-xs font-black uppercase tracking-widest ${song.difficulty === 'Iniciante' ? 'text-green-400' : song.difficulty === 'Intermediário' ? 'text-yellow-400' : 'text-orange-500'}`}>
+                      {song.difficulty}
+                    </span>
+                  </div>
+
+                  <Button onClick={() => handleStartSinging(song)} className="w-full h-14 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest transition-all">
+                    CANTAR AGORA <PlayCircle className="ml-2 h-5 w-5" />
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 2. ESTADO: CANTANDO (TELEPROMPTER) */}
+        {stage === 'cantando' && (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in zoom-in-95 duration-700">
+            <h2 className="text-primary font-bold uppercase tracking-widest text-sm mb-2">{selectedSong.artist}</h2>
+            <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase mb-16 drop-shadow-[0_0_30px_rgba(0,168,225,0.5)]">
+              {selectedSong.title}
+            </h1>
+
+            {/* Simulação de Teleprompter e Letras */}
+            <div className="text-center space-y-4 mb-16 max-w-3xl overflow-hidden h-32 relative mask-image-fade">
+              <p className="text-2xl md:text-4xl font-black text-gray-500 uppercase italic tracking-tighter opacity-50 transform -translate-y-4 transition-all">
+                Never mind, I'll find
+              </p>
+              <p className="text-3xl md:text-5xl font-black text-white uppercase italic tracking-tighter scale-110 drop-shadow-lg transition-all text-primary neon-blue-glow">
+                Someone like you...
+              </p>
+              <p className="text-2xl md:text-4xl font-black text-gray-500 uppercase italic tracking-tighter opacity-50 transform translate-y-4 transition-all">
+                I wish nothing but the best
+              </p>
+            </div>
+
+            {/* Ondas Sonoras e Progresso */}
+            <div className="w-full max-w-2xl relative">
+              <div className="flex justify-center items-center gap-1 mb-8 h-12">
+                {[...Array(20)].map((_, i) => (
+                  <div key={i} className="w-2 bg-primary/50 rounded-full animate-pulse" 
+                       style={{ height: `${Math.random() * 100}%`, animationDelay: `${i * 0.1}s` }}></div>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 2. SALA DE PERFORMANCE (VÍDEO + WEBCAM) */}
-      {selectedVideo && !showScore && (
-        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 md:p-8 animate-in zoom-in-95 duration-500">
-          <div className="flex flex-col xl:flex-row items-center gap-8 w-full max-w-[1400px]">
-            
-            {/* O VÍDEO DO YOUTUBE (Com a key para forçar o recomeço) */}
-            <div key={videoKey} className="flex-1 w-full aspect-video rounded-[2.5rem] overflow-hidden border-4 border-primary/30 shadow-[0_0_80px_rgba(0,168,225,0.2)] bg-zinc-900">
-              <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${selectedVideo}?autoplay=1&controls=1`} frameBorder="0" allow="autoplay; encrypted-media" allowFullScreen></iframe>
-            </div>
-
-            {/* A COLUNA DA CÂMERA E CONTROLES */}
-            <div className="flex flex-col items-center gap-8 xl:w-[400px]">
               
-              {/* O Círculo da Câmera */}
-              <div className="h-64 w-64 md:h-80 md:w-80 rounded-full border-4 border-primary shadow-[0_0_50px_rgba(0,168,225,0.4)] overflow-hidden bg-zinc-950 relative flex-shrink-0">
-                {!cameraActive ? (
-                  <div onClick={startCameraAndMic} className="absolute inset-0 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all text-center p-4 group">
-                    <div className="h-20 w-20 rounded-full bg-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <Camera className="text-primary h-10 w-10" />
-                    </div>
-                    <span className="text-xs text-white font-black uppercase tracking-widest leading-tight">Ligar Câmera<br/>e Microfone IA</span>
-                  </div>
-                ) : (
-                  <>
-                    {/* AQUI ESTÁ A CORREÇÃO: O vídeo agora renderiza corretamente */}
-                    <video ref={webcamRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 px-4 py-2 rounded-full border border-primary/50 backdrop-blur-sm">
-                      <Mic2 size={14} className="text-primary animate-pulse" />
-                      <span className="text-[10px] text-primary font-black uppercase tracking-widest">IA Analisando</span>
-                    </div>
-                  </>
-                )}
+              <div className="w-full bg-zinc-900 rounded-full h-3 mb-2 overflow-hidden border border-white/10">
+                <div className="bg-gradient-to-r from-blue-500 to-primary h-full rounded-full transition-all duration-150 ease-linear shadow-[0_0_20px_rgba(0,168,225,0.5)]" style={{ width: `${progress}%` }}></div>
               </div>
-
-              {/* Botões de Controle */}
-              <div className="flex flex-col gap-4 w-full">
-                <Button onClick={finalizeSession} className="w-full h-20 rounded-[2rem] bg-primary text-black font-black text-2xl italic hover:bg-white transition-all shadow-[0_0_30px_rgba(0,168,225,0.3)] uppercase tracking-tighter">
-                  FINALIZAR SHOW
-                </Button>
-                <div className="flex gap-4">
-                  <Button onClick={restartVideo} variant="outline" className="flex-1 h-14 rounded-2xl border-white/20 text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-colors">
-                    <RotateCcw size={16} className="mr-2"/> Recomeçar
-                  </Button>
-                  <Button onClick={() => { setSelectedVideo(null); stopHardware(); }} variant="outline" className="flex-1 h-14 rounded-2xl border-destructive/50 text-destructive font-bold uppercase tracking-widest text-xs hover:bg-destructive hover:text-white transition-colors">
-                    <Ban size={16} className="mr-2"/> Cancelar
-                  </Button>
-                </div>
+              <div className="flex justify-between w-full text-[10px] text-primary font-black tracking-widest uppercase">
+                <span className="animate-pulse flex items-center gap-2"><Activity size={12} /> IA Analisando Voz...</span>
+                <span>{progress}%</span>
               </div>
-
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* 3. RELATÓRIO VOCAL JUILLIARD */}
-      {showScore && vocalAnalysis && (
-        <div className="fixed inset-0 z-[120] bg-black/95 flex items-center justify-center p-4 backdrop-blur-xl animate-in zoom-in duration-300">
-          <Card className="max-w-2xl w-full bg-zinc-950 border-primary/40 rounded-[3rem] overflow-hidden shadow-[0_0_150px_rgba(0,168,225,0.2)]">
-            <CardContent className="p-10 text-center text-white">
-              <Trophy className={`mx-auto mb-6 h-20 w-20 ${parseFloat(vocalAnalysis.score) < 50 ? "text-gray-600" : "text-orange-500 drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]"}`} />
-              <h2 className="text-3xl font-black uppercase italic tracking-tighter border-b border-white/10 pb-6">Análise Técnica Prime</h2>
-              
-              <div className="my-8">
-                <span className={`text-8xl md:text-9xl font-black tracking-tighter italic ${parseFloat(vocalAnalysis.score) < 50 ? "text-destructive drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]" : "text-primary drop-shadow-[0_0_30px_rgba(0,168,225,0.5)]"}`}>
-                   {vocalAnalysis.score}
-                </span>
-                <p className="text-gray-500 font-black uppercase tracking-[0.4em] mt-2 text-xs">Score Global</p>
-              </div>
-
-              <div className="space-y-6 text-left bg-black/50 p-8 rounded-[2rem] border border-white/5 mb-8">
-                <div>
-                  <h4 className="text-primary font-black text-xs uppercase mb-3 tracking-widest flex items-center gap-2"><Mic2 size={14}/> Feedback do Motor IA:</h4>
-                  <p className="text-gray-300 text-sm md:text-base leading-relaxed italic font-medium">"{vocalAnalysis.note}"</p>
-                </div>
-                <div className="pt-6 border-t border-white/5">
-                  <h4 className="text-orange-500 font-black text-xs uppercase mb-4 flex items-center gap-2 tracking-widest"><Star size={14}/> Prescrição de Treino:</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {vocalAnalysis.recom.map((r: string) => (
-                      <span key={r} className="px-4 py-2 bg-orange-500/10 border border-orange-500/30 text-orange-500 rounded-xl text-[10px] font-black uppercase tracking-widest">{r}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <Button onClick={() => { setShowScore(false); setSelectedVideo(null); setVocalAnalysis(null); }} className="w-full h-16 rounded-[1.5rem] bg-primary text-black font-black text-xl italic tracking-tighter hover:bg-white transition-all">
-                VOLTAR AO LOBBY
+        {/* 3. ESTADO: RESULTADO (NOTA DA IA) */}
+        {stage === 'resultado' && (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in zoom-in-95 duration-500">
+            <div className="h-32 w-32 rounded-full border-4 border-green-500/30 bg-green-500/10 flex items-center justify-center mb-6 shadow-[0_0_80px_rgba(34,197,94,0.3)]">
+              <Star className="h-16 w-16 text-green-500 drop-shadow-[0_0_20px_rgba(34,197,94,0.8)]" fill="currentColor" />
+            </div>
+            
+            <div className="inline-flex items-center gap-2 text-green-500 font-black uppercase tracking-widest text-sm mb-4 bg-green-500/10 px-6 py-2 rounded-full border border-green-500/30">
+              <CheckCircle2 size={18} /> Performance Concluída
+            </div>
+            
+            <h2 className="text-xl text-gray-400 font-bold uppercase tracking-widest mb-2">Sua Pontuação de IA</h2>
+            <h1 className="text-8xl font-black text-white italic tracking-tighter drop-shadow-lg mb-8">
+              {score}<span className="text-4xl text-gray-500">%</span>
+            </h1>
+            
+            <div className="bg-zinc-900/80 border border-white/10 rounded-3xl p-8 mb-10 text-left w-full max-w-xl shadow-xl">
+              <h4 className="text-white font-black uppercase tracking-widest text-sm mb-6 flex items-center gap-3">
+                <Trophy size={18} className="text-yellow-500" /> Relatório de Performance
+              </h4>
+              <ul className="space-y-4 text-gray-400 text-sm font-medium">
+                <li className="flex items-center justify-between border-b border-white/5 pb-3">
+                  <span className="uppercase tracking-widest text-xs">Afinação (Pitch)</span>
+                  <span className="text-green-400 font-black">Excelente</span>
+                </li>
+                <li className="flex items-center justify-between border-b border-white/5 pb-3">
+                  <span className="uppercase tracking-widest text-xs">Sustentação de Ar</span>
+                  <span className="text-yellow-400 font-black">Bom</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="uppercase tracking-widest text-xs">Ritmo (Timing)</span>
+                  <span className="text-green-400 font-black">Perfeito</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="flex gap-4 w-full max-w-md">
+              <Button onClick={handleReset} className="flex-1 h-16 rounded-full bg-primary hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(0,168,225,0.3)] transition-all">
+                Cantar Outra
               </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
+              <Button onClick={() => navigate('/academy')} variant="outline" className="h-16 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs">
+                Voltar aos Treinos
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
