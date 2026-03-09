@@ -1,20 +1,31 @@
 // 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/BasicLobby.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown } from 'lucide-react';
+import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 const BasicLobby = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // 💡 O RETORNO DA PRATICIDADE: Músicas baseadas no YouTube (Você pode adicionar milhares de IDs aqui depois)
-  const songs = [
-    { id: 1, title: "Someone Like You", artist: "Adele", youtubeId: "hLQl3WQQoQ0" },
-    { id: 2, title: "Evidências", artist: "Chitãozinho & Xororó", youtubeId: "bO2t3zHh9Q8" },
-    { id: 3, title: "Yellow", artist: "Coldplay", youtubeId: "yKNxeF4KMsY" }
+  // 💡 O NOSSO NOVO HISTÓRICO DE BUSCAS COM AS 6 LENDAS (IDs de Karaokê do YouTube)
+  const recentSearches = [
+    { id: 1, title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
+    { id: 2, title: "Let It Be", artist: "The Beatles", youtubeId: "c2hZ_bS3nN4" },
+    { id: 3, title: "Amor Maior", artist: "Jota Quest", youtubeId: "A5iZ91B1A5M" },
+    { id: 4, title: "Evidências", artist: "Chitãozinho & Xororó", youtubeId: "bO2t3zHh9Q8" },
+    { id: 5, title: "When I Was Your Man", artist: "Bruno Mars", youtubeId: "8-XbS7lR-cM" },
+    { id: 6, title: "Essa Tal Liberdade", artist: "Só Pra Contrariar", youtubeId: "9T88wzEwX4Y" }
   ];
+
+  // Filtro simples de busca (pesquisa pelo nome da música ou artista)
+  const filteredSongs = recentSearches.filter(song => 
+    song.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    song.artist.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans">
@@ -38,7 +49,7 @@ const BasicLobby = () => {
           </p>
         </div>
 
-        {/* 💡 A ARENA MULTIPLAYER QUE HAVÍAMOS PERDIDO (AGORA EM DESTAQUE) */}
+        {/* ARENA MULTIPLAYER */}
         {!activeVideo && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 animate-in slide-in-from-bottom-5">
             <Card onClick={() => navigate('/duel')} className="bg-gradient-to-br from-orange-600/20 to-red-900/20 hover:from-orange-600/40 hover:to-red-900/40 border-orange-500/30 hover:border-orange-500 transition-all duration-300 rounded-[2rem] p-8 flex items-center gap-6 cursor-pointer group shadow-[0_0_30px_rgba(249,115,22,0.1)] hover:shadow-[0_0_50px_rgba(249,115,22,0.3)]">
@@ -63,14 +74,15 @@ const BasicLobby = () => {
           </div>
         )}
 
-        {/* 💡 O PALCO SOLO COM INTEGRAÇÃO YOUTUBE */}
+        {/* TÍTULO DO KARAOKÊ SOLO */}
         <div className="mb-8 flex items-center gap-3">
           <Crown className="text-primary h-6 w-6" />
           <h2 className="text-2xl font-black text-white uppercase tracking-widest">Karaokê Solo</h2>
         </div>
 
+        {/* ÁREA PRINCIPAL: VÍDEO OU BUSCA */}
         {activeVideo ? (
-          // PLAYER DE VÍDEO DO YOUTUBE ATIVO
+          // 📺 PLAYER DE VÍDEO ATIVO
           <div className="animate-in zoom-in-95 duration-500 mb-12">
             <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-primary/30 shadow-[0_0_80px_rgba(0,168,225,0.2)] bg-zinc-900 mb-6 relative">
               <iframe 
@@ -90,21 +102,52 @@ const BasicLobby = () => {
             </div>
           </div>
         ) : (
-          // LISTA DE MÚSICAS
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in slide-in-from-bottom-5">
-            {songs.map((song) => (
-              <Card key={song.id} className="bg-zinc-950/80 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center group">
-                <div className="h-16 w-16 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)]">
-                  <Mic2 className="h-6 w-6 text-white group-hover:text-primary transition-colors" />
+          // 🔍 TELA DE BUSCA E CATÁLOGO
+          <div className="animate-in slide-in-from-bottom-5">
+            
+            {/* BARRA DE BUSCA */}
+            <div className="relative mb-10 group max-w-3xl">
+              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                <Search className="h-6 w-6 text-gray-500 group-focus-within:text-primary transition-colors" />
+              </div>
+              <Input 
+                type="text" 
+                placeholder="Busque por música, artista ou gênero..." 
+                className="w-full h-16 pl-16 pr-6 bg-zinc-950/80 backdrop-blur-xl border-white/10 focus:border-primary text-white text-lg rounded-full shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* TÍTULO DAS ÚLTIMAS BUSCAS */}
+            <div className="flex items-center gap-2 mb-6">
+              <History className="text-gray-500 h-5 w-5" />
+              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Últimas Buscas</h3>
+            </div>
+
+            {/* GRID COM AS 6 LENDAS (OU FILTRADAS) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredSongs.length > 0 ? (
+                filteredSongs.map((song) => (
+                  <Card key={song.id} className="bg-zinc-950/80 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center group">
+                    <div className="h-16 w-16 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)]">
+                      <Mic2 className="h-6 w-6 text-white group-hover:text-primary transition-colors" />
+                    </div>
+                    <h3 className="text-xl font-black text-white italic tracking-tighter uppercase mb-1">{song.title}</h3>
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-6">{song.artist}</p>
+                    
+                    <Button onClick={() => setActiveVideo(song.youtubeId)} className="w-full h-12 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest text-xs transition-all">
+                      CANTAR <PlayCircle className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-full py-12 text-center">
+                  <p className="text-gray-500 font-medium text-lg">Nenhuma música encontrada para "{searchTerm}".</p>
                 </div>
-                <h3 className="text-xl font-black text-white italic tracking-tighter uppercase mb-1">{song.title}</h3>
-                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-6">{song.artist}</p>
-                
-                <Button onClick={() => setActiveVideo(song.youtubeId)} className="w-full h-12 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest text-xs transition-all">
-                  CANTAR <PlayCircle className="ml-2 h-4 w-4" />
-                </Button>
-              </Card>
-            ))}
+              )}
+            </div>
+
           </div>
         )}
 
