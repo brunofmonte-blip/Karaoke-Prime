@@ -32,7 +32,7 @@ const Lesson = () => {
         id: 2,
         title: "Controle de Fluxo de Ar",
         hasIntro: false, // Aula 2 não precisa de intro, vai direto pro vídeo
-        lessonYoutubeId: "COLOQUE_O_ID_DA_AULA_2_AQUI", // 🚨 Pegue no YouTube depois
+        lessonYoutubeId: "fQKI_SFrrOo", // 🚨 Pegue no YouTube depois
         description: "Mostra que cantar não é sobre a força do ar, mas sobre o controle. Você vai aprender a não soltar todo o ar de uma vez.",
         exercise: "Emissão Contínua de 'S' (15s)",
         practiceDesc: "Você precisará soltar o ar fazendo o som de 'S' de forma constante e ininterrupta por 15 segundos. A IA vai medir oscilações.",
