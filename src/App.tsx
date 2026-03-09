@@ -1,3 +1,4 @@
+// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/App.tsx
 import React from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Star, LayoutDashboard, Sparkles, ArrowLeft } from "lucide-react";
@@ -7,6 +8,7 @@ import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import BasicLobby from "./pages/BasicLobby";
 import Academy from "./pages/Academy";
+import Lesson from "./pages/Lesson"; // 💡 IMPORTANDO A NOSSA MASTERCLASS AQUI
 import Duel from "./pages/Duel";
 import Login from "./pages/Login";
 
@@ -36,6 +38,7 @@ const App = () => (
         <Route path="/" element={<Index />} />
         <Route path="/basic" element={<BasicLobby />} />
         <Route path="/academy" element={<Academy />} />
+        <Route path="/lesson/:id" element={<Lesson />} /> {/* 💡 A ROTA PARA OS VÍDEOS ESTÁ AQUI */}
         <Route path="/duel" element={<Duel />} />
         <Route path="/login" element={<Login />} />
         
