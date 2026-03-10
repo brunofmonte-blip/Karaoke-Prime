@@ -5,8 +5,6 @@ import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, Histo
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-// 💡 NOTA: Removemos o import local que causava o erro. Vamos usar uma URL direta na nuvem!
-
 const BasicLobby = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
@@ -21,8 +19,7 @@ const BasicLobby = () => {
 
   const cameraRef = useRef<HTMLVideoElement>(null);
 
-  // 🔑 SUA CHAVE DA API (Não esqueça de colocar a real depois)
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  const YOUTUBE_API_KEY = "SUA_CHAVE_API_DO_YOUTUBE_AQUI";
 
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
@@ -57,7 +54,7 @@ const BasicLobby = () => {
   const handleMusicSearch = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!musicSearchTerm.trim()) { setMusicSearchResults([]); return; }
-    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha 25!"); return; }
+    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha 21!"); return; }
     setIsSearchingMusic(true);
     try {
       const query = encodeURIComponent(`${musicSearchTerm} karaoke`);
@@ -86,38 +83,46 @@ const BasicLobby = () => {
   const displaySongs = musicSearchResults.length > 0 ? musicSearchResults : recentSearches;
 
   return (
-    <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans overflow-hidden">
+    <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* 🖼️ A IMAGEM DE FUNDO PUXADA DIRETO DA NUVEM (IDÊNTICA À SUA) */}
+      {/* 💡 A MÁGICA DA IMAGEM ESTÁ AQUI (Organizada em 3 camadas de Z-Index) */}
+      
+      {/* CAMADA 1: Fundo preto sólido para evitar falhas */}
+      <div className="absolute inset-0 bg-black z-0" />
+      
+      {/* CAMADA 2: A foto do Microfone (agora com opacidade maior para aparecer bem) */}
       <img 
-        src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?q=80&w=2000" 
-        alt="Stage with Microphone" 
-        className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" 
+        src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=2000&q=80" 
+        alt="Microfone no Palco" 
+        className="absolute inset-0 w-full h-full object-cover opacity-50 z-10" 
       />
       
-      {/* Gradiente de sobreposição para o texto não sumir no fundo */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black z-0" />
+      {/* CAMADA 3: O véu escuro que desce do meio para baixo, para dar leitura ao texto */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black z-20" />
       
-      <div className="max-w-7xl mx-auto relative z-10 animate-in fade-in duration-700">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest relative z-20">
+      {/* ========================================================= */}
+      
+      {/* CAMADA 4: O CONTEÚDO (O app em si, que fica no Z-Index 30) */}
+      <div className="max-w-7xl mx-auto relative z-30 animate-in fade-in duration-700">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
           <ArrowLeft size={16} /> Voltar para o Início
         </button>
 
-        <div className="mb-12 text-center md:text-left relative z-20">
-          <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+        <div className="mb-12 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20 backdrop-blur-md">
             <Music size={14} /> Palco Principal
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase drop-shadow-lg leading-tight mb-4">
+          <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] leading-tight mb-4">
             Basic <span className="text-primary neon-blue-glow">Lobby</span>
           </h1>
         </div>
 
         {activeVideo ? (
-          <div className="animate-in zoom-in-95 duration-500 mb-12 relative z-20">
+          <div className="animate-in zoom-in-95 duration-500 mb-12">
             
             <div className="mb-6 flex justify-center items-center gap-3">
               <Crown className="text-primary h-6 w-6" />
-              <h2 className="text-2xl font-black text-white uppercase tracking-widest">
+              <h2 className="text-2xl font-black text-white uppercase tracking-widest drop-shadow-md">
                 KARAOKÊ {playMode === 'solo' ? 'SOLO' : '/ DUELO'}
               </h2>
             </div>
@@ -125,7 +130,7 @@ const BasicLobby = () => {
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full mb-8">
               
               <div className="w-full lg:w-1/4 flex flex-col gap-3 order-2 lg:order-1">
-                <h3 className="text-center font-black text-white tracking-widest uppercase text-sm">Você</h3>
+                <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Você</h3>
                 <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-black rounded-[2rem] border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.2)] overflow-hidden">
                   <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-md">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
@@ -136,7 +141,7 @@ const BasicLobby = () => {
               </div>
 
               <div className={`${playMode === 'duelo' ? 'lg:w-2/4' : 'lg:w-3/4'} w-full flex flex-col gap-3 transition-all duration-500 order-1 lg:order-2`}>
-                <h3 className="text-center font-black text-white tracking-widest uppercase text-sm">Vídeo da Música</h3>
+                <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Vídeo da Música</h3>
                 <div className="w-full aspect-video lg:h-[450px] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900 relative">
                   <iframe 
                     width="100%" height="100%" 
@@ -149,8 +154,8 @@ const BasicLobby = () => {
 
               {playMode === 'duelo' && (
                 <div className="w-full lg:w-1/4 flex flex-col gap-3 order-3 animate-in fade-in slide-in-from-right-10 duration-500">
-                  <h3 className="text-center font-black text-white tracking-widest uppercase text-sm">Oponente (Batalha/Dueto)</h3>
-                  <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950/80 backdrop-blur-xl rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center">
+                  <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Oponente (Batalha/Dueto)</h3>
+                  <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950/90 backdrop-blur-xl rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center">
                     
                     <div className="relative w-full mb-6 group shrink-0">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -168,7 +173,7 @@ const BasicLobby = () => {
                     <div className="flex-1 w-full space-y-3 overflow-y-auto pr-2 custom-scrollbar-cyan">
                       {filteredUsers.length > 0 ? (
                         filteredUsers.map((user) => (
-                          <div key={user.id} className="bg-zinc-900 border border-white/5 p-3 rounded-2xl flex items-center gap-3 w-full animate-in fade-in">
+                          <div key={user.id} className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3 w-full animate-in fade-in">
                             <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border border-white/10 shrink-0" />
                             <div className="text-left flex-1 min-w-0">
                               <p className="text-xs font-black text-white uppercase tracking-widest truncate">{user.name}</p>
@@ -193,7 +198,7 @@ const BasicLobby = () => {
             </div>
             
             <div className="flex justify-center mt-8">
-              <Button onClick={() => setActiveVideo(null)} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs">
+              <Button onClick={() => setActiveVideo(null)} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs backdrop-blur-sm">
                 <ArrowLeft size={16} className="mr-2" /> Escolher Outra Música
               </Button>
             </div>
@@ -201,47 +206,47 @@ const BasicLobby = () => {
 
         ) : (
 
-          <div className="animate-in slide-in-from-bottom-5 relative z-20">
+          <div className="animate-in slide-in-from-bottom-5">
             <form onSubmit={handleMusicSearch} className="relative mb-10 group max-w-3xl flex gap-2">
               <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                  <Search className="h-6 w-6 text-gray-500 group-focus-within:text-primary transition-colors" />
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
+                  <Search className="h-6 w-6 text-gray-400 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input 
                   type="text" 
                   placeholder="Busque por música, artista ou gênero..." 
-                  className="w-full h-16 pl-16 pr-6 bg-zinc-950/80 backdrop-blur-xl border border-white/10 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary text-white text-lg rounded-full shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all"
+                  className="w-full h-16 pl-16 pr-6 bg-zinc-950/80 backdrop-blur-xl border border-white/10 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary text-white text-lg rounded-full shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all relative z-0"
                   value={musicSearchTerm}
                   onChange={(e) => setMusicSearchTerm(e.target.value)}
                 />
               </div>
-              <Button type="submit" disabled={isSearchingMusic} className="h-16 px-8 rounded-full bg-primary hover:bg-white text-black font-black uppercase tracking-widest transition-all">
+              <Button type="submit" disabled={isSearchingMusic} className="h-16 px-8 rounded-full bg-primary hover:bg-white text-black font-black uppercase tracking-widest transition-all shadow-lg">
                 {isSearchingMusic ? <Loader2 className="h-6 w-6 animate-spin" /> : "BUSCAR"}
               </Button>
             </form>
 
             <div className="flex items-center gap-2 mb-6">
               {musicSearchResults.length > 0 ? (
-                <><Search className="text-primary h-5 w-5" /><h3 className="text-sm font-bold text-primary uppercase tracking-widest">Resultados da Busca</h3></>
+                <><Search className="text-primary h-5 w-5 drop-shadow-md" /><h3 className="text-sm font-bold text-primary uppercase tracking-widest drop-shadow-md">Resultados da Busca</h3></>
               ) : (
-                <><History className="text-gray-500 h-5 w-5" /><h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Últimas Buscas</h3></>
+                <><History className="text-gray-300 h-5 w-5 drop-shadow-md" /><h3 className="text-sm font-bold text-gray-300 uppercase tracking-widest drop-shadow-md">Últimas Buscas</h3></>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displaySongs.map((song) => (
-                <Card key={song.id} className="bg-zinc-950/80 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center group">
+                <Card key={song.id} className="bg-zinc-950/70 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center group shadow-2xl">
                   <div className="h-16 w-16 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)] shrink-0">
                     <Mic2 className="h-6 w-6 text-white group-hover:text-primary transition-colors" />
                   </div>
                   <h3 className="text-lg font-black text-white italic tracking-tighter uppercase mb-1 line-clamp-2 min-h-[56px] flex items-center justify-center">{song.title}</h3>
-                  <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-6 line-clamp-1">{song.artist}</p>
+                  <p className="text-gray-300 font-bold uppercase tracking-widest text-[10px] mb-6 line-clamp-1">{song.artist}</p>
                   
                   <div className="w-full flex flex-col gap-2 mt-auto">
                     <Button onClick={() => handlePlay(song.youtubeId, 'solo')} className="w-full h-12 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest text-xs transition-all">
                       CANTAR SOLO <PlayCircle className="ml-2 h-4 w-4" />
                     </Button>
-                    <Button onClick={() => handlePlay(song.youtubeId, 'duelo')} variant="outline" className="w-full h-10 rounded-full border-white/10 text-gray-400 hover:text-white hover:border-white/30 font-bold uppercase tracking-widest text-[10px] transition-all">
+                    <Button onClick={() => handlePlay(song.youtubeId, 'duelo')} variant="outline" className="w-full h-10 rounded-full border-white/10 text-gray-300 hover:text-white hover:border-white/30 hover:bg-white/5 font-bold uppercase tracking-widest text-[10px] transition-all">
                       DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
                     </Button>
                   </div>
