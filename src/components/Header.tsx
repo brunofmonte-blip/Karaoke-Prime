@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mic2, ShieldCheck, LogOut, User } from 'lucide-react';
+import { Mic2, ShieldCheck, LogOut, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-// 🚨 INTEGRAÇÃO COM FIREBASE ADICIONADA AQUI
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Estados para controlar o usuário e o carregamento
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
 
-  // O "Escutador" do Firebase que verifica se tem alguém logado
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -24,14 +19,9 @@ const Header = () => {
     return () => unsubscribe();
   }, []);
 
-  // Função oficial de Logout do Firebase
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate('/'); 
-    } catch (error) {
-      console.error("Erro ao sair:", error);
-    }
+    await signOut(auth);
+    navigate('/');
   };
 
   const navItems = [
@@ -45,76 +35,35 @@ const Header = () => {
   return (
     <header className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        
-        {/* LOGO */}
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
           <Mic2 className="text-primary h-6 w-6" />
-          <span className="text-xl font-black text-white italic tracking-tighter">
-            KARAOKE <span className="text-primary">PRIME</span>
-          </span>
+          <span className="text-xl font-black text-white italic tracking-tighter">KARAOKE <span className="text-primary">PRIME</span></span>
         </div>
 
-        {/* MENU CENTRAL */}
         <nav className="hidden md:flex gap-6">
           {navItems.map(item => (
-            <span
-              key={item.name}
-              onClick={() => navigate(item.path)}
-              className={`text-xs font-bold uppercase tracking-widest cursor-pointer transition-colors ${location.pathname === item.path ? 'text-primary drop-shadow-[0_0_10px_rgba(0,168,225,0.8)]' : 'text-gray-400 hover:text-white'}`}
-            >
+            <span key={item.name} onClick={() => navigate(item.path)} className={`text-xs font-bold uppercase tracking-widest cursor-pointer transition-colors ${location.pathname === item.path ? 'text-primary' : 'text-gray-400 hover:text-white'}`}>
               {item.name}
             </span>
           ))}
         </nav>
 
-        {/* ÁREA DE AUTENTICAÇÃO E SEGURANÇA */}
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 text-[10px] text-green-500 font-bold uppercase tracking-widest bg-green-500/10 px-3 py-1 rounded-full border border-green-500/20">
-            <ShieldCheck size={14} /> Security Verified
-          </div>
-          
-          {/* LÓGICA DE EXIBIÇÃO: Só mostra botões após o Firebase responder */}
-          {!isAuthChecking && (
-            user ? (
-              // 🟢 USUÁRIO LOGADO: Mostra Avatar, Nome e Botão de Sair
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full shadow-inner cursor-default">
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="Avatar" className="w-6 h-6 rounded-full border border-primary/50 object-cover" />
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center border border-primary/50">
-                      <User size={12} className="text-primary" />
-                    </div>
-                  )}
-                  <span className="text-white text-xs font-bold tracking-wider hidden sm:block uppercase">
-                    {user.displayName ? user.displayName.split(' ')[0] : 'Artista'}
-                  </span>
-                </div>
-                
-                <Button 
-                  onClick={handleLogout} 
-                  variant="ghost" 
-                  size="icon" 
-                  title="Sair"
-                  className="text-gray-400 hover:text-white hover:bg-destructive/20 hover:border-destructive/50 border border-transparent rounded-full h-9 w-9 transition-colors"
-                >
-                  <LogOut size={16} />
-                </Button>
+        {!isAuthChecking && (
+          user ? (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+                {user.photoURL ? <img src={user.photoURL} className="w-6 h-6 rounded-full" /> : <UserIcon size={14} />}
+                <span className="text-white text-[10px] font-bold uppercase">{user.displayName?.split(' ')[0]}</span>
               </div>
-            ) : (
-              // 🔴 USUÁRIO DESLOGADO: Mostra Botão "Sign In"
-              <Button 
-                onClick={() => navigate('/login')} 
-                className="bg-primary/10 border border-primary text-primary hover:bg-primary hover:text-black font-bold text-xs uppercase tracking-widest h-9 px-6 rounded-full transition-all shadow-[0_0_15px_rgba(0,168,225,0.2)]"
-              >
-                Sign In
-              </Button>
-            )
-          )}
-        </div>
+              <Button onClick={handleLogout} variant="ghost" size="icon" className="text-gray-400 hover:text-white"><LogOut size={16} /></Button>
+            </div>
+          ) : (
+            <Button onClick={() => navigate('/login')} className="bg-primary/10 border border-primary text-primary hover:bg-primary hover:text-black font-bold text-xs uppercase px-6 h-9 rounded-full">Sign In</Button>
+          )
+        )}
       </div>
     </header>
   );
 };
 
-export default Header; 
+export default Header;
