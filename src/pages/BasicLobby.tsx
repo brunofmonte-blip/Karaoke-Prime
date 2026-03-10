@@ -1,35 +1,29 @@
-"use client";
-
+// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/BasicLobby.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History, Loader2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-// 🖼️ IMPORTANDO A IMAGEM DE FUNDO
-import microphoneBackground from '../assets/microphone_stage.png'; 
+// 💡 NOTA: Removemos o import local que causava o erro. Vamos usar uma URL direta na nuvem!
 
 const BasicLobby = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
-  const [playMode, setPlayMode] = useState<'solo' | 'duelo'>('solo'); 
+  const [playMode, setPlayMode] = useState<'solo' | 'duelo'>('solo');
   
-  // ESTADOS DA BUSCA DE MÚSICA
   const [musicSearchTerm, setMusicSearchTerm] = useState('');
   const [musicSearchResults, setMusicSearchResults] = useState<any[]>([]);
   const [isSearchingMusic, setIsSearchingMusic] = useState(false);
   
-  // NOVOS ESTADOS: BUSCA DE USUÁRIOS (Para o Painel Direito)
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [userChallengeSent, setUserChallengeSent] = useState<string | null>(null);
 
-  // 🎥 REF DA CÂMERA
   const cameraRef = useRef<HTMLVideoElement>(null);
 
-  // 🔑 CHAVE DA API DO YOUTUBE
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  // 🔑 SUA CHAVE DA API (Não esqueça de colocar a real depois)
+  const YOUTUBE_API_KEY = "SUA_CHAVE_API_DO_YOUTUBE_AQUI";
 
-  // MOCK DO BANCO DE DADOS: Últimas Buscas de Músicas
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
     { id: "c2hZ_bS3nN4", title: "Let It Be", artist: "The Beatles", youtubeId: "c2hZ_bS3nN4" },
@@ -39,7 +33,6 @@ const BasicLobby = () => {
     { id: "9T88wzEwX4Y", title: "Essa Tal Liberdade", artist: "Só Pra Contrariar", youtubeId: "9T88wzEwX4Y" }
   ];
 
-  // MOCK DO BANCO DE DADOS: Usuários Online (Para o Painel Direito)
   const onlineUsers = [
     { id: "1", name: "Maria Clara", level: 12, status: "Online", avatar: "https://i.pravatar.cc/150?u=maria" },
     { id: "2", name: "João Pedro (JP)", level: 8, status: "Em Batalha", avatar: "https://i.pravatar.cc/150?u=jp" },
@@ -48,28 +41,23 @@ const BasicLobby = () => {
     { id: "5", name: "Sofia Silva", level: 22, status: "Online", avatar: "https://i.pravatar.cc/150?u=sofia" }
   ];
 
-  // Filtro de usuários (ignora acentos)
   const normalizeText = (text: string) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const filteredUsers = onlineUsers.filter(user => normalizeText(user.name).includes(normalizeText(userSearchTerm)));
 
-  // LIGA A CÂMERA AO ENTRAR NO PALCO
   useEffect(() => {
     let stream: MediaStream | null = null;
     if (activeVideo) {
       navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        .then((mediaStream) => { 
-          stream = mediaStream; 
-          if (cameraRef.current) cameraRef.current.srcObject = mediaStream; 
-        })
+        .then((mediaStream) => { stream = mediaStream; if (cameraRef.current) cameraRef.current.srcObject = mediaStream; })
         .catch(err => console.error("Sem permissão de câmera:", err));
     }
     return () => { if (stream) stream.getTracks().forEach(track => track.stop()); };
   }, [activeVideo]);
 
-  // BUSCA REAL DE MÚSICA NO YOUTUBE
   const handleMusicSearch = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!musicSearchTerm.trim()) { setMusicSearchResults([]); return; }
+    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha 25!"); return; }
     setIsSearchingMusic(true);
     try {
       const query = encodeURIComponent(`${musicSearchTerm} karaoke`);
@@ -99,8 +87,16 @@ const BasicLobby = () => {
 
   return (
     <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans overflow-hidden">
-      <img src={microphoneBackground} alt="Stage with Microphone" className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black z-1" />
+      
+      {/* 🖼️ A IMAGEM DE FUNDO PUXADA DIRETO DA NUVEM (IDÊNTICA À SUA) */}
+      <img 
+        src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?q=80&w=2000" 
+        alt="Stage with Microphone" 
+        className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" 
+      />
+      
+      {/* Gradiente de sobreposição para o texto não sumir no fundo */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black z-0" />
       
       <div className="max-w-7xl mx-auto relative z-10 animate-in fade-in duration-700">
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest relative z-20">
@@ -118,6 +114,7 @@ const BasicLobby = () => {
 
         {activeVideo ? (
           <div className="animate-in zoom-in-95 duration-500 mb-12 relative z-20">
+            
             <div className="mb-6 flex justify-center items-center gap-3">
               <Crown className="text-primary h-6 w-6" />
               <h2 className="text-2xl font-black text-white uppercase tracking-widest">
@@ -126,6 +123,7 @@ const BasicLobby = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full mb-8">
+              
               <div className="w-full lg:w-1/4 flex flex-col gap-3 order-2 lg:order-1">
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm">Você</h3>
                 <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-black rounded-[2rem] border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.2)] overflow-hidden">
@@ -152,7 +150,8 @@ const BasicLobby = () => {
               {playMode === 'duelo' && (
                 <div className="w-full lg:w-1/4 flex flex-col gap-3 order-3 animate-in fade-in slide-in-from-right-10 duration-500">
                   <h3 className="text-center font-black text-white tracking-widest uppercase text-sm">Oponente (Batalha/Dueto)</h3>
-                  <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950 rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center">
+                  <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950/80 backdrop-blur-xl rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center">
+                    
                     <div className="relative w-full mb-6 group shrink-0">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Search className="h-4 w-4 text-gray-500 group-focus-within:text-cyan-400 transition-colors" />
@@ -177,7 +176,7 @@ const BasicLobby = () => {
                                 <Info size={10} className="text-cyan-500" /> Nível {user.level}
                               </div>
                             </div>
-                            <Button onClick={() => handleChallenge(user)} disabled={user.id === userChallengeSent || user.status !== 'Online'} className="h-8 px-4 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-[8px] transition-all">
+                            <Button onClick={() => handleChallenge(user)} disabled={user.challengeSent || user.status !== 'Online'} className="h-8 px-4 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-[8px] transition-all">
                               {user.id === userChallengeSent ? 'Enviado' : 'Convidar'}
                             </Button>
                           </div>
@@ -199,7 +198,9 @@ const BasicLobby = () => {
               </Button>
             </div>
           </div>
+
         ) : (
+
           <div className="animate-in slide-in-from-bottom-5 relative z-20">
             <form onSubmit={handleMusicSearch} className="relative mb-10 group max-w-3xl flex gap-2">
               <div className="relative flex-1">
@@ -249,6 +250,7 @@ const BasicLobby = () => {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
