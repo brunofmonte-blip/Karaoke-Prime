@@ -75,6 +75,7 @@ const Login = () => {
           A MAIOR ARENA VOCAL DO MUNDO
         </p>
 
+        {/* 🔘 BOTÕES DE LOGIN (APENAS GOOGLE E EMAIL) */}
         <div className="w-full flex flex-col gap-3">
           
           <Button 
@@ -90,14 +91,6 @@ const Login = () => {
                 ENTRAR COM O GOOGLE
               </>
             )}
-          </Button>
-
-          <Button 
-            onClick={() => alert("Login com Facebook em desenvolvimento")} 
-            className="w-full h-12 rounded-full bg-[#141414] border border-white/5 hover:border-cyan-400 text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]"
-          >
-            <img src="https://authjs.dev/img/providers/facebook.svg" alt="Facebook" className="w-4 h-4" />
-            ENTRAR COM O FACEBOOK
           </Button>
 
           <Button 
