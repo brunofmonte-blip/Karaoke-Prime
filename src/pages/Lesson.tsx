@@ -30,7 +30,7 @@ const Lesson = () => {
       { id: 7, displayTitle: "Aula 7", title: "Articulação Exagerada", youtubeId: "PW3Oj_uagpI", description: "Aprenda a abrir espaço interno para o som brilhar.", hasPractice: true, exercise: "Leitura Articulada", practiceDesc: "Projeção clara de vogais.", locked: false },
       { id: 8, displayTitle: "Aula 8", title: "Ataque Vocal Suave", youtubeId: "KqVkz8jdcpc", description: "Evite o 'Golpe de Glote'.", hasPractice: true, exercise: "Início com 'H'", practiceDesc: "Inícios suaves sem impacto na glote.", locked: false },
       { id: 9, displayTitle: "Aula 9", title: "Ressonância Básica", youtubeId: "dHVMUp4MRD8", description: "O Som na Máscara.", hasPractice: true, exercise: "Humming", practiceDesc: "Posicionamento tonal no rosto.", locked: false },
-      { id: 10, displayTitle: "Aula 10", title: "Avaliação Final", youtubeId: "", description: "O teste final do Nível 1.", hasPractice: true, exercise: "Performance Completa", practiceDesc: "Execução com IA.", locked: true }
+      { id: 10, displayTitle: "Aula 10", title: "Avaliação Final", youtubeId: "qpQuTYKLC-U", description: "O teste final do Nível 1.", hasPractice: true, exercise: "Performance Completa", practiceDesc: "Execução com IA.", locked: true }
     ]
   };
 
