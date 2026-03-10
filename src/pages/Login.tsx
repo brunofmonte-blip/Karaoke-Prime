@@ -1,124 +1,64 @@
-// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/Login.tsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mic, Mail, ArrowLeft, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+// 🚨 ESTE É O APP.TSX (MOTOR DE ROTAS CORRIGIDO)
+import React from "react";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { Star, LayoutDashboard, Sparkles, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-// Integração com o Firebase
-import { auth, db, googleProvider } from '@/lib/firebase';
-import { signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import Layout from "./components/Layout";
+import Index from "./pages/Index";
+import BasicLobby from "./pages/BasicLobby";
+import Academy from "./pages/Academy";
+import Lesson from "./pages/Lesson"; 
+import Duel from "./pages/Duel";
+import Login from "./pages/Login";
 
-const Login = () => {
+const ComingSoon = ({ title, subtitle, bgImage, icon: Icon, color, bgOpacityClass = "opacity-30" }: any) => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      const userRef = doc(db, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          uid: user.uid,
-          name: user.displayName,
-          email: user.email,
-          avatar: user.photoURL,
-          level: 1,
-          status: 'Online',
-          createdAt: new Date()
-        });
-      } else {
-        await setDoc(userRef, { status: 'Online' }, { merge: true });
-      }
-
-      // Após o login, manda de volta para o início
-      navigate('/'); 
-      
-    } catch (error) {
-      console.error("Erro no login:", error);
-      alert("Houve um erro ao tentar fazer login. Verifique os Domínios Autorizados no Firebase.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 relative font-sans overflow-hidden">
-      
-      {/* 🖼️ IMAGEM DE FUNDO: Fundo escuro imersivo */}
-      <img 
-        src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=2000&q=80" 
-        alt="Stage Background" 
-        className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale-[50%] z-0" 
-      />
-      
-      {/* Gradiente escuro para dar leitura e clima intimista */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/90 to-black z-10" />
-
-      {/* Botão de Voltar para navegação amigável */}
-      <button onClick={() => navigate(-1)} className="absolute top-8 left-8 text-gray-500 hover:text-white flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest z-30">
-        <ArrowLeft size={16} /> Voltar
-      </button>
-      
-      {/* 🔮 O CARD CENTRAL (Visual idêntico ao anexo premium) */}
-      <div className="z-20 w-full max-w-sm bg-[#0a0a0a] border-[1px] border-cyan-400/30 rounded-[3rem] p-10 flex flex-col items-center text-center shadow-[0_0_50px_rgba(34,211,238,0.1)] animate-in zoom-in-95 duration-500 relative">
-        
-        {/* Ícone de Microfone Neon no topo */}
-        <div className="w-20 h-20 rounded-full border-[2px] border-cyan-400 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(34,211,238,0.2)] bg-cyan-400/5">
-          <Mic className="w-8 h-8 text-cyan-400" />
+    <div className="min-h-screen bg-background relative flex flex-col items-center justify-center p-4 text-center">
+      <img src={bgImage} alt={title} className={`absolute inset-0 w-full h-full object-cover ${bgOpacityClass}`} />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/30 z-0" />
+      <div className="relative z-10 max-w-3xl mx-auto flex flex-col items-center animate-in fade-in zoom-in duration-1000 pt-20">
+        <div className={`h-24 w-24 rounded-full border border-white/10 bg-black/50 flex items-center justify-center mb-8 backdrop-blur-sm shadow-[0_0_30px_rgba(0,0,0,0.5)] ${color}`}>
+          <Icon size={48} />
         </div>
-        
-        <h1 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-1">
-          KARAOKE <span className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">PRIME</span>
-        </h1>
-        
-        <p className="text-gray-500 font-bold uppercase tracking-widest text-[9px] mb-10">
-          A MAIOR ARENA VOCAL DO MUNDO
-        </p>
-
-        {/* 🔘 BOTÕES DE LOGIN ESCUROS COM HOVER NEON */}
-        <div className="w-full flex flex-col gap-3">
-          
-          <Button 
-            onClick={handleGoogleLogin} 
-            disabled={isLoading}
-            className="w-full h-12 rounded-full bg-[#141414] border border-white/5 hover:border-cyan-400 text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-4 h-4" />
-                ENTRAR COM O GOOGLE
-              </>
-            )}
-          </Button>
-
-          <Button 
-            onClick={() => alert("Login com Facebook em desenvolvimento")} 
-            className="w-full h-12 rounded-full bg-[#141414] border border-white/5 hover:border-cyan-400 text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]"
-          >
-            <img src="https://authjs.dev/img/providers/facebook.svg" alt="Facebook" className="w-4 h-4" />
-            ENTRAR COM O FACEBOOK
-          </Button>
-
-          <Button 
-            onClick={() => alert("Login por E-mail em desenvolvimento")} 
-            className="w-full h-12 rounded-full bg-[#141414] border border-white/5 hover:border-cyan-400 text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-3 hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]"
-          >
-            <Mail className="w-4 h-4 text-gray-400" />
-            ENTRAR COM E-MAIL
-          </Button>
-
-        </div>
+        <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-6 uppercase italic drop-shadow-lg">{title}</h1>
+        <p className="text-xl text-gray-300 font-medium leading-relaxed mb-12 max-w-2xl">{subtitle}</p>
+        <Button onClick={() => navigate('/')} variant="outline" className="rounded-full border-white/20 text-white hover:bg-white hover:text-black h-14 px-8 font-bold transition-all"><ArrowLeft className="mr-2 h-5 w-5" /> Voltar para o Início</Button>
       </div>
     </div>
   );
 };
 
-export default Login;
+const App = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        
+        {/* 🔴 ROTA FULL-SCREEN (FORA DO LAYOUT PADRÃO) */}
+        <Route path="/login" element={<Login />} />
+
+        {/* 🟢 TODAS AS OUTRAS ROTAS (DENTRO DO LAYOUT COM O MENU) */}
+        <Route path="/*" element={
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/basic" element={<BasicLobby />} />
+              <Route path="/academy" element={<Academy />} />
+              <Route path="/lesson/:id" element={<Lesson />} />
+              <Route path="/duel" element={<Duel />} />
+              
+              <Route path="/talent" element={<ComingSoon title="Next Talent" subtitle="Audições globais estão chegando." bgImage="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=2000" icon={Star} color="text-yellow-400" />} />
+              <Route path="/backstage" element={<ComingSoon title="Backstage" subtitle="Dashboard premium bloqueado." bgImage="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000" icon={LayoutDashboard} color="text-gray-400" bgOpacityClass="opacity-50" />} />
+              <Route path="/next-success" element={<ComingSoon title="Next Success" subtitle="Crie hits com IA." bgImage="https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=2000" icon={Sparkles} color="text-primary" />} />
+              <Route path="*" element={<ComingSoon title="Em Breve" subtitle="Página em construção." bgImage="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=2000" icon={Star} color="text-white" />} />
+            </Routes>
+          </Layout>
+        } />
+
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;
