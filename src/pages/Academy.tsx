@@ -45,9 +45,9 @@ const Academy = () => {
     if (module.locked) return;
     
     if (user) {
-      // ✅ SE ESTIVER LOGADO: Vai para a aula (vamos criar a rota da aula 1 em breve)
-      alert(`Iniciando Exercício: ${module.title}`);
-      // navigate(`/academy/lesson/${module.id}`); // Exemplo de rota futura
+    // ✅ COMANDO DE NAVEGAÇÃO ATIVADO
+      // Direciona para a rota /lesson/1 (ou o ID do módulo clicado)
+      navigate(`/lesson/${module.id}`);
     } else {
       // 🔒 SE NÃO ESTIVER LOGADO: Abre o modal
       setIsModalOpen(true);
