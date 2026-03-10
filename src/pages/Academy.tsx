@@ -5,8 +5,7 @@ import { ArrowLeft, BookOpen, Mic2, Users, CheckCircle, GraduationCap, Star, Air
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-// 🖼️ IMPORTANDO A IMAGEM DE FUNDO DA SALA DE AULA (Ajuste o caminho se necessário)
-import classroomBackground from '../assets/classroom_background.png'; 
+// 💡 AQUI ESTÁ A MÁGICA: Retiramos o "import" local que dava erro!
 
 const Academy = () => {
   const navigate = useNavigate();
@@ -22,15 +21,15 @@ const Academy = () => {
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* 🖼️ A IMAGEM DE FUNDO DA SALA DE AULA (Z-Index 0) */}
+      {/* 🖼️ A IMAGEM DE FUNDO DA SALA DE AULA DIRETO DA NUVEM (Z-Index 0) */}
       <img 
-        src={classroomBackground} 
+        src="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=2000" 
         alt="Classroom Background" 
-        className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" 
+        className="absolute inset-0 w-full h-full object-cover opacity-20 z-0" 
       />
       
-      {/* Gradiente de sobreposição para manter o tema escuro e a leitura (Z-Index 1) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black z-10" />
+      {/* Gradiente de sobreposição para manter o tema escuro e a leitura (Z-Index 10) */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black z-10" />
       
       {/* ========================================================= */}
       
