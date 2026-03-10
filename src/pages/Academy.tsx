@@ -3,7 +3,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, BookOpen, Mic2, Users, CheckCircle, GraduationCap, 
-  Star, Airplay, PlayCircle, Lock, Trophy, Target, Flame 
+  Star, Airplay, PlayCircle, Lock, Trophy, Target, Flame, 
+  Activity, Zap, Speaker, Award
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -11,30 +12,32 @@ import { Card } from '@/components/ui/card';
 const Academy = () => {
   const navigate = useNavigate();
   
-  // 📚 Grade completa de Módulos (Com gamificação de níveis bloqueados)
+  // 📚 GRADE COMPLETA COM 10 MÓDULOS (Do Iniciante ao Master)
   const trainingModules = [
     { id: 1, title: "Respiração e Apoio", description: "Controle de diafragma e fluxo de ar.", icon: Airplay, level: 1, duration: "10 min", locked: false },
     { id: 2, title: "Afinação Precisa", description: "Treinamento de ouvido e intervalos.", icon: Mic2, level: 2, duration: "12 min", locked: false },
     { id: 3, title: "Ressonância", description: "Melhora da qualidade tonal e clareza.", icon: BookOpen, level: 3, duration: "15 min", locked: false },
     { id: 4, title: "Interpretação Vocal", description: "Expressão e emoção ao cantar.", icon: Users, level: 4, duration: "20 min", locked: false },
     { id: 5, title: "Falsetes e Melismas", description: "Técnicas avançadas de R&B e Pop.", icon: Flame, level: 5, duration: "25 min", locked: true },
-    { id: 6, title: "Aquecimento Master", description: "Rotina de show de 30 minutos.", icon: Target, level: 6, duration: "30 min", locked: true },
+    { id: 6, title: "Vibrato Master", description: "Oscilação perfeita e controle.", icon: Activity, level: 6, duration: "20 min", locked: true },
+    { id: 7, title: "Drives e Rasps", description: "Distorção vocal com segurança.", icon: Zap, level: 7, duration: "25 min", locked: true },
+    { id: 8, title: "Agudos (Belting)", description: "Potência sem machucar a garganta.", icon: Speaker, level: 8, duration: "30 min", locked: true },
+    { id: 9, title: "Dinâmica e Microfone", description: "Uso correto do equipamento de palco.", icon: Target, level: 9, duration: "20 min", locked: true },
+    { id: 10, title: "Show Completo", description: "A prova final. Rotina de 40 minutos.", icon: Award, level: 10, duration: "40 min", locked: true },
   ];
 
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* 🖼️ CAMADA 1: A IMAGEM DE FUNDO DA SALA/ESTÚDIO (Com mais opacidade para aparecer bem!) */}
+      {/* 🖼️ CAMADA 1: A IMAGEM DE FUNDO DA SALA/ESTÚDIO */}
       <img 
         src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=2000&q=80" 
-        alt="Estúdio de Música / Sala de Aula" 
+        alt="Estúdio de Música" 
         className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" 
       />
       
-      {/* 🌑 CAMADA 2: Gradiente ajustado para não engolir a foto, mas dar leitura ao texto */}
+      {/* 🌑 CAMADA 2: Gradiente ajustado */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black z-10" />
-      
-      {/* ========================================================= */}
       
       {/* ✨ CAMADA 3: O CONTEÚDO PRINCIPAL DO APP */}
       <div className="max-w-7xl mx-auto relative z-20 animate-in fade-in duration-700">
@@ -62,7 +65,7 @@ const Academy = () => {
             <div className="text-center">
               <Trophy className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
               <p className="text-white font-black text-lg">Nível 4</p>
-              <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Seu Rank</p>
+              <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Seu Rank Atual</p>
             </div>
             <div className="w-px bg-white/10" />
             <div className="text-center">
@@ -73,14 +76,13 @@ const Academy = () => {
           </div>
         </div>
 
-        {/* 📺 AULA EM DESTAQUE (A "metade" que estava faltando) */}
+        {/* 📺 AULA EM DESTAQUE */}
         <div className="mb-12 animate-in slide-in-from-bottom-5">
           <h2 className="text-white font-black uppercase tracking-widest flex items-center gap-2 mb-6">
             <PlayCircle className="text-cyan-400" /> Aula de Hoje em Destaque
           </h2>
           <Card className="bg-zinc-950/70 backdrop-blur-xl border-white/10 overflow-hidden rounded-[2rem] group flex flex-col md:flex-row relative shadow-[0_0_40px_rgba(34,211,238,0.1)]">
             <div className="md:w-1/2 relative aspect-video md:aspect-auto">
-              {/* Thumbnail da Aula de Destaque */}
               <img 
                 src="https://images.unsplash.com/photo-1520626887556-91e0a2cc1214?q=80&w=1000" 
                 alt="Vocal Coach" 
@@ -109,19 +111,19 @@ const Academy = () => {
           </Card>
         </div>
 
-        {/* 📚 MÓDULOS DE TREINAMENTO (A lista completa e gamificada) */}
+        {/* 📚 MÓDULOS DE TREINAMENTO (Agora com 10 níveis!) */}
         <h2 className="text-white font-black uppercase tracking-widest flex items-center gap-2 mb-6">
           <BookOpen className="text-cyan-400" /> Trilha de Conhecimento
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in slide-in-from-bottom-5">
           {trainingModules.map((module) => {
             const Icon = module.icon;
             return (
               <Card key={module.id} className={`bg-zinc-950/70 backdrop-blur-xl border-white/10 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center relative overflow-hidden shadow-2xl ${module.locked ? 'opacity-60 grayscale-[50%]' : 'hover:border-cyan-400/50 group'}`}>
                 
                 {module.locked && (
-                  <div className="absolute top-4 right-4 bg-black/60 p-2 rounded-full border border-white/10 backdrop-blur-md">
+                  <div className="absolute top-4 right-4 bg-black/60 p-2 rounded-full border border-white/10 backdrop-blur-md z-10">
                     <Lock className="w-4 h-4 text-gray-400" />
                   </div>
                 )}
@@ -147,7 +149,7 @@ const Academy = () => {
                 </div>
                 
                 <Button disabled={module.locked} className={`w-full h-12 rounded-full font-black uppercase tracking-widest text-[10px] transition-all mt-auto ${module.locked ? 'bg-zinc-800 text-gray-500' : 'bg-white hover:bg-cyan-400 text-black shadow-lg'}`}>
-                  {module.locked ? 'DESBLOQUEIA NO LVL 5' : (
+                  {module.locked ? `DESBLOQUEIA NO LVL ${module.level}` : (
                     <>INICIAR EXERCÍCIO <CheckCircle className="ml-2 h-4 w-4" /></>
                   )}
                 </Button>
