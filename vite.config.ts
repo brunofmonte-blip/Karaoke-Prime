@@ -4,6 +4,8 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 export default defineConfig(() => ({
+  // 👇 A MÁGICA ACONTECE AQUI: Faz o Vite achar as imagens no GitHub
+  base: "./", 
   server: {
     host: "::",
     port: 8080,
