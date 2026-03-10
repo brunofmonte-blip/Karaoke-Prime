@@ -6,8 +6,11 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 8080,
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+      "Cross-Origin-Embedder-Policy": "unsafe-none",
+    },
   },
-  // 📍 Garante que os caminhos sejam relativos e o localhost não se perca
   base: "./", 
   plugins: [react()],
   resolve: {
@@ -18,7 +21,6 @@ export default defineConfig({
   build: {
     outDir: "dist",
     assetsDir: "assets",
-    // Impede que o CSS seja separado de um jeito que o localhost não ache
     cssCodeSplit: false, 
   }
 });
