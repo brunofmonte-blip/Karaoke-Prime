@@ -37,30 +37,44 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
           <Mic2 className="text-primary h-6 w-6" />
-          <span className="text-xl font-black text-white italic tracking-tighter">KARAOKE <span className="text-primary">PRIME</span></span>
+          <span className="text-xl font-black text-white italic tracking-tighter uppercase">Karaoke <span className="text-primary">Prime</span></span>
         </div>
 
         <nav className="hidden md:flex gap-6">
           {navItems.map(item => (
-            <span key={item.name} onClick={() => navigate(item.path)} className={`text-xs font-bold uppercase tracking-widest cursor-pointer transition-colors ${location.pathname === item.path ? 'text-primary' : 'text-gray-400 hover:text-white'}`}>
+            <span key={item.name} onClick={() => navigate(item.path)} className={`text-[10px] font-black uppercase tracking-widest cursor-pointer transition-colors ${location.pathname === item.path ? 'text-primary' : 'text-gray-400 hover:text-white'}`}>
               {item.name}
             </span>
           ))}
         </nav>
 
-        {!isAuthChecking && (
-          user ? (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
-                {user.photoURL ? <img src={user.photoURL} className="w-6 h-6 rounded-full" /> : <UserIcon size={14} />}
-                <span className="text-white text-[10px] font-bold uppercase">{user.displayName?.split(' ')[0]}</span>
+        <div className="flex items-center gap-4">
+          {!isAuthChecking && (
+            user ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full shadow-neon-blue">
+                  {user.photoURL ? (
+                    <img src={user.photoURL} alt="Avatar" className="w-6 h-6 rounded-full border border-primary/50 object-cover" />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center border border-primary/50">
+                      <UserIcon size={12} className="text-primary" />
+                    </div>
+                  )}
+                  <span className="text-white text-[10px] font-black tracking-widest uppercase hidden sm:block">
+                    {user.displayName ? user.displayName.split(' ')[0] : 'Artista'}
+                  </span>
+                </div>
+                <Button onClick={handleLogout} variant="ghost" size="icon" className="text-gray-500 hover:text-white hover:bg-destructive/20 rounded-full h-8 w-8 transition-colors">
+                  <LogOut size={14} />
+                </Button>
               </div>
-              <Button onClick={handleLogout} variant="ghost" size="icon" className="text-gray-400 hover:text-white"><LogOut size={16} /></Button>
-            </div>
-          ) : (
-            <Button onClick={() => navigate('/login')} className="bg-primary/10 border border-primary text-primary hover:bg-primary hover:text-black font-bold text-xs uppercase px-6 h-9 rounded-full">Sign In</Button>
-          )
-        )}
+            ) : (
+              <Button onClick={() => navigate('/login')} className="bg-primary/10 border border-primary text-primary hover:bg-primary hover:text-black font-black text-[10px] uppercase tracking-widest h-9 px-6 rounded-full transition-all">
+                Sign In
+              </Button>
+            )
+          )}
+        </div>
       </div>
     </header>
   );
