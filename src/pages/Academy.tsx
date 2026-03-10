@@ -1,22 +1,27 @@
 // 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/Academy.tsx
-import React, { useState } from 'react'; // 💡 Adicionado useState
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, BookOpen, Mic2, Users, CheckCircle, GraduationCap, 
   Star, Airplay, Lock, Activity, Zap, Speaker, Award, Target, Flame,
-  X, Mail // 💡 Adicionado X e Mail para o Modal
+  X, Mail, Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
+// 💡 IMPORTAÇÃO DO FIREBASE DIRETAMENTE PARA A ACADEMY
+import { auth, db, googleProvider } from '@/lib/firebase';
+import { signInWithPopup } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+
 const Academy = () => {
   const navigate = useNavigate();
   
-  // 💡 ESTADO DO MODAL: Controla se a janela "Academy Locked" está aberta
+  // Estados do Modal e de Carregamento
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // 📚 GRADE DE TREINAMENTO (Layout Original em Cards)
-  // Nível 1 aberto, Níveis 2 a 10 bloqueados.
+  // 📚 GRADE DE TREINAMENTO
   const trainingModules = [
     { id: 1, title: "Respiração e Apoio", description: "Exercícios de diafragma, controle de fluxo de ar.", icon: Airplay, level: 1, duration: "10 min", locked: false },
     { id: 2, title: "Afinação e Percepção", description: "Exercícios para treinar o ouvido e o tempo.", icon: Mic2, level: 2, duration: "12 min", locked: true },
@@ -30,22 +35,55 @@ const Academy = () => {
     { id: 10, title: "Show Completo", description: "A prova final. Rotina de 40 minutos.", icon: Award, level: 10, duration: "40 min", locked: true },
   ];
 
+  // 💡 LÓGICA DE LOGIN DIRETO DO GOOGLE SEM MUDAR DE TELA
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          avatar: user.photoURL,
+          level: 1,
+          status: 'Online',
+          createdAt: new Date()
+        });
+      } else {
+        await setDoc(userRef, { status: 'Online' }, { merge: true });
+      }
+
+      setIsModalOpen(false); // Fecha o modal após sucesso
+      alert("Cadastro realizado com sucesso! Bem-vindo(a) à Academy Prime.");
+      
+    } catch (error) {
+      console.error("Erro no login:", error);
+      alert("Houve um erro ao tentar fazer login com o Google. Verifique o Firebase.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* 🖼️ A IMAGEM DE FUNDO DA SALA DE MÚSICA (Opacidade aumentada para aparecer melhor) */}
+      {/* 🖼️ A IMAGEM DE FUNDO DA SALA DE MÚSICA */}
       <img 
         src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=2000" 
         alt="Music Classroom Background" 
         className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale-[30%] z-0" 
       />
       
-      {/* Gradiente ajustado: Começa mais transparente e escurece no final */}
+      {/* Gradiente de fundo */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black z-10" />
       
-      {/* ========================================================= */}
-      
-      {/* O CONTEÚDO PRINCIPAL NO LAYOUT ORIGINAL (Z-Index 20) */}
+      {/* O CONTEÚDO PRINCIPAL (Cards) */}
       <div className="max-w-7xl mx-auto relative z-20 animate-in fade-in duration-700">
         <button onClick={() => navigate('/basic')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest relative z-30">
           <ArrowLeft size={16} /> Voltar para o Palco
@@ -63,7 +101,7 @@ const Academy = () => {
           </p>
         </div>
 
-        {/* MÓDULOS DE TREINAMENTO (Cards Originais intactos) */}
+        {/* MÓDULOS DE TREINAMENTO */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in slide-in-from-bottom-5">
           {trainingModules.map((module) => {
             const Icon = module.icon;
@@ -96,7 +134,6 @@ const Academy = () => {
                   </div>
                 </div>
                 
-                {/* 💡 AÇÃO DE CLIQUE: Chama o modal se clicar no botão desbloqueado */}
                 <Button 
                   disabled={module.locked} 
                   onClick={() => { if (!module.locked) setIsModalOpen(true); }}
@@ -113,7 +150,7 @@ const Academy = () => {
       </div>
 
       {/* ========================================================= */}
-      {/* 🔐 MODAL "ACADEMY LOCKED" FLUTUANTE POR CIMA DO LAYOUT */}
+      {/* 🔐 MODAL "ACADEMY LOCKED" COM LOGIN DIRETO INTEGRADO */}
       {/* ========================================================= */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
@@ -135,15 +172,20 @@ const Academy = () => {
               O currículo de 10 níveis é exclusivo para membros.
             </p>
 
-            {/* Os três botões exigidos */}
+            {/* BOTOES DE LOGIN (Google executa a ação direta) */}
             <div className="w-full flex flex-col gap-3">
-              <Button onClick={() => navigate('/login')} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
-                <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-4 h-4" /> ENTRAR COM O GOOGLE
+              <Button 
+                onClick={handleGoogleLogin} 
+                disabled={isLoading}
+                className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-4 h-4" />} 
+                {isLoading ? "CONECTANDO..." : "ENTRAR COM O GOOGLE"}
               </Button>
-              <Button onClick={() => navigate('/login')} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
+              <Button onClick={() => alert("Login com Facebook em desenvolvimento")} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
                 <img src="https://authjs.dev/img/providers/facebook.svg" alt="Facebook" className="w-4 h-4" /> ENTRAR COM O FACEBOOK
               </Button>
-              <Button onClick={() => navigate('/login')} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
+              <Button onClick={() => alert("Login por E-mail em desenvolvimento")} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
                 <Mail className="w-4 h-4 text-gray-400" /> ENTRAR COM E-MAIL
               </Button>
             </div>
