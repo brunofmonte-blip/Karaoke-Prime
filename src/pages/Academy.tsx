@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-// 💡 IMPORTAÇÃO DO FIREBASE DIRETAMENTE PARA A ACADEMY
+// IMPORTAÇÃO DO FIREBASE DIRETAMENTE PARA A ACADEMY
 import { auth, db, googleProvider } from '@/lib/firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -17,15 +17,13 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 const Academy = () => {
   const navigate = useNavigate();
   
-  // Estados do Modal e de Carregamento
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // 📚 GRADE DE TREINAMENTO
   const trainingModules = [
     { id: 1, title: "Respiração e Apoio", description: "Exercícios de diafragma, controle de fluxo de ar.", icon: Airplay, level: 1, duration: "10 min", locked: false },
-    { id: 2, title: "Afinação e Percepção", description: "Exercícios para treinar o ouvido e o tempo.", icon: Mic2, level: 2, duration: "12 min", locked: true },
-    { id: 3, title: "Ressonância e Dicção", description: "Melhora da qualidade tonal e clareza.", icon: BookOpen, level: 3, duration: "15 min", locked: true },
+    { id: 2, title: "Afinação Precisa", description: "Treinamento de ouvido e intervalos.", icon: Mic2, level: 2, duration: "12 min", locked: true },
+    { id: 3, title: "Ressonância", description: "Melhora da qualidade tonal e clareza.", icon: BookOpen, level: 3, duration: "15 min", locked: true },
     { id: 4, title: "Interpretação Vocal", description: "Expressão e emoção ao cantar.", icon: Users, level: 4, duration: "20 min", locked: true },
     { id: 5, title: "Falsetes e Melismas", description: "Técnicas avançadas de R&B e Pop.", icon: Flame, level: 5, duration: "25 min", locked: true },
     { id: 6, title: "Vibrato Master", description: "Oscilação perfeita e controle.", icon: Activity, level: 6, duration: "20 min", locked: true },
@@ -35,7 +33,6 @@ const Academy = () => {
     { id: 10, title: "Show Completo", description: "A prova final. Rotina de 40 minutos.", icon: Award, level: 10, duration: "40 min", locked: true },
   ];
 
-  // 💡 LÓGICA DE LOGIN DIRETO DO GOOGLE SEM MUDAR DE TELA
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
@@ -59,12 +56,12 @@ const Academy = () => {
         await setDoc(userRef, { status: 'Online' }, { merge: true });
       }
 
-      setIsModalOpen(false); // Fecha o modal após sucesso
+      setIsModalOpen(false); 
       alert("Cadastro realizado com sucesso! Bem-vindo(a) à Academy Prime.");
       
     } catch (error) {
       console.error("Erro no login:", error);
-      alert("Houve um erro ao tentar fazer login com o Google. Verifique o Firebase.");
+      alert("Houve um erro ao tentar fazer login com o Google. Verifique a configuração dos Domínios Autorizados no Firebase.");
     } finally {
       setIsLoading(false);
     }
@@ -73,17 +70,14 @@ const Academy = () => {
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* 🖼️ A IMAGEM DE FUNDO DA SALA DE MÚSICA */}
       <img 
         src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=2000" 
         alt="Music Classroom Background" 
         className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale-[30%] z-0" 
       />
       
-      {/* Gradiente de fundo */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black z-10" />
       
-      {/* O CONTEÚDO PRINCIPAL (Cards) */}
       <div className="max-w-7xl mx-auto relative z-20 animate-in fade-in duration-700">
         <button onClick={() => navigate('/basic')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest relative z-30">
           <ArrowLeft size={16} /> Voltar para o Palco
@@ -97,11 +91,10 @@ const Academy = () => {
             Academy <span className="text-primary neon-blue-glow">Prime</span>
           </h1>
           <p className="text-gray-300 text-lg font-medium max-w-2xl mx-auto md:mx-0 drop-shadow-md">
-            Seu espaço para dominar técnicas, treinar respiração e aprimorar a afinação antes de brilhar nos palcos.
+            Aprenda as técnicas dos maiores vocalistas do mundo. Evolua seu nível e libere novos desafios.
           </p>
         </div>
 
-        {/* MÓDULOS DE TREINAMENTO */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in slide-in-from-bottom-5">
           {trainingModules.map((module) => {
             const Icon = module.icon;
@@ -149,9 +142,7 @@ const Academy = () => {
         </div>
       </div>
 
-      {/* ========================================================= */}
-      {/* 🔐 MODAL "ACADEMY LOCKED" COM LOGIN DIRETO INTEGRADO */}
-      {/* ========================================================= */}
+      {/* MODAL "ACADEMY LOCKED" (APENAS GOOGLE E EMAIL) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
           <div className="bg-zinc-950 border-[2px] border-primary rounded-[3rem] p-10 flex flex-col items-center text-center max-w-sm w-full shadow-[0_0_60px_rgba(0,168,225,0.3)] relative">
@@ -160,32 +151,29 @@ const Academy = () => {
               <X className="w-6 h-6" />
             </button>
 
-            <div className="w-20 h-20 rounded-full border-[2px] border-primary flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,168,225,0.2)] bg-primary/5">
-              <Lock className="w-8 h-8 text-primary" />
+            <div className="w-24 h-24 rounded-full border-[3px] border-primary flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,168,225,0.2)] bg-primary/5 relative">
+              <Lock className="w-10 h-10 text-primary" />
             </div>
 
-            <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-2">
+            <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-2 leading-none">
               ACADEMY <span className="text-primary drop-shadow-[0_0_10px_rgba(0,168,225,0.8)]">LOCKED</span>
             </h2>
 
-            <p className="text-gray-300 mb-8 font-medium text-sm">
+            <p className="text-gray-300 mb-10 font-medium text-sm">
               O currículo de 10 níveis é exclusivo para membros.
             </p>
 
-            {/* BOTOES DE LOGIN (Google executa a ação direta) */}
             <div className="w-full flex flex-col gap-3">
               <Button 
                 onClick={handleGoogleLogin} 
                 disabled={isLoading}
-                className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 shadow-neon-blue"
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-4 h-4" />} 
                 {isLoading ? "CONECTANDO..." : "ENTRAR COM O GOOGLE"}
               </Button>
-              <Button onClick={() => alert("Login com Facebook em desenvolvimento")} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
-                <img src="https://authjs.dev/img/providers/facebook.svg" alt="Facebook" className="w-4 h-4" /> ENTRAR COM O FACEBOOK
-              </Button>
-              <Button onClick={() => alert("Login por E-mail em desenvolvimento")} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
+              
+              <Button onClick={() => alert("Login por E-mail em desenvolvimento")} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 shadow-neon-blue">
                 <Mail className="w-4 h-4 text-gray-400" /> ENTRAR COM E-MAIL
               </Button>
             </div>
