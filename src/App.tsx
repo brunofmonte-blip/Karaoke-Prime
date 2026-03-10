@@ -6,8 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Academy from "./pages/Academy";
-import Lesson from "./pages/Lesson";
 
 const queryClient = new QueryClient();
 
@@ -17,12 +15,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Header /> {/* O Header fica fixo no topo */}
+        <Header />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/academy" element={<Academy />} />
-          <Route path="/lesson/:id" element={<Lesson />} />
+          <Route path="*" element={<Index />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
