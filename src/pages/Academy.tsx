@@ -1,15 +1,18 @@
 // 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/Academy.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, BookOpen, Mic2, Users, CheckCircle, GraduationCap, 
-  Star, Airplay, Lock, Activity, Zap, Speaker, Award, Target, Flame
+  Star, Airplay, Lock, Activity, Zap, Speaker, Award, Target, Flame, LogIn, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 const Academy = () => {
   const navigate = useNavigate();
+  
+  // 💡 ESTADO DO MODAL: Controla se a janela "Academy Locked" está aberta ou fechada
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // 📚 GRADE DE TREINAMENTO (Layout Original em Cards)
   // Nível 1 aberto, Níveis 2 a 10 bloqueados.
@@ -29,19 +32,19 @@ const Academy = () => {
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* 🖼️ A IMAGEM DE FUNDO DA SALA DE AULA DIRETO DA NUVEM (Z-Index 0) */}
+      {/* 🖼️ NOVA IMAGEM DE FUNDO: SALA DE AULA DE MÚSICA (Z-Index 0) */}
       <img 
-        src="https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=2000" 
-        alt="Classroom Background" 
-        className="absolute inset-0 w-full h-full object-cover opacity-20 z-0" 
+        src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=2000&q=80" 
+        alt="Music Classroom Background" 
+        className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale-[50%] z-0" 
       />
       
       {/* Gradiente de sobreposição para manter o tema escuro e a leitura (Z-Index 10) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black z-10" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/80 to-black z-10" />
       
       {/* ========================================================= */}
       
-      {/* O CONTEÚDO PRINCIPAL NO LAYOUT ORIGINAL (Z-Index 20) */}
+      {/* O CONTEÚDO PRINCIPAL (Z-Index 20) */}
       <div className="max-w-7xl mx-auto relative z-20 animate-in fade-in duration-700">
         <button onClick={() => navigate('/basic')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest relative z-30">
           <ArrowLeft size={16} /> Voltar para o Palco
@@ -59,7 +62,7 @@ const Academy = () => {
           </p>
         </div>
 
-        {/* MÓDULOS DE TREINAMENTO (Cards Originais) */}
+        {/* MÓDULOS DE TREINAMENTO */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in slide-in-from-bottom-5">
           {trainingModules.map((module) => {
             const Icon = module.icon;
@@ -93,8 +96,12 @@ const Academy = () => {
                   </div>
                 </div>
                 
-                {/* Lógica do Botão: Assinar vs Iniciar */}
-                <Button disabled={module.locked} className={`w-full h-12 rounded-full font-black uppercase tracking-widest text-[10px] transition-all mt-auto shadow-lg ${module.locked ? 'bg-zinc-800 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-primary text-black'}`}>
+                {/* 💡 A MÁGICA DO CLIQUE: Chama o Modal se não estiver bloqueado (Nível 1) */}
+                <Button 
+                  disabled={module.locked} 
+                  onClick={() => { if (!module.locked) setIsModalOpen(true); }}
+                  className={`w-full h-12 rounded-full font-black uppercase tracking-widest text-[10px] transition-all mt-auto shadow-lg ${module.locked ? 'bg-zinc-800 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-primary text-black'}`}
+                >
                   {module.locked ? 'ASSINAR PARA DESBLOQUEAR' : (
                     <>INICIAR EXERCÍCIO <CheckCircle className="ml-2 h-4 w-4" /></>
                   )}
@@ -105,6 +112,45 @@ const Academy = () => {
         </div>
 
       </div>
+
+      {/* ========================================================= */}
+      {/* 🔐 MODAL "ACADEMY LOCKED" (O Pop-up Premium) */}
+      {/* ========================================================= */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
+          
+          <div className="bg-zinc-950 border-[2px] border-primary rounded-[3rem] p-10 flex flex-col items-center text-center max-w-md w-full shadow-[0_0_60px_rgba(0,168,225,0.3)] relative">
+            
+            {/* Botão de fechar (X) invisível no canto para usabilidade */}
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* O Cadeado Neon */}
+            <div className="w-24 h-24 rounded-full border-[3px] border-primary flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,168,225,0.2)] bg-primary/5">
+              <Lock className="w-10 h-10 text-primary" />
+            </div>
+            
+            <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">
+              ACADEMY <span className="text-primary drop-shadow-[0_0_10px_rgba(0,168,225,0.8)]">LOCKED</span>
+            </h2>
+            
+            <p className="text-gray-300 mb-10 font-medium">
+              O currículo de 10 níveis é exclusivo para membros.
+            </p>
+            
+            {/* Botão que leva para o Login/Cadastro */}
+            <Button 
+              onClick={() => navigate('/login')}
+              className="w-full h-16 rounded-full bg-primary hover:bg-white text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(0,168,225,0.4)]"
+            >
+              <LogIn className="mr-2 h-5 w-5" /> CADASTRE-SE PARA DESBLOQUEAR
+            </Button>
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 };
