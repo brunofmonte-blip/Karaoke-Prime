@@ -23,13 +23,13 @@ const Lesson = () => {
       { id: 0, displayTitle: "Introdução", title: "Fundamentos e Respiração", youtubeId: "m75jPge9QUM", description: "Bem-vindo ao seu primeiro passo.", hasPractice: false, locked: false },
       { id: 1, displayTitle: "Aula 1", title: "Respiração Diafragmática", youtubeId: "Wl6xUHg9iAQ", description: "A fundação de tudo.", hasPractice: true, exercise: "Ciclo 4-4-10-4", practiceDesc: "Inspirar (4s), Segurar (4s), Expirar (10s) e Descansar (4s).", locked: false },
       { id: 2, displayTitle: "Aula 2", title: "Controle de Fluxo de Ar", youtubeId: "fQKI_SFrrOo", description: "Cantar não é sobre a força do ar, mas sobre o controle.", hasPractice: true, exercise: "Emissão de 'S' (15s)", practiceDesc: "Treino de resistência e economia de ar.", locked: false },
-      { id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", description: "A aplicação do fluxo de ar, mas agora usando a voz de verdade.", hasPractice: true, exercise: "Sustentação de Nota", practiceDesc: "Treino de constância de afinação e fôlego.", locked: false },
-      { id: 4, displayTitle: "Aula 4", title: "Aquecimento Labial", youtubeId: "3nL733b7rgQ", description: "O exercício mais famoso dos cantores.", hasPractice: true, exercise: "Lip Trill de 10s", practiceDesc: "Vibração contínua dos lábios.", locked: false },
-      { id: 5, displayTitle: "Aula 5", title: "Soltando a Língua", youtubeId: "vImzV9TdLdo", description: "Exercício fundamental de vibração de língua.", hasPractice: true, exercise: "Trinado de Língua", practiceDesc: "Vibração de língua contínua.", locked: false },
-      { id: 6, displayTitle: "Aula 6", title: "Sirene Vocal", youtubeId: "ZsvFS4u2P8I", description: "Conectando Graves e Agudos sem a voz 'quebrar'.", hasPractice: true, exercise: "Sirene Completa", practiceDesc: "Transição suave de registros.", locked: false },
-      { id: 7, displayTitle: "Aula 7", title: "Articulação Exagerada", youtubeId: "PW3Oj_uagpI", description: "Aprenda a abrir espaço interno para o som brilhar.", hasPractice: true, exercise: "Leitura Articulada", practiceDesc: "Projeção clara de vogais.", locked: false },
-      { id: 8, displayTitle: "Aula 8", title: "Ataque Vocal Suave", youtubeId: "KqVkz8jdcpc", description: "Evite o 'Golpe de Glote'.", hasPractice: true, exercise: "Início com 'H'", practiceDesc: "Inícios suaves sem impacto na glote.", locked: false },
-      { id: 9, displayTitle: "Aula 9", title: "Ressonância Básica", youtubeId: "dHVMUp4MRD8", description: "O Som na Máscara.", hasPractice: true, exercise: "Humming", practiceDesc: "Posicionamento tonal no rosto.", locked: false },
+      { id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", description: "A aplicação do fluxo de ar, mas agora usando a voz de verdade.", hasPractice: true, exercise: "Sustentação de Nota", practiceDesc: "Treino de constância de afinação e fôlego.", locked: true },
+      { id: 4, displayTitle: "Aula 4", title: "Aquecimento Labial", youtubeId: "3nL733b7rgQ", description: "O exercício mais famoso dos cantores.", hasPractice: true, exercise: "Lip Trill de 10s", practiceDesc: "Vibração contínua dos lábios.", locked: true },
+      { id: 5, displayTitle: "Aula 5", title: "Soltando a Língua", youtubeId: "vImzV9TdLdo", description: "Exercício fundamental de vibração de língua.", hasPractice: true, exercise: "Trinado de Língua", practiceDesc: "Vibração de língua contínua.", locked: true },
+      { id: 6, displayTitle: "Aula 6", title: "Sirene Vocal", youtubeId: "ZsvFS4u2P8I", description: "Conectando Graves e Agudos sem a voz 'quebrar'.", hasPractice: true, exercise: "Sirene Completa", practiceDesc: "Transição suave de registros.", locked: true },
+      { id: 7, displayTitle: "Aula 7", title: "Articulação Exagerada", youtubeId: "PW3Oj_uagpI", description: "Aprenda a abrir espaço interno para o som brilhar.", hasPractice: true, exercise: "Leitura Articulada", practiceDesc: "Projeção clara de vogais.", locked: true },
+      { id: 8, displayTitle: "Aula 8", title: "Ataque Vocal Suave", youtubeId: "KqVkz8jdcpc", description: "Evite o 'Golpe de Glote'.", hasPractice: true, exercise: "Início com 'H'", practiceDesc: "Inícios suaves sem impacto na glote.", locked: true },
+      { id: 9, displayTitle: "Aula 9", title: "Ressonância Básica", youtubeId: "dHVMUp4MRD8", description: "O Som na Máscara.", hasPractice: true, exercise: "Humming", practiceDesc: "Posicionamento tonal no rosto.", locked: true },
       { id: 10, displayTitle: "Aula 10", title: "Avaliação Final", youtubeId: "qpQuTYKLC-U", description: "O teste final do Nível 1.", hasPractice: true, exercise: "Performance Completa", practiceDesc: "Execução com IA.", locked: true }
     ]
   };
@@ -48,61 +48,60 @@ const Lesson = () => {
     return () => clearTimeout(timer);
   }, [trainingStatus, countdown, timeLeft]);
 
-  // 💡 O CÉREBRO COMPLETO COM TODAS AS 9 AULAS
   const getCycleState = () => {
     const elapsed = 60 - timeLeft; 
     
     switch (currentLesson.id) {
-      case 1: { // 4-4-10-4
+      case 1: { 
         const t = elapsed % 22; 
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
         if (t < 8) return { phase: 'SEGURAR', instruction: 'Segura por 4 segundos', color: 'orange', icon: Lock };
         if (t < 18) return { phase: 'EXPIRAR', instruction: 'Expira por 10 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 4 segundos', color: 'gray', icon: Coffee };
       }
-      case 2: { // Som de S
+      case 2: { 
         const t = elapsed % 22;
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
         if (t < 19) return { phase: 'EMITIR S', instruction: 'Solte o ar com som de pneu esvaziando por 15 segundos', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 3 segundos', color: 'gray', icon: Coffee };
       }
-      case 3: { // Sustentação
+      case 3: { 
         const t = elapsed % 22;
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
         if (t < 19) return { phase: 'SUSTENTAR', instruction: 'Sustente uma nota confortável por 15 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa por 3 segundos', color: 'gray', icon: Coffee };
       }
-      case 4: { // Lip Trill
+      case 4: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'LIP TRILL', instruction: 'Faça a vibração dos lábios contínua por 10 segundos', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 5: { // Trinado de Língua
+      case 5: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'LÍNGUA', instruction: 'Trinado de língua contínuo por 10 segundos', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 6: { // Sirene
+      case 6: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'SIRENE', instruction: 'Faça o som de sirene subindo e descendo', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 7: { // Articulação
+      case 7: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'ARTICULAR', instruction: 'Leia o texto abrindo bem a boca nas vogais', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 8: { // Ataque Suave
+      case 8: { 
         const t = elapsed % 15;
         if (t < 3) return { phase: 'INSPIRAR', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 13) return { phase: 'ATAQUE SUAVE', instruction: 'Inicie o som com um sopro, falando Aga-Amor', color: 'blue', icon: Activity };
         return { phase: 'DESCANSAR', instruction: 'Descansa', color: 'gray', icon: Coffee };
       }
-      case 9: { // Humming
+      case 9: { 
         const t = elapsed % 22;
         if (t < 4) return { phase: 'INSPIRAR', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
         if (t < 19) return { phase: 'HUMMING', instruction: 'Faça o som de Hummmm sentindo vibrar o rosto', color: 'blue', icon: Mic2 };
@@ -139,7 +138,10 @@ const Lesson = () => {
   };
 
   const changeLesson = (index: number) => {
-    if (moduleContent.lessons[index].locked) return;
+    if (moduleContent.lessons[index].locked) {
+      alert("🔒 Aula exclusiva para membros Premium. Assine o plano para liberar o acesso total!");
+      return;
+    }
     setActiveLessonIndex(index);
     setStep('video');
     setTrainingStatus('idle');
