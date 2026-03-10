@@ -1,223 +1,156 @@
-// src/pages/Academy.tsx
+// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/Academy.tsx
+import React, { useState } from 'react'; // 💡 Adicionado useState
+import { useNavigate } from 'react-router-dom';
+import { 
+  ArrowLeft, BookOpen, Mic2, Users, CheckCircle, GraduationCap, 
+  Star, Airplay, Lock, Activity, Zap, Speaker, Award, Target, Flame,
+  X, Mail // 💡 Adicionado X e Mail para o Modal
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
-import React from 'react';
-import { Mic, Headphones, Heart, Star, Trophy, Lock, Mail } from 'lucide-react';
-
-// Sub-component for the glowing ciano border style
-const GlowingCard = ({ children, className = '' }) => (
-  <div className={`border-2 border-cian-400 rounded-2xl shadow-neon-blue p-6 ${className}`}>
-    {children}
-  </div>
-);
-
-// Lesson buttons inside Level 1 card
-const LessonButton = ({ icon: Icon, title, href }) => (
-  <a
-    href={href}
-    className="flex-1 text-center py-4 bg-zinc-900 border border-cian-400/50 rounded-xl flex flex-col items-center gap-2 hover:bg-cian-400 hover:text-black transition-colors"
-  >
-    <Icon className="w-8 h-8" />
-    <span className="text-sm font-medium">{title}</span>
-  </a>
-);
-
-// Locked Level List Item
-const LockedLevelItem = ({ level, title, onActionClick }) => (
-  <div className="flex items-center justify-between gap-4 py-4 px-6 border-b border-cian-400/20 group hover:bg-cian-400/5">
-    <div className="flex items-center gap-4">
-      <Lock className="w-8 h-8 text-gray-500" />
-      <div className="flex flex-col">
-        <span className="text-lg font-bold text-gray-400 group-hover:text-cian-400">{level}</span>
-        <span className="text-sm text-gray-500">{title}</span>
-      </div>
-    </div>
-    <button onClick={onActionClick} className="text-sm text-gray-500 group-hover:text-cian-400 py-1.5 px-4 border border-gray-600 rounded-full group-hover:border-cian-400">
-      BLOQUEADO, ASSINE PARA DESBLOQUEAR
-    </button>
-  </div>
-);
-
-const Academy: React.FC = () => {
-  const [isLocked, setIsLocked] = React.useState(true); // Control visibility of the central lock overlay
-
-  const handleLoginClick = () => {
-    // Alerta para o usuário verificar a configuração do Firebase (Item 4)
-    alert("Iniciando fluxo de login. Verifique se as chaves do Firebase estão configuradas no Firebase Console > Authentication > Sign-in method, incluindo e-mail, Facebook e Google.");
-  };
-
-  const handleBlockClick = () => {
-    // This function will be called when clicking on blocked content or actions
-    // You should add logic here to open the Premium Modal or redirect to registration
-  };
+const Academy = () => {
+  const navigate = useNavigate();
+  
+  // 💡 ESTADO DO MODAL: Controla se a janela "Academy Locked" está aberta
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // 📚 GRADE DE TREINAMENTO (Layout Original em Cards)
+  // Nível 1 aberto, Níveis 2 a 10 bloqueados.
+  const trainingModules = [
+    { id: 1, title: "Respiração e Apoio", description: "Exercícios de diafragma, controle de fluxo de ar.", icon: Airplay, level: 1, duration: "10 min", locked: false },
+    { id: 2, title: "Afinação e Percepção", description: "Exercícios para treinar o ouvido e o tempo.", icon: Mic2, level: 2, duration: "12 min", locked: true },
+    { id: 3, title: "Ressonância e Dicção", description: "Melhora da qualidade tonal e clareza.", icon: BookOpen, level: 3, duration: "15 min", locked: true },
+    { id: 4, title: "Interpretação Vocal", description: "Expressão e emoção ao cantar.", icon: Users, level: 4, duration: "20 min", locked: true },
+    { id: 5, title: "Falsetes e Melismas", description: "Técnicas avançadas de R&B e Pop.", icon: Flame, level: 5, duration: "25 min", locked: true },
+    { id: 6, title: "Vibrato Master", description: "Oscilação perfeita e controle.", icon: Activity, level: 6, duration: "20 min", locked: true },
+    { id: 7, title: "Drives e Rasps", description: "Distorção vocal com segurança.", icon: Zap, level: 7, duration: "25 min", locked: true },
+    { id: 8, title: "Agudos (Belting)", description: "Potência sem machucar a garganta.", icon: Speaker, level: 8, duration: "30 min", locked: true },
+    { id: 9, title: "Dinâmica e Microfone", description: "Uso correto do equipamento de palco.", icon: Target, level: 9, duration: "20 min", locked: true },
+    { id: 10, title: "Show Completo", description: "A prova final. Rotina de 40 minutos.", icon: Award, level: 10, duration: "40 min", locked: true },
+  ];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white relative font-sans">
+    <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* 🖼️ CAMADA DE FUNDO AJUSTADA (ITEM 1): Opacidade aumentada e gradiente suavizado */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center filter grayscale opacity-40" // Opacity increased to 40%
-        style={{ backgroundImage: "url('src/assets/microphone_stage.png')" }}
+      {/* 🖼️ A IMAGEM DE FUNDO DA SALA DE MÚSICA (Opacidade aumentada para aparecer melhor) */}
+      <img 
+        src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=2000" 
+        alt="Music Classroom Background" 
+        className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale-[30%] z-0" 
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black z-0" /> // Smoother gradient for better visibility
       
-      {/* PiP Chat Window completely removed */}
+      {/* Gradiente ajustado: Começa mais transparente e escurece no final */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black z-10" />
+      
+      {/* ========================================================= */}
+      
+      {/* O CONTEÚDO PRINCIPAL NO LAYOUT ORIGINAL (Z-Index 20) */}
+      <div className="max-w-7xl mx-auto relative z-20 animate-in fade-in duration-700">
+        <button onClick={() => navigate('/basic')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest relative z-30">
+          <ArrowLeft size={16} /> Voltar para o Palco
+        </button>
 
-      <div className="relative z-10 p-12 space-y-16">
-        
-        {/* Header and Title Section */}
-        <header className="flex justify-between items-center py-6 border-b border-cian-400/30">
-          <div className="text-2xl font-black text-cian-400 glowing-text">KARAOKE Prime</div>
-          <nav className="flex-1 flex justify-center items-center gap-8 text-sm font-medium">
-            {['Basic', 'Academy', 'Next Talent', 'Ferramentas', 'Generos', 'Memom-livro', 'Blogs'].map(item => (
-              <a href="#" className={`text-gray-300 hover:text-cian-400 ${item === 'Academy' ? 'text-cian-400Glowing' : ''}`}>{item}</a>
-            ))}
-          </nav>
-          <div className="flex items-center gap-6">
-            <span className="text-sm text-gray-400">Security Verified</span>
-            <button onClick={handleLoginClick} className="text-sm py-2 px-6 bg-zinc-900 border border-cian-400/50 rounded-full hover:bg-cian-400 hover:text-black">Sign In</button>
+        <div className="mb-12 text-center md:text-left relative z-30">
+          <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20 backdrop-blur-md shadow-lg">
+            <GraduationCap size={14} /> Centro de Treinamento
           </div>
-        </header>
-
-        {/* Global CTA Banner */}
-        <div className="w-full text-center py-3 bg-zinc-900/80 border-b border-cian-400/30">
-          <p className="text-sm">DESBLOQUEIE TODO O POTENCIAL! ASSINE O PACOTE MENSAL OU ANUAL AGORA.</p>
+          <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] leading-tight mb-4">
+            Academy <span className="text-primary neon-blue-glow">Prime</span>
+          </h1>
+          <p className="text-gray-300 text-lg font-medium max-w-2xl mx-auto md:mx-0 drop-shadow-md">
+            Seu espaço para dominar técnicas, treinar respiração e aprimorar a afinação antes de brilhar nos palcos.
+          </p>
         </div>
 
-        {/* Academy Section Title & Progress */}
-        <div className="flex justify-between items-center gap-12">
-          <div className="space-y-3">
-            <h1 className="text-4xl font-black glowing-text">
-              CENTRO DE TREINAMENTO: <span className="text-cian-400">ACADEMY PRIME</span>
-            </h1>
-            <p className="max-w-xl text-gray-400">
-              Seu espaço para dominar técnicas, treinar respiração e aprimorar a afinação antes de brilhar nos palcos.
-            </p>
-          </div>
-          <div className="flex-1 flex justify-end items-center gap-12 border-cian-400/30">
-            <div className="space-y-2 text-right">
-              <span className="text-lg font-bold">Nível 1</span>
-              <div className="relative w-48 h-2.5 bg-zinc-900 border border-cian-400/20 rounded-full overflow-hidden">
-                <div className="absolute inset-y-0 left-0 w-12 bg-cian-400" />
-              </div>
-            </div>
-            <div className="text-right">
-              <span className="text-lg font-bold">XP Acumulado</span>
-              <div className="text-sm">0</div>
-            </div>
-          </div>
-        </div>
-
-        {/* REORGANIZED CENTRAL SECTION (ITEM 2): Central Locked Modal */}
-        {isLocked && (
-          <div className="flex flex-col md:flex-row items-center justify-center gap-12 p-12 bg-zinc-950/90 border-2 border-cian-400 rounded-[3rem] shadow-neon-blue w-full max-w-7xl mx-auto">
-            
-            {/* Left side: Módulo 1 Title & Description */}
-            <div className="flex-1 space-y-4 text-center md:text-left">
-              <h2 className="text-3xl font-black glowing-text">MÓDULO 1: RESPIRAÇÃO E APOIO.</h2>
-              <p className="max-w-xl text-gray-400">CONTROLE DE DIAFRAGMA E FLUXO DE AR.</p>
-              <LessonButton icon={Mic} title="Lição 1.1: Respiração Diafragmática" href="#" />
-              <button onClick={handleBlockClick} className="mt-2 text-sm text-gray-500 py-1.5 px-6 border border-gray-600 rounded-full">ASSINAR PARA DESBLOQUEAR NÍVEL 1 COMPLETO</button>
-            </div>
-
-            {/* Central Part: The Locked Modal itself */}
-            <GlowingCard className="w-full max-w-lg flex flex-col items-center p-12 text-center bg-zinc-950/90 relative">
+        {/* MÓDULOS DE TREINAMENTO (Cards Originais intactos) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in slide-in-from-bottom-5">
+          {trainingModules.map((module) => {
+            const Icon = module.icon;
+            return (
+              <Card key={module.id} className={`bg-zinc-950/70 backdrop-blur-xl border-white/10 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center relative shadow-2xl ${module.locked ? 'opacity-70 grayscale-[30%]' : 'hover:border-primary/50 group'}`}>
                 
-                {/* O Cadeado Neon */}
-                <div className="w-24 h-24 rounded-full border-[3px] border-cian-400/50 flex items-center justify-center mb-6 shadow-neon-blue bg-zinc-900">
-                  <Lock className="w-10 h-10 text-gray-500" />
+                {module.locked && (
+                  <div className="absolute top-4 right-4 bg-black/80 p-2 rounded-full border border-white/10 z-10">
+                    <Lock className="w-4 h-4 text-gray-400" />
+                  </div>
+                )}
+
+                <div className={`h-16 w-16 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 transition-transform shadow-lg ${!module.locked && 'group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)] shrink-0'}`}>
+                  <Icon className={`h-6 w-6 ${module.locked ? 'text-gray-500' : 'text-white group-hover:text-primary'} transition-colors`} />
                 </div>
                 
-                <h2 className="text-3xl font-black glowing-text mb-2">
-                  ACADEMY <span className="text-cian-400 text-cian-400Glowing">LOCKED</span>
-                </h2>
+                <h3 className="text-lg font-black text-white italic tracking-tighter uppercase mb-1 line-clamp-2 min-h-[56px] flex items-center justify-center">{module.title}</h3>
+                <p className="text-gray-300 font-bold uppercase tracking-widest text-[10px] mb-6 line-clamp-2 min-h-[30px]">{module.description}</p>
                 
-                <p className="text-gray-400 mb-10 font-medium">
-                  O currículo de 10 níveis é exclusivo para membros.
-                </p>
-                
-                {/* 多元化的登录按钮 Stack (Item 3) */}
-                <div className="w-full space-y-4">
-                  <button 
-                    onClick={handleLoginClick}
-                    className="w-full h-14 rounded-full bg-zinc-900 border border-cian-400/50 hover:bg-cian-400 hover:text-black font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-3 shadow-neon-blue"
-                  >
-                    <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-5 h-5" />
-                    ENTRAR COM O GOOGLE
-                  </button>
-                  <button 
-                    onClick={handleLoginClick}
-                    className="w-full h-14 rounded-full bg-zinc-900 border border-cian-400/50 hover:bg-cian-400 hover:text-black font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-3 shadow-neon-blue"
-                  >
-                    <img src="https://authjs.dev/img/providers/facebook.svg" alt="Facebook" className="w-5 h-5" />
-                    ENTRAR COM O FACEBOOK
-                  </button>
-                  <button 
-                    onClick={handleLoginClick}
-                    className="w-full h-14 rounded-full bg-zinc-900 border border-cian-400/50 hover:bg-cian-400 hover:text-black font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-3 shadow-neon-blue"
-                  >
-                    <Mail className="w-5 h-5 text-gray-500" />
-                    ENTRAR COM E-MAIL
-                  </button>
+                <div className="w-full grid grid-cols-2 gap-2 mb-6">
+                  <div className="bg-black/50 rounded-2xl p-3 border border-white/5">
+                    <Star className={`w-4 h-4 mb-1 mx-auto ${module.locked ? 'text-gray-600' : 'text-yellow-500'}`} />
+                    <p className="text-xl font-black text-white">Lvl {module.level}</p>
+                    <p className="text-[8px] text-gray-500 uppercase font-bold tracking-widest">Dificuldade</p>
+                  </div>
+                  <div className="bg-black/50 rounded-2xl p-3 border border-white/5">
+                    <GraduationCap className={`w-4 h-4 mb-1 mx-auto ${module.locked ? 'text-gray-600' : 'text-primary'}`} />
+                    <p className="text-xl font-black text-white">{module.duration}</p>
+                    <p className="text-[8px] text-gray-500 uppercase font-bold tracking-widest">Duração</p>
+                  </div>
                 </div>
-            </GlowingCard>
-
-             {/* Right side: Módulo 1 featured information */}
-            <div className="flex-1 space-y-4 text-center md:text-left">
-              <h2 className="text-2xl font-black glowing-text">Nível 1: Fundamentos Vocais (Aberto)</h2>
-              <p className="max-w-xl text-gray-400">Aqui, você estabelece as bases essenciais para uma performance vocal consistente e saudável. Conheça sua voz!</p>
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                  <div className="flex-1 text-center py-4 bg-zinc-900 border border-cian-400/50 rounded-xl">Lvl 1</div>
-                  <div className="flex-1 text-center py-4 bg-zinc-900 border border-cian-400/50 rounded-xl">10 min</div>
-              </div>
-              <LessonButton icon={Headphones} title="Lição 1.2: Aquecimento Vocal Básico" href="#" />
-              <button onClick={handleBlockClick} className="mt-2 text-sm text-gray-500 py-1.5 px-6 border border-gray-600 rounded-full">ASSINAR PARA DESBLOQUEAR NÍVEL 1 COMPLETO</button>
-            </div>
-          </div>
-        )}
-
-        {/* List of Locked Levels */}
-        <div className="w-full space-y-6 pt-12">
-          <h3 className="text-xl font-bold">Trilha de Conhecimento</h3>
-          <div className="border border-cian-400/30 rounded-2xl">
-            <LockedLevelItem level="Nível 2" title="Respiração Avançada" onActionClick={handleBlockClick} />
-            <LockedLevelItem level="Nível 3" title="Afinação e Percepção" onActionClick={handleBlockClick} />
-            <LockedLevelItem level="Nível 4" title="Ressonância Vocal" onActionClick={handleBlockClick} />
-            <LockedLevelItem level="Nível 5" title="Articulação e Dicção" onActionClick={handleBlockClick} />
-            <LockedLevelItem level="Nível 6" title="Interpretação Emocional" onActionClick={handleBlockClick} />
-            <LockedLevelItem level="Nível 7" title="Vibrato e Falsete" onActionClick={handleBlockClick} />
-            <LockedLevelItem level="Nível 8" title="Potência e Projeção" onActionClick={handleBlockClick} />
-            <LockedLevelItem level="Nível 9" title="Técnicas de Microfone" onActionClick={handleBlockClick} />
-            <LockedLevelItem level="Nível 10" title="Performance de Palco Completa" onActionClick={handleBlockClick} />
-          </div>
+                
+                {/* 💡 AÇÃO DE CLIQUE: Chama o modal se clicar no botão desbloqueado */}
+                <Button 
+                  disabled={module.locked} 
+                  onClick={() => { if (!module.locked) setIsModalOpen(true); }}
+                  className={`w-full h-12 rounded-full font-black uppercase tracking-widest text-[10px] transition-all mt-auto shadow-lg ${module.locked ? 'bg-zinc-800 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-primary text-black'}`}
+                >
+                  {module.locked ? 'ASSINAR PARA DESBLOQUEAR' : (
+                    <>INICIAR EXERCÍCIO <CheckCircle className="ml-2 h-4 w-4" /></>
+                  )}
+                </Button>
+              </Card>
+            );
+          })}
         </div>
-
-        {/* Bottom Navigation Button */}
-        <footer className="flex justify-center pt-16 border-t border-cian-400/30">
-          <button className="py-3 px-10 bg-zinc-900 border border-gray-600 rounded-full hover:border-cian-400 hover:text-cian-400">VOLTAR PARA O PALCO</button>
-        </footer>
-
       </div>
-        <style jsx global>{`
-      @import url('https://fonts.googleapis.com/css2?family=Sans+Serif+Collection&display=swap');
-      @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap');
-      
-      .Sans-Serif-Collection { font-family: 'Sans Serif Collection', sans-serif; }
-      
-      .font-sans { font-family: 'Sans Serif Collection', sans-serif; }
-      
-      .glowing-text {
-        text-shadow: 0 0 8px #0ef;
-      }
-      
-      .text-cian-400Glowing {
-        color: #0ef;
-        text-shadow: 0 0 10px #0ef;
-      }
-      
-      .shadow-neon-blue {
-        box-shadow: 0 0 15px rgba(0, 238, 255, 0.4);
-      }
-    `}</style>
+
+      {/* ========================================================= */}
+      {/* 🔐 MODAL "ACADEMY LOCKED" FLUTUANTE POR CIMA DO LAYOUT */}
+      {/* ========================================================= */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
+          <div className="bg-zinc-950 border-[2px] border-primary rounded-[3rem] p-10 flex flex-col items-center text-center max-w-sm w-full shadow-[0_0_60px_rgba(0,168,225,0.3)] relative">
+            
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="w-20 h-20 rounded-full border-[2px] border-primary flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(0,168,225,0.2)] bg-primary/5">
+              <Lock className="w-8 h-8 text-primary" />
+            </div>
+
+            <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-2">
+              ACADEMY <span className="text-primary drop-shadow-[0_0_10px_rgba(0,168,225,0.8)]">LOCKED</span>
+            </h2>
+
+            <p className="text-gray-300 mb-8 font-medium text-sm">
+              O currículo de 10 níveis é exclusivo para membros.
+            </p>
+
+            {/* Os três botões exigidos */}
+            <div className="w-full flex flex-col gap-3">
+              <Button onClick={() => navigate('/login')} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
+                <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-4 h-4" /> ENTRAR COM O GOOGLE
+              </Button>
+              <Button onClick={() => navigate('/login')} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
+                <img src="https://authjs.dev/img/providers/facebook.svg" alt="Facebook" className="w-4 h-4" /> ENTRAR COM O FACEBOOK
+              </Button>
+              <Button onClick={() => navigate('/login')} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2">
+                <Mail className="w-4 h-4 text-gray-400" /> ENTRAR COM E-MAIL
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
