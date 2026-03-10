@@ -23,4 +23,4 @@ export default defineConfig({
     assetsDir: "assets",
     cssCodeSplit: false, 
   }
-}); 
+});
