@@ -1,28 +1,32 @@
-// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/BasicLobby.tsx
+"use client";
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History, Loader2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
+// 🖼️ IMPORTANDO A IMAGEM DE FUNDO
+import microphoneBackground from '../assets/microphone_stage.png'; 
+
 const BasicLobby = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
-  const [playMode, setPlayMode] = useState<'solo' | 'duelo'>('solo'); // 💡 O Cérebro do Layout
+  const [playMode, setPlayMode] = useState<'solo' | 'duelo'>('solo'); 
   
   // ESTADOS DA BUSCA DE MÚSICA
   const [musicSearchTerm, setMusicSearchTerm] = useState('');
   const [musicSearchResults, setMusicSearchResults] = useState<any[]>([]);
   const [isSearchingMusic, setIsSearchingMusic] = useState(false);
   
-  // 💡 NOVOS ESTADOS: BUSCA DE USUÁRIOS (Para o Painel Direito)
+  // NOVOS ESTADOS: BUSCA DE USUÁRIOS (Para o Painel Direito)
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [userChallengeSent, setUserChallengeSent] = useState<string | null>(null);
 
   // 🎥 REF DA CÂMERA
   const cameraRef = useRef<HTMLVideoElement>(null);
 
-  // 🔑 COLOQUE SUA CHAVE DA API DO YOUTUBE AQUI ENTRE AS ASPAS:
+  // 🔑 CHAVE DA API DO YOUTUBE
   const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
 
   // MOCK DO BANCO DE DADOS: Últimas Buscas de Músicas
@@ -35,7 +39,7 @@ const BasicLobby = () => {
     { id: "9T88wzEwX4Y", title: "Essa Tal Liberdade", artist: "Só Pra Contrariar", youtubeId: "9T88wzEwX4Y" }
   ];
 
-  // 💡 MOCK DO BANCO DE DADOS: Usuários Online (Para o Painel Direito)
+  // MOCK DO BANCO DE DADOS: Usuários Online (Para o Painel Direito)
   const onlineUsers = [
     { id: "1", name: "Maria Clara", level: 12, status: "Online", avatar: "https://i.pravatar.cc/150?u=maria" },
     { id: "2", name: "João Pedro (JP)", level: 8, status: "Em Batalha", avatar: "https://i.pravatar.cc/150?u=jp" },
@@ -53,7 +57,10 @@ const BasicLobby = () => {
     let stream: MediaStream | null = null;
     if (activeVideo) {
       navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        .then((mediaStream) => { stream = mediaStream; if (cameraRef.current) cameraRef.current.srcObject = mediaStream; })
+        .then((mediaStream) => { 
+          stream = mediaStream; 
+          if (cameraRef.current) cameraRef.current.srcObject = mediaStream; 
+        })
         .catch(err => console.error("Sem permissão de câmera:", err));
     }
     return () => { if (stream) stream.getTracks().forEach(track => track.stop()); };
@@ -63,7 +70,6 @@ const BasicLobby = () => {
   const handleMusicSearch = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!musicSearchTerm.trim()) { setMusicSearchResults([]); return; }
-    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha 27!"); return; }
     setIsSearchingMusic(true);
     try {
       const query = encodeURIComponent(`${musicSearchTerm} karaoke`);
@@ -92,16 +98,16 @@ const BasicLobby = () => {
   const displaySongs = musicSearchResults.length > 0 ? musicSearchResults : recentSearches;
 
   return (
-    <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans">
-      <img src="https://images.unsplash.com/photo-1516280440502-6178bc57c0e8?q=80&w=2000" alt="Stage" className="absolute inset-0 w-full h-full object-cover opacity-10" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black z-0" />
+    <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans overflow-hidden">
+      <img src={microphoneBackground} alt="Stage with Microphone" className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black z-1" />
       
       <div className="max-w-7xl mx-auto relative z-10 animate-in fade-in duration-700">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest relative z-20">
           <ArrowLeft size={16} /> Voltar para o Início
         </button>
 
-        <div className="mb-12 text-center md:text-left">
+        <div className="mb-12 text-center md:text-left relative z-20">
           <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
             <Music size={14} /> Palco Principal
           </div>
@@ -110,12 +116,8 @@ const BasicLobby = () => {
           </h1>
         </div>
 
-        {/* ========================================================= */}
-        {/* TELA 1: O PALCO DE KARAOKÊ (COM PAINÉIS MODULARES)        */}
-        {/* ========================================================= */}
         {activeVideo ? (
-          <div className="animate-in zoom-in-95 duration-500 mb-12">
-            
+          <div className="animate-in zoom-in-95 duration-500 mb-12 relative z-20">
             <div className="mb-6 flex justify-center items-center gap-3">
               <Crown className="text-primary h-6 w-6" />
               <h2 className="text-2xl font-black text-white uppercase tracking-widest">
@@ -124,8 +126,6 @@ const BasicLobby = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full mb-8">
-              
-              {/* PAINEL ESQUERDO: CÂMERA DO USUÁRIO */}
               <div className="w-full lg:w-1/4 flex flex-col gap-3 order-2 lg:order-1">
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm">Você</h3>
                 <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-black rounded-[2rem] border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.2)] overflow-hidden">
@@ -137,7 +137,6 @@ const BasicLobby = () => {
                 </div>
               </div>
 
-              {/* PAINEL CENTRAL: VÍDEO DA MÚSICA */}
               <div className={`${playMode === 'duelo' ? 'lg:w-2/4' : 'lg:w-3/4'} w-full flex flex-col gap-3 transition-all duration-500 order-1 lg:order-2`}>
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm">Vídeo da Música</h3>
                 <div className="w-full aspect-video lg:h-[450px] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900 relative">
@@ -150,13 +149,10 @@ const BasicLobby = () => {
                 </div>
               </div>
 
-              {/* PAINEL DIREITO (MODULAR): 💡 OPONENTE + BUSCA DE USUÁRIO */}
               {playMode === 'duelo' && (
                 <div className="w-full lg:w-1/4 flex flex-col gap-3 order-3 animate-in fade-in slide-in-from-right-10 duration-500">
                   <h3 className="text-center font-black text-white tracking-widest uppercase text-sm">Oponente (Batalha/Dueto)</h3>
                   <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950 rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center">
-                    
-                    {/* BARRA DE BUSCA DE USUÁRIO INTEGRADA NO PAINEL */}
                     <div className="relative w-full mb-6 group shrink-0">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Search className="h-4 w-4 text-gray-500 group-focus-within:text-cyan-400 transition-colors" />
@@ -170,8 +166,7 @@ const BasicLobby = () => {
                       />
                     </div>
 
-                    {/* LISTA DE USUÁRIOS INTEGRADA NO PAINEL (Scrollável) */}
-                    <div className="flex-1 w-full space-y-3 overflow-y-auto pr-2 custom-scrollbar-orange">
+                    <div className="flex-1 w-full space-y-3 overflow-y-auto pr-2 custom-scrollbar-cyan">
                       {filteredUsers.length > 0 ? (
                         filteredUsers.map((user) => (
                           <div key={user.id} className="bg-zinc-900 border border-white/5 p-3 rounded-2xl flex items-center gap-3 w-full animate-in fade-in">
@@ -182,7 +177,7 @@ const BasicLobby = () => {
                                 <Info size={10} className="text-cyan-500" /> Nível {user.level}
                               </div>
                             </div>
-                            <Button onClick={() => handleChallenge(user)} disabled={user.challengeSent || user.status !== 'Online'} className="h-8 px-4 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-[8px] transition-all">
+                            <Button onClick={() => handleChallenge(user)} disabled={user.id === userChallengeSent || user.status !== 'Online'} className="h-8 px-4 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-[8px] transition-all">
                               {user.id === userChallengeSent ? 'Enviado' : 'Convidar'}
                             </Button>
                           </div>
@@ -204,13 +199,8 @@ const BasicLobby = () => {
               </Button>
             </div>
           </div>
-
         ) : (
-
-        /* ========================================================= */
-        /* TELA 2: BUSCA E CATÁLOGO DE MÚSICAS (PADRÃO)              */
-        /* ========================================================= */
-          <div className="animate-in slide-in-from-bottom-5">
+          <div className="animate-in slide-in-from-bottom-5 relative z-20">
             <form onSubmit={handleMusicSearch} className="relative mb-10 group max-w-3xl flex gap-2">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
@@ -259,7 +249,6 @@ const BasicLobby = () => {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
