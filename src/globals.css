@@ -1,40 +1,49 @@
-==== INÍCIO DO CÓDIGO DO GLOBALS.CSS ====
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-:root {
---background: 0 0% 0%;
---foreground: 0 0% 100%;
---card: 240 10% 4%;
---card-foreground: 0 0% 98%;
---popover: 240 10% 4%;
---popover-foreground: 0 0% 98%;
---primary: 189 94% 43%;
---primary-foreground: 0 0% 0%;
---secondary: 240 3.7% 15.9%;
---secondary-foreground: 0 0% 98%;
---muted: 240 3.7% 15.9%;
---muted-foreground: 240 5% 64.9%;
---accent: 240 3.7% 15.9%;
---accent-foreground: 0 0% 98%;
---destructive: 0 62.8% 30.6%;
---destructive-foreground: 0 0% 98%;
---border: 240 3.7% 15.9%;
---input: 240 3.7% 15.9%;
---ring: 189 94% 43%;
---radius: 1rem;
-}
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 240 10% 4%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 189 94% 43%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 189 94% 43%;
+    --radius: 1rem;
+  }
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-black text-white m-0 p-0 overflow-x-hidden font-sans antialiased;
+  }
+}
 
-{
-@apply border-border;
+.neon-blue-glow {
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.4);
 }
-body {
-@apply bg-black text-white m-0 p-0 overflow-x-hidden font-sans antialiased;
+
+.neon-gold-glow {
+  text-shadow: 0 0 10px rgba(255, 153, 0, 0.8), 0 0 20px rgba(255, 153, 0, 0.4);
 }
+
+.glass-pillar {
+  @apply bg-white/5 backdrop-blur-md border border-white/10;
 }
-==== FIM DO CÓDIGO DO GLOBALS.CSS ====
