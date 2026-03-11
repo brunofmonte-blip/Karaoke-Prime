@@ -25,7 +25,7 @@ return (
     <Card className="bg-zinc-950 border-white/10 p-10 rounded-[3rem] flex flex-col relative">
       <h3 className="text-2xl font-black text-white italic uppercase mb-2">Mensal</h3>
       <div className="flex items-baseline gap-2 mb-8">
-        <span className="text-5xl font-black text-white">R$ 29</span>
+        <span className="text-5xl font-black text-white">R$ 19</span>
         <span className="text-gray-500 font-bold text-sm">/mês</span>
       </div>
       <ul className="space-y-4 mb-10 flex-1">
@@ -47,7 +47,7 @@ return (
       </div>
       <h3 className="text-2xl font-black text-cyan-400 italic uppercase mb-2">Anual</h3>
       <div className="flex items-baseline gap-2 mb-8">
-        <span className="text-5xl font-black text-white">R$ 199</span>
+        <span className="text-5xl font-black text-white">R$ 119</span>
         <span className="text-gray-500 font-bold text-sm">/ano</span>
       </div>
       <ul className="space-y-4 mb-10 flex-1">
@@ -68,4 +68,4 @@ return (
   </Button>
 </div>
 );
-}
+} 
