@@ -13,7 +13,7 @@ return (
 
   <div className="z-10 text-center mb-12">
     <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
-      ESCOLHA O SEU <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">PLANO</span>
+      ESCOLHA SEU <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">PLANO</span>
     </h1>
     <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
       Desbloqueie o poder total da Arena Karaoke Prime
@@ -37,8 +37,7 @@ return (
       </ul>
       <a 
         href="[https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00](https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00)"
-        target="_blank"
-        rel="noopener noreferrer"
+        target="_top"
         className="w-full h-14 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase tracking-widest flex items-center justify-center transition-all cursor-pointer"
       >
         Assinar Mensal
@@ -64,8 +63,7 @@ return (
       </ul>
       <a 
         href="[https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01](https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01)"
-        target="_blank"
-        rel="noopener noreferrer"
+        target="_top"
         className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase tracking-widest flex items-center justify-center transition-all cursor-pointer"
       >
         Assinar Anual
