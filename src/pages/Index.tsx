@@ -113,4 +113,4 @@ KARAOKE <span className="text-primary drop-shadow-[0_0_15px_rgba(34,211,238,0.5)
 </div>
 );
 };
-export default Index;
+export default Index; 
