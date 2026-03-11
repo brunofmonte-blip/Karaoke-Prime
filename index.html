@@ -1,12 +1,22 @@
-<!doctype html>
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Karaoke Prime</title>
+    <style>
+      /* Garantia de fundo preto antes mesmo do JS carregar */
+      html, body {
+        background-color: black;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
-</html> 
+</html>
