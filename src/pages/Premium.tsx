@@ -61,7 +61,7 @@ return (
         ))}
       </ul>
       <Button 
-        onClick={() => window.open('[https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01](https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01)', '_blank')}
+        onClick={() => window.open('[https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01)', '_blank')}
         className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase tracking-widest"
       >
         Assinar Anual
