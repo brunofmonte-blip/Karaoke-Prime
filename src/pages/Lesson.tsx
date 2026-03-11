@@ -1,4 +1,3 @@
-// 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/Lesson.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, Mic2, ListVideo, CheckCircle2, Lock, Wind, Coffee, Info, Activity } from 'lucide-react';
@@ -137,9 +136,10 @@ const Lesson = () => {
     setCountdown(3);
   };
 
+  // A MÁGICA DE REDIRECIONAMENTO ACONTECE AQUI
   const changeLesson = (index: number) => {
     if (moduleContent.lessons[index].locked) {
-      alert("🔒 Aula exclusiva para membros Premium. Assine o plano para liberar o acesso total!");
+      navigate('/premium'); // Joga direto para o funil de vendas
       return;
     }
     setActiveLessonIndex(index);
@@ -164,12 +164,12 @@ const Lesson = () => {
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+            <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-3 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
               <PlayCircle size={14} /> Masterclass • {moduleContent.level} 
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase drop-shadow-lg leading-tight">
               {currentLesson.displayTitle}:<br/>
-              <span className={!currentLesson.hasPractice ? "text-orange-500 neon-gold-glow" : "text-primary neon-blue-glow"}>{currentLesson.title}</span>
+              <span className={!currentLesson.hasPractice ? "text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]" : "text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]"}>{currentLesson.title}</span>
             </h1>
           </div>
           <div className="text-right">
@@ -182,7 +182,7 @@ const Lesson = () => {
           <div className="lg:col-span-3">
             {step === 'video' && (
               <div className="animate-in slide-in-from-bottom-10 duration-500">
-                <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,168,225,0.15)] bg-zinc-900 mb-8 relative">
+                <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(34,211,238,0.15)] bg-zinc-900 mb-8 relative">
                   {!currentLesson.locked && currentLesson.youtubeId ? (
                     <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${currentLesson.youtubeId}?rel=0&modestbranding=1`} title={currentLesson.title} frameBorder="0" allowFullScreen></iframe>
                   ) : (
@@ -194,7 +194,7 @@ const Lesson = () => {
                 </div>
                 <div className="flex justify-end">
                   {currentLesson.hasPractice ? (
-                    <Button onClick={() => setStep('practice')} className="h-16 px-12 rounded-full bg-primary hover:bg-white text-black font-black text-xl italic uppercase tracking-tighter shadow-[0_0_30px_rgba(0,168,225,0.3)] transition-all">
+                    <Button onClick={() => setStep('practice')} className="h-16 px-12 rounded-full bg-cyan-400 hover:bg-white text-black font-black text-xl italic uppercase tracking-tighter shadow-[0_0_30px_rgba(34,211,238,0.3)] transition-all">
                       Ir para Treinamento <ArrowLeft size={20} className="ml-3 rotate-180" />
                     </Button>
                   ) : (
@@ -207,17 +207,17 @@ const Lesson = () => {
             )}
 
             {step === 'practice' && currentLesson.hasPractice && (
-              <Card className="bg-zinc-950/80 backdrop-blur-xl border-primary/30 rounded-[3rem] shadow-[0_0_50px_rgba(0,168,225,0.1)] p-8 md:p-12 animate-in zoom-in-95 duration-500 min-h-[500px] flex flex-col justify-center items-center">
+              <Card className="bg-zinc-950/80 backdrop-blur-xl border-cyan-400/30 rounded-[3rem] shadow-[0_0_50px_rgba(34,211,238,0.1)] p-8 md:p-12 animate-in zoom-in-95 duration-500 min-h-[500px] flex flex-col justify-center items-center">
                 
                 {trainingStatus === 'idle' && (
                   <div className="flex flex-col items-center text-center animate-in fade-in zoom-in">
-                    <div className="h-24 w-24 rounded-full border-4 border-primary/30 bg-primary/10 flex items-center justify-center mb-6">
-                      <Mic2 className="h-10 w-10 text-primary" />
+                    <div className="h-24 w-24 rounded-full border-4 border-cyan-400/30 bg-cyan-400/10 flex items-center justify-center mb-6">
+                      <Mic2 className="h-10 w-10 text-cyan-400" />
                     </div>
                     <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-4">Exercício: {currentLesson.exercise}</h2>
                     <p className="text-gray-400 font-medium max-w-2xl mb-10">{currentLesson.practiceDesc}</p>
                     <div className="flex gap-4 w-full max-w-md mt-4">
-                      <Button onClick={startTraining} className="flex-1 h-16 rounded-full bg-primary hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(0,168,225,0.3)] transition-all hover:scale-105">
+                      <Button onClick={startTraining} className="flex-1 h-16 rounded-full bg-cyan-400 hover:bg-white text-black font-black text-lg uppercase tracking-widest shadow-[0_0_30px_rgba(34,211,238,0.3)] transition-all hover:scale-105">
                         INICIAR TREINAMENTO
                       </Button>
                       <Button onClick={() => setStep('video')} variant="outline" className="h-16 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs">
@@ -229,8 +229,8 @@ const Lesson = () => {
 
                 {trainingStatus === 'countdown' && (
                   <div className="flex flex-col items-center text-center animate-in zoom-in">
-                    <h2 className="text-2xl font-black text-primary uppercase tracking-widest mb-8">Prepare-se</h2>
-                    <div className="text-9xl font-black text-white italic tracking-tighter drop-shadow-[0_0_50px_rgba(0,168,225,0.5)] animate-pulse">{countdown}</div>
+                    <h2 className="text-2xl font-black text-cyan-400 uppercase tracking-widest mb-8">Prepare-se</h2>
+                    <div className="text-9xl font-black text-white italic tracking-tighter drop-shadow-[0_0_50px_rgba(34,211,238,0.5)] animate-pulse">{countdown}</div>
                   </div>
                 )}
 
@@ -311,7 +311,7 @@ const Lesson = () => {
 
           <div className="lg:col-span-1 space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
             <div className="flex items-center gap-2 text-white font-black uppercase tracking-widest text-sm mb-6 sticky top-0 bg-black/90 py-2 z-10 backdrop-blur-md">
-              <ListVideo size={18} className="text-primary" /> Playlist
+              <ListVideo size={18} className="text-cyan-400" /> Playlist
             </div>
             
             <div className="flex flex-col gap-3 pb-8">
@@ -321,13 +321,13 @@ const Lesson = () => {
                   <Card 
                     key={lesson.id} onClick={() => changeLesson(idx)}
                     className={`cursor-pointer transition-all duration-300 border p-4 rounded-2xl flex items-start gap-4 flex-shrink-0
-                      ${isActive ? (lesson.hasPractice ? 'bg-primary/10 border-primary' : 'bg-orange-500/10 border-orange-500') : lesson.locked ? 'bg-black/40 border-white/5 opacity-50 cursor-not-allowed' : 'bg-zinc-950 border-white/10 hover:border-white/30 hover:bg-zinc-900'}`}
+                      ${isActive ? (lesson.hasPractice ? 'bg-cyan-400/10 border-cyan-400' : 'bg-orange-500/10 border-orange-500') : lesson.locked ? 'bg-black/40 border-white/5 opacity-50 cursor-not-allowed hover:border-cyan-400/50 hover:opacity-100' : 'bg-zinc-950 border-white/10 hover:border-white/30 hover:bg-zinc-900'}`}
                   >
                     <div className="mt-1">
-                      {lesson.locked ? <Lock size={16} className="text-gray-500" /> : isActive ? <PlayCircle size={18} className={lesson.hasPractice ? "text-primary animate-pulse" : "text-orange-500 animate-pulse"} /> : <CheckCircle2 size={16} className="text-gray-600" />}
+                      {lesson.locked ? <Lock size={16} className="text-gray-500" /> : isActive ? <PlayCircle size={18} className={lesson.hasPractice ? "text-cyan-400 animate-pulse" : "text-orange-500 animate-pulse"} /> : <CheckCircle2 size={16} className="text-gray-600" />}
                     </div>
                     <div>
-                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isActive ? (lesson.hasPractice ? 'text-primary' : 'text-orange-500') : 'text-gray-500'}`}>{lesson.displayTitle}</p>
+                      <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isActive ? (lesson.hasPractice ? 'text-cyan-400' : 'text-orange-500') : 'text-gray-500'}`}>{lesson.displayTitle}</p>
                       <h4 className={`text-sm font-black italic tracking-tighter leading-tight ${isActive ? 'text-white' : 'text-gray-300'}`}>{lesson.title}</h4>
                     </div>
                   </Card>
