@@ -41,15 +41,13 @@ export default function Academy() {
     { id: 10, titulo: 'Aula 10: Prática', desc: 'Cantando sua primeira música', locked: true },
   ];
 
+ // Função que decide o que acontece ao clicar em uma aula específica
   const handleLessonClick = (isLocked: boolean) => {
     if (isLocked) {
-      navigate('/premium');
+      navigate('/premium'); // Aula trancada vai pros planos
     } else {
-      if (user) {
-        navigate('/lesson');
-      } else {
-        navigate('/login');
-      }
+      // FORÇANDO A ENTRADA: Ignora se está logado ou não e vai direto pra aula
+      navigate('/lesson');
     }
   };
 
