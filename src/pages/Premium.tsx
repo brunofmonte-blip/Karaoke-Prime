@@ -36,7 +36,7 @@ return (
         ))}
       </ul>
       <a 
-        href="[https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00](https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00)"
+        href="["https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00"](https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00)"
         target="_top"
         className="w-full h-14 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase tracking-widest flex items-center justify-center transition-all cursor-pointer"
       >
@@ -62,7 +62,7 @@ return (
         ))}
       </ul>
       <a 
-        href="[https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01](https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01)"
+        href="["https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01"](https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01)"
         target="_top"
         className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase tracking-widest flex items-center justify-center transition-all cursor-pointer"
       >
