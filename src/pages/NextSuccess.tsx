@@ -14,4 +14,4 @@ return (
 );
 };
 
-export default NextSuccess; 
+export default NextSuccess;
