@@ -1,189 +1,101 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, BookOpen, Mic2, Users, CheckCircle, GraduationCap, 
-  Star, Airplay, Lock, Activity, Zap, Speaker, Award, Target, Flame,
-  X, Mail, Loader2
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { GraduationCap, Lock, PlayCircle, Star, ArrowLeft } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
-// IMPORTAÇÃO DO FIREBASE
-import { auth, db, googleProvider } from '@/lib/firebase';
-import { signInWithPopup, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-
-const Academy = () => {
+export default function Academy() {
   const navigate = useNavigate();
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<FirebaseUser | null>(null);
 
-  // 📡 ESCUTADOR DE LOGIN: Verifica se o usuário já está logado ao carregar a página
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const trainingModules = [
-    { id: 1, title: "Respiração e Apoio", description: "Exercícios de diafragma, controle de fluxo de ar.", icon: Airplay, level: 1, duration: "10 min", locked: false },
-    { id: 2, title: "Afinação Precisa", description: "Treinamento de ouvido e intervalos.", icon: Mic2, level: 2, duration: "12 min", locked: true },
-    { id: 3, title: "Ressonância", description: "Melhora da qualidade tonal e clareza.", icon: BookOpen, level: 3, duration: "15 min", locked: true },
-    { id: 4, title: "Interpretação Vocal", description: "Expressão e emoção ao cantar.", icon: Users, level: 4, duration: "20 min", locked: true },
-    { id: 5, title: "Falsetes e Melismas", description: "Técnicas avançadas de R&B e Pop.", icon: Flame, level: 5, duration: "25 min", locked: true },
-    { id: 6, title: "Vibrato Master", description: "Oscilação perfeita e controle.", icon: Activity, level: 6, duration: "20 min", locked: true },
-    { id: 7, title: "Drives e Rasps", description: "Distorção vocal com segurança.", icon: Zap, level: 7, duration: "25 min", locked: true },
-    { id: 8, title: "Agudos (Belting)", description: "Potência sem machucar a garganta.", icon: Speaker, level: 8, duration: "30 min", locked: true },
-    { id: 9, title: "Dinâmica e Microfone", description: "Uso correto do equipamento de palco.", icon: Target, level: 9, duration: "20 min", locked: true },
-    { id: 10, title: "Show Completo", description: "A prova final. Rotina de 40 minutos.", icon: Award, level: 10, duration: "40 min", locked: true },
+  // Array de Módulos (Simulando o banco de dados)
+  // O Módulo 1 está liberado. Do 2 ao 6 estão bloqueados.
+  const modulos = [
+    { id: 1, titulo: 'Respiração e Postura', desc: 'Fundamentos essenciais para não cansar a voz.', locked: false },
+    { id: 2, titulo: 'Afinação Base', desc: 'Exercícios práticos para cravar as notas.', locked: true },
+    { id: 3, titulo: 'Extensão Vocal', desc: 'Aprenda a alcançar agudos e graves sem esforço.', locked: true },
+    { id: 4, titulo: 'Ressonância', desc: 'Projete a sua voz com potência de palco.', locked: true },
+    { id: 5, titulo: 'Vibrato & Melismas', desc: 'Os segredos das grandes divas do R&B.', locked: true },
+    { id: 6, titulo: 'Masterclass: Belting', desc: 'Técnica avançada de agudos de peito.', locked: true },
   ];
 
-  const handleAction = (module: any) => {
-    if (module.locked) return;
-    
-    if (user) {
-    // ✅ COMANDO DE NAVEGAÇÃO ATIVADO
-      // Direciona para a rota /lesson/1 (ou o ID do módulo clicado)
-      navigate(`/lesson/${module.id}`);
-    } else {
-      // 🔒 SE NÃO ESTIVER LOGADO: Abre o modal
-      setIsModalOpen(true);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const loggedUser = result.user;
-
-      const userRef = doc(db, 'users', loggedUser.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          uid: loggedUser.uid,
-          name: loggedUser.displayName,
-          email: loggedUser.email,
-          avatar: loggedUser.photoURL,
-          level: 1,
-          status: 'Online',
-          createdAt: new Date()
-        });
-      }
-
-      setIsModalOpen(false); 
-    } catch (error) {
-      console.error("Erro no login:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
-      <img 
-        src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=2000" 
-        alt="Music Background" 
-        className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale-[30%] z-0" 
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black z-10" />
+    <div className="min-h-screen bg-black flex flex-col p-4 pt-24 pb-20 font-sans text-white relative overflow-x-hidden">
+      {/* Efeitos de Fundo */}
+      <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-black to-black z-0 pointer-events-none" />
       
-      <div className="max-w-7xl mx-auto relative z-20 animate-in fade-in duration-700">
-        <button onClick={() => navigate('/basic')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest relative z-30">
-          <ArrowLeft size={16} /> Voltar para o Palco
-        </button>
-
-        <div className="mb-12 text-center md:text-left relative z-30">
-          <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20 backdrop-blur-md shadow-lg">
-            <GraduationCap size={14} /> Centro de Treinamento
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase mb-4 leading-tight">
-            Academy <span className="text-primary neon-blue-glow">Prime</span>
-          </h1>
-          <p className="text-gray-300 text-lg font-medium max-w-2xl mx-auto md:mx-0 drop-shadow-md">
-            Aprenda as técnicas dos maiores vocalistas do mundo.
-          </p>
+      {/* Cabeçalho da Academy */}
+      <div className="z-10 text-center mb-16 max-w-3xl mx-auto">
+        <div className="h-20 w-20 mx-auto rounded-full border-2 border-cyan-400 flex items-center justify-center mb-6 bg-black shadow-[0_0_30px_rgba(34,211,238,0.2)]">
+          <GraduationCap className="w-10 h-10 text-cyan-400" />
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {trainingModules.map((module) => {
-            const Icon = module.icon;
-            return (
-              <Card key={module.id} className={`bg-zinc-950/70 backdrop-blur-xl border-white/10 transition-all duration-300 rounded-[2rem] p-6 flex flex-col items-center text-center relative shadow-2xl ${module.locked ? 'opacity-70 grayscale-[30%]' : 'hover:border-primary/50 group'}`}>
-                
-                {module.locked && (
-                  <div className="absolute top-4 right-4 bg-black/80 p-2 rounded-full border border-white/10 z-10">
-                    <Lock className="w-4 h-4 text-gray-400" />
-                  </div>
-                )}
-
-                <div className={`h-16 w-16 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center mb-4 transition-transform shadow-lg ${!module.locked && 'group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(0,168,225,0.3)]'}`}>
-                  <Icon className={`h-6 w-6 ${module.locked ? 'text-gray-500' : 'text-white group-hover:text-primary'}`} />
-                </div>
-                
-                <h3 className="text-lg font-black text-white italic tracking-tighter uppercase mb-1 line-clamp-2 min-h-[56px] flex items-center justify-center">{module.title}</h3>
-                <p className="text-gray-300 font-bold uppercase tracking-widest text-[10px] mb-6 line-clamp-2 min-h-[30px]">{module.description}</p>
-                
-                <div className="w-full grid grid-cols-2 gap-2 mb-6">
-                  <div className="bg-black/50 rounded-2xl p-3 border border-white/5">
-                    <Star className={`w-4 h-4 mb-1 mx-auto ${module.locked ? 'text-gray-600' : 'text-yellow-500'}`} />
-                    <p className="text-xl font-black text-white">Lvl {module.level}</p>
-                    <p className="text-[8px] text-gray-500 uppercase font-bold tracking-widest text-center">Dificuldade</p>
-                  </div>
-                  <div className="bg-black/50 rounded-2xl p-3 border border-white/5">
-                    <GraduationCap className={`w-4 h-4 mb-1 mx-auto ${module.locked ? 'text-gray-600' : 'text-primary'}`} />
-                    <p className="text-xl font-black text-white">{module.duration}</p>
-                    <p className="text-[8px] text-gray-500 uppercase font-bold tracking-widest text-center">Duração</p>
-                  </div>
-                </div>
-                
-                <Button 
-                  disabled={module.locked} 
-                  onClick={() => handleAction(module)}
-                  className={`w-full h-12 rounded-full font-black uppercase tracking-widest text-[10px] transition-all mt-auto shadow-lg ${module.locked ? 'bg-zinc-800 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-primary text-black'}`}
-                >
-                  {module.locked ? 'ASSINAR PARA DESBLOQUEAR' : (
-                    <>INICIAR EXERCÍCIO <CheckCircle className="ml-2 h-4 w-4" /></>
-                  )}
-                </Button>
-              </Card>
-            );
-          })}
-        </div>
+        <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
+          VOCAL <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">ACADEMY</span>
+        </h1>
+        <p className="text-gray-400 font-bold uppercase tracking-widest text-sm mb-6">
+          Treinamento Profissional Gamificado
+        </p>
       </div>
 
-      {/* MODAL "ACADEMY LOCKED" */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-300">
-          <div className="bg-zinc-950 border-[2px] border-primary rounded-[3rem] p-10 flex flex-col items-center text-center max-w-sm w-full shadow-[0_0_60px_rgba(0,168,225,0.3)] relative">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
-              <X className="w-6 h-6" />
-            </button>
-            <div className="w-24 h-24 rounded-full border-[3px] border-primary flex items-center justify-center mb-6 bg-primary/5 relative">
-              <Lock className="w-10 h-10 text-primary" />
+      {/* Grid de Módulos */}
+      <div className="z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
+        {modulos.map((mod) => (
+          <Card 
+            key={mod.id}
+            // A MÁGICA ACONTECE AQUI:
+            // Se estiver bloqueado (locked), vai para '/premium'. Se não, não faz nada (ou iria para a aula)
+            onClick={() => mod.locked ? navigate('/premium') : null}
+            className={`relative p-8 rounded-3xl border flex flex-col h-64 transition-all cursor-pointer group ${
+              mod.locked 
+                ? 'bg-black/60 border-white/10 opacity-70 hover:opacity-100 hover:border-cyan-400/50' 
+                : 'bg-zinc-950 border-cyan-400/50 hover:bg-cyan-400/10 shadow-[0_0_15px_rgba(34,211,238,0.1)]'
+            }`}
+          >
+            {/* Ícone de Status no Canto Direito */}
+            <div className="absolute top-6 right-6">
+              {mod.locked ? (
+                <Lock className="text-gray-500 h-6 w-6 group-hover:text-cyan-400 transition-colors" />
+              ) : (
+                <PlayCircle className="text-cyan-400 h-8 w-8 animate-pulse" />
+              )}
             </div>
-            <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-2">
-              ACADEMY <span className="text-primary">LOCKED</span>
-            </h2>
-            <p className="text-gray-300 mb-10 text-sm">O currículo de 10 níveis é exclusivo para membros.</p>
-            <div className="w-full flex flex-col gap-3">
-              <Button onClick={handleGoogleLogin} disabled={isLoading} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px] flex items-center justify-center gap-2">
-                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <img src="https://authjs.dev/img/providers/google.svg" alt="Google" className="w-4 h-4" />} 
-                {isLoading ? "CONECTANDO..." : "ENTRAR COM O GOOGLE"}
-              </Button>
-              <Button onClick={() => alert("E-mail em breve")} className="w-full h-12 rounded-full bg-zinc-900 border border-white/10 hover:border-primary text-white font-bold uppercase tracking-widest text-[10px]">
-                <Mail className="w-4 h-4 text-gray-400 mr-2" /> ENTRAR COM E-MAIL
-              </Button>
+
+            {/* Ícone Numérico do Módulo */}
+            <div className={`h-12 w-12 rounded-xl flex items-center justify-center text-xl font-black italic mb-auto ${
+              mod.locked ? 'bg-white/5 text-gray-500' : 'bg-cyan-400/20 text-cyan-400'
+            }`}>
+              {mod.id}
             </div>
-          </div>
-        </div>
-      )}
+
+            {/* Textos do Card */}
+            <div className="mt-6">
+              <h3 className={`text-xl font-black uppercase italic tracking-tighter mb-2 ${
+                mod.locked ? 'text-gray-400 group-hover:text-white' : 'text-white'
+              }`}>
+                {mod.titulo}
+              </h3>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                {mod.desc}
+              </p>
+            </div>
+
+            {/* Tag de "Requer Premium" (Aparece ao passar o mouse se for bloqueado) */}
+            {mod.locked && (
+              <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="bg-cyan-400 text-black text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1">
+                  <Star size={10} /> Premium
+                </span>
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+
+      {/* Botão de Voltar */}
+      <div className="z-10 mt-16 text-center">
+        <Button onClick={() => navigate('/')} variant="ghost" className="text-gray-500 hover:text-white flex items-center gap-2 uppercase text-[10px] font-black tracking-[0.2em] mx-auto">
+          <ArrowLeft size={16} /> Voltar para o Início
+        </Button>
+      </div>
     </div>
   );
-};
-
-export default Academy;
+}
