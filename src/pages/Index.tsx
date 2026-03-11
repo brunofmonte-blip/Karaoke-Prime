@@ -116,7 +116,7 @@ className="cursor-pointer group p-6 rounded-3xl border border-primary/50 bg-blac
 </div>
 <div>
 <h3 className="font-black text-white text-xl uppercase italic">Next Success</h3>
-<p className="text-[10px] text-gray-400 mt-2 font-bold uppercase">Transforme ideias em músicas IA.</p>
+<p className="text-[10px] text-gray-400 mt-2 font-bold uppercase">Transforme suas ideias em músicas IA.</p>
 </div>
 </Card>
 </div>
