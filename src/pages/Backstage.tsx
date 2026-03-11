@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ArrowLeft } from 'lucide-react';
 
-export default function TALENT() {
+export default function Backstage() {
 const navigate = useNavigate();
 
 return (
@@ -15,7 +15,7 @@ return (
       <LayoutDashboard className="h-10 w-10 text-gray-400" />
     </div>
     
-    <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter uppercase mb-2">NEXT TALENT</h1>
+    <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter uppercase mb-2">BACKSTAGE</h1>
     <p className="text-gray-300 font-medium text-lg mb-12">Dashboard premium bloqueado.</p>
 
     <button onClick={() => navigate('/')} className="px-8 py-3 rounded-full border border-white/20 hover:bg-white/10 transition-colors flex items-center gap-3 text-sm font-bold">
