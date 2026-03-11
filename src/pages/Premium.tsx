@@ -36,7 +36,7 @@ return (
         ))}
       </ul>
       <Button 
-        onClick={() => window.location.href = '[https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00](https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00)'}
+        onClick={() => window.open('[https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00](https://buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00)', '_blank')}
         className="w-full h-14 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase tracking-widest"
       >
         Assinar Mensal
@@ -61,7 +61,7 @@ return (
         ))}
       </ul>
       <Button 
-        onClick={() => window.location.href = '[https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01](https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01)'}
+        onClick={() => window.open('[https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01](https://buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01)', '_blank')}
         className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase tracking-widest"
       >
         Assinar Anual
