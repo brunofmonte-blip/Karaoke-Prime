@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 export default function Premium() {
   const navigate = useNavigate();
 
-  // TRUQUE DE ENGENHARIA: Quebrando o link para o editor não formatar errado
+  // Links blindados
   const linkMensal = "https://" + "buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00";
   const linkAnual = "https://" + "buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01";
 
