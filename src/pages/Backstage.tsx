@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ArrowLeft } from 'lucide-react';
 
-export default function NEXT TALENT() {
+export default function TALENT() {
 const navigate = useNavigate();
 
 return (
