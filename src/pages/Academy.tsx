@@ -50,8 +50,8 @@ export default function Academy() {
       navigate('/premium'); // Aula trancada vai pros planos
     } else {
       if (user) {
-        // Se logado e destrancada, assiste a aula (Aqui no futuro entra o player de vídeo)
-        alert('Carregando Player de Vídeo IA... (Módulo em desenvolvimento)');
+        // AQUI ESTÁ A MÁGICA: Redireciona para o Player de Vídeo sem o 'alert'
+        navigate('/lesson');
       } else {
         // Se NÃO estiver logado, tem que se cadastrar pra assistir o grátis
         navigate('/login');
