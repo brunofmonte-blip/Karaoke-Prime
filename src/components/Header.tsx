@@ -1,37 +1,82 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Mic2, LogOut, User as UserIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 
-@layer base {
-  :root {
-    --background: 0 0% 0%; 
-    --foreground: 0 0% 100%; 
-    --card: 240 10% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 189 94% 43%; 
-    --primary-foreground: 0 0% 0%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 189 94% 43%;
-    --radius: 1rem;
-  }
-}
+const Header = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-black text-white m-0 p-0 overflow-x-hidden font-sans antialiased;
-  }
-}
+  useEffect(() => {
+    // Fica escutando se alguém logou ou deslogou
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/'); // Volta para a Home após sair
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
+  };
+
+  return (
+    <header className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        
+        {/* LOGO */}
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+          <Mic2 className="text-cyan-400 h-6 w-6" />
+          <span className="text-xl font-black text-white italic tracking-tighter uppercase">
+            KARAOKE <span className="text-cyan-400">PRIME</span>
+          </span>
+        </div>
+
+        {/* ÁREA DO USUÁRIO / LOGIN */}
+        <div className="flex items-center gap-4">
+          {user ? (
+            <div className="flex items-center gap-3 bg-zinc-900 border border-white/10 p-1 rounded-full pl-4 pr-1">
+              <span className="text-xs font-black text-white uppercase tracking-widest hidden md:block">
+                {user.displayName?.split(' ')[0]}
+              </span>
+              
+              {user.photoURL ? (
+                <img src={user.photoURL} alt="Avatar" className="w-8 h-8 rounded-full border border-cyan-400/50 object-cover" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-cyan-400/20 flex items-center justify-center">
+                  <UserIcon size={14} className="text-cyan-400" />
+                </div>
+              )}
+              
+              <Button 
+                onClick={handleLogout} 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 transition-colors ml-2"
+                title="Sair da conta"
+              >
+                <LogOut size={14} />
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              onClick={() => navigate('/login')} 
+              className="bg-cyan-400/10 border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-black text-[10px] uppercase tracking-widest px-6 h-9 rounded-full transition-all"
+            >
+              Sign In
+            </Button>
+          )}
+        </div>
+
+      </div>
+    </header>
+  );
+};
+
+export default Header;
