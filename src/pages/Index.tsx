@@ -419,7 +419,7 @@ className="cursor-pointer group p-6 rounded-3xl border border-primary/50 bg-blac
   {/* RODAPÉ */}
   <div className="text-center pb-24 pt-16 border-t border-white/10 bg-zinc-950">
     <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 uppercase italic">
-      CANTE. EVOLUA.<span className="text-primary drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">CONQUISTE.</span>
+      CANTE. EVOLUA.<span className="text-primary drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]"> CONQUISTE.</span>
     </h2>
     <p className="text-[8px] text-gray-500 font-black tracking-[0.5em] uppercase">
       © 2026 KARAOKE PRIME - ALL RIGHTS RESERVED
