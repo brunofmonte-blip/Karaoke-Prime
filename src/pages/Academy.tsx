@@ -1,126 +1,100 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Music, Lock, PlayCircle, CheckCircle, ArrowLeft, GraduationCap } from 'lucide-react';
+import { GraduationCap, Lock, PlayCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-// Dados das aulas do Nível 1
-const aulasNivel1 = [
-  { id: 0, title: "Introdução ao Canto", duration: "05:00", locked: false },
-  { id: 1, title: "Aula 1: Postura Corporal", duration: "12:00", locked: false },
-  { id: 2, title: "Aula 2: Respiração Diafragmática", duration: "15:00", locked: false },
-  { id: 3, title: "Aula 3: Apoio e Sustentação", duration: "10:00", locked: true },
-  { id: 4, title: "Aula 4: Aquecimento Vocal", duration: "08:00", locked: true },
-];
+import { Card } from '@/components/ui/card';
 
 export default function Academy() {
   const navigate = useNavigate();
-  const [selectedNivel, setSelectedNivel] = useState(1);
 
-  const handleLessonClick = (aula: any) => {
-    // Se a aula não estiver trancada (Nível 1 - Introd, Aula 1 e 2)
-    if (!aula.locked) {
-      // Navega diretamente para a aula (ajuste a rota se necessário, ex: /lesson/id)
-      navigate(`/lesson`); 
-    } else {
-      // Se estiver trancada, envia para os planos
-      navigate('/premium');
-    }
-  };
+  // Módulos da Academy conforme sua imagem (1)
+  const modulos = [
+    { id: 1, titulo: 'RESPIRAÇÃO E APOIO', desc: 'Exercícios de diafragma, controle de fluxo de ar.', time: '10 min', locked: false },
+    { id: 2, titulo: 'AFINAÇÃO PRECISA', desc: 'Treinamento de ouvido e intervalos.', time: '12 min', locked: true },
+    { id: 3, titulo: 'RESSONÂNCIA', desc: 'Melhora da qualidade tonal e clareza.', time: '15 min', locked: true },
+    { id: 4, titulo: 'INTERPRETAÇÃO VOCAL', desc: 'Expressão e emoção ao cantar.', time: '20 min', locked: true },
+    { id: 5, titulo: 'FALSETES E MELISMAS', desc: 'Técnicas avançadas de R&B e POP.', time: '25 min', locked: true },
+    { id: 6, titulo: 'VIBRATO MASTER', desc: 'Oscilação perfeita e controle.', time: '20 min', locked: true },
+    { id: 7, titulo: 'DRIVES E RASPS', desc: 'Distorção vocal com segurança.', time: '25 min', locked: true },
+    { id: 8, titulo: 'AGUDOS (BELTING)', desc: 'Potência sem machucar a garganta.', time: '30 min', locked: true },
+    { id: 9, titulo: 'DINÂMICA E MICROFONE', desc: 'Uso correto do equipamento de palco.', time: '20 min', locked: true },
+    { id: 10, titulo: 'SHOW COMPLETO', desc: 'A prova final. Rotina de 40 minutos.', time: '40 min', locked: true },
+  ];
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans relative overflow-hidden">
-      {/* 1.1 - Background: Sala de Aula de Música */}
+    <div className="min-h-screen bg-black flex flex-col p-4 pt-24 pb-20 font-sans text-white relative overflow-x-hidden">
+      
+      {/* BACKGROUND: Imagem clareada (opacity-40 ao invés de 20 para dar 20% a mais de luz) */}
       <div className="absolute inset-0 z-0">
         <img 
           src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
-          alt="Music Classroom" 
-          className="w-full h-full object-cover opacity-30"
+          alt="Studio Background" 
+          className="w-full h-full object-cover opacity-40" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/60 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
       </div>
 
-      <div className="relative z-10 pt-20 pb-10 px-4 max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" onClick={() => navigate('/')} className="text-white hover:bg-white/10 rounded-full">
-            <ArrowLeft size={24} />
-          </Button>
-          <div>
-            <h1 className="text-4xl font-black italic tracking-tighter uppercase">
-              NEXT <span className="text-cyan-400">ACADEMY</span>
-            </h1>
-            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Sua jornada do zero ao palco</p>
+      <div className="z-10 max-w-7xl mx-auto w-full">
+        {/* Topo: Botão Voltar */}
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors">
+          <ArrowLeft size={16} /> Voltar para o Palco
+        </button>
+
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 px-4 py-1 rounded-full text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-4">
+             <GraduationCap size={14} /> Centro de Treinamento
           </div>
+          <h1 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter">
+            ACADEMY <span className="text-cyan-400">PRIME</span>
+          </h1>
+          <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">Aprenda as técnicas dos maiores vocalistas do mundo.</p>
         </div>
 
-        {/* Grade de Níveis (1 a 10) */}
-        <div className="grid grid-cols-5 md:grid-cols-10 gap-2 mb-10">
-          {[...Array(10)].map((_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => setSelectedNivel(i + 1)}
-              className={`h-12 rounded-lg font-black transition-all ${
-                selectedNivel === i + 1 
-                ? 'bg-cyan-400 text-black scale-110 shadow-[0_0_15px_rgba(34,211,238,0.5)]' 
-                : 'bg-white/5 text-gray-500 border border-white/10 hover:bg-white/10'
-              } ${i + 1 > 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={i + 1 > 1}
+        {/* Grid de Níveis (Igual à imagem 1) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {modulos.map((mod) => (
+            <Card 
+              key={mod.id}
+              className={`relative p-8 rounded-[2rem] border transition-all flex flex-col items-center text-center h-full ${
+                mod.locked 
+                ? 'bg-zinc-950/40 border-white/5 opacity-50' 
+                : 'bg-zinc-950/80 border-white/10 shadow-[0_0_30px_rgba(34,211,238,0.1)]'
+              }`}
             >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-
-        {/* Conteúdo do Nível Selecionado */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-2xl bg-cyan-400/20 flex items-center justify-center text-cyan-400">
-                <GraduationCap size={32} />
+              <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center mb-6">
+                {mod.locked ? <Lock size={20} className="text-gray-600" /> : <PlayCircle size={24} className="text-white" />}
               </div>
-              <div>
-                <h2 className="text-2xl font-black uppercase italic">Nível {selectedNivel}: O Despertar</h2>
-                <p className="text-cyan-400/70 text-sm font-bold uppercase">Módulo 1: Respiração e Postura</p>
-              </div>
-            </div>
-            <div className="hidden md:block text-right">
-              <span className="block text-xs font-bold text-gray-500 uppercase">Progresso</span>
-              <span className="text-xl font-black text-white">30%</span>
-            </div>
-          </div>
 
-          {/* Lista de Aulas */}
-          <div className="space-y-3">
-            {aulasNivel1.map((aula) => (
-              <div 
-                key={aula.id}
-                onClick={() => handleLessonClick(aula)}
-                className={`group flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
-                  aula.locked 
-                  ? 'bg-white/2 border-white/5 opacity-60 hover:border-white/20' 
-                  : 'bg-white/5 border-white/10 hover:bg-cyan-400/10 hover:border-cyan-400/30'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                    aula.locked ? 'bg-gray-800 text-gray-500' : 'bg-cyan-400 text-black'
-                  }`}>
-                    {aula.locked ? <Lock size={18} /> : <PlayCircle size={20} />}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm uppercase tracking-tight">{aula.title}</h3>
-                    <span className="text-[10px] text-gray-500 font-bold uppercase">{aula.duration}</span>
-                  </div>
+              <h3 className="font-black text-white text-sm uppercase italic tracking-widest mb-2">{mod.titulo}</h3>
+              <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed mb-6 flex-1">
+                {mod.desc}
+              </p>
+
+              <div className="flex gap-4 mb-8">
+                <div className="text-center">
+                  <p className="text-[8px] text-gray-500 font-black uppercase">Dificuldade</p>
+                  <p className="text-xs font-black text-white italic">Lvl {mod.id}</p>
                 </div>
-                
-                {!aula.locked && (
-                  <Button variant="ghost" className="text-cyan-400 group-hover:translate-x-1 transition-transform">
-                    ASSISTIR
-                  </Button>
-                )}
+                <div className="text-center">
+                  <p className="text-[8px] text-gray-500 font-black uppercase">Duração</p>
+                  <p className="text-xs font-black text-white italic">{mod.time}</p>
+                </div>
               </div>
-            ))}
-          </div>
+
+              {!mod.locked ? (
+                <Button 
+                  onClick={() => navigate('/lesson/1')} 
+                  className="w-full rounded-full bg-white text-black font-black uppercase tracking-tighter text-[10px] h-10 hover:bg-cyan-400 transition-all"
+                >
+                  Iniciar Exercício
+                </Button>
+              ) : (
+                <Button disabled className="w-full rounded-full bg-white/5 text-gray-600 font-black uppercase tracking-tighter text-[10px] h-10 border border-white/5">
+                  Assinar para Desbloquear
+                </Button>
+              )}
+            </Card>
+          ))}
         </div>
       </div>
     </div>
