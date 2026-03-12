@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ArrowLeft } from 'lucide-react';
 
-export default function Backstage() {
+export default function NEXT SUCCESS() {
 const navigate = useNavigate();
 
 return (
