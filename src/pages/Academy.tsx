@@ -1,67 +1,99 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GraduationCap, Lock, PlayCircle, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
-// 📦 Importação de todas as páginas do MVP
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Academy from "./pages/Academy";
-import Backstage from "./pages/Backstage";
-import BasicLobby from "./pages/BasicLobby";
-import Duel from "./pages/Duel";
-import DuelInviteLobby from "./pages/DuelInviteLobby";
-import DuelRoom from "./pages/DuelRoom";
-import KaraokeRoom from "./pages/KaraokeRoom";
-import Lesson from "./pages/Lesson";
-import Library from "./pages/Library";
-import NextSuccess from "./pages/NextSuccess";
-import Premium from "./pages/Premium";
-import ScoreResult from "./pages/ScoreResult";
-import SongPlayer from "./pages/SongPlayer";
-import Talent from "./pages/Talent";
-import NotFound from "./pages/NotFound";
+export default function Academy() {
+  const navigate = useNavigate();
 
-const queryClient = new QueryClient();
+  const modulos = [
+    { id: 1, titulo: 'RESPIRAÇÃO E APOIO', desc: 'Exercícios de diafragma, controle de fluxo de ar.', time: '10 min', locked: false },
+    { id: 2, titulo: 'AFINAÇÃO PRECISA', desc: 'Treinamento de ouvido e intervalos.', time: '12 min', locked: true },
+    { id: 3, titulo: 'RESSONÂNCIA', desc: 'Melhora da qualidade tonal e clareza.', time: '15 min', locked: true },
+    { id: 4, titulo: 'INTERPRETAÇÃO VOCAL', desc: 'Expressão e emoção ao cantar.', time: '20 min', locked: true },
+    { id: 5, titulo: 'FALSETES E MELISMAS', desc: 'Técnicas avançadas de R&B e POP.', time: '25 min', locked: true },
+    { id: 6, titulo: 'VIBRATO MASTER', desc: 'Oscilação perfeita e controle.', time: '20 min', locked: true },
+    { id: 7, titulo: 'DRIVES E RASPS', desc: 'Distorção vocal com segurança.', time: '25 min', locked: true },
+    { id: 8, titulo: 'AGUDOS (BELTING)', desc: 'Potência sem machucar a garganta.', time: '30 min', locked: true },
+    { id: 9, titulo: 'DINÂMICA E MICROFONE', desc: 'Uso correto do equipamento de palco.', time: '20 min', locked: true },
+    { id: 10, titulo: 'SHOW COMPLETO', desc: 'A prova final. Rotina de 40 minutos.', time: '40 min', locked: true },
+  ];
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Header />
-        <Routes>
-          {/* Rotas Principais */}
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/basic" element={<BasicLobby />} />
-          <Route path="/academy" element={<Academy />} />
-          <Route path="/talent" element={<Talent />} />
-          <Route path="/backstage" element={<Backstage />} />
-          <Route path="/next-success" element={<NextSuccess />} />
-          
-          {/* Rotas de Funcionalidades */}
-          <Route path="/library" element={<Library />} />
-          <Route path="/premium" element={<Premium />} />
-          <Route path="/score" element={<ScoreResult />} />
-          
-          {/* Rotas Dinâmicas (Precisam de um ID para funcionar) */}
-          <Route path="/play/:id" element={<SongPlayer />} />
-          <Route path="/lesson/:id" element={<Lesson />} />
-          <Route path="/karaoke/:id" element={<KaraokeRoom />} />
-          <Route path="/duel" element={<Duel />} />
-          <Route path="/duel-invite" element={<DuelInviteLobby />} />
-          <Route path="/duel-room/:id" element={<DuelRoom />} />
+  return (
+    <div className="min-h-screen bg-black flex flex-col p-4 pt-24 pb-20 font-sans text-white relative overflow-hidden">
+      
+      {/* BACKGROUND: Imagem com 40% de opacidade para clarear o fundo */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
+          alt="Studio Background" 
+          className="w-full h-full object-cover opacity-40" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
+      </div>
 
-          {/* Rota de Segurança 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      <div className="z-10 max-w-7xl mx-auto w-full">
+        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors">
+          <ArrowLeft size={16} /> Voltar para o Palco
+        </button>
 
-export default App;
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 px-4 py-1 rounded-full text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-4">
+             <GraduationCap size={14} /> Centro de Treinamento
+          </div>
+          <h1 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter">
+            ACADEMY <span className="text-cyan-400">PRIME</span>
+          </h1>
+          <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">Aprenda as técnicas dos maiores vocalistas do mundo.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {modulos.map((mod) => (
+            <Card 
+              key={mod.id}
+              className={`relative p-8 rounded-[2rem] border transition-all flex flex-col items-center text-center h-full ${
+                mod.locked 
+                ? 'bg-zinc-950/40 border-white/5 opacity-50' 
+                : 'bg-zinc-950/80 border-white/10 shadow-[0_0_30px_rgba(34,211,238,0.1)]'
+              }`}
+            >
+              <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center mb-6">
+                {mod.locked ? <Lock size={20} className="text-gray-600" /> : <PlayCircle size={24} className="text-white" />}
+              </div>
+
+              <h3 className="font-black text-white text-sm uppercase italic tracking-widest mb-2">{mod.titulo}</h3>
+              <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed mb-6 flex-1 italic">
+                {mod.desc}
+              </p>
+
+              <div className="flex gap-4 mb-8">
+                <div className="text-center">
+                  <p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Dificuldade</p>
+                  <p className="text-xs font-black text-white italic">Lvl {mod.id}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Duração</p>
+                  <p className="text-xs font-black text-white italic">{mod.time}</p>
+                </div>
+              </div>
+
+              {!mod.locked ? (
+                <Button 
+                  onClick={() => navigate(`/lesson/${mod.id}`)} 
+                  className="w-full rounded-full bg-white text-black font-black uppercase tracking-tighter text-[10px] h-10 hover:bg-cyan-400 transition-all"
+                >
+                  Iniciar Exercício
+                </Button>
+              ) : (
+                <Button onClick={() => navigate('/premium')} className="w-full rounded-full bg-white/5 text-gray-600 font-black uppercase tracking-tighter text-[10px] h-10 border border-white/5 hover:border-white/20">
+                  Assinar para Desbloquear
+                </Button>
+              )}
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
