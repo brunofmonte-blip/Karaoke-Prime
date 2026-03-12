@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Mic2, ListVideo, CheckCircle2, Lock, Wind, Coffee, Volume2, Star, Video } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Mic2, ListVideo, CheckCircle2, Lock, Wind, Coffee, Volume2, Activity, Star, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -15,42 +15,22 @@ export default function Lesson() {
   const [countdown, setCountdown] = useState(3);
   const [timeLeft, setTimeLeft] = useState(60); 
 
-  // Configuração das Aulas e Exercícios específicos
   const moduleContent = {
+    level: "Nível 1",
+    moduleName: "Fundamentos e Respiração",
     lessons: [
       { id: 0, displayTitle: "Introdução", title: "Fundamentos e Respiração", youtubeId: "m75jPge9QUM", hasPractice: false, locked: false },
-      { 
-        id: 1, 
-        displayTitle: "Aula 1", 
-        title: "Respiração Diafragmática", 
-        youtubeId: "Wl6xUHg9iAQ", 
-        hasPractice: true, 
-        exercise: "Ciclo 4-4-10-4", 
-        practiceDesc: "A base do controle de ar: Inspira, segura, expira e descansa.",
-        cycleTime: 22, // 4+4+10+4
-        locked: false 
-      },
-      { 
-        id: 2, 
-        displayTitle: "Aula 2", 
-        title: "Controle de Fluxo (S)", 
-        youtubeId: "fQKI_SFrrOo", 
-        hasPractice: true, 
-        exercise: "Emissão Constante de 'S'", 
-        practiceDesc: "Mantenha o som de 'S' o mais constante e longo possível.",
-        cycleTime: 20, // Ciclo diferente para a aula 2
-        locked: false 
-      },
-      { id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", hasPractice: true, locked: true },
+      { id: 1, displayTitle: "Aula 1", title: "Respiração Diafragmática", youtubeId: "Wl6xUHg9iAQ", hasPractice: true, exercise: "Ciclo 4-4-10-4", practiceDesc: "Inspira (4s), Segura (4s), Expira (10s) e Descansa (4s).", locked: false },
+      { id: 2, displayTitle: "Aula 2", title: "Controle de Fluxo de Ar", youtubeId: "fQKI_SFrrOo", hasPractice: true, exercise: "Emissão de 'S'", practiceDesc: "Mantenha o som de 'S' constante e longo.", locked: false },
+      { id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", hasPractice: true, exercise: "Sustentação de Nota", practiceDesc: "Treino de constância.", locked: true },
+      { id: 4, displayTitle: "Aula 4", title: "Aquecimento Labial", youtubeId: "3nL733b7rgQ", hasPractice: true, exercise: "Lip Trill de 10s", practiceDesc: "Vibração contínua dos lábios.", locked: true }
     ]
   };
 
   const currentLesson = moduleContent.lessons[activeLessonIndex];
 
-  // Controle do Cronômetro e Áudio
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    
     if (trainingStatus === 'countdown') {
       if (countdown > 0) {
         timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -72,141 +52,138 @@ export default function Lesson() {
     return () => clearTimeout(timer);
   }, [trainingStatus, countdown, timeLeft]);
 
-  // Lógica de Narração Visual Dinâmica
-  const getInstruction = () => {
-    const elapsed = 60 - timeLeft;
+  const getCycleState = () => {
+    const elapsed = 60 - timeLeft; 
     
-    // Lógica específica para Aula 1 (4-4-10-4)
     if (currentLesson.id === 1) {
-      const t = elapsed % 22;
-      if (t < 4) return { phase: 'INSPIRA', msg: 'Inspira por 4 segundos', color: 'text-cyan-400', icon: Wind };
-      if (t < 8) return { phase: 'SEGURA', msg: 'Segura por 4 segundos', color: 'text-orange-500', icon: Lock };
-      if (t < 18) return { phase: 'EXPIRA', msg: 'Expira por 10 segundos', color: 'text-blue-400', icon: Mic2 };
-      return { phase: 'DESCANSA', msg: 'Descansa por 4 segundos', color: 'text-gray-500', icon: Coffee };
-    }
+      const t = elapsed % 22; 
+      if (t < 4) return { phase: 'INSPIRA', instruction: 'Inspira por 4 segundos', color: 'cyan', icon: Wind };
+      if (t < 8) return { phase: 'SEGURA', instruction: 'Segura por 4 segundos', color: 'orange', icon: Lock };
+      if (t < 18) return { phase: 'EXPIRA', instruction: 'Expira por 10 segundos', color: 'blue', icon: Mic2 };
+      return { phase: 'DESCANSA', instruction: 'Descansa por 4 segundos', color: 'gray', icon: Coffee };
+    } 
     
-    // Lógica específica para Aula 2 (Controle de S)
     if (currentLesson.id === 2) {
       const t = elapsed % 20;
-      if (t < 5) return { phase: 'INSPIRA', msg: 'Inspira fundo pelo nariz', color: 'text-cyan-400', icon: Wind };
-      if (t < 18) return { phase: 'SOLTE O "S"', msg: 'Mantenha o "S" constante', color: 'text-orange-500', icon: Volume2 };
-      return { phase: 'DESCANSA', msg: 'Relaxe os ombros', color: 'text-gray-500', icon: Coffee };
+      if (t < 5) return { phase: 'INSPIRA', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
+      if (t < 18) return { phase: 'SOLTE O S', instruction: 'Mantenha o som de S constante', color: 'orange', icon: Volume2 };
+      return { phase: 'DESCANSA', instruction: 'Descansa', color: 'gray', icon: Coffee };
     }
 
-    return { phase: 'TREINANDO', msg: 'Continue o exercício', color: 'text-white', icon: Activity };
+    return { phase: 'PRATICAR', instruction: 'Execute o exercício', color: 'cyan', icon: Activity };
   };
 
-  const instruction = getInstruction();
-  const Icon = instruction.icon;
+  const cycleState = getCycleState();
+  const CycleIcon = cycleState.icon;
 
-  // Círculo de Progresso
-  const radius = 80;
-  const circ = 2 * Math.PI * radius;
-  const offset = circ - (timeLeft / 60) * circ;
+  const changeLesson = (index: number) => {
+    if (moduleContent.lessons[index].locked) {
+      navigate('/premium');
+      return;
+    }
+    setActiveLessonIndex(index);
+    setStep('video');
+    setTrainingStatus('idle');
+    setTimeLeft(60);
+    setCountdown(3);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
+
+  const radius = 90;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (timeLeft / 60) * circumference;
 
   return (
-    <div className="min-h-screen bg-black text-white pt-28 pb-12 px-4 relative overflow-hidden">
-      {/* Áudio de Fundo (Trilha Zen) */}
+    <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans text-white">
       <audio ref={audioRef} src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3" loop />
-
-      <div className="max-w-6xl mx-auto relative z-10">
-        <button onClick={() => navigate('/academy')} className="text-gray-500 hover:text-white mb-6 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-all">
-          <ArrowLeft size={14} /> Voltar para Academy
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black z-0" />
+      
+      <div className="max-w-7xl mx-auto relative z-10 animate-in fade-in duration-700">
+        <button onClick={() => navigate('/academy')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
+          <ArrowLeft size={16} /> Voltar para Academy
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* ÁREA PRINCIPAL */}
-          <div className="lg:col-span-2">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-[10px] mb-3 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
+              <PlayCircle size={14} /> Masterclass • {moduleContent.level} 
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase drop-shadow-lg leading-tight">
+              {currentLesson.displayTitle}:<br/>
+              <span className={!currentLesson.hasPractice ? "text-orange-500" : "text-cyan-400"}>{currentLesson.title}</span>
+            </h1>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3">
             {step === 'video' ? (
-              <div className="animate-in fade-in duration-500">
-                <div className="aspect-video w-full bg-zinc-900 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl mb-6">
-                  <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${currentLesson.youtubeId}?rel=0`} frameBorder="0" allowFullScreen />
+              <div className="animate-in slide-in-from-bottom-10 duration-500">
+                <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-white/10 bg-zinc-900 mb-8">
+                  <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${currentLesson.youtubeId}?rel=0&modestbranding=1`} title={currentLesson.title} frameBorder="0" allowFullScreen></iframe>
                 </div>
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-black italic uppercase tracking-tighter">{currentLesson.title}</h2>
+                <div className="flex justify-end">
                   {currentLesson.hasPractice && (
-                    <Button onClick={() => setStep('practice')} className="bg-cyan-400 text-black font-black uppercase rounded-full px-8 h-12 hover:bg-white transition-all">
-                      Iniciar Treinamento
+                    <Button onClick={() => setStep('practice')} className="h-16 px-12 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xl italic uppercase tracking-tighter transition-all">
+                      Ir para Treinamento <ArrowLeft size={20} className="ml-3 rotate-180" />
                     </Button>
                   )}
                 </div>
               </div>
             ) : (
-              <Card className="bg-zinc-950/50 border-white/10 rounded-[3rem] p-12 flex flex-col items-center justify-center min-h-[500px] text-center">
+              <Card className="bg-zinc-950/80 backdrop-blur-xl border-cyan-400/30 rounded-[3rem] p-8 md:p-12 min-h-[500px] flex flex-col justify-center items-center">
                 {trainingStatus === 'idle' ? (
-                  <>
-                    <Mic2 size={48} className="text-cyan-400 mb-6" />
-                    <h2 className="text-3xl font-black uppercase italic mb-4">{currentLesson.exercise}</h2>
-                    <p className="text-gray-400 max-w-md mb-8">{currentLesson.practiceDesc}</p>
-                    <Button onClick={() => setTrainingStatus('countdown')} className="bg-white text-black font-black uppercase rounded-full px-12 h-16 text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                      Começar Agora
-                    </Button>
-                  </>
+                  <div className="flex flex-col items-center text-center">
+                    <Mic2 className="h-16 w-16 text-cyan-400 mb-6" />
+                    <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-4">{currentLesson.exercise}</h2>
+                    <p className="text-gray-400 mb-10">{currentLesson.practiceDesc}</p>
+                    <Button onClick={() => setTrainingStatus('countdown')} className="h-16 px-12 rounded-full bg-cyan-400 text-black font-black uppercase">INICIAR TREINO</Button>
+                  </div>
                 ) : trainingStatus === 'countdown' ? (
                   <h1 className="text-9xl font-black italic text-cyan-400 animate-pulse">{countdown}</h1>
                 ) : trainingStatus === 'active' ? (
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-64 h-64 flex items-center justify-center mb-8">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="128" cy="128" r={radius} stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
-                        <circle cx="128" cy="128" r={radius} stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray={circ} strokeDashoffset={offset} className="text-cyan-400 transition-all duration-1000 ease-linear" />
+                  <div className="flex flex-col items-center text-center w-full">
+                    <div className="relative flex items-center justify-center mb-8">
+                      <svg className="w-56 h-56 transform -rotate-90">
+                        <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent" className="text-zinc-800" />
+                        <circle cx="112" cy="112" r={radius} stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} className={`transition-all duration-1000 ease-linear ${cycleState.color === 'cyan' ? 'text-cyan-400' : cycleState.color === 'orange' ? 'text-orange-500' : 'text-blue-500'}`} />
                       </svg>
-                      <div className="absolute flex flex-col items-center">
-                        <span className="text-5xl font-black italic">{timeLeft}s</span>
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Restantes</span>
+                      <div className="absolute flex flex-col items-center justify-center">
+                        <CycleIcon size={32} className={`mb-2 ${cycleState.color === 'cyan' ? 'text-cyan-400' : cycleState.color === 'orange' ? 'text-orange-500' : 'text-blue-500'}`} />
+                        <p className="font-black text-2xl italic">{timeLeft}s</p>
                       </div>
                     </div>
-                    <Icon size={32} className={`${instruction.color} mb-2 animate-bounce`} />
-                    <h3 className={`text-4xl font-black italic uppercase ${instruction.color}`}>{instruction.phase}</h3>
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">{instruction.msg}</p>
+                    <h3 className="text-3xl font-black italic uppercase mb-2">{cycleState.phase}</h3>
+                    <p className="text-xl font-bold text-cyan-400 uppercase tracking-widest">{cycleState.instruction}</p>
                   </div>
                 ) : (
-                  <div className="animate-in zoom-in duration-500">
+                  <div className="text-center">
                     <CheckCircle2 size={64} className="text-cyan-400 mx-auto mb-6" />
-                    <h2 className="text-4xl font-black italic uppercase mb-4">Treino Concluído!</h2>
-                    <p className="text-gray-400 mb-8 uppercase text-xs font-bold tracking-widest">Excelente progresso, continue assim.</p>
-                    <Button onClick={() => {setStep('video'); setTrainingStatus('idle'); setTimeLeft(60);}} className="bg-white text-black font-black uppercase rounded-full px-10 h-14">
-                      Voltar para Aula
-                    </Button>
+                    <h2 className="text-3xl font-black italic mb-8">TREINO CONCLUÍDO!</h2>
+                    <Button onClick={() => { setStep('video'); setTrainingStatus('idle'); setTimeLeft(60); }} className="bg-white text-black font-black rounded-full px-12 h-14">VOLTAR PARA AULA</Button>
                   </div>
                 )}
               </Card>
             )}
           </div>
 
-          {/* PLAYLIST LATERAL */}
-          <div className="space-y-4">
-            <h3 className="flex items-center gap-2 font-black uppercase tracking-widest text-xs text-gray-400">
-              <ListVideo size={16} /> Próximas Aulas
-            </h3>
+          <div className="lg:col-span-1 space-y-4">
+            <div className="flex items-center gap-2 text-white font-black uppercase tracking-widest text-xs mb-4">
+              <ListVideo size={18} className="text-cyan-400" /> Playlist
+            </div>
             {moduleContent.lessons.map((lesson, idx) => (
-              <div 
-                key={idx} 
-                onClick={() => {
-                  if (!lesson.locked) {
-                    setActiveLessonIndex(idx);
-                    setStep('video');
-                    setTrainingStatus('idle');
-                    setTimeLeft(60);
-                  } else {
-                    navigate('/premium');
-                  }
-                }}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                  activeLessonIndex === idx ? 'bg-cyan-400/10 border-cyan-400' : 'bg-zinc-950 border-white/5 opacity-60 hover:opacity-100'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`h-8 w-8 rounded-full flex items-center justify-center ${lesson.locked ? 'bg-white/5 text-gray-600' : 'bg-cyan-400/20 text-cyan-400'}`}>
-                    {lesson.locked ? <Lock size={14} /> : activeLessonIndex === idx ? <Video size={14} /> : <PlayCircle size={14} />}
-                  </div>
+              <Card key={idx} onClick={() => changeLesson(idx)} className={`p-4 rounded-2xl border cursor-pointer transition-all ${activeLessonIndex === idx ? 'bg-cyan-400/10 border-cyan-400' : 'bg-zinc-950 border-white/10 opacity-60 hover:opacity-100'}`}>
+                <div className="flex items-center gap-3">
+                  {lesson.locked ? <Lock size={16} /> : <PlayCircle size={18} className={activeLessonIndex === idx ? 'text-cyan-400' : 'text-gray-500'} />}
                   <div>
-                    <p className="text-[8px] font-black text-gray-500 uppercase">{lesson.displayTitle}</p>
-                    <h4 className="text-[10px] font-black uppercase italic">{lesson.title}</h4>
+                    <p className={`text-[8px] font-black uppercase tracking-widest ${activeLessonIndex === idx ? 'text-cyan-400' : 'text-gray-500'}`}>{lesson.displayTitle}</p>
+                    <h4 className="text-xs font-black uppercase italic">{lesson.title}</h4>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
