@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import VocalAnalyzer from '@/components/VocalAnalyzer';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -55,7 +56,6 @@ const Index = () => {
             </div>
           </Card>
           
-          {/* Módulos Bloqueados (Com links de redirecionamento) */}
           {[
             { n: 'Next Talent', path: '/talent', i: Globe, d: 'Audições Globais' },
             { n: 'Backstage', path: '/backstage', i: LayoutDashboard, d: 'Dashboard Pro' },
@@ -244,6 +244,12 @@ const Index = () => {
             <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest leading-relaxed">
               {user ? "A inteligência artificial já processou sua última performance. Confira seus números." : "Crie sua conta para liberar a análise avançada de voz e o ranking mundial."}
             </p>
+            
+            {/* NOVO COMPONENTE VOCAL ANALYZER REGISTRADO AQUI */}
+            <div className="mt-8 max-w-xs mx-auto">
+              <VocalAnalyzer />
+            </div>
+
             <p className="text-cyan-400 font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] pt-6 flex items-center justify-center gap-2">
               <Sparkles size={14} /> IA ATIVA NO MODO PRIME
             </p>
