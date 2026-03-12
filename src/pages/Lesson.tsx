@@ -54,7 +54,9 @@ export default function Lesson() {
       },
       { 
         id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", hasPractice: true, locked: true,
-        exercise: "Sustentação de Nota Única", practiceDesc: "Mantenha uma nota confortável em volume médio sem oscilar.",
+        exercise: "Sustentação de Nota Única", 
+        // 👇 AQUI ESTÁ A CORREÇÃO SOLICITADA DA AULA 3
+        practiceDesc: "Mantenha uma nota (escolha uma nota: Dó, Ré, Mi, Fá, Sol, Lá ou Si) confortável em volume médio sem oscilar.",
         feedbackTitle: "Estabilidade Tonal",
         feedbackDesc: "Cantar notas longas sem tremer a voz demonstra domínio técnico e controle absoluto do diafragma acoplado à voz.",
         frequency: "Sempre como primeiro aquecimento antes de cantar"
