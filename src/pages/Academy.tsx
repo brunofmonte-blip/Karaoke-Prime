@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/card';
 export default function Academy() {
   const navigate = useNavigate();
 
-  // Módulos da Academy conforme sua imagem (1)
   const modulos = [
     { id: 1, titulo: 'RESPIRAÇÃO E APOIO', desc: 'Exercícios de diafragma, controle de fluxo de ar.', time: '10 min', locked: false },
     { id: 2, titulo: 'AFINAÇÃO PRECISA', desc: 'Treinamento de ouvido e intervalos.', time: '12 min', locked: true },
@@ -22,20 +21,19 @@ export default function Academy() {
   ];
 
   return (
-    <div className="min-h-screen bg-black flex flex-col p-4 pt-24 pb-20 font-sans text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-black flex flex-col p-4 pt-24 pb-20 font-sans text-white relative overflow-hidden">
       
-      {/* BACKGROUND: Imagem clareada (opacity-40 ao invés de 20 para dar 20% a mais de luz) */}
+      {/* BACKGROUND: Imagem com 40% de opacidade para clarear o fundo */}
       <div className="absolute inset-0 z-0">
         <img 
           src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
           alt="Studio Background" 
           className="w-full h-full object-cover opacity-40" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
       </div>
 
       <div className="z-10 max-w-7xl mx-auto w-full">
-        {/* Topo: Botão Voltar */}
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors">
           <ArrowLeft size={16} /> Voltar para o Palco
         </button>
@@ -50,7 +48,6 @@ export default function Academy() {
           <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">Aprenda as técnicas dos maiores vocalistas do mundo.</p>
         </div>
 
-        {/* Grid de Níveis (Igual à imagem 1) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {modulos.map((mod) => (
             <Card 
@@ -66,30 +63,30 @@ export default function Academy() {
               </div>
 
               <h3 className="font-black text-white text-sm uppercase italic tracking-widest mb-2">{mod.titulo}</h3>
-              <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed mb-6 flex-1">
+              <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed mb-6 flex-1 italic">
                 {mod.desc}
               </p>
 
               <div className="flex gap-4 mb-8">
                 <div className="text-center">
-                  <p className="text-[8px] text-gray-500 font-black uppercase">Dificuldade</p>
+                  <p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Dificuldade</p>
                   <p className="text-xs font-black text-white italic">Lvl {mod.id}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[8px] text-gray-500 font-black uppercase">Duração</p>
+                  <p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Duração</p>
                   <p className="text-xs font-black text-white italic">{mod.time}</p>
                 </div>
               </div>
 
               {!mod.locked ? (
                 <Button 
-                  onClick={() => navigate('/lesson/1')} 
+                  onClick={() => navigate(`/lesson/${mod.id}`)} 
                   className="w-full rounded-full bg-white text-black font-black uppercase tracking-tighter text-[10px] h-10 hover:bg-cyan-400 transition-all"
                 >
                   Iniciar Exercício
                 </Button>
               ) : (
-                <Button disabled className="w-full rounded-full bg-white/5 text-gray-600 font-black uppercase tracking-tighter text-[10px] h-10 border border-white/5">
+                <Button onClick={() => navigate('/premium')} className="w-full rounded-full bg-white/5 text-gray-600 font-black uppercase tracking-tighter text-[10px] h-10 border border-white/5 hover:border-white/20">
                   Assinar para Desbloquear
                 </Button>
               )}
@@ -99,4 +96,4 @@ export default function Academy() {
       </div>
     </div>
   );
-} 
+}
