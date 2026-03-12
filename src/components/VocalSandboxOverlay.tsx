@@ -256,4 +256,4 @@ const VocalSandboxOverlay: React.FC = () => {
   );
 };
 
-export default VocalSandboxOverlay;
+export default VocalSandboxOverlay; 
