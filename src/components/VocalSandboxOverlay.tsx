@@ -1,183 +1,180 @@
-import React, { useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { Mic, StopCircle, Music, X, ShieldCheck, Trophy, Wind, AlertCircle, Activity, Target, Volume2 } from 'lucide-react';
-import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/integrations/supabase/auth';
-import LyricPlayer from './LyricPlayer';
-import { Slider } from '@/components/ui/slider';
-import VocalEvolutionChart from './VocalEvolutionChart';
-import { Progress } from '@/components/ui/progress';
-import FarinelliExercise from './FarinelliExercise';
-import PitchCalibrationExercise from './PitchCalibrationExercise';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { toast } from 'sonner';
 
-const VocalSandboxOverlay: React.FC = () => {
-  const { 
-    isOverlayOpen, 
-    closeOverlay, 
-    isAnalyzing, 
-    startAnalysis, 
-    stopAnalysis, 
-    pitchData, 
-    pitchDataHz,
-    pitchHistory,
-    ghostTrace,
-    currentSongTitle,
-    currentSongArtist,
-    currentSong,
-    currentTime,
-    totalDuration,
-    countdown,
-    sensitivity,
-    setSensitivity,
-    breathingPhase,
-    breathingProgress,
-    isAirflowLow,
-    stabilityScore,
-    manualProgress,
-    activeModule,
-    activeSubModule,
-    activeExerciseId,
-  } = useVocalSandbox();
-  
-  // Explicit Routing Logic: Map modules and Level 5 IDs to the correct Engine
-  const isBreathingExercise = activeModule === 'farinelli' || activeModule === 'sovt' || activeModule === 'panting' || activeModule === 'alexander' || activeModule === 'rhythm';
-  
-  // Force Pitch Calibration Engine for 'pitch-calibration' module OR any Level 5 exercise
-  const isPitchCalibration = activeModule === 'pitch-calibration' || (activeExerciseId && activeExerciseId.startsWith('l5-'));
-  
-  const progressValue = isBreathingExercise ? manualProgress : (currentTime / totalDuration) * 100;
+interface AudioAnalyzerResult {
+  isAnalyzing: boolean;
+  startAnalysis: () => Promise<void>;
+  stopAnalysis: () => void;
+  pitchDataHz: number;
+  pitchDataVisualization: number;
+  sensitivity: number;
+  setSensitivity: (value: number) => void;
+}
 
-  if (!isOverlayOpen || !currentSong) {
-    return null;
-  }
-  
-  return (
-    <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col p-4 md:p-8 overflow-y-auto">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex flex-col">
-          <h1 className="text-3xl md:text-4xl font-bold text-primary neon-blue-glow">
-            {isBreathingExercise ? "Conservatório Vocal" : isPitchCalibration ? "Laboratório de Calibração" : "Sandbox Vocal ao Vivo"}
-          </h1>
-          {!isBreathingExercise && !isPitchCalibration && (
-            <p className="text-muted-foreground flex items-center gap-2 mt-1">
-              <Music className="h-4 w-4" />
-              {currentSongTitle} — {currentSongArtist}
-            </p>
-          )}
-        </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={closeOverlay}
-          className="text-foreground hover:bg-primary/10 rounded-full"
-        >
-          <X className="h-6 w-6" />
-        </Button>
-      </div>
+const FFT_SIZE = 2048;
+const MIN_FREQ = 80;   // Voz humana mais grave aceitável
+const MAX_FREQ = 1000; // Voz humana mais aguda aceitável
+const DEFAULT_SENSITIVITY_THRESHOLD = 100;
 
-      <div className="w-full max-w-4xl mx-auto mb-8 space-y-2">
-        <div className="flex justify-between text-sm font-medium text-muted-foreground">
-          <span className="flex items-center gap-2">
-            {isAnalyzing && <Volume2 className="h-4 w-4 text-primary animate-pulse" />}
-            {isAnalyzing ? "Áudio Ativo" : "Aguardando Início"}
-          </span>
-          <span>{Math.min(100, progressValue).toFixed(0)}%</span>
-        </div>
-        <Progress value={progressValue} className="h-3 bg-primary/20" indicatorClassName="bg-primary shadow-lg shadow-primary/50" />
-      </div>
-
-      <div className="flex-grow space-y-8">
-        {isBreathingExercise ? (
-          <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
-            <FarinelliExercise moduleType={activeModule} />
-          </div>
-        ) : isPitchCalibration ? (
-          <div className="max-w-5xl mx-auto w-full">
-            <PitchCalibrationExercise 
-              subModule={activeSubModule} 
-              frequency={pitchDataHz} 
-              currentTime={currentTime} 
-            />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className={cn("lg:col-span-1 glass-pillar h-fit")}>
-              <CardHeader>
-                <CardTitle className="text-accent neon-gold-glow flex items-center">
-                  {ghostTrace.length > 0 && <Trophy className="h-5 w-5 mr-2" />}
-                  Controles
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-center space-x-4">
-                  <Button 
-                    onClick={() => startAnalysis(currentSong, ghostTrace.length > 0)} 
-                    disabled={isAnalyzing || countdown !== null}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-lg shadow-primary/30"
-                  >
-                    <Mic className="h-5 w-5 mr-2" />
-                    {countdown !== null ? `Iniciando em ${countdown}...` : isAnalyzing ? 'Analisando...' : 'Começar'}
-                  </Button>
-                  <Button 
-                    onClick={stopAnalysis} 
-                    disabled={!isAnalyzing}
-                    variant="destructive"
-                    className="rounded-xl shadow-lg shadow-destructive/30"
-                  >
-                    <StopCircle className="h-5 w-5 mr-2" />
-                    Parar
-                  </Button>
-                </div>
-
-                <div className="pt-4 border-t border-border/50">
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Sensibilidade</h3>
-                  <Slider
-                    defaultValue={[sensitivity]}
-                    max={200}
-                    step={10}
-                    onValueChange={(value) => setSensitivity(value[0])}
-                    className="w-full"
-                    disabled={isAnalyzing}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={cn("lg:col-span-2 glass-pillar p-6")}>
-              <VocalEvolutionChart 
-                title="Análise de Fluxo de Air e Tom" 
-                data={pitchHistory} 
-                opponentTrace={ghostTrace}
-                height={250}
-              />
-            </Card>
-          </div>
-        )}
-        
-        {!isBreathingExercise && !isPitchCalibration && (
-          <Card className={cn("glass-pillar")}>
-            <CardHeader>
-              <CardTitle className="text-primary">Letras</CardTitle>
-            </CardHeader>
-            <CardContent className="py-6">
-              <LyricPlayer lyrics={currentSong.lyrics} currentTime={currentTime} />
-            </CardContent>
-          </Card>
-        )}
-      </div>
-      
-      <div className="text-center py-10 mt-auto">
-        <h2 className={cn(
-          "text-4xl md:text-6xl font-extrabold uppercase tracking-widest",
-          "text-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
-        )}>
-          CANTE. EVOLUA. CONQUISTAR O MUNDO.
-        </h2>
-      </div>
-    </div>
-  );
+// Escala de 0 a 100 para os gráficos do DYAD
+const frequencyToVisualizationScale = (frequency: number): number => {
+  if (frequency < MIN_FREQ || frequency > MAX_FREQ) return 0;
+  return ((frequency - MIN_FREQ) / (MAX_FREQ - MIN_FREQ)) * 100;
 };
 
-export default VocalSandboxOverlay;
+// O nosso Motor Matemático Cirúrgico
+function autoCorrelate(buf: Float32Array, sampleRate: number): number {
+  let SIZE = buf.length;
+  let r1 = 0, r2 = SIZE - 1, thres = 0.2;
+  
+  for (let i = 0; i < SIZE / 2; i++)
+    if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+  for (let i = 1; i < SIZE / 2; i++)
+    if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+
+  buf = buf.slice(r1, r2);
+  SIZE = buf.length;
+
+  const c = new Array(SIZE).fill(0);
+  for (let i = 0; i < SIZE; i++) {
+    for (let j = 0; j < SIZE - i; j++) {
+      c[i] = c[i] + buf[j] * buf[j + i];
+    }
+  }
+
+  let d = 0; while (c[d] > c[d + 1]) d++;
+  let maxval = -1, maxpos = -1;
+  for (let i = d; i < SIZE; i++) {
+    if (c[i] > maxval) {
+      maxval = c[i];
+      maxpos = i;
+    }
+  }
+  let T0 = maxpos;
+
+  const x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
+  const a = (x1 + x3 - 2 * x2) / 2;
+  const b = (x3 - x1) / 2;
+  if (a) T0 = T0 - b / (2 * a);
+
+  return sampleRate / T0;
+}
+
+function getRMS(buf: Float32Array): number {
+  let rms = 0;
+  for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+  return Math.sqrt(rms / buf.length);
+}
+
+export const useAudioAnalyzer = (): AudioAnalyzerResult => {
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [pitchDataHz, setPitchDataHz] = useState(0);
+  const [pitchDataVisualization, setPitchDataVisualization] = useState(0);
+  const [sensitivity, setSensitivity] = useState(DEFAULT_SENSITIVITY_THRESHOLD);
+  
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const animationFrameRef = useRef<number>();
+
+  const analyze = useCallback(() => {
+    if (!analyserRef.current || !audioContextRef.current) return;
+
+    const analyser = analyserRef.current;
+    const bufferLength = analyser.fftSize;
+    const buffer = new Float32Array(bufferLength);
+    
+    // Pega o sinal CRU de áudio para descobrir a afinação real
+    analyser.getFloatTimeDomainData(buffer);
+
+    const rms = getRMS(buffer);
+    
+    // Lógica de sensibilidade: Quanto maior o slider (0-200), menor o limite para detectar som
+    const volumeThreshold = Math.max(0.001, (200 - sensitivity) * 0.0005);
+
+    if (rms > volumeThreshold) {
+      const frequency = autoCorrelate(buffer, audioContextRef.current.sampleRate);
+      
+      if (frequency !== -1 && frequency >= MIN_FREQ && frequency <= MAX_FREQ) {
+        setPitchDataHz(frequency);
+        setPitchDataVisualization(frequencyToVisualizationScale(frequency));
+      } else {
+        // Ignora ruídos que não são voz
+        setPitchDataHz(0);
+        setPitchDataVisualization(0);
+      }
+    } else {
+      // Silêncio
+      setPitchDataHz(0);
+      setPitchDataVisualization(0);
+    }
+
+    animationFrameRef.current = requestAnimationFrame(analyze);
+  }, [sensitivity]);
+
+  const startAnalysis = async () => {
+    if (isAnalyzing) return;
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const context = new AudioContextClass();
+      
+      if (context.state === 'suspended') {
+        await context.resume();
+      }
+      
+      audioContextRef.current = context;
+
+      const analyser = context.createAnalyser();
+      analyser.fftSize = FFT_SIZE;
+      analyserRef.current = analyser;
+
+      const source = context.createMediaStreamSource(stream);
+      source.connect(analyser);
+      sourceRef.current = source;
+
+      setIsAnalyzing(true);
+      toast.success("Motor de Alta Precisão ativado!", { duration: 2000 });
+      
+      animationFrameRef.current = requestAnimationFrame(analyze);
+
+    } catch (error) {
+      console.error("[use-audio-analyzer] Erro de microfone:", error);
+      toast.error("Microfone não autorizado.", { duration: 5000 });
+      setIsAnalyzing(false);
+    }
+  };
+
+  const stopAnalysis = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    if (sourceRef.current) {
+      const tracks = sourceRef.current.mediaStream.getTracks();
+      tracks.forEach(track => track.stop());
+      sourceRef.current.disconnect();
+    }
+    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+      audioContextRef.current.close();
+    }
+    setIsAnalyzing(false);
+    setPitchDataHz(0);
+    setPitchDataVisualization(0);
+  };
+
+  useEffect(() => {
+    return () => { stopAnalysis(); };
+  }, []);
+
+  return {
+    isAnalyzing,
+    startAnalysis,
+    stopAnalysis,
+    pitchDataHz,
+    pitchDataVisualization,
+    sensitivity,
+    setSensitivity,
+  };
+};
