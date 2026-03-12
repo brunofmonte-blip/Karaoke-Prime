@@ -1,71 +1,27 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Star, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { LayoutDashboard, ArrowLeft } from 'lucide-react';
 
-export default function Premium() {
+export default function Next Talent) {
 const navigate = useNavigate();
 
 return (
-<div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 pt-24 pb-20 font-sans text-white relative">
-<div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-black to-black z-0 pointer-events-none" />
+<div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 relative overflow-hidden pt-16 font-sans text-white">
+<img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&q=80" alt="Backstage bg" className="absolute inset-0 w-full h-full object-cover opacity-20" />
+<div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
 
-  <div className="z-10 text-center mb-12">
-    <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
-      ESCOLHA SEU <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">PLANO</span>
-    </h1>
-    <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
-      Desbloqueie o poder total da Arena Karaoke Prime
-    </p>
+  <div className="z-10 text-center flex flex-col items-center">
+    <div className="h-20 w-20 rounded-full border border-white/20 flex items-center justify-center mb-6 bg-black/50 backdrop-blur-sm">
+      <LayoutDashboard className="h-10 w-10 text-gray-400" />
+    </div>
+    
+    <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter uppercase mb-2">Next Talent</h1>
+    <p className="text-gray-300 font-medium text-lg mb-12">Dashboard premium bloqueado.</p>
+
+    <button onClick={() => navigate('/')} className="px-8 py-3 rounded-full border border-white/20 hover:bg-white/10 transition-colors flex items-center gap-3 text-sm font-bold">
+      <ArrowLeft size={18} /> Voltar para o Início
+    </button>
   </div>
-
-  <div className="z-10 grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
-    {/* PLANO MENSAL */}
-    <Card className="bg-zinc-950 border-white/10 p-10 rounded-[3rem] flex flex-col relative">
-      <h3 className="text-2xl font-black text-white italic uppercase mb-2">Mensal</h3>
-      <div className="flex items-baseline gap-2 mb-8">
-        <span className="text-5xl font-black text-white">R$ 19</span>
-        <span className="text-gray-500 font-bold text-sm">/mês</span>
-      </div>
-      <ul className="space-y-4 mb-10 flex-1">
-        {['Acesso ilimitado ao Basic', 'Treinamento Academy AI', 'Ranking Global Ativo', 'Sem Anúncios'].map((item, i) => (
-          <li key={i} className="flex items-center gap-3 text-sm font-bold text-gray-300">
-            <Check className="text-cyan-400 h-5 w-5" /> {item}
-          </li>
-        ))}
-      </ul>
-      <Button className="w-full h-14 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase tracking-widest">
-        Assinar Mensal
-      </Button>
-    </Card>
-
-    {/* PLANO ANUAL */}
-    <Card className="bg-zinc-950 border-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.15)] p-10 rounded-[3rem] flex flex-col relative transform md:-translate-y-4">
-      <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-cyan-400 text-black text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full flex items-center gap-2">
-        <Star size={12} /> Mais Popular
-      </div>
-      <h3 className="text-2xl font-black text-cyan-400 italic uppercase mb-2">Anual</h3>
-      <div className="flex items-baseline gap-2 mb-8">
-        <span className="text-5xl font-black text-white">R$ 119</span>
-        <span className="text-gray-500 font-bold text-sm">/ano</span>
-      </div>
-      <ul className="space-y-4 mb-10 flex-1">
-        {['Tudo do plano Mensal', 'Músicas Originais IA (Next Success)', 'Acesso ao Backstage Profissional', 'Dois meses grátis'].map((item, i) => (
-          <li key={i} className="flex items-center gap-3 text-sm font-bold text-white">
-            <Check className="text-cyan-400 h-5 w-5" /> {item}
-          </li>
-        ))}
-      </ul>
-      <Button className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase tracking-widest">
-        Assinar Anual
-      </Button>
-    </Card>
-  </div>
-
-  <Button onClick={() => navigate('/')} variant="ghost" className="z-10 mt-12 text-gray-500 hover:text-white flex items-center gap-2 uppercase text-[10px] font-black tracking-[0.2em]">
-    <ArrowLeft size={16} /> Voltar
-  </Button>
 </div>
 );
-} 
+}
