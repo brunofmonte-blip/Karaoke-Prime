@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ArrowLeft, Lock, Star } from 'lucide-react';
+import { LayoutDashboard, ArrowLeft, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Backstage() {
@@ -15,7 +15,7 @@ export default function Backstage() {
         <div className="h-24 w-24 rounded-full border-2 border-cyan-400/30 flex items-center justify-center mb-8 bg-black/50 backdrop-blur-md relative shadow-[0_0_30px_rgba(34,211,238,0.2)]">
           <LayoutDashboard className="h-10 w-10 text-cyan-400" />
           <div className="absolute -bottom-2 -right-2 h-8 w-8 bg-black border border-white/10 rounded-full flex items-center justify-center">
-            <Lock size={14} className="text-gray-500" />
+            <Clock size={14} className="text-cyan-400 animate-pulse" />
           </div>
         </div>
 
@@ -24,17 +24,15 @@ export default function Backstage() {
         </h1>
         
         <p className="text-gray-400 font-bold uppercase tracking-widest text-sm mb-10 leading-relaxed">
-          O painel de controle dos profissionais. Assine o plano Premium para liberar métricas avançadas, mapa de calor vocal e gestão de carreira.
+          A Gamificação focada em artistas profissionais está em desenvolvimento.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <Button onClick={() => navigate('/premium')} className="rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase tracking-widest px-8 h-14 text-xs shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2">
-            <Star size={16} /> Desbloquear Premium
-          </Button>
-          <Button onClick={() => navigate('/')} variant="outline" className="rounded-full border-white/20 text-white hover:bg-white hover:text-black font-black uppercase tracking-widest px-8 h-14 text-xs flex items-center gap-2">
-            <ArrowLeft size={16} /> Voltar para o Início
-          </Button>
-        </div>
+        <Button 
+          onClick={() => navigate('/')} 
+          className="rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase tracking-widest px-12 h-16 text-xs shadow-[0_0_20px_rgba(34,211,238,0.3)] flex items-center gap-2 transition-all hover:scale-105"
+        >
+          <ArrowLeft size={16} /> Voltar para o Início
+        </Button>
       </div>
     </div>
   );
