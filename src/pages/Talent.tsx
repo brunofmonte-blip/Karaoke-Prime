@@ -50,5 +50,5 @@ export default function Talent() {
 
       </div>
     </div>
-  );
+  ); 
 }
