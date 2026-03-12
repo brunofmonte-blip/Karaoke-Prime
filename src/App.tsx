@@ -50,7 +50,7 @@ const App = () => (
           
           {/* Rotas Dinâmicas (Precisam de um ID para funcionar) */}
           <Route path="/play/:id" element={<SongPlayer />} />
-          <Route path="/lesson/" element={<Lesson />} />
+          <Route path="/lesson/:id" element={<Lesson />} />
           <Route path="/karaoke/:id" element={<KaraokeRoom />} />
           <Route path="/duel" element={<Duel />} />
           <Route path="/duel-invite" element={<DuelInviteLobby />} />
