@@ -153,7 +153,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       audioRef.current = null;
     }
     
-    // GERAÇÃO BLINDADA DO SUMMARY E SCORE
     if (sessionStartTimeRef.current && currentSong) {
       const durationSeconds = Math.floor((Date.now() - sessionStartTimeRef.current) / 1000);
       let summary: SessionSummary;
@@ -172,7 +171,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         };
       } else {
         try {
-          // 🚨 FORÇAMOS O FALLBACK SE FOR YOUTUBE
           if (currentSong.artist === "YouTube") throw new Error("YouTube Mode Fallback");
           
           const insight = runScoringEngine(pitchHistory, currentSong);
@@ -183,28 +181,95 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
             isBreathing: false
           };
         } catch (error) {
-          // IA ADAPTATIVA: Avalia a presença vocal quando não há partitura
+          // ==========================================
+          // 🚨 ALGORITMO JULLIARD (AVALIAÇÃO DE TÉCNICA) 
+          // ==========================================
           const validPitches = pitchHistory.filter(p => p.frequency > 0);
-          const activityRatio = pitchHistory.length > 0 ? validPitches.length / pitchHistory.length : 0;
+          const totalSamples = pitchHistory.length;
+          const activeSamples = validPitches.length;
           
-          let calculatedScore = 50;
-          // Avaliação baseada no esforço e tempo cantado
-          if (activityRatio > 0.1) {
-             calculatedScore = Math.min(98.8, 70 + (activityRatio * 25) + (Math.random() * 4));
-          } else if (durationSeconds < 5) {
-             calculatedScore = 0; // Se não cantou nada
+          let calculatedScore = 0;
+          let rank = "D";
+          let tips: string[] = [];
+
+          if (totalSamples === 0 || activeSamples < 10) {
+            calculatedScore = 0;
+            tips = ["Não detectamos sua voz. O microfone estava perto o suficiente?"];
+          } else {
+            let stableFrames = 0;
+            let erraticJumps = 0;
+
+            // Analisa a transição entre as amostras de voz para detectar oscilação
+            for (let i = 1; i < validPitches.length; i++) {
+              const prevFreq = validPitches[i - 1].frequency;
+              const currFreq = validPitches[i].frequency;
+              
+              // Calcula a diferença em semitons reais
+              const semitones = Math.abs(12 * Math.log2(currFreq / prevFreq));
+
+              if (semitones <= 0.4) {
+                // Cantou firme ou com vibrato bem controlado
+                stableFrames++;
+              } else if (semitones > 0.4 && semitones < 2.5) {
+                // Escorregou na nota (falta de técnica/apoio diafragmático)
+                erraticJumps++;
+              }
+            }
+
+            const stabilityRatio = stableFrames / activeSamples;
+            const erraticRatio = erraticJumps / activeSamples;
+
+            // A pontuação base vem da estabilidade (teto de 85 para quem não tem técnica formal)
+            let baseScore = stabilityRatio * 85;
+
+            // Punição Severa: Escorregar na nota destrói a pontuação
+            baseScore -= (erraticRatio * 45);
+
+            // Fator Preguiça: Canta muito pouco = Punição. Canta a música toda = Bônus.
+            const activityRatio = activeSamples / totalSamples;
+            if (activityRatio < 0.15) {
+              baseScore *= 0.5; // Corta nota pela metade se cantou menos de 15% do tempo
+            } else if (activityRatio > 0.6) {
+              baseScore += 10; // Bônus por resistência vocal
+            }
+
+            // Normalização: Impede a nota de ser negativa ou passar de 99.8
+            calculatedScore = Math.max(12.5, Math.min(99.8, baseScore));
+
+            // Definição do Rank Julliard
+            if (calculatedScore >= 90) rank = "S";
+            else if (calculatedScore >= 80) rank = "A";
+            else if (calculatedScore >= 65) rank = "B";
+            else if (calculatedScore >= 50) rank = "C";
+            else rank = "D";
+
+            // Dicas Cirúrgicas Baseadas na Falha Real
+            if (rank === "S" || rank === "A") {
+              tips = [
+                "Afinação e sustentação profissionais.",
+                "Foque na interpretação emocional e respiração entre frases."
+              ];
+            } else if (rank === "B" || rank === "C") {
+              tips = [
+                "Notamos uma leve oscilação (Pitch Wobble) no final das frases.",
+                "Pratique o 'Pitch Calibration' no Sandbox para travar o tom."
+              ];
+            } else {
+              tips = [
+                "Sua voz está tremendo e escorregando entre as notas (falta de apoio).",
+                "Abaixe o volume do YouTube e foque em ouvir a própria voz.",
+                "Treine o 'Farinelli' para ganhar força diafragmática antes de voltar ao palco."
+              ];
+            }
           }
 
           summary = {
             pitchAccuracy: calculatedScore,
-            rhythmPrecision: calculatedScore * 0.95,
-            vocalStability: calculatedScore * 0.90,
+            rhythmPrecision: calculatedScore * 0.9,
+            vocalStability: calculatedScore * 0.85,
             totalScore: Math.round(calculatedScore * 100),
-            performanceRank: calculatedScore >= 90 ? "S" : (calculatedScore >= 80 ? "A" : "B"),
-            improvementTips: [
-              "Ótima presença e acompanhamento da batida do vídeo.",
-              "Para alcançar notas S, segure as vogais longas até o final do tempo."
-            ],
+            performanceRank: rank,
+            improvementTips: tips,
             durationSeconds: durationSeconds,
             songId: currentSong.id,
             isBreathing: false
@@ -248,12 +313,9 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
 
     const isBreathing = module === 'farinelli' || module === 'sovt' || module === 'panting' || module === 'alexander' || module === 'rhythm';
-    
-    // 🚨 LIMITE AUMENTADO PARA 600 SEGUNDOS (10 MINUTOS)
     const duration = isBreathing ? 9999 : 600; 
     setTotalDuration(duration);
 
-    // 🚨 RESPOSTA MAIS RÁPIDA: Countdown reduzido para 1 segundo
     setCountdown(1);
     
     countdownIntervalRef.current = window.setInterval(() => {
