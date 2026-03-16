@@ -11,9 +11,9 @@ import { Card } from '@/components/ui/card';
 
 // NOSSAS IMPORTAÇÕES DO MOTOR CORE E PROVIDER
 import { useVocalSandbox, VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
-import VocalEvolutionChart from '@/components/VocalEvolutionChart';
+import VocalEvolutionChart, { ChartDataItem } from '@/components/VocalEvolutionChart';
 
-// Renomeamos a função principal para Conteúdo Interno
+// Conteúdo Interno da Tela
 const BasicLobbyContent = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
@@ -29,7 +29,7 @@ const BasicLobbyContent = () => {
 
   const cameraRef = useRef<HTMLVideoElement>(null);
 
-  // CONSUMINDO O MOTOR (Agora protegido pelo Provider)
+  // CONSUMINDO O MOTOR DE IA
   const {
     isAnalyzing,
     startAnalysis,
@@ -40,7 +40,7 @@ const BasicLobbyContent = () => {
     clearSessionSummary
   } = useVocalSandbox();
 
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  const YOUTUBE_API_KEY = "XXXXXXXXXXXXXX";
 
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
@@ -102,6 +102,7 @@ const BasicLobbyContent = () => {
     setUserChallengeSent(user.id);
   };
 
+  // Função para iniciar o motor enviando dados mockados da música atual
   const handleStartEngine = () => {
     const mockSong: any = {
       id: activeVideo,
@@ -109,6 +110,7 @@ const BasicLobbyContent = () => {
       artist: "YouTube",
       lyrics: [] 
     };
+    // 🚨 Ativa o modo duelo se estiver em modo duelo, para que o motor gere o oponente fantasma
     startAnalysis(mockSong, playMode === 'duelo');
   };
 
@@ -123,7 +125,7 @@ const BasicLobbyContent = () => {
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* CAMADAS DE FUNDO */}
+      {/* CAMADAS DE FUNDO (Z-INDEX 0 a 20) */}
       <div className="absolute inset-0 bg-black z-0" />
       <img 
         src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=2000&q=80" 
@@ -132,9 +134,10 @@ const BasicLobbyContent = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black z-20" />
       
-      {/* CONTEÚDO PRINCIPAL */}
+      {/* CAMADA 4: O CONTEÚDO (O app em si, que fica no Z-Index 30) */}
       <div className="max-w-7xl mx-auto relative z-30 animate-in fade-in duration-700">
         
+        {/* Header do Lobby (Ocultado quando mostra resumo) */}
         {!sessionSummary && (
           <>
             <button onClick={() => { if(isAnalyzing) stopAnalysis(); navigate('/'); }} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
@@ -152,7 +155,7 @@ const BasicLobbyContent = () => {
           </>
         )}
 
-        {/* --- TELA DE RESUMO DE PERFORMANCE --- */}
+        {/* TELA DE RESUMO DE PERFORMANCE (JULLIARD COMPATÍVEL) */}
         {sessionSummary ? (
           <div className="flex-grow space-y-8 flex flex-col items-center justify-center p-8 text-center max-w-4xl mx-auto w-full bg-zinc-950/90 backdrop-blur-xl rounded-[3rem] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] animate-in zoom-in-95 duration-500">
             <Sparkles className="h-16 w-16 text-cyan-400 mb-2 animate-pulse" />
@@ -215,9 +218,10 @@ const BasicLobbyContent = () => {
 
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full mb-8">
               
+              {/* COLUNA 1: CÂMERA */}
               <div className="w-full lg:w-1/4 flex flex-col gap-3 order-2 lg:order-1">
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Você</h3>
-                <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-black rounded-[2rem] border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.2)] overflow-hidden">
+                <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-black rounded-[2rem] border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.2)] overflow-hidden shrink-0">
                   <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-md">
                     <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
                     <span className="text-[10px] font-black text-white uppercase tracking-widest">REC</span>
@@ -226,9 +230,11 @@ const BasicLobbyContent = () => {
                 </div>
               </div>
 
-              <div className={`${playMode === 'duelo' ? 'lg:w-2/4' : 'lg:w-3/4'} w-full flex flex-col gap-3 transition-all duration-500 order-1 lg:order-2`}>
+              {/* COLUNA 2: YOUTUBE + GRÁFICO DO MOTOR */}
+              <div className={`${playMode === 'duelo' ? 'lg:w-2/4' : 'lg:w-3/4'} w-full flex flex-col gap-3 transition-all duration-500 order-1 lg:order-2 flex-grow`}>
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Vídeo da Música</h3>
                 
+                {/* YOUTUBE */}
                 <div className="w-full aspect-video lg:h-[300px] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900 relative">
                   <iframe 
                     width="100%" height="100%" 
@@ -238,7 +244,8 @@ const BasicLobbyContent = () => {
                   ></iframe>
                 </div>
 
-                <div className="w-full h-32 lg:h-40 bg-zinc-950/80 backdrop-blur-md rounded-[1.5rem] border border-white/10 p-3 shadow-inner flex flex-col justify-center">
+                {/* NOSSO GRÁFICO CIRÚRGICO NEON (Layout Blindado contra Ocultação) */}
+                <div className="w-full h-32 lg:h-40 bg-zinc-950/80 backdrop-blur-md rounded-[1.5rem] border border-cyan-500/20 p-3 shadow-inner flex flex-col justify-center">
                    <VocalEvolutionChart 
                     title="Ondas Vocais" 
                     data={pitchHistory} 
@@ -247,6 +254,7 @@ const BasicLobbyContent = () => {
                   />
                 </div>
 
+                {/* CONTROLES DO MOTOR */}
                 <div className="flex justify-center items-center gap-4 mt-2">
                   {!isAnalyzing ? (
                     <Button onClick={handleStartEngine} className="h-12 px-8 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)]">
@@ -261,10 +269,11 @@ const BasicLobbyContent = () => {
 
               </div>
 
+              {/* COLUNA 3: OPONENTE (Apenas em Duelo) */}
               {playMode === 'duelo' && (
                 <div className="w-full lg:w-1/4 flex flex-col gap-3 order-3 animate-in fade-in slide-in-from-right-10 duration-500">
                   <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Oponente</h3>
-                  <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950/90 backdrop-blur-xl rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center">
+                  <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950/90 backdrop-blur-xl rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center shrink-0">
                     
                     <div className="relative w-full mb-6 group shrink-0">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -306,6 +315,7 @@ const BasicLobbyContent = () => {
               )}
             </div>
             
+            {/* BOTÃO VOLTAR (Só aparece se o motor não estiver gravando) */}
             {!isAnalyzing && (
               <div className="flex justify-center mt-4">
                 <Button onClick={handleClosePlayer} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs backdrop-blur-sm">
@@ -317,8 +327,9 @@ const BasicLobbyContent = () => {
 
         ) : (
           
-          /* --- SALA DE BUSCA INICIAL --- */
+          /* --- SALA DE BUSCA (ESTADO INICIAL) --- */
           <div className="animate-in slide-in-from-bottom-5">
+            {/* Form de Busca */}
             <form onSubmit={handleMusicSearch} className="relative mb-10 group max-w-3xl flex gap-2">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
@@ -373,7 +384,7 @@ const BasicLobbyContent = () => {
   );
 };
 
-// 🚨 A MÁGICA FINAL: EMBRULHAMOS A TELA NO PROVIDER PARA QUE O HOOK FUNCIONE!
+// 🚨 EMBRULHAMOS A TELA NO PROVIDER PARA QUE O HOOK FUNCIONE!
 const BasicLobby = () => {
   return (
     <VocalSandboxProvider>
