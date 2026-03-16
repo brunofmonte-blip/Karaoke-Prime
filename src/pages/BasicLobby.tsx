@@ -1,13 +1,22 @@
 // 🚨 ATENÇÃO: ESTE CÓDIGO DEVE FICAR EXCLUSIVAMENTE NO ARQUIVO src/pages/BasicLobby.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, Search, History, Loader2, Info } from 'lucide-react';
+import { 
+  ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, 
+  Search, History, Loader2, Info, Activity, Trophy, ShieldCheck, 
+  Sparkles, Star, Mic, StopCircle 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+
+// NOSSAS IMPORTAÇÕES DO MOTOR CORE
+import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+import VocalEvolutionChart from '@/components/VocalEvolutionChart';
 
 const BasicLobby = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [activeVideoTitle, setActiveVideoTitle] = useState<string>("Música");
   const [playMode, setPlayMode] = useState<'solo' | 'duelo'>('solo');
   
   const [musicSearchTerm, setMusicSearchTerm] = useState('');
@@ -19,7 +28,17 @@ const BasicLobby = () => {
 
   const cameraRef = useRef<HTMLVideoElement>(null);
 
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  // CONSUMINDO O MOTOR DE IA
+  const {
+    isAnalyzing,
+    startAnalysis,
+    stopAnalysis,
+    pitchHistory,
+    sessionSummary,
+    clearSessionSummary
+  } = useVocalSandbox();
+
+  const YOUTUBE_API_KEY = "XXXXXXXXXXXXXX";
 
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
@@ -43,18 +62,18 @@ const BasicLobby = () => {
 
   useEffect(() => {
     let stream: MediaStream | null = null;
-    if (activeVideo) {
+    if (activeVideo && !sessionSummary) {
       navigator.mediaDevices.getUserMedia({ video: true, audio: false })
         .then((mediaStream) => { stream = mediaStream; if (cameraRef.current) cameraRef.current.srcObject = mediaStream; })
         .catch(err => console.error("Sem permissão de câmera:", err));
     }
     return () => { if (stream) stream.getTracks().forEach(track => track.stop()); };
-  }, [activeVideo]);
+  }, [activeVideo, sessionSummary]);
 
   const handleMusicSearch = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!musicSearchTerm.trim()) { setMusicSearchResults([]); return; }
-    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha 21!"); return; }
+    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha correspondente!"); return; }
     setIsSearchingMusic(true);
     try {
       const query = encodeURIComponent(`${musicSearchTerm} karaoke`);
@@ -70,9 +89,10 @@ const BasicLobby = () => {
     } catch (error) { console.error("Erro na busca:", error); } finally { setIsSearchingMusic(false); }
   };
 
-  const handlePlay = (youtubeId: string, mode: 'solo' | 'duelo') => {
+  const handlePlay = (youtubeId: string, title: string, mode: 'solo' | 'duelo') => {
     setPlayMode(mode);
     setActiveVideo(youtubeId);
+    setActiveVideoTitle(title);
   };
 
   const handleChallenge = (user: any) => {
@@ -80,44 +100,114 @@ const BasicLobby = () => {
     setUserChallengeSent(user.id);
   };
 
+  // Função para iniciar o motor enviando dados mockados da música atual
+  const handleStartEngine = () => {
+    const mockSong: any = {
+      id: activeVideo,
+      title: activeVideoTitle,
+      artist: "YouTube",
+      lyrics: [] 
+    };
+    startAnalysis(mockSong, playMode === 'duelo');
+  };
+
+  const handleClosePlayer = () => {
+    if (isAnalyzing) stopAnalysis();
+    clearSessionSummary();
+    setActiveVideo(null);
+  };
+
   const displaySongs = musicSearchResults.length > 0 ? musicSearchResults : recentSearches;
 
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* 💡 A MÁGICA DA IMAGEM ESTÁ AQUI (Organizada em 3 camadas de Z-Index) */}
-      
-      {/* CAMADA 1: Fundo preto sólido para evitar falhas */}
+      {/* CAMADA 1: Fundo preto sólido */}
       <div className="absolute inset-0 bg-black z-0" />
       
-      {/* CAMADA 2: A foto do Microfone (agora com opacidade maior para aparecer bem) */}
+      {/* CAMADA 2: A foto do Microfone */}
       <img 
         src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=2000&q=80" 
         alt="Microfone no Palco" 
         className="absolute inset-0 w-full h-full object-cover opacity-50 z-10" 
       />
       
-      {/* CAMADA 3: O véu escuro que desce do meio para baixo, para dar leitura ao texto */}
+      {/* CAMADA 3: O véu escuro */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black z-20" />
       
-      {/* ========================================================= */}
-      
-      {/* CAMADA 4: O CONTEÚDO (O app em si, que fica no Z-Index 30) */}
+      {/* CAMADA 4: O CONTEÚDO */}
       <div className="max-w-7xl mx-auto relative z-30 animate-in fade-in duration-700">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
-          <ArrowLeft size={16} /> Voltar para o Início
-        </button>
+        
+        {/* Header do Lobby */}
+        {!sessionSummary && (
+          <>
+            <button onClick={() => { if(isAnalyzing) stopAnalysis(); navigate('/'); }} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
+              <ArrowLeft size={16} /> Voltar para o Início
+            </button>
 
-        <div className="mb-12 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20 backdrop-blur-md">
-            <Music size={14} /> Palco Principal
+            <div className="mb-12 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs mb-3 bg-primary/10 px-3 py-1 rounded-full border border-primary/20 backdrop-blur-md">
+                <Music size={14} /> Palco Principal
+              </div>
+              <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] leading-tight mb-4">
+                Basic <span className="text-primary neon-blue-glow">Lobby</span>
+              </h1>
+            </div>
+          </>
+        )}
+
+        {/* TELA DE RESUMO DE PERFORMANCE */}
+        {sessionSummary ? (
+          <div className="flex-grow space-y-8 flex flex-col items-center justify-center p-8 text-center max-w-4xl mx-auto w-full bg-zinc-950/90 backdrop-blur-xl rounded-[3rem] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] animate-in zoom-in-95 duration-500">
+            <Sparkles className="h-16 w-16 text-cyan-400 mb-2 animate-pulse" />
+            <h2 className="text-5xl font-black text-white italic uppercase tracking-tighter">Performance Concluída!</h2>
+            <p className="text-lg text-gray-400 font-bold tracking-widest uppercase">Confira seus números cirúrgicos na música {activeVideoTitle}</p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full pt-8">
+              <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
+                <Star className="h-6 w-6 text-cyan-400 mb-2" />
+                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Precisão da Voz</span>
+                <span className="text-4xl font-mono font-black text-cyan-400">{sessionSummary.pitchAccuracy.toFixed(1)}<span className="text-2xl">%</span></span>
+              </div>
+              <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
+                <ShieldCheck className="h-6 w-6 text-cyan-400 mb-2" />
+                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Pontuação Total</span>
+                <span className="text-4xl font-mono font-black text-white">{sessionSummary.totalScore}</span>
+              </div>
+               <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
+                <Trophy className="h-6 w-6 text-cyan-400 mb-2" />
+                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Rank</span>
+                <span className="text-4xl font-mono font-black text-white">#{sessionSummary.performanceRank}</span>
+              </div>
+               <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
+                <Activity className="h-6 w-6 text-cyan-400 mb-2" />
+                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Duração</span>
+                <span className="text-4xl font-mono font-black text-white">{sessionSummary.durationSeconds}<span className="text-2xl">s</span></span>
+              </div>
+            </div>
+
+            <div className="w-full pt-6 text-left space-y-3 bg-black/40 p-6 rounded-2xl border border-white/5 mt-4">
+              <h4 className="text-lg font-black text-white uppercase tracking-widest flex items-center"><Activity className="h-5 w-5 text-cyan-400 mr-2" /> Dicas de IA para Melhoria</h4>
+              {sessionSummary.improvementTips.length > 0 ? (
+                  <ul className="list-disc list-inside space-y-2 text-gray-300 font-medium">
+                      {sessionSummary.improvementTips.map((tip, idx) => (
+                          <li key={idx} className="text-sm">{tip}</li>
+                      ))}
+                  </ul>
+              ) : (
+                  <p className="text-gray-500 text-sm italic pt-1">Nenhuma dica gerada. Continue treinando!</p>
+              )}
+            </div>
+
+            <div className="pt-8">
+              <Button size="lg" onClick={handleClosePlayer} className="h-14 px-12 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(34,211,238,0.4)]">
+                Cantar Outra Música
+              </Button>
+            </div>
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter uppercase drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)] leading-tight mb-4">
-            Basic <span className="text-primary neon-blue-glow">Lobby</span>
-          </h1>
-        </div>
-
-        {activeVideo ? (
+        ) : activeVideo ? (
+          
+          /* SALA DE KARAOKÊ COM VÍDEO E MOTOR DE ÁUDIO */
           <div className="animate-in zoom-in-95 duration-500 mb-12">
             
             <div className="mb-6 flex justify-center items-center gap-3">
@@ -129,6 +219,7 @@ const BasicLobby = () => {
 
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full mb-8">
               
+              {/* COLUNA 1: CÂMERA */}
               <div className="w-full lg:w-1/4 flex flex-col gap-3 order-2 lg:order-1">
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Você</h3>
                 <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-black rounded-[2rem] border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.2)] overflow-hidden">
@@ -140,9 +231,12 @@ const BasicLobby = () => {
                 </div>
               </div>
 
+              {/* COLUNA 2: YOUTUBE + GRÁFICO DO MOTOR */}
               <div className={`${playMode === 'duelo' ? 'lg:w-2/4' : 'lg:w-3/4'} w-full flex flex-col gap-3 transition-all duration-500 order-1 lg:order-2`}>
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Vídeo da Música</h3>
-                <div className="w-full aspect-video lg:h-[450px] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900 relative">
+                
+                {/* YOUTUBE */}
+                <div className="w-full aspect-video lg:h-[300px] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900 relative">
                   <iframe 
                     width="100%" height="100%" 
                     src={`https://www.youtube.com/embed/${activeVideo}?autoplay=1&rel=0&modestbranding=1`} 
@@ -150,11 +244,35 @@ const BasicLobby = () => {
                     className="w-full h-full object-cover"
                   ></iframe>
                 </div>
+
+                {/* NOSSO GRÁFICO CIRÚRGICO */}
+                <div className="w-full h-32 lg:h-40 bg-zinc-950/80 backdrop-blur-md rounded-[1.5rem] border border-white/10 p-3 shadow-inner flex flex-col justify-center">
+                   <VocalEvolutionChart 
+                    title="Ondas Vocais" 
+                    data={pitchHistory} 
+                    height={100}
+                  />
+                </div>
+
+                {/* CONTROLES DO MOTOR */}
+                <div className="flex justify-center items-center gap-4 mt-2">
+                  {!isAnalyzing ? (
+                    <Button onClick={handleStartEngine} className="h-12 px-8 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                      <Mic className="mr-2 h-4 w-4" /> Iniciar Captação
+                    </Button>
+                  ) : (
+                    <Button onClick={stopAnalysis} variant="destructive" className="h-12 px-8 rounded-full bg-red-500 hover:bg-red-400 text-white font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse">
+                      <StopCircle className="mr-2 h-4 w-4" /> Finalizar e Ver Nota
+                    </Button>
+                  )}
+                </div>
+
               </div>
 
+              {/* COLUNA 3: OPONENTE (Apenas em Duelo) */}
               {playMode === 'duelo' && (
                 <div className="w-full lg:w-1/4 flex flex-col gap-3 order-3 animate-in fade-in slide-in-from-right-10 duration-500">
-                  <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Oponente (Batalha/Dueto)</h3>
+                  <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Oponente</h3>
                   <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950/90 backdrop-blur-xl rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center">
                     
                     <div className="relative w-full mb-6 group shrink-0">
@@ -197,15 +315,19 @@ const BasicLobby = () => {
               )}
             </div>
             
-            <div className="flex justify-center mt-8">
-              <Button onClick={() => setActiveVideo(null)} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs backdrop-blur-sm">
-                <ArrowLeft size={16} className="mr-2" /> Escolher Outra Música
-              </Button>
-            </div>
+            {/* BOTÃO VOLTAR (Só aparece se o motor não estiver gravando) */}
+            {!isAnalyzing && (
+              <div className="flex justify-center mt-4">
+                <Button onClick={handleClosePlayer} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs backdrop-blur-sm">
+                  <ArrowLeft size={16} className="mr-2" /> Escolher Outra Música
+                </Button>
+              </div>
+            )}
           </div>
 
         ) : (
-
+          
+          /* SALA DE BUSCA (ESTADO INICIAL) */
           <div className="animate-in slide-in-from-bottom-5">
             <form onSubmit={handleMusicSearch} className="relative mb-10 group max-w-3xl flex gap-2">
               <div className="relative flex-1">
@@ -243,10 +365,10 @@ const BasicLobby = () => {
                   <p className="text-gray-300 font-bold uppercase tracking-widest text-[10px] mb-6 line-clamp-1">{song.artist}</p>
                   
                   <div className="w-full flex flex-col gap-2 mt-auto">
-                    <Button onClick={() => handlePlay(song.youtubeId, 'solo')} className="w-full h-12 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest text-xs transition-all">
+                    <Button onClick={() => handlePlay(song.youtubeId, song.title, 'solo')} className="w-full h-12 rounded-full bg-white hover:bg-primary text-black font-black uppercase tracking-widest text-xs transition-all">
                       CANTAR SOLO <PlayCircle className="ml-2 h-4 w-4" />
                     </Button>
-                    <Button onClick={() => handlePlay(song.youtubeId, 'duelo')} variant="outline" className="w-full h-10 rounded-full border-white/10 text-gray-300 hover:text-white hover:border-white/30 hover:bg-white/5 font-bold uppercase tracking-widest text-[10px] transition-all">
+                    <Button onClick={() => handlePlay(song.youtubeId, song.title, 'duelo')} variant="outline" className="w-full h-10 rounded-full border-white/10 text-gray-300 hover:text-white hover:border-white/30 hover:bg-white/5 font-bold uppercase tracking-widest text-[10px] transition-all">
                       DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
                     </Button>
                   </div>
