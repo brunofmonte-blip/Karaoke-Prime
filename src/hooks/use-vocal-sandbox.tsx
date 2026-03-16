@@ -80,6 +80,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [pitchHistory, setPitchHistory] = useState<ChartDataItem[]>([]);
   const [ghostTrace, setGhostTrace] = useState<ChartDataItem[]>([]);
+  const [isDuelActive, setIsDuelActive] = useState(false); // 🚨 NOVO: Controle de Arena
   const [isPitchStable, setIsPitchStable] = useState(false);
   const [isPitchDeviating, setIsPitchDeviating] = useState(false);
   const [recentAchievements, setRecentAchievements] = useState<string[]>([]);
@@ -132,6 +133,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setActiveSubModule('none');
     setActiveExerciseTitle('');
     setActiveExerciseId('');
+    setIsDuelActive(false); // Desliga a arena fantasma
 
     if (stabilityToastRef.current) {
       toast.dismiss(stabilityToastRef.current);
@@ -181,9 +183,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
             isBreathing: false
           };
         } catch (error) {
-          // ==========================================
-          // 🚨 ALGORITMO JULLIARD (AVALIAÇÃO DE TÉCNICA) 
-          // ==========================================
+          // AVALIAÇÃO DE TÉCNICA JULLIARD MANTIDA
           const validPitches = pitchHistory.filter(p => p.frequency > 0);
           const totalSamples = pitchHistory.length;
           const activeSamples = validPitches.length;
@@ -199,19 +199,14 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
             let stableFrames = 0;
             let erraticJumps = 0;
 
-            // Analisa a transição entre as amostras de voz para detectar oscilação
             for (let i = 1; i < validPitches.length; i++) {
               const prevFreq = validPitches[i - 1].frequency;
               const currFreq = validPitches[i].frequency;
-              
-              // Calcula a diferença em semitons reais
               const semitones = Math.abs(12 * Math.log2(currFreq / prevFreq));
 
               if (semitones <= 0.4) {
-                // Cantou firme ou com vibrato bem controlado
                 stableFrames++;
               } else if (semitones > 0.4 && semitones < 2.5) {
-                // Escorregou na nota (falta de técnica/apoio diafragmático)
                 erraticJumps++;
               }
             }
@@ -219,31 +214,24 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
             const stabilityRatio = stableFrames / activeSamples;
             const erraticRatio = erraticJumps / activeSamples;
 
-            // A pontuação base vem da estabilidade (teto de 85 para quem não tem técnica formal)
             let baseScore = stabilityRatio * 85;
-
-            // Punição Severa: Escorregar na nota destrói a pontuação
             baseScore -= (erraticRatio * 45);
 
-            // Fator Preguiça: Canta muito pouco = Punição. Canta a música toda = Bônus.
             const activityRatio = activeSamples / totalSamples;
             if (activityRatio < 0.15) {
-              baseScore *= 0.5; // Corta nota pela metade se cantou menos de 15% do tempo
+              baseScore *= 0.5; 
             } else if (activityRatio > 0.6) {
-              baseScore += 10; // Bônus por resistência vocal
+              baseScore += 10; 
             }
 
-            // Normalização: Impede a nota de ser negativa ou passar de 99.8
             calculatedScore = Math.max(12.5, Math.min(99.8, baseScore));
 
-            // Definição do Rank Julliard
             if (calculatedScore >= 90) rank = "S";
             else if (calculatedScore >= 80) rank = "A";
             else if (calculatedScore >= 65) rank = "B";
             else if (calculatedScore >= 50) rank = "C";
             else rank = "D";
 
-            // Dicas Cirúrgicas Baseadas na Falha Real
             if (rank === "S" || rank === "A") {
               tips = [
                 "Afinação e sustentação profissionais.",
@@ -296,7 +284,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setActiveExerciseId(exerciseId);
     await mockDownloadSong(song); 
 
+    // 🚨 RESETANDO A ARENA
+    setIsDuelActive(isDuelMode);
     setPitchHistory([]);
+    setGhostTrace([]);
     setRecentAchievements([]);
     setSessionSummary(null);
     setUnlockedBadges([]); 
@@ -354,8 +345,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       lastHistoryUpdateRef.current = now;
 
       historyCounter.current += 1;
+      const timeLabel = `T${historyCounter.current}`;
+
       const newPoint: ChartDataItem = {
-        name: `T${historyCounter.current}`,
+        name: timeLabel,
         pitch: pitchDataVisualization,
         frequency: pitchDataHz,
         breath: 50,
@@ -363,7 +356,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
       
       setPitchHistory(prevHistory => {
         const newHistory = [...prevHistory, newPoint];
-        
         if (newHistory.length >= STABILITY_WINDOW) {
           const recentPitches = newHistory.slice(-STABILITY_WINDOW).map(p => p.pitch);
           const variance = Math.max(...recentPitches) - Math.min(...recentPitches);
@@ -373,8 +365,32 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
         }
         return newHistory;
       });
+
+      // 🚨 ALGORITMO FANTASMA INJETADO (MODO DUELO)
+      if (isDuelActive) {
+        const timeInSec = (now - (sessionStartTimeRef.current || now)) / 1000;
+        
+        // Simulação realista: Ondas combinadas criando uma melodia falsa, mas fluída
+        let basePitch = 45 + Math.sin(timeInSec * 1.8) * 20 + Math.cos(timeInSec * 0.4) * 15;
+        basePitch += (Math.random() * 4 - 2); // Leve imperfeição (vibrato humano)
+        
+        const finalGhostPitch = Math.max(10, Math.min(90, basePitch));
+
+        const ghostPoint: ChartDataItem = {
+          name: timeLabel,
+          pitch: finalGhostPitch,
+          frequency: 200 + finalGhostPitch * 4, // Frequência fictícia
+          breath: 50
+        };
+
+        setGhostTrace(prev => {
+          // Mantém a performance do gráfico não acumulando milhares de pontos inúteis
+          const newTrace = [...prev, ghostPoint];
+          return newTrace;
+        });
+      }
     }
-  }, [pitchDataVisualization, pitchDataHz, isAnalyzing]);
+  }, [pitchDataVisualization, pitchDataHz, isAnalyzing, isDuelActive]);
 
   return (
     <VocalSandboxContext.Provider 
