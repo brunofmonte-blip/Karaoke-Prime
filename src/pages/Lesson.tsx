@@ -1,14 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Mic2, ListVideo, CheckCircle2, Lock, Wind, Coffee, Volume2, Activity, Star, Video, Info } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Mic2, ListVideo, CheckCircle2, Lock, Wind, Coffee, Volume2, Activity, Star, Video, Info, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
+// Tipo para estruturar as lições
+type LessonType = {
+  id: number;
+  displayTitle: string;
+  title: string;
+  youtubeId: string;
+  hasPractice: boolean;
+  locked: boolean;
+  exercise?: string;
+  practiceDesc?: string;
+  feedbackTitle?: string;
+  feedbackDesc?: string;
+  frequency?: string;
+};
+
 export default function Lesson() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); // Pega o ID da URL (ex: "1" ou "2")
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Controle de Usuário
@@ -31,89 +46,107 @@ export default function Lesson() {
   // VIP ACCESS: Verifica se o e-mail é o do desenvolvedor/dono
   const isPremiumUser = user?.email === 'bruno.fmonte@gmail.com';
 
-  const moduleContent = {
-    level: "Nível 1",
-    moduleName: "Fundamentos e Respiração",
-    lessons: [
-      { 
-        id: 0, displayTitle: "Introdução", title: "Fundamentos", youtubeId: "m75jPge9QUM", hasPractice: false, locked: false 
-      },
-      { 
-        id: 1, displayTitle: "Aula 1", title: "Respiração Diafragmática", youtubeId: "Wl6xUHg9iAQ", hasPractice: true, locked: false,
-        exercise: "Ciclo 4-4-10-4", practiceDesc: "Inspira (4s), Segura (4s), Expira (10s) e Descansa (4s).",
-        feedbackTitle: "A Base da Resistência Vocal",
-        feedbackDesc: "Sem ar, não há som. O controle do diafragma tira a sobrecarga da sua garganta e dá potência natural à voz.",
-        frequency: "3x ao dia (Manhã, tarde e antes de cantar)"
-      },
-      { 
-        id: 2, displayTitle: "Aula 2", title: "Controle de Fluxo de Ar", youtubeId: "fQKI_SFrrOo", hasPractice: true, locked: false,
-        exercise: "Emissão de 'S'", practiceDesc: "Mantenha o som de 'S' constante e longo para economizar ar.",
-        feedbackTitle: "Economia e Pressão",
-        feedbackDesc: "Este exercício ensina suas pregas vocais a resistirem à pressão do ar, permitindo cantar frases muito mais longas sem perder o fôlego.",
-        frequency: "2x ao dia (Até conseguir passar de 45 segundos ininterruptos)"
-      },
-      { 
-        id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", hasPractice: true, locked: true,
-        exercise: "Sustentação de Nota Única", 
-        // 👇 AQUI ESTÁ A CORREÇÃO SOLICITADA DA AULA 3
-        practiceDesc: "Mantenha uma nota (escolha uma nota: Dó, Ré, Mi, Fá, Sol, Lá ou Si) confortável em volume médio sem oscilar.",
-        feedbackTitle: "Estabilidade Tonal",
-        feedbackDesc: "Cantar notas longas sem tremer a voz demonstra domínio técnico e controle absoluto do diafragma acoplado à voz.",
-        frequency: "Sempre como primeiro aquecimento antes de cantar"
-      },
-      { 
-        id: 4, displayTitle: "Aula 4", title: "Aquecimento Labial", youtubeId: "3nL733b7rgQ", hasPractice: true, locked: true,
-        exercise: "Lip Trill (Vibração de Lábios)", practiceDesc: "Faça a vibração dos lábios continuamente com o som de 'Brrr'.",
-        feedbackTitle: "O Melhor Amigo do Cantor",
-        feedbackDesc: "O Lip Trill massageia as cordas vocais, equilibra a pressão do ar e aquece a musculatura sem causar nenhum atrito. É a proteção definitiva.",
-        frequency: "Sempre que for cantar ou quando sentir a voz cansada"
-      },
-      { 
-        id: 5, displayTitle: "Aula 5", title: "Soltando a Língua", youtubeId: "vImzV9TdLdo", hasPractice: true, locked: true,
-        exercise: "Trinado de Língua", practiceDesc: "Vibração de língua contínua e relaxada (som de 'Rrrr').",
-        feedbackTitle: "Relaxamento Articulatório",
-        feedbackDesc: "A tensão na raiz da língua é uma das maiores causas de 'quebra' de voz. Esse exercício solta a musculatura interna do pescoço.",
-        frequency: "1x ao dia ou antes de cantar músicas muito rápidas"
-      },
-      { 
-        id: 6, displayTitle: "Aula 6", title: "Sirene Vocal", youtubeId: "ZsvFS4u2P8I", hasPractice: true, locked: true,
-        exercise: "Sirene do Grave ao Agudo", practiceDesc: "Deslize a voz imitando uma sirene, passando por todas as notas sem quebrar.",
-        feedbackTitle: "Conexão de Registros",
-        feedbackDesc: "A sirene apaga a 'linha' que divide a voz de peito e a voz de cabeça, criando uma passagem suave (o famoso mix).",
-        frequency: "2x ao dia focando em não mudar o volume durante a subida"
-      },
-      { 
-        id: 7, displayTitle: "Aula 7", title: "Articulação Exagerada", youtubeId: "PW3Oj_uagpI", hasPractice: true, locked: true,
-        exercise: "Leitura Hiperarticulada", practiceDesc: "Fale ou cante abrindo bastante a boca em cada vogal.",
-        feedbackTitle: "Dicção de Palco",
-        feedbackDesc: "Abre espaço interno na boca, permitindo que a ressonância natural do crânio amplifique sua voz sem precisar gritar.",
-        frequency: "Sempre antes de cantar em outro idioma ou músicas complexas"
-      },
-      { 
-        id: 8, displayTitle: "Aula 8", title: "Ataque Suave", youtubeId: "KqVkz8jdcpc", hasPractice: true, locked: true,
-        exercise: "Início com Sopros (Aga-Amor)", practiceDesc: "Inicie as frases com um leve sopro antes de emitir a nota.",
-        feedbackTitle: "Fim da Borda de Glote",
-        feedbackDesc: "O golpe de glote (começar a cantar com um 'soco' na garganta) cria nódulos. O ataque suave é a cura para pregas vocais cansadas.",
-        frequency: "3x ao dia para reeducar a maneira de começar a falar/cantar"
-      },
-      { 
-        id: 9, displayTitle: "Aula 9", title: "Ressonância Básica", youtubeId: "dHVMUp4MRD8", hasPractice: true, locked: true,
-        exercise: "Humming (Boca Fechada)", practiceDesc: "Faça o som de 'Hummm' sentindo a vibração nos lábios e nariz.",
-        feedbackTitle: "Colocação na Máscara",
-        feedbackDesc: "Traz o som da garganta para o rosto. Isso dá brilho profissional à voz e permite alcançar agudos com extrema facilidade.",
-        frequency: "2x ao dia, buscando o máximo de vibração no nariz"
-      },
-      { 
-        id: 10, displayTitle: "Aula 10", title: "Prática Geral", youtubeId: "qpQuTYKLC-U", hasPractice: true, locked: true,
-        exercise: "Rotina Completa Nível 1", practiceDesc: "Passagem por todos os exercícios focando em precisão.",
-        feedbackTitle: "Consolidação Muscular",
-        feedbackDesc: "O canto é memória muscular. A repetição correta substitui antigos vícios por técnicas que vão preservar sua voz por décadas.",
-        frequency: "Treino diário oficial de aquecimento"
-      }
-    ]
+  // BANCO DE DADOS DINÂMICO DOS MÓDULOS
+  const modulesData: Record<string, { level: string, moduleName: string, lessons: LessonType[] }> = {
+    "1": {
+      level: "Nível 1",
+      moduleName: "Fundamentos e Respiração",
+      lessons: [
+        { id: 0, displayTitle: "Introdução", title: "Fundamentos", youtubeId: "m75jPge9QUM", hasPractice: false, locked: false },
+        { id: 1, displayTitle: "Aula 1", title: "Respiração Diafragmática", youtubeId: "Wl6xUHg9iAQ", hasPractice: true, locked: false,
+          exercise: "Ciclo 4-4-10-4", practiceDesc: "Inspira (4s), Segura (4s), Expira (10s) e Descansa (4s).",
+          feedbackTitle: "A Base da Resistência Vocal",
+          feedbackDesc: "Sem ar, não há som. O controle do diafragma tira a sobrecarga da sua garganta e dá potência natural à voz.",
+          frequency: "3x ao dia (Manhã, tarde e antes de cantar)" },
+        { id: 2, displayTitle: "Aula 2", title: "Controle de Fluxo de Ar", youtubeId: "fQKI_SFrrOo", hasPractice: true, locked: false,
+          exercise: "Emissão de 'S'", practiceDesc: "Mantenha o som de 'S' constante e longo para economizar ar.",
+          feedbackTitle: "Economia e Pressão",
+          feedbackDesc: "Este exercício ensina suas pregas vocais a resistirem à pressão do ar, permitindo cantar frases muito mais longas sem perder o fôlego.",
+          frequency: "2x ao dia (Até conseguir passar de 45 segundos ininterruptos)" },
+        { id: 3, displayTitle: "Aula 3", title: "Sustentação Vocal", youtubeId: "X65IOyha6EQ", hasPractice: true, locked: true,
+          exercise: "Sustentação de Nota Única", practiceDesc: "Mantenha uma nota (escolha uma nota: Dó, Ré, Mi, Fá, Sol, Lá ou Si) confortável em volume médio sem oscilar.",
+          feedbackTitle: "Estabilidade Tonal",
+          feedbackDesc: "Cantar notas longas sem tremer a voz demonstra domínio técnico e controle absoluto do diafragma acoplado à voz.",
+          frequency: "Sempre como primeiro aquecimento antes de cantar" },
+        { id: 4, displayTitle: "Aula 4", title: "Aquecimento Labial", youtubeId: "3nL733b7rgQ", hasPractice: true, locked: true,
+          exercise: "Lip Trill (Vibração de Lábios)", practiceDesc: "Faça a vibração dos lábios continuamente com o som de 'Brrr'.",
+          feedbackTitle: "O Melhor Amigo do Cantor",
+          feedbackDesc: "O Lip Trill massageia as cordas vocais, equilibra a pressão do ar e aquece a musculatura sem causar nenhum atrito. É a proteção definitiva.",
+          frequency: "Sempre que for cantar ou quando sentir a voz cansada" },
+        { id: 5, displayTitle: "Aula 5", title: "Soltando a Língua", youtubeId: "vImzV9TdLdo", hasPractice: true, locked: true,
+          exercise: "Trinado de Língua", practiceDesc: "Vibração de língua contínua e relaxada (som de 'Rrrr').",
+          feedbackTitle: "Relaxamento Articulatório",
+          feedbackDesc: "A tensão na raiz da língua é uma das maiores causas de 'quebra' de voz. Esse exercício solta a musculatura interna do pescoço.",
+          frequency: "1x ao dia ou antes de cantar músicas muito rápidas" },
+        { id: 6, displayTitle: "Aula 6", title: "Sirene Vocal", youtubeId: "ZsvFS4u2P8I", hasPractice: true, locked: true,
+          exercise: "Sirene do Grave ao Agudo", practiceDesc: "Deslize a voz imitando uma sirene, passando por todas as notas sem quebrar.",
+          feedbackTitle: "Conexão de Registros",
+          feedbackDesc: "A sirene apaga a 'linha' que divide a voz de peito e a voz de cabeça, criando uma passagem suave (o famoso mix).",
+          frequency: "2x ao dia focando em não mudar o volume durante a subida" },
+        { id: 7, displayTitle: "Aula 7", title: "Articulação Exagerada", youtubeId: "PW3Oj_uagpI", hasPractice: true, locked: true,
+          exercise: "Leitura Hiperarticulada", practiceDesc: "Fale ou cante abrindo bastante a boca em cada vogal.",
+          feedbackTitle: "Dicção de Palco",
+          feedbackDesc: "Abre espaço interno na boca, permitindo que a ressonância natural do crânio amplifique sua voz sem precisar gritar.",
+          frequency: "Sempre antes de cantar em outro idioma ou músicas complexas" },
+        { id: 8, displayTitle: "Aula 8", title: "Ataque Suave", youtubeId: "KqVkz8jdcpc", hasPractice: true, locked: true,
+          exercise: "Início com Sopros (Aga-Amor)", practiceDesc: "Inicie as frases com um leve sopro antes de emitir a nota.",
+          feedbackTitle: "Fim da Borda de Glote",
+          feedbackDesc: "O golpe de glote (começar a cantar com um 'soco' na garganta) cria nódulos. O ataque suave é a cura para pregas vocais cansadas.",
+          frequency: "3x ao dia para reeducar a maneira de começar a falar/cantar" },
+        { id: 9, displayTitle: "Aula 9", title: "Ressonância Básica", youtubeId: "dHVMUp4MRD8", hasPractice: true, locked: true,
+          exercise: "Humming (Boca Fechada)", practiceDesc: "Faça o som de 'Hummm' sentindo a vibração nos lábios e nariz.",
+          feedbackTitle: "Colocação na Máscara",
+          feedbackDesc: "Traz o som da garganta para o rosto. Isso dá brilho profissional à voz e permite alcançar agudos com extrema facilidade.",
+          frequency: "2x ao dia, buscando o máximo de vibração no nariz" },
+        { id: 10, displayTitle: "Aula 10", title: "Prática Geral", youtubeId: "qpQuTYKLC-U", hasPractice: true, locked: true,
+          exercise: "Rotina Completa Nível 1", practiceDesc: "Passagem por todos os exercícios focando em precisão.",
+          feedbackTitle: "Consolidação Muscular",
+          feedbackDesc: "O canto é memória muscular. A repetição correta substitui antigos vícios por técnicas que vão preservar sua voz por décadas.",
+          frequency: "Treino diário oficial de aquecimento" }
+      ]
+    },
+    "2": {
+      level: "Nível 2",
+      moduleName: "Afinação Precisa",
+      lessons: [
+        { id: 0, displayTitle: "Introdução", title: "Fundamentos da Afinação", youtubeId: "8bR5O0hEMYU", hasPractice: false, locked: false },
+        { id: 1, displayTitle: "Aula 1", title: "Percepção Auditiva", youtubeId: "TTVVJTnentM", hasPractice: true, locked: false,
+          exercise: "Escuta Ativa", practiceDesc: "Ouça a nota e tente reproduzi-la mentalmente antes de cantar.",
+          feedbackTitle: "Treinando o Ouvido Interno", feedbackDesc: "A afinação começa na mente. Ouvir com clareza é 50% do trabalho.", frequency: "2x ao dia" },
+        { id: 2, displayTitle: "Aula 2", title: "Intervalos Básicos", youtubeId: "uIgaE7Ekh1k", hasPractice: true, locked: true,
+          exercise: "Saltos de Terça", practiceDesc: "Cante Dó - Mi - Dó repetidamente.",
+          feedbackTitle: "Precisão de Saltos", feedbackDesc: "Cria memória muscular para transições comuns na música Pop.", frequency: "3x ao dia" },
+        { id: 3, displayTitle: "Aula 3", title: "Escala Maior", youtubeId: "fsIczoqU89M", hasPractice: true, locked: true,
+          exercise: "Subida e Descida 1 a 8", practiceDesc: "Cante do Dó1 ao Dó2 e desça lentamente.",
+          feedbackTitle: "Mapa Tonal", feedbackDesc: "A escala maior é o mapa que impede você de se perder durante a música.", frequency: "Como aquecimento" },
+        { id: 4, displayTitle: "Aula 4", title: "Escala Menor", youtubeId: "Ld6XC8dlNlA", hasPractice: true, locked: true,
+          exercise: "Padrão Menor", practiceDesc: "Adaptação da audição para tons dramáticos e tristes.",
+          feedbackTitle: "Versatilidade Emocional", feedbackDesc: "Essencial para R&B e Rock.", frequency: "Sempre que praticar a escala maior" },
+        { id: 5, displayTitle: "Aula 5", title: "Arpejos Vocais", youtubeId: "JRqTqIRCoWo", hasPractice: true, locked: true,
+          exercise: "Saltos 1-3-5-8", practiceDesc: "Cante as notas chave do acorde.",
+          feedbackTitle: "Cravar as Notas", feedbackDesc: "Melhora a exatidão ao cantar melodias que dão 'pulos' grandes.", frequency: "1x ao dia" },
+        { id: 6, displayTitle: "Aula 6", title: "Memória Muscular", youtubeId: "cp1ICtprIwU", hasPractice: true, locked: true,
+          exercise: "Repetição Cega", practiceDesc: "Cante a nota, feche os ouvidos e cante de novo para sentir a vibração.",
+          feedbackTitle: "Cantar sem Retorno", feedbackDesc: "Prepara você para cantar bem mesmo quando não estiver se ouvindo no palco.", frequency: "2x ao dia" },
+        { id: 7, displayTitle: "Aula 7", title: "Micro Afinação", youtubeId: "sYQ_iugBGDE", hasPractice: true, locked: true,
+          exercise: "Glissando Controlado", practiceDesc: "Deslize muito devagar de uma nota até a vizinha.",
+          feedbackTitle: "Polimento", feedbackDesc: "Corrige aquele pouquinho que falta para a nota ficar 'perfeita'.", frequency: "Apenas quando necessário" },
+        { id: 8, displayTitle: "Aula 8", title: "Harmonização Simples", youtubeId: "yfHrDfNBBH0", hasPractice: true, locked: true,
+          exercise: "Terça Acima", practiceDesc: "Cante sempre uma terça acima da melodia principal.",
+          feedbackTitle: "Abrindo Vozes", feedbackDesc: "A introdução para cantar em coral ou fazer backing vocals.", frequency: "Com músicas no rádio" },
+        { id: 9, displayTitle: "Aula 9", title: "Canto sobre Acordes", youtubeId: "iOOrgqzN0tY", hasPractice: true, locked: true,
+          exercise: "Navegando a Base", practiceDesc: "Mantenha a nota alvo enquanto o acorde muda de fundo.",
+          feedbackTitle: "Independência Auditiva", feedbackDesc: "Ensina a não ser 'puxado' para a nota errada pelos instrumentos.", frequency: "Prática constante" },
+        { id: 10, displayTitle: "Aula 10", title: "Prática Geral Nível 2", youtubeId: "_nkKaweJPSk", hasPractice: true, locked: true,
+          exercise: "Rotina Completa Afinação", practiceDesc: "Mistura de escalas, arpejos e saltos.",
+          feedbackTitle: "Domínio Tonal", feedbackDesc: "O teste final da sua percepção auditiva.", frequency: "Uso diário" }
+      ]
+    }
   };
 
-  const currentLesson = moduleContent.lessons[activeLessonIndex];
+  // Garante que se um ID inválido for acessado, ele cai no Nível 1 por padrão
+  const currentModule = modulesData[id || "1"] || modulesData["1"];
+  const currentLesson = currentModule.lessons[activeLessonIndex];
 
   // Controle de Timer e Áudio
   useEffect(() => {
@@ -139,52 +172,37 @@ export default function Lesson() {
     return () => clearTimeout(timer);
   }, [trainingStatus, countdown, timeLeft]);
 
-  // Motor Dinâmico de Exercícios (Gera o ciclo certo para cada aula do Nível 1)
+  // Motor Dinâmico de Exercícios (Gera o ciclo certo para cada aula)
   const getCycleState = () => {
     const elapsed = 60 - timeLeft; 
     
-    switch (currentLesson.id) {
-      case 1: { // 4-4-10-4
+    // Se for Nível 1, Aula 1
+    if (id === "1" && currentLesson.id === 1) { 
         const t = elapsed % 22; 
         if (t < 4) return { phase: 'INSPIRA', instruction: 'Puxe o ar (4s)', color: 'cyan', icon: Wind };
         if (t < 8) return { phase: 'SEGURA', instruction: 'Mantenha o ar (4s)', color: 'orange', icon: Lock };
         if (t < 18) return { phase: 'EXPIRA', instruction: 'Solte o ar devagar (10s)', color: 'blue', icon: Mic2 };
         return { phase: 'DESCANSA', instruction: 'Relaxe (4s)', color: 'gray', icon: Coffee };
-      }
-      case 2: { // Controle S
+    }
+    // Se for Nível 1, Aula 2
+    if (id === "1" && currentLesson.id === 2) { 
         const t = elapsed % 20;
         if (t < 5) return { phase: 'INSPIRA', instruction: 'Inspira fundo', color: 'cyan', icon: Wind };
         if (t < 18) return { phase: 'SOLTE O S', instruction: 'Mantenha o som de S constante', color: 'orange', icon: Volume2 };
         return { phase: 'DESCANSA', instruction: 'Descansa', color: 'gray', icon: Coffee };
-      }
-      case 3: 
-      case 6: 
-      case 9: { // Exercícios de Sustentação/Sirene/Humming (15s ativo, 5s pausa)
-        const t = elapsed % 20;
-        if (t < 4) return { phase: 'INSPIRA', instruction: 'Preparação profunda', color: 'cyan', icon: Wind };
-        if (t < 16) return { phase: 'EXECUTA', instruction: 'Mantenha o som constante e focado', color: 'orange', icon: Mic2 };
-        return { phase: 'DESCANSA', instruction: 'Relaxe a garganta', color: 'gray', icon: Coffee };
-      }
-      case 4: 
-      case 5: { // Exercícios rápidos de vibração labial/língua (10s ativo, 5s pausa)
-        const t = elapsed % 15;
-        if (t < 3) return { phase: 'INSPIRA', instruction: 'Apoio no diafragma', color: 'cyan', icon: Wind };
-        if (t < 12) return { phase: 'VIBRAÇÃO', instruction: 'Mantenha a vibração solta', color: 'blue', icon: Activity };
-        return { phase: 'DESCANSA', instruction: 'Respire normal', color: 'gray', icon: Coffee };
-      }
-      default: { // Padrão genérico
-        const t = elapsed % 15;
-        if (t < 5) return { phase: 'PREPARAÇÃO', instruction: 'Mantenha a postura', color: 'cyan', icon: Wind };
-        return { phase: 'PRÁTICA', instruction: 'Atenção na técnica', color: 'blue', icon: Activity };
-      }
     }
+    
+    // Padrão genérico para Nível 2 e as demais aulas do Nível 1
+    const t = elapsed % 15;
+    if (t < 5) return { phase: 'PREPARAÇÃO', instruction: 'Ouça a nota e concentre-se', color: 'cyan', icon: Music };
+    return { phase: 'EXECUÇÃO', instruction: 'Cante e mantenha a afinação', color: 'orange', icon: Mic2 };
   };
 
   const cycleState = getCycleState();
   const CycleIcon = cycleState.icon;
 
   const changeLesson = (index: number) => {
-    const lessonTarget = moduleContent.lessons[index];
+    const lessonTarget = currentModule.lessons[index];
     const isLockedForUser = lessonTarget.locked && !isPremiumUser;
 
     if (isLockedForUser) {
@@ -221,7 +239,7 @@ export default function Lesson() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
           <div>
             <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-[10px] mb-3 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20">
-              <PlayCircle size={14} /> Masterclass • {moduleContent.level} 
+              <PlayCircle size={14} /> Masterclass • {currentModule.level} 
             </div>
             <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase drop-shadow-lg leading-tight">
               {currentLesson.displayTitle}:<br/>
@@ -306,14 +324,14 @@ export default function Lesson() {
             )}
           </div>
 
-          {/* PLAYLIST LATERAL */}
+          {/* PLAYLIST LATERAL DINÂMICA (Baseada no Nível Acessado) */}
           <div className="lg:col-span-1 space-y-4">
             <div className="flex items-center gap-2 text-white font-black uppercase tracking-widest text-xs mb-4">
-              <ListVideo size={18} className="text-cyan-400" /> Playlist Nível 1
+              <ListVideo size={18} className="text-cyan-400" /> Playlist {currentModule.level}
             </div>
             
             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-              {moduleContent.lessons.map((lesson, idx) => {
+              {currentModule.lessons.map((lesson, idx) => {
                 const isLockedForUser = lesson.locked && !isPremiumUser;
                 return (
                   <Card 
