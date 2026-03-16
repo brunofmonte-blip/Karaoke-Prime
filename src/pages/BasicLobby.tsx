@@ -28,17 +28,18 @@ const BasicLobby = () => {
 
   const cameraRef = useRef<HTMLVideoElement>(null);
 
-  // CONSUMINDO O MOTOR DE IA
+  // 🚨 CORREÇÃO: Extraindo o ghostTrace do Motor
   const {
     isAnalyzing,
     startAnalysis,
     stopAnalysis,
     pitchHistory,
+    ghostTrace, 
     sessionSummary,
     clearSessionSummary
   } = useVocalSandbox();
 
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  const YOUTUBE_API_KEY = "XXXXXXXXXXXXXX";
 
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
@@ -100,7 +101,6 @@ const BasicLobby = () => {
     setUserChallengeSent(user.id);
   };
 
-  // Função para iniciar o motor enviando dados mockados da música atual
   const handleStartEngine = () => {
     const mockSong: any = {
       id: activeVideo,
@@ -122,23 +122,18 @@ const BasicLobby = () => {
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* CAMADA 1: Fundo preto sólido */}
+      {/* CAMADAS DE FUNDO (Z-INDEX 0 a 20) */}
       <div className="absolute inset-0 bg-black z-0" />
-      
-      {/* CAMADA 2: A foto do Microfone */}
       <img 
         src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=2000&q=80" 
         alt="Microfone no Palco" 
         className="absolute inset-0 w-full h-full object-cover opacity-50 z-10" 
       />
-      
-      {/* CAMADA 3: O véu escuro */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black z-20" />
       
-      {/* CAMADA 4: O CONTEÚDO */}
+      {/* CONTEÚDO PRINCIPAL (Z-INDEX 30) */}
       <div className="max-w-7xl mx-auto relative z-30 animate-in fade-in duration-700">
         
-        {/* Header do Lobby */}
         {!sessionSummary && (
           <>
             <button onClick={() => { if(isAnalyzing) stopAnalysis(); navigate('/'); }} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
@@ -156,7 +151,7 @@ const BasicLobby = () => {
           </>
         )}
 
-        {/* TELA DE RESUMO DE PERFORMANCE */}
+        {/* --- TELA DE RESUMO DE PERFORMANCE --- */}
         {sessionSummary ? (
           <div className="flex-grow space-y-8 flex flex-col items-center justify-center p-8 text-center max-w-4xl mx-auto w-full bg-zinc-950/90 backdrop-blur-xl rounded-[3rem] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] animate-in zoom-in-95 duration-500">
             <Sparkles className="h-16 w-16 text-cyan-400 mb-2 animate-pulse" />
@@ -190,7 +185,7 @@ const BasicLobby = () => {
               <h4 className="text-lg font-black text-white uppercase tracking-widest flex items-center"><Activity className="h-5 w-5 text-cyan-400 mr-2" /> Dicas de IA para Melhoria</h4>
               {sessionSummary.improvementTips.length > 0 ? (
                   <ul className="list-disc list-inside space-y-2 text-gray-300 font-medium">
-                      {sessionSummary.improvementTips.map((tip, idx) => (
+                      {sessionSummary.improvementTips.map((tip: string, idx: number) => (
                           <li key={idx} className="text-sm">{tip}</li>
                       ))}
                   </ul>
@@ -207,7 +202,7 @@ const BasicLobby = () => {
           </div>
         ) : activeVideo ? (
           
-          /* SALA DE KARAOKÊ COM VÍDEO E MOTOR DE ÁUDIO */
+          /* --- SALA DE KARAOKÊ COM VÍDEO E MOTOR DE ÁUDIO --- */
           <div className="animate-in zoom-in-95 duration-500 mb-12">
             
             <div className="mb-6 flex justify-center items-center gap-3">
@@ -219,7 +214,6 @@ const BasicLobby = () => {
 
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full mb-8">
               
-              {/* COLUNA 1: CÂMERA */}
               <div className="w-full lg:w-1/4 flex flex-col gap-3 order-2 lg:order-1">
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Você</h3>
                 <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-black rounded-[2rem] border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.2)] overflow-hidden">
@@ -231,11 +225,9 @@ const BasicLobby = () => {
                 </div>
               </div>
 
-              {/* COLUNA 2: YOUTUBE + GRÁFICO DO MOTOR */}
               <div className={`${playMode === 'duelo' ? 'lg:w-2/4' : 'lg:w-3/4'} w-full flex flex-col gap-3 transition-all duration-500 order-1 lg:order-2`}>
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Vídeo da Música</h3>
                 
-                {/* YOUTUBE */}
                 <div className="w-full aspect-video lg:h-[300px] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900 relative">
                   <iframe 
                     width="100%" height="100%" 
@@ -245,16 +237,16 @@ const BasicLobby = () => {
                   ></iframe>
                 </div>
 
-                {/* NOSSO GRÁFICO CIRÚRGICO */}
+                {/* 🚨 CORREÇÃO BLINDADA AQUI 🚨 */}
                 <div className="w-full h-32 lg:h-40 bg-zinc-950/80 backdrop-blur-md rounded-[1.5rem] border border-white/10 p-3 shadow-inner flex flex-col justify-center">
                    <VocalEvolutionChart 
                     title="Ondas Vocais" 
                     data={pitchHistory} 
+                    opponentTrace={ghostTrace || []} 
                     height={100}
                   />
                 </div>
 
-                {/* CONTROLES DO MOTOR */}
                 <div className="flex justify-center items-center gap-4 mt-2">
                   {!isAnalyzing ? (
                     <Button onClick={handleStartEngine} className="h-12 px-8 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)]">
@@ -269,7 +261,6 @@ const BasicLobby = () => {
 
               </div>
 
-              {/* COLUNA 3: OPONENTE (Apenas em Duelo) */}
               {playMode === 'duelo' && (
                 <div className="w-full lg:w-1/4 flex flex-col gap-3 order-3 animate-in fade-in slide-in-from-right-10 duration-500">
                   <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Oponente</h3>
@@ -315,7 +306,6 @@ const BasicLobby = () => {
               )}
             </div>
             
-            {/* BOTÃO VOLTAR (Só aparece se o motor não estiver gravando) */}
             {!isAnalyzing && (
               <div className="flex justify-center mt-4">
                 <Button onClick={handleClosePlayer} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs backdrop-blur-sm">
@@ -327,7 +317,7 @@ const BasicLobby = () => {
 
         ) : (
           
-          /* SALA DE BUSCA (ESTADO INICIAL) */
+          /* --- SALA DE BUSCA INICIAL --- */
           <div className="animate-in slide-in-from-bottom-5">
             <form onSubmit={handleMusicSearch} className="relative mb-10 group max-w-3xl flex gap-2">
               <div className="relative flex-1">
