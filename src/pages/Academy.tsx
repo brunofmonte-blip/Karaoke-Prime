@@ -11,11 +11,11 @@ export default function Academy() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
-  // Verificação de Segurança: Redireciona se não estiver logado
+  // Verificação de Segurança
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
-        navigate('/login'); // Trava de Segurança ativada
+        navigate('/login');
       } else {
         setUser(currentUser);
         setLoadingAuth(false);
@@ -23,6 +23,9 @@ export default function Academy() {
     });
     return () => unsubscribe();
   }, [navigate]);
+
+  // A CHAVE MESTRA VIP DO COMANDANTE
+  const isPremiumUser = user?.email === 'bruno.fmonte@gmail.com';
 
   const modulos = [
     { id: 1, titulo: 'RESPIRAÇÃO E APOIO', desc: 'Exercícios de diafragma, controle de fluxo de ar.', time: '10 min', locked: false },
@@ -37,7 +40,6 @@ export default function Academy() {
     { id: 10, titulo: 'SHOW COMPLETO', desc: 'A prova final. Rotina de 40 minutos.', time: '40 min', locked: true },
   ];
 
-  // Tela de Loading enquanto verifica o Firebase
   if (loadingAuth) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans text-white">
@@ -78,49 +80,54 @@ export default function Academy() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {modulos.map((mod) => (
-            <Card 
-              key={mod.id}
-              className={`relative p-8 rounded-[2rem] border transition-all flex flex-col items-center text-center h-full ${
-                mod.locked 
-                ? 'bg-zinc-950/40 border-white/5 opacity-50' 
-                : 'bg-zinc-950/80 border-white/10 shadow-[0_0_30px_rgba(34,211,238,0.1)]'
-              }`}
-            >
-              <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center mb-6">
-                {mod.locked ? <Lock size={20} className="text-gray-600" /> : <PlayCircle size={24} className="text-white" />}
-              </div>
+          {modulos.map((mod) => {
+            // A mágica acontece aqui: Verifica se a aula é trancada E se o usuário NÃO tem a chave mestra
+            const isLockedForUser = mod.locked && !isPremiumUser;
 
-              <h3 className="font-black text-white text-sm uppercase italic tracking-widest mb-2">{mod.titulo}</h3>
-              <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed mb-6 flex-1 italic">
-                {mod.desc}
-              </p>
-
-              <div className="flex gap-4 mb-8">
-                <div className="text-center">
-                  <p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Dificuldade</p>
-                  <p className="text-xs font-black text-white italic">Lvl {mod.id}</p>
+            return (
+              <Card 
+                key={mod.id}
+                className={`relative p-8 rounded-[2rem] border transition-all flex flex-col items-center text-center h-full ${
+                  isLockedForUser 
+                  ? 'bg-zinc-950/40 border-white/5 opacity-50' 
+                  : 'bg-zinc-950/80 border-white/10 shadow-[0_0_30px_rgba(34,211,238,0.1)]'
+                }`}
+              >
+                <div className="h-12 w-12 rounded-2xl bg-white/5 flex items-center justify-center mb-6">
+                  {isLockedForUser ? <Lock size={20} className="text-gray-600" /> : <PlayCircle size={24} className="text-white" />}
                 </div>
-                <div className="text-center">
-                  <p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Duração</p>
-                  <p className="text-xs font-black text-white italic">{mod.time}</p>
-                </div>
-              </div>
 
-              {!mod.locked ? (
-                <Button 
-                  onClick={() => navigate(`/lesson/${mod.id}`)} 
-                  className="w-full rounded-full bg-white text-black font-black uppercase tracking-tighter text-[10px] h-10 hover:bg-cyan-400 transition-all"
-                >
-                  Iniciar Exercício
-                </Button>
-              ) : (
-                <Button onClick={() => navigate('/premium')} className="w-full rounded-full bg-white/5 text-gray-600 font-black uppercase tracking-tighter text-[10px] h-10 border border-white/5 hover:border-white/20">
-                  Assinar para Desbloquear
-                </Button>
-              )}
-            </Card>
-          ))}
+                <h3 className="font-black text-white text-sm uppercase italic tracking-widest mb-2">{mod.titulo}</h3>
+                <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed mb-6 flex-1 italic">
+                  {mod.desc}
+                </p>
+
+                <div className="flex gap-4 mb-8">
+                  <div className="text-center">
+                    <p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Dificuldade</p>
+                    <p className="text-xs font-black text-white italic">Lvl {mod.id}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Duração</p>
+                    <p className="text-xs font-black text-white italic">{mod.time}</p>
+                  </div>
+                </div>
+
+                {!isLockedForUser ? (
+                  <Button 
+                    onClick={() => navigate(`/lesson/${mod.id}`)} 
+                    className="w-full rounded-full bg-white text-black font-black uppercase tracking-tighter text-[10px] h-10 hover:bg-cyan-400 transition-all"
+                  >
+                    Iniciar Exercício
+                  </Button>
+                ) : (
+                  <Button onClick={() => navigate('/premium')} className="w-full rounded-full bg-white/5 text-gray-600 font-black uppercase tracking-tighter text-[10px] h-10 border border-white/5 hover:border-white/20">
+                    Assinar para Desbloquear
+                  </Button>
+                )}
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>
