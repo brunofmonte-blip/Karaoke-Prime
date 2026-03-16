@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Lock, PlayCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 export default function Academy() {
   const navigate = useNavigate();
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  // Verificação de Segurança: Redireciona se não estiver logado
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (!currentUser) {
+        navigate('/login'); // Trava de Segurança ativada
+      } else {
+        setUser(currentUser);
+        setLoadingAuth(false);
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   const modulos = [
     { id: 1, titulo: 'RESPIRAÇÃO E APOIO', desc: 'Exercícios de diafragma, controle de fluxo de ar.', time: '10 min', locked: false },
@@ -20,10 +37,20 @@ export default function Academy() {
     { id: 10, titulo: 'SHOW COMPLETO', desc: 'A prova final. Rotina de 40 minutos.', time: '40 min', locked: true },
   ];
 
+  // Tela de Loading enquanto verifica o Firebase
+  if (loadingAuth) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans text-white">
+        <div className="h-16 w-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-cyan-400 font-black uppercase tracking-widest text-xs">Autenticando VIP...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black flex flex-col p-4 pt-24 pb-20 font-sans text-white relative overflow-hidden">
       
-      {/* BACKGROUND: Imagem com 40% de opacidade para clarear o fundo */}
+      {/* BACKGROUND DA ACADEMY */}
       <div className="absolute inset-0 z-0">
         <img 
           src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
@@ -45,7 +72,9 @@ export default function Academy() {
           <h1 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter">
             ACADEMY <span className="text-cyan-400">PRIME</span>
           </h1>
-          <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">Aprenda as técnicas dos maiores vocalistas do mundo.</p>
+          <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">
+            Aprenda as técnicas dos maiores vocalistas do mundo, {user?.displayName?.split(' ')[0] || 'Cantor'}.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -95,5 +124,5 @@ export default function Academy() {
         </div>
       </div>
     </div>
-  ); 
+  );
 }
