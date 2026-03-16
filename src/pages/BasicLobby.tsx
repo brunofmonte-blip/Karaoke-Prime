@@ -2,18 +2,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, Mic2, Swords, PlayCircle, Music, Users, Crown, 
+  ArrowLeft, Mic2, Swords, PlayCircle, Music, Crown, 
   Search, History, Loader2, Info, Activity, Trophy, ShieldCheck, 
   Sparkles, Star, Mic, StopCircle 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-// NOSSAS IMPORTAÇÕES DO MOTOR CORE
-import { useVocalSandbox } from '@/hooks/use-vocal-sandbox';
+// NOSSAS IMPORTAÇÕES DO MOTOR CORE E PROVIDER
+import { useVocalSandbox, VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
 import VocalEvolutionChart from '@/components/VocalEvolutionChart';
 
-const BasicLobby = () => {
+// Renomeamos a função principal para Conteúdo Interno
+const BasicLobbyContent = () => {
   const navigate = useNavigate();
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const [activeVideoTitle, setActiveVideoTitle] = useState<string>("Música");
@@ -28,7 +29,7 @@ const BasicLobby = () => {
 
   const cameraRef = useRef<HTMLVideoElement>(null);
 
-  // 🚨 CORREÇÃO: Extraindo o ghostTrace do Motor
+  // CONSUMINDO O MOTOR (Agora protegido pelo Provider)
   const {
     isAnalyzing,
     startAnalysis,
@@ -39,7 +40,7 @@ const BasicLobby = () => {
     clearSessionSummary
   } = useVocalSandbox();
 
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  const YOUTUBE_API_KEY = "XXXXXXXXXXXXXX";
 
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
@@ -122,7 +123,7 @@ const BasicLobby = () => {
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* CAMADAS DE FUNDO (Z-INDEX 0 a 20) */}
+      {/* CAMADAS DE FUNDO */}
       <div className="absolute inset-0 bg-black z-0" />
       <img 
         src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=2000&q=80" 
@@ -131,7 +132,7 @@ const BasicLobby = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black z-20" />
       
-      {/* CONTEÚDO PRINCIPAL (Z-INDEX 30) */}
+      {/* CONTEÚDO PRINCIPAL */}
       <div className="max-w-7xl mx-auto relative z-30 animate-in fade-in duration-700">
         
         {!sessionSummary && (
@@ -237,7 +238,6 @@ const BasicLobby = () => {
                   ></iframe>
                 </div>
 
-                {/* 🚨 CORREÇÃO BLINDADA AQUI 🚨 */}
                 <div className="w-full h-32 lg:h-40 bg-zinc-950/80 backdrop-blur-md rounded-[1.5rem] border border-white/10 p-3 shadow-inner flex flex-col justify-center">
                    <VocalEvolutionChart 
                     title="Ondas Vocais" 
@@ -370,6 +370,15 @@ const BasicLobby = () => {
 
       </div>
     </div>
+  );
+};
+
+// 🚨 A MÁGICA FINAL: EMBRULHAMOS A TELA NO PROVIDER PARA QUE O HOOK FUNCIONE!
+const BasicLobby = () => {
+  return (
+    <VocalSandboxProvider>
+      <BasicLobbyContent />
+    </VocalSandboxProvider>
   );
 };
 
