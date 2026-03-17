@@ -28,7 +28,6 @@ const BasicLobbyContent = () => {
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [userChallengeSent, setUserChallengeSent] = useState<string | null>(null);
   
-  // 🚨 NOVOS ESTADOS PARA A ARENA DE DUELO
   const [opponentName, setOpponentName] = useState<string | null>(null);
   const [opponentGhostScore, setOpponentGhostScore] = useState<number>(0);
 
@@ -45,7 +44,7 @@ const BasicLobbyContent = () => {
     clearSessionSummary
   } = useVocalSandbox();
 
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  const YOUTUBE_API_KEY = "XXXXXXXXXXXXXX";
 
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
@@ -80,7 +79,7 @@ const BasicLobbyContent = () => {
   const handleMusicSearch = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!musicSearchTerm.trim()) { setMusicSearchResults([]); return; }
-    if (YOUTUBE_API_KEY === "SAIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha correspondente!"); return; }
+    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha correspondente!"); return; }
     setIsSearchingMusic(true);
     try {
       const query = encodeURIComponent(`${musicSearchTerm} karaoke`);
@@ -104,17 +103,14 @@ const BasicLobbyContent = () => {
     setUserChallengeSent(null);
   };
 
-  // 🚨 NOVO FLUXO DE DESAFIO (SEM ALERTS FEIOS)
   const handleChallenge = (user: any) => {
     setUserChallengeSent(user.id);
     toast.loading(`Convidando ${user.name}...`, { id: 'challenge' });
     
-    // Simula a aceitação do oponente após 1.5s
     setTimeout(() => {
       toast.success(`${user.name} aceitou o desafio! Pode iniciar a música.`, { id: 'challenge' });
       setOpponentName(user.name);
       
-      // Gera a nota do adversário antecipadamente para exibir no final
       const randomGhostScore = Math.floor(Math.random() * (95 - 70 + 1) + 70); 
       setOpponentGhostScore(randomGhostScore);
     }, 1500);
@@ -130,7 +126,20 @@ const BasicLobbyContent = () => {
     startAnalysis(mockSong, playMode === 'duelo');
   };
 
+  // 🚨 AQUI ESTÁ A LÓGICA DE SALVAMENTO NO MVP BLINDADA
   const handleClosePlayer = () => {
+    if (sessionSummary) {
+      const currentBest = parseFloat(localStorage.getItem('karaoke_best_score') || '0');
+      if (sessionSummary.pitchAccuracy > currentBest) {
+        localStorage.setItem('karaoke_best_score', sessionSummary.pitchAccuracy.toString());
+      }
+      
+      const currentLevel = parseInt(localStorage.getItem('karaoke_level') || '1');
+      localStorage.setItem('karaoke_level', (currentLevel + 1).toString());
+      
+      localStorage.setItem('karaoke_last_history', JSON.stringify(pitchHistory));
+    }
+
     if (isAnalyzing) stopAnalysis();
     clearSessionSummary();
     setActiveVideo(null);
@@ -139,7 +148,6 @@ const BasicLobbyContent = () => {
 
   const displaySongs = musicSearchResults.length > 0 ? musicSearchResults : recentSearches;
 
-  // Renderização da Tela Final de Duelo
   const renderDuelSummary = () => {
     if (!sessionSummary) return null;
     const userScore = sessionSummary.pitchAccuracy;
@@ -157,7 +165,6 @@ const BasicLobbyContent = () => {
         
         <div className="flex w-full items-center justify-center gap-8 pt-8">
           
-          {/* Card do Usuário */}
           <div className={`flex-1 flex flex-col items-center justify-center p-8 rounded-[2rem] border-2 transition-all ${youWon ? 'bg-cyan-950/40 border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.3)] scale-105' : 'bg-black/50 border-white/5 opacity-80'}`}>
             <h3 className="text-sm font-black text-cyan-400 uppercase tracking-widest mb-4">Você</h3>
             <span className="text-6xl font-mono font-black text-white">{userScore.toFixed(1)}<span className="text-3xl text-cyan-500">%</span></span>
@@ -168,7 +175,6 @@ const BasicLobbyContent = () => {
              <span className="text-xl font-black text-white uppercase tracking-widest">VS</span>
           </div>
 
-          {/* Card do Oponente */}
           <div className={`flex-1 flex flex-col items-center justify-center p-8 rounded-[2rem] border-2 transition-all ${!youWon ? 'bg-pink-950/40 border-pink-500 shadow-[0_0_30px_rgba(236,72,153,0.3)] scale-105' : 'bg-black/50 border-white/5 opacity-80'}`}>
             <h3 className="text-sm font-black text-pink-500 uppercase tracking-widest mb-4">{opponentName}</h3>
             <span className="text-6xl font-mono font-black text-white">{opponentGhostScore.toFixed(1)}<span className="text-3xl text-pink-600">%</span></span>
@@ -198,7 +204,6 @@ const BasicLobbyContent = () => {
     );
   };
 
-  // Renderização da Tela Final Solo
   const renderSoloSummary = () => {
     if (!sessionSummary) return null;
     return (
@@ -245,7 +250,7 @@ const BasicLobbyContent = () => {
 
         <div className="pt-8">
           <Button size="lg" onClick={handleClosePlayer} className="h-14 px-12 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(34,211,238,0.4)]">
-            Cantar Outra Música
+            Voltar ao Lobby
           </Button>
         </div>
       </div>
@@ -361,7 +366,7 @@ const BasicLobbyContent = () => {
                           <input 
                             type="text" 
                             placeholder="Buscar cantor..." 
-                            className="w-full h-10 pl-10 pr-4 bg-zinc-900 border border-white/10 focus:border-pink-500 focus:outline-none text-white text-xs rounded-full transition-all"
+                            className="w-full h-10 pl-10 pr-4 bg-zinc-900 border border-white/10 focus:border-cyan-400 focus:outline-none text-white text-xs rounded-full transition-all"
                             value={userSearchTerm}
                             onChange={(e) => setUserSearchTerm(e.target.value)}
                           />
