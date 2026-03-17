@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, Mic, Lock, Copy, ListVideo } from 'lucide-react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button'; // 🚨 A CORREÇÃO ESTÁ AQUI: IMPORTAÇÃO DO BOTÃO!
 
 // ============================================================================
 // O GRANDE BANCO DE DADOS DE AULAS E VÍDEOS (NÍVEIS 1 A 4)
