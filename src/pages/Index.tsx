@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 🚨 IMPORTAÇÃO BLINDADA: Todos os ícones estão declarados aqui agora!
-import { PlayCircle, Music, Globe2, Trophy, Clock, Star, Flame, Hash, User, ChevronRight, Mic2, GraduationCap, Activity } from 'lucide-react';
+import { PlayCircle, TrendingUp, Music, Globe2, Trophy, Clock, Star, Flame, Hash, User, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
