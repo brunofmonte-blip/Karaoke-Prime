@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GraduationCap, Lock, PlayCircle, ArrowLeft, Wind, Activity, Target } from 'lucide-react';
+import { GraduationCap, Lock, PlayCircle, ArrowLeft, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 // ============================================================================
-// COMPONENTES DOS NÍVEIS (AGORA CONECTADOS À TELA OFICIAL DE EXERCÍCIOS)
+// COMPONENTES DOS NÍVEIS
 // ============================================================================
 
 const Level1Menu = () => {
   const navigate = useNavigate();
-
   const lessons1 = [
     { id: "1.1", title: "Respiração Diafragmática", desc: "Aprenda a respirar usando o diafragma para maior controle." },
     { id: "1.2", title: "Controle de Fluxo de Ar", desc: "Exercícios para manter a saída de ar constante e controlada." },
@@ -33,7 +32,9 @@ const Level1Menu = () => {
           <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 1</div>
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Fundamentos e <span className="text-cyan-400">Respiração</span></h1>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">A fundação de todo grande cantor. Domine o seu fluxo de ar e prepare suas cordas vocais para a evolução.</p>
-          <Button onClick={() => navigate('/lesson/1.1')} className="w-full h-16 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-3"><Wind size={20} /> ABRIR TREINO FUNDAMENTAL</Button>
+          <div className="w-full h-16 rounded-full bg-cyan-500 text-black font-black uppercase tracking-widest text-sm flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            BEM VINDO AO NÍVEL INTRODUÇÃO E AFINAÇÃO
+          </div>
         </div>
         <div className="lg:w-1/2 bg-black relative min-h-[300px]">
           <iframe width="100%" height="100%" src="https://www.youtube.com/embed/m75jPge9QUM?rel=0&modestbranding=1" title="Introdução Nível 1" frameBorder="0" allowFullScreen className="absolute inset-0 w-full h-full object-cover"></iframe>
@@ -44,9 +45,7 @@ const Level1Menu = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lessons1.map((lesson) => (
             <Card key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)} className="p-6 rounded-[2rem] border transition-all flex items-start gap-4 bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group">
-              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all">
-                <PlayCircle size={20} />
-              </div>
+              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all"><PlayCircle size={20} /></div>
               <div>
                 <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div>
                 <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4>
@@ -62,7 +61,6 @@ const Level1Menu = () => {
 
 const Level2Menu = () => {
   const navigate = useNavigate();
-
   const lessons2 = [
     { id: "2.1", title: "Percepção Auditiva", desc: "Treinando o ouvido para reconhecer notas e intervalos." },
     { id: "2.2", title: "Escalas Maiores", desc: "Subindo e descendo a escala com precisão matemática." },
@@ -83,7 +81,9 @@ const Level2Menu = () => {
           <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 2</div>
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Afinação <span className="text-cyan-400">Precisa</span></h1>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">Treine o seu ouvido e a sua musculatura para acertar o centro exato de cada nota musical sem hesitar.</p>
-          <Button onClick={() => navigate('/lesson/2.1')} className="w-full h-16 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-3"><Wind size={20} /> ABRIR TREINO INTERMEDIÁRIO</Button>
+          <div className="w-full h-16 rounded-full bg-cyan-500 text-black font-black uppercase tracking-widest text-sm flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            BEM VINDO AO NÍVEL AFINAÇÃO PRECISA
+          </div>
         </div>
         <div className="lg:w-1/2 bg-black relative min-h-[300px]">
           <iframe width="100%" height="100%" src="https://www.youtube.com/embed/8bR5O0hEMYU?rel=0&modestbranding=1" title="Introdução Nível 2" frameBorder="0" allowFullScreen className="absolute inset-0 w-full h-full object-cover"></iframe>
@@ -94,9 +94,7 @@ const Level2Menu = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lessons2.map((lesson) => (
             <Card key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)} className="p-6 rounded-[2rem] border transition-all flex items-start gap-4 bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group">
-              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all">
-                <PlayCircle size={20} />
-              </div>
+              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all"><PlayCircle size={20} /></div>
               <div>
                 <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div>
                 <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4>
@@ -112,7 +110,6 @@ const Level2Menu = () => {
 
 const Level3Menu = () => {
   const navigate = useNavigate();
-
   const lessons3 = [
     { id: "3.1", title: "O Poder do Humming", desc: "Encontrar e fortalecer a ressonância na máscara facial." },
     { id: "3.2", title: "Ginástica Articulatória", desc: "Destravar a mandíbula, a língua e os lábios com trava-línguas." },
@@ -130,10 +127,12 @@ const Level3Menu = () => {
     <div className="w-full max-w-6xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
       <div className="bg-zinc-950 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
         <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
-          <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Activity size={14} /> Level 3</div>
+          <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 3</div>
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Ressonância e <span className="text-cyan-400">Dicção</span></h1>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">Deixe de apenas "emitir som" e passe a dar cor, brilho e clareza à sua voz.</p>
-          <Button onClick={() => navigate('/lesson/3.1')} className="w-full h-16 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-3"><Wind size={20} /> ABRIR TREINO DE RESSONÂNCIA</Button>
+          <div className="w-full h-16 rounded-full bg-cyan-500 text-black font-black uppercase tracking-widest text-sm flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            BEM VINDO AO NÍVEL RESSONÂNCIA E DICÇÃO
+          </div>
         </div>
         <div className="lg:w-1/2 bg-black relative min-h-[300px]">
           <iframe width="100%" height="100%" src="https://www.youtube.com/embed/IzZCDVzsghA?rel=0&modestbranding=1" title="Introdução Nível 3" frameBorder="0" allowFullScreen className="absolute inset-0 w-full h-full object-cover"></iframe>
@@ -144,9 +143,7 @@ const Level3Menu = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lessons3.map((lesson) => (
             <Card key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)} className="p-6 rounded-[2rem] border transition-all flex items-start gap-4 bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group">
-              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all">
-                <PlayCircle size={20} />
-              </div>
+              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all"><PlayCircle size={20} /></div>
               <div>
                 <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div>
                 <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4>
@@ -162,7 +159,6 @@ const Level3Menu = () => {
 
 const Level4Menu = () => {
   const navigate = useNavigate();
-
   const lessons4 = [
     { id: "4.1", title: "Bocejo-Suspiro", desc: "Técnica para relaxar a voz e melhorar o alcance vocal." },
     { id: "4.2", title: "Boca Chiusa (scale)", desc: "Aquecimento sem sobrecarga com 'hmmm' na escala maior." },
@@ -183,7 +179,9 @@ const Level4Menu = () => {
           <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 4</div>
           <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Interpretação <span className="text-cyan-400">Vocal</span></h1>
           <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">Nível focado em expressão e emoção ao cantar. Aguardando texto introdutório oficial.</p>
-          <Button onClick={() => navigate('/lesson/4.1')} className="w-full h-16 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-3"><Wind size={20} /> ABRIR TREINO DE DINÂMICA</Button>
+          <div className="w-full h-16 rounded-full bg-cyan-500 text-black font-black uppercase tracking-widest text-sm flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+            BEM VINDO AO NÍVEL INTERPRETAÇÃO VOCAL
+          </div>
         </div>
         <div className="lg:w-1/2 bg-black relative min-h-[300px] flex items-center justify-center text-gray-600 font-bold uppercase tracking-widest text-xs">Aguardando Vídeo Introdutório do Nível 4</div>
       </div>
@@ -192,9 +190,7 @@ const Level4Menu = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lessons4.map((lesson) => (
             <Card key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)} className="p-6 rounded-[2rem] border transition-all flex items-start gap-4 bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group">
-              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all">
-                <PlayCircle size={20} />
-              </div>
+              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all"><PlayCircle size={20} /></div>
               <div>
                 <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div>
                 <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4>
@@ -209,24 +205,19 @@ const Level4Menu = () => {
 };
 
 // ============================================================================
-// A TELA PRINCIPAL (ROTEADOR MESTRE)
+// ROTEADOR MESTRE
 // ============================================================================
 
 export default function Academy() {
   const navigate = useNavigate();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  
   const [activeLevel, setActiveLevel] = useState<number | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (!currentUser) {
-        navigate('/login');
-      } else {
-        setUser(currentUser);
-        setLoadingAuth(false);
-      }
+      if (!currentUser) navigate('/login');
+      else { setUser(currentUser); setLoadingAuth(false); }
     });
     return () => unsubscribe();
   }, [navigate]);
@@ -246,56 +237,30 @@ export default function Academy() {
     { id: 10, titulo: 'SHOW COMPLETO', desc: 'A prova final. Rotina de 40 minutos.', time: '40 min', locked: true },
   ];
 
-  if (loadingAuth) {
-    return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans text-white">
-        <div className="h-16 w-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-cyan-400 font-black uppercase tracking-widest text-xs">Autenticando VIP...</p>
-      </div>
-    );
-  }
+  if (loadingAuth) return <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans text-white"><div className="h-16 w-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" /><p className="text-cyan-400 font-black uppercase tracking-widest text-xs">Autenticando VIP...</p></div>;
 
-  // 🚨 O ROTEADOR QUE ABRE OS MENUS ESTILIZADOS
   const handleLevelClick = (levelId: number) => {
     const builtLevels = [1, 2, 3, 4];
-    if (builtLevels.includes(levelId)) {
-        setActiveLevel(levelId);
-    } else {
-        navigate(`/lesson/${levelId}`);
-    }
+    if (builtLevels.includes(levelId)) setActiveLevel(levelId);
+    else navigate(`/lesson/${levelId}`);
   };
 
   const renderActiveLevel = () => {
     switch(activeLevel) {
-        case 1: return <Level1Menu />;
-        case 2: return <Level2Menu />;
-        case 3: return <Level3Menu />;
-        case 4: return <Level4Menu />;
-        default: return null;
+        case 1: return <Level1Menu />; case 2: return <Level2Menu />; case 3: return <Level3Menu />; case 4: return <Level4Menu />; default: return null;
     }
   };
 
   return (
     <div className="min-h-screen bg-black flex flex-col p-4 pt-24 pb-20 font-sans text-white relative overflow-x-hidden">
-      
-      <div className="absolute inset-0 z-0 fixed">
-        <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" alt="Studio Background" className="w-full h-full object-cover opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
-      </div>
-
+      <div className="absolute inset-0 z-0 fixed"><img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" alt="Studio" className="w-full h-full object-cover opacity-40" /><div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" /></div>
       <div className="z-10 max-w-7xl mx-auto w-full relative">
-        
-        <button 
-          onClick={() => activeLevel ? setActiveLevel(null) : navigate('/')} 
-          className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors bg-black/50 px-4 py-2 rounded-full border border-white/10 w-fit backdrop-blur-md"
-        >
+        <button onClick={() => activeLevel ? setActiveLevel(null) : navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors bg-black/50 px-4 py-2 rounded-full border border-white/10 w-fit backdrop-blur-md">
           <ArrowLeft size={16} /> {activeLevel ? 'Voltar para os Níveis' : 'Voltar para o Palco'}
         </button>
 
         {activeLevel ? (
-            <div className="animate-in slide-in-from-right-10 duration-500">
-                {renderActiveLevel()}
-            </div>
+            <div className="animate-in slide-in-from-right-10 duration-500">{renderActiveLevel()}</div>
         ) : (
             <div className="animate-in fade-in duration-500">
                 <div className="text-center mb-12">
@@ -303,7 +268,6 @@ export default function Academy() {
                     <h1 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">ACADEMY <span className="text-cyan-400 neon-blue-glow">PRIME</span></h1>
                     <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">Aprenda as técnicas dos maiores vocalistas do mundo, {user?.displayName?.split(' ')[0] || 'Cantor'}.</p>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {modulos.map((mod) => {
                         const isLockedForUser = mod.locked && !isPremiumUser;
@@ -333,7 +297,6 @@ export default function Academy() {
                 </div>
             </div>
         )}
-
       </div>
     </div>
   );
