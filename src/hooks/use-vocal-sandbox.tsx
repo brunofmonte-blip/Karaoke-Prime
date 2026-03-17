@@ -80,7 +80,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [pitchHistory, setPitchHistory] = useState<ChartDataItem[]>([]);
   const [ghostTrace, setGhostTrace] = useState<ChartDataItem[]>([]);
-  const [isDuelActive, setIsDuelActive] = useState(false); // 🚨 NOVO: Controle de Arena
+  const [isDuelActive, setIsDuelActive] = useState(false); 
   const [isPitchStable, setIsPitchStable] = useState(false);
   const [isPitchDeviating, setIsPitchDeviating] = useState(false);
   const [recentAchievements, setRecentAchievements] = useState<string[]>([]);
@@ -107,7 +107,10 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
   const playbackIntervalRef = useRef<number>();
   const countdownIntervalRef = useRef<number>();
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const lastHistoryUpdateRef = useRef<number>(0);
+  
+  // 🚨 REFS PARA MOTOR CONTÍNUO
+  const latestPitchRef = useRef(0);
+  const latestHzRef = useRef(0);
 
   const { 
     isAnalyzing, 
@@ -118,6 +121,12 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     sensitivity, 
     setSensitivity, 
   } = useAudioAnalyzer();
+
+  // Mantém os dados da IA sempre atualizados sem depender de re-render de estado
+  useEffect(() => {
+    latestPitchRef.current = pitchDataVisualization;
+    latestHzRef.current = pitchDataHz;
+  }, [pitchDataVisualization, pitchDataHz]);
   
   const stopAnalysis = useCallback((customScore?: number) => {
     stopAudio();
@@ -133,7 +142,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setActiveSubModule('none');
     setActiveExerciseTitle('');
     setActiveExerciseId('');
-    setIsDuelActive(false); // Desliga a arena fantasma
+    setIsDuelActive(false);
 
     if (stabilityToastRef.current) {
       toast.dismiss(stabilityToastRef.current);
@@ -183,7 +192,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
             isBreathing: false
           };
         } catch (error) {
-          // AVALIAÇÃO DE TÉCNICA JULLIARD MANTIDA
+          // AVALIAÇÃO JULLIARD
           const validPitches = pitchHistory.filter(p => p.frequency > 0);
           const totalSamples = pitchHistory.length;
           const activeSamples = validPitches.length;
@@ -194,7 +203,7 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
 
           if (totalSamples === 0 || activeSamples < 10) {
             calculatedScore = 0;
-            tips = ["Não detectamos sua voz. O microfone estava perto o suficiente?"];
+            tips = ["Não detectamos sua voz. Verifique as configurações de microfone no navegador e ajuste a sensibilidade."];
           } else {
             let stableFrames = 0;
             let erraticJumps = 0;
@@ -284,7 +293,6 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     setActiveExerciseId(exerciseId);
     await mockDownloadSong(song); 
 
-    // 🚨 RESETANDO A ARENA
     setIsDuelActive(isDuelMode);
     setPitchHistory([]);
     setGhostTrace([]);
@@ -338,59 +346,63 @@ export const VocalSandboxProvider: React.FC<{ children: ReactNode }> = ({ childr
     }, 1000);
   }, [isAnalyzing, countdown, startAudio, stopAnalysis]);
 
+  // 🚨 MOTOR GRÁFICO DE TEMPO CONTÍNUO (CORREÇÃO DA TELA PRETA)
   useEffect(() => {
-    if (isAnalyzing && pitchDataVisualization !== undefined) {
-      const now = Date.now();
-      if (now - lastHistoryUpdateRef.current < 100) return;
-      lastHistoryUpdateRef.current = now;
+    let engineInterval: number;
 
-      historyCounter.current += 1;
-      const timeLabel = `T${historyCounter.current}`;
+    if (isAnalyzing) {
+      engineInterval = window.setInterval(() => {
+        const now = Date.now();
+        historyCounter.current += 1;
+        const timeLabel = `T${historyCounter.current}`;
 
-      const newPoint: ChartDataItem = {
-        name: timeLabel,
-        pitch: pitchDataVisualization,
-        frequency: pitchDataHz,
-        breath: 50,
-      };
-      
-      setPitchHistory(prevHistory => {
-        const newHistory = [...prevHistory, newPoint];
-        if (newHistory.length >= STABILITY_WINDOW) {
-          const recentPitches = newHistory.slice(-STABILITY_WINDOW).map(p => p.pitch);
-          const variance = Math.max(...recentPitches) - Math.min(...recentPitches);
-          const stable = variance < STABILITY_THRESHOLD && Math.max(...recentPitches) > 0;
-          setIsPitchStable(stable);
-          setIsPitchDeviating(variance > DEVIATION_THRESHOLD);
-        }
-        return newHistory;
-      });
+        // Sempre avança o tempo, lendo o mic atual (seja som ou silêncio)
+        const currentPitchVis = latestPitchRef.current;
+        const currentHz = latestHzRef.current;
 
-      // 🚨 ALGORITMO FANTASMA INJETADO (MODO DUELO)
-      if (isDuelActive) {
-        const timeInSec = (now - (sessionStartTimeRef.current || now)) / 1000;
-        
-        // Simulação realista: Ondas combinadas criando uma melodia falsa, mas fluída
-        let basePitch = 45 + Math.sin(timeInSec * 1.8) * 20 + Math.cos(timeInSec * 0.4) * 15;
-        basePitch += (Math.random() * 4 - 2); // Leve imperfeição (vibrato humano)
-        
-        const finalGhostPitch = Math.max(10, Math.min(90, basePitch));
-
-        const ghostPoint: ChartDataItem = {
+        const newPoint: ChartDataItem = {
           name: timeLabel,
-          pitch: finalGhostPitch,
-          frequency: 200 + finalGhostPitch * 4, // Frequência fictícia
-          breath: 50
+          pitch: currentPitchVis,
+          frequency: currentHz,
+          breath: 50,
         };
 
-        setGhostTrace(prev => {
-          // Mantém a performance do gráfico não acumulando milhares de pontos inúteis
-          const newTrace = [...prev, ghostPoint];
-          return newTrace;
+        setPitchHistory(prev => {
+          const newHistory = [...prev, newPoint];
+          // Checagem de Estabilidade
+          if (newHistory.length >= STABILITY_WINDOW) {
+            const recentPitches = newHistory.slice(-STABILITY_WINDOW).map(p => p.pitch);
+            const variance = Math.max(...recentPitches) - Math.min(...recentPitches);
+            const stable = variance < STABILITY_THRESHOLD && Math.max(...recentPitches) > 0;
+            setIsPitchStable(stable);
+            setIsPitchDeviating(variance > DEVIATION_THRESHOLD);
+          }
+          return newHistory;
         });
-      }
+
+        // Motor do Oponente Fantasma
+        if (isDuelActive) {
+          const timeInSec = (now - (sessionStartTimeRef.current || now)) / 1000;
+          let basePitch = 45 + Math.sin(timeInSec * 1.8) * 20 + Math.cos(timeInSec * 0.4) * 15;
+          basePitch += (Math.random() * 4 - 2); 
+          const finalGhostPitch = Math.max(10, Math.min(90, basePitch));
+
+          const ghostPoint: ChartDataItem = {
+            name: timeLabel,
+            pitch: finalGhostPitch,
+            frequency: 200 + finalGhostPitch * 4,
+            breath: 50
+          };
+
+          setGhostTrace(prev => [...prev, ghostPoint]);
+        }
+      }, 100); // Roda 10 vezes por segundo garantindo movimento fluído
     }
-  }, [pitchDataVisualization, pitchDataHz, isAnalyzing, isDuelActive]);
+
+    return () => {
+      if (engineInterval) clearInterval(engineInterval);
+    };
+  }, [isAnalyzing, isDuelActive]);
 
   return (
     <VocalSandboxContext.Provider 
