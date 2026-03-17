@@ -4,14 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, Mic2, Swords, PlayCircle, Music, Crown, 
   Search, History, Loader2, Info, Activity, Trophy, ShieldCheck, 
-  Sparkles, Star, Mic, StopCircle 
+  Sparkles, Star, Mic, StopCircle, Flame 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { toast } from 'sonner';
 
 // NOSSAS IMPORTAÇÕES DO MOTOR CORE E PROVIDER
 import { useVocalSandbox, VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
-import VocalEvolutionChart, { ChartDataItem } from '@/components/VocalEvolutionChart';
+import VocalEvolutionChart from '@/components/VocalEvolutionChart';
 
 // Conteúdo Interno da Tela
 const BasicLobbyContent = () => {
@@ -26,6 +27,10 @@ const BasicLobbyContent = () => {
   
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [userChallengeSent, setUserChallengeSent] = useState<string | null>(null);
+  
+  // 🚨 NOVOS ESTADOS PARA A ARENA DE DUELO
+  const [opponentName, setOpponentName] = useState<string | null>(null);
+  const [opponentGhostScore, setOpponentGhostScore] = useState<number>(0);
 
   const cameraRef = useRef<HTMLVideoElement>(null);
 
@@ -40,7 +45,7 @@ const BasicLobbyContent = () => {
     clearSessionSummary
   } = useVocalSandbox();
 
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
+  const YOUTUBE_API_KEY = "XXXXXXXXXXXXXX";
 
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
@@ -75,7 +80,7 @@ const BasicLobbyContent = () => {
   const handleMusicSearch = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!musicSearchTerm.trim()) { setMusicSearchResults([]); return; }
-    if (YOUTUBE_API_KEY === "SAIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha correspondente!"); return; }
+    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha correspondente!"); return; }
     setIsSearchingMusic(true);
     try {
       const query = encodeURIComponent(`${musicSearchTerm} karaoke`);
@@ -95,22 +100,33 @@ const BasicLobbyContent = () => {
     setPlayMode(mode);
     setActiveVideo(youtubeId);
     setActiveVideoTitle(title);
+    setOpponentName(null);
+    setUserChallengeSent(null);
   };
 
+  // 🚨 NOVO FLUXO DE DESAFIO (SEM ALERTS FEIOS)
   const handleChallenge = (user: any) => {
-    alert(`Convite de batalha enviado para ${user.name}! Aguardando aceitação...`);
     setUserChallengeSent(user.id);
+    toast.loading(`Convidando ${user.name}...`, { id: 'challenge' });
+    
+    // Simula a aceitação do oponente após 1.5s
+    setTimeout(() => {
+      toast.success(`${user.name} aceitou o desafio! Pode iniciar a música.`, { id: 'challenge' });
+      setOpponentName(user.name);
+      
+      // Gera a nota do adversário antecipadamente para exibir no final
+      const randomGhostScore = Math.floor(Math.random() * (95 - 70 + 1) + 70); 
+      setOpponentGhostScore(randomGhostScore);
+    }, 1500);
   };
 
-  // Função para iniciar o motor enviando dados mockados da música atual
   const handleStartEngine = () => {
-    const mockSong: any = {
-      id: activeVideo,
-      title: activeVideoTitle,
-      artist: "YouTube",
-      lyrics: [] 
-    };
-    // 🚨 Ativa o modo duelo se estiver em modo duelo, para que o motor gere o oponente fantasma
+    if (playMode === 'duelo' && !opponentName) {
+      toast.error("Você precisa convidar um oponente primeiro!");
+      return;
+    }
+
+    const mockSong: any = { id: activeVideo, title: activeVideoTitle, artist: "YouTube", lyrics: [] };
     startAnalysis(mockSong, playMode === 'duelo');
   };
 
@@ -118,14 +134,128 @@ const BasicLobbyContent = () => {
     if (isAnalyzing) stopAnalysis();
     clearSessionSummary();
     setActiveVideo(null);
+    setOpponentName(null);
   };
 
   const displaySongs = musicSearchResults.length > 0 ? musicSearchResults : recentSearches;
 
+  // Renderização da Tela Final de Duelo
+  const renderDuelSummary = () => {
+    if (!sessionSummary) return null;
+    const userScore = sessionSummary.pitchAccuracy;
+    const youWon = userScore >= opponentGhostScore;
+
+    return (
+      <div className="flex-grow space-y-8 flex flex-col items-center justify-center p-8 text-center max-w-5xl mx-auto w-full bg-zinc-950/90 backdrop-blur-xl rounded-[3rem] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] animate-in zoom-in-95 duration-500">
+        <Flame className={`h-16 w-16 mb-2 animate-pulse ${youWon ? 'text-cyan-400' : 'text-pink-500'}`} />
+        <h2 className="text-5xl font-black text-white italic uppercase tracking-tighter">
+          {youWon ? "VOCÊ VENCEU A BATALHA!" : "OPONENTE VENCEU!"}
+        </h2>
+        <p className="text-lg text-gray-400 font-bold tracking-widest uppercase">
+          Resultado Oficial da Arena
+        </p>
+        
+        <div className="flex w-full items-center justify-center gap-8 pt-8">
+          
+          {/* Card do Usuário */}
+          <div className={`flex-1 flex flex-col items-center justify-center p-8 rounded-[2rem] border-2 transition-all ${youWon ? 'bg-cyan-950/40 border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.3)] scale-105' : 'bg-black/50 border-white/5 opacity-80'}`}>
+            <h3 className="text-sm font-black text-cyan-400 uppercase tracking-widest mb-4">Você</h3>
+            <span className="text-6xl font-mono font-black text-white">{userScore.toFixed(1)}<span className="text-3xl text-cyan-500">%</span></span>
+          </div>
+
+          <div className="flex flex-col items-center justify-center shrink-0">
+             <Swords className="h-10 w-10 text-gray-500 mb-2" />
+             <span className="text-xl font-black text-white uppercase tracking-widest">VS</span>
+          </div>
+
+          {/* Card do Oponente */}
+          <div className={`flex-1 flex flex-col items-center justify-center p-8 rounded-[2rem] border-2 transition-all ${!youWon ? 'bg-pink-950/40 border-pink-500 shadow-[0_0_30px_rgba(236,72,153,0.3)] scale-105' : 'bg-black/50 border-white/5 opacity-80'}`}>
+            <h3 className="text-sm font-black text-pink-500 uppercase tracking-widest mb-4">{opponentName}</h3>
+            <span className="text-6xl font-mono font-black text-white">{opponentGhostScore.toFixed(1)}<span className="text-3xl text-pink-600">%</span></span>
+          </div>
+
+        </div>
+
+        <div className="w-full pt-6 text-left space-y-3 bg-black/40 p-6 rounded-2xl border border-white/5 mt-4">
+          <h4 className="text-lg font-black text-white uppercase tracking-widest flex items-center"><Activity className="h-5 w-5 text-cyan-400 mr-2" /> Avaliação Técnica Julliard</h4>
+          {sessionSummary.improvementTips.length > 0 ? (
+              <ul className="list-disc list-inside space-y-2 text-gray-300 font-medium">
+                  {sessionSummary.improvementTips.map((tip: string, idx: number) => (
+                      <li key={idx} className="text-sm">{tip}</li>
+                  ))}
+              </ul>
+          ) : (
+              <p className="text-gray-500 text-sm italic pt-1">Nenhuma dica gerada. Continue treinando!</p>
+          )}
+        </div>
+
+        <div className="pt-8">
+          <Button size="lg" onClick={handleClosePlayer} className="h-14 px-12 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(34,211,238,0.4)]">
+            Voltar ao Lobby
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // Renderização da Tela Final Solo
+  const renderSoloSummary = () => {
+    if (!sessionSummary) return null;
+    return (
+      <div className="flex-grow space-y-8 flex flex-col items-center justify-center p-8 text-center max-w-4xl mx-auto w-full bg-zinc-950/90 backdrop-blur-xl rounded-[3rem] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] animate-in zoom-in-95 duration-500">
+        <Sparkles className="h-16 w-16 text-cyan-400 mb-2 animate-pulse" />
+        <h2 className="text-5xl font-black text-white italic uppercase tracking-tighter">Performance Concluída!</h2>
+        <p className="text-lg text-gray-400 font-bold tracking-widest uppercase">Confira seus números cirúrgicos</p>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full pt-8">
+          <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
+            <Star className="h-6 w-6 text-cyan-400 mb-2" />
+            <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Precisão da Voz</span>
+            <span className="text-4xl font-mono font-black text-cyan-400">{sessionSummary.pitchAccuracy.toFixed(1)}<span className="text-2xl">%</span></span>
+          </div>
+          <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
+            <ShieldCheck className="h-6 w-6 text-cyan-400 mb-2" />
+            <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Pontuação</span>
+            <span className="text-4xl font-mono font-black text-white">{sessionSummary.totalScore}</span>
+          </div>
+           <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
+            <Trophy className="h-6 w-6 text-cyan-400 mb-2" />
+            <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Rank</span>
+            <span className="text-4xl font-mono font-black text-white">#{sessionSummary.performanceRank}</span>
+          </div>
+           <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
+            <Activity className="h-6 w-6 text-cyan-400 mb-2" />
+            <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Duração</span>
+            <span className="text-4xl font-mono font-black text-white">{sessionSummary.durationSeconds}<span className="text-2xl">s</span></span>
+          </div>
+        </div>
+
+        <div className="w-full pt-6 text-left space-y-3 bg-black/40 p-6 rounded-2xl border border-white/5 mt-4">
+          <h4 className="text-lg font-black text-white uppercase tracking-widest flex items-center"><Activity className="h-5 w-5 text-cyan-400 mr-2" /> Avaliação Julliard</h4>
+          {sessionSummary.improvementTips.length > 0 ? (
+              <ul className="list-disc list-inside space-y-2 text-gray-300 font-medium">
+                  {sessionSummary.improvementTips.map((tip: string, idx: number) => (
+                      <li key={idx} className="text-sm">{tip}</li>
+                  ))}
+              </ul>
+          ) : (
+              <p className="text-gray-500 text-sm italic pt-1">Continue treinando!</p>
+          )}
+        </div>
+
+        <div className="pt-8">
+          <Button size="lg" onClick={handleClosePlayer} className="h-14 px-12 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(34,211,238,0.4)]">
+            Cantar Outra Música
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen relative pb-20 pt-28 px-4 font-sans overflow-hidden">
       
-      {/* CAMADAS DE FUNDO (Z-INDEX 0 a 20) */}
+      {/* CAMADAS DE FUNDO */}
       <div className="absolute inset-0 bg-black z-0" />
       <img 
         src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=2000&q=80" 
@@ -134,10 +264,9 @@ const BasicLobbyContent = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/80 to-black z-20" />
       
-      {/* CAMADA 4: O CONTEÚDO (O app em si, que fica no Z-Index 30) */}
+      {/* CONTEÚDO PRINCIPAL */}
       <div className="max-w-7xl mx-auto relative z-30 animate-in fade-in duration-700">
         
-        {/* Header do Lobby (Ocultado quando mostra resumo) */}
         {!sessionSummary && (
           <>
             <button onClick={() => { if(isAnalyzing) stopAnalysis(); navigate('/'); }} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 transition-colors uppercase text-xs font-bold tracking-widest">
@@ -155,58 +284,12 @@ const BasicLobbyContent = () => {
           </>
         )}
 
-        {/* TELA DE RESUMO DE PERFORMANCE (JULLIARD COMPATÍVEL) */}
+        {/* TELA DE RESULTADOS DINÂMICA (SOLO vs DUELO) */}
         {sessionSummary ? (
-          <div className="flex-grow space-y-8 flex flex-col items-center justify-center p-8 text-center max-w-4xl mx-auto w-full bg-zinc-950/90 backdrop-blur-xl rounded-[3rem] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] animate-in zoom-in-95 duration-500">
-            <Sparkles className="h-16 w-16 text-cyan-400 mb-2 animate-pulse" />
-            <h2 className="text-5xl font-black text-white italic uppercase tracking-tighter">Performance Concluída!</h2>
-            <p className="text-lg text-gray-400 font-bold tracking-widest uppercase">Confira seus números cirúrgicos na música {activeVideoTitle}</p>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full pt-8">
-              <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
-                <Star className="h-6 w-6 text-cyan-400 mb-2" />
-                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Precisão da Voz</span>
-                <span className="text-4xl font-mono font-black text-cyan-400">{sessionSummary.pitchAccuracy.toFixed(1)}<span className="text-2xl">%</span></span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
-                <ShieldCheck className="h-6 w-6 text-cyan-400 mb-2" />
-                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Pontuação Total</span>
-                <span className="text-4xl font-mono font-black text-white">{sessionSummary.totalScore}</span>
-              </div>
-               <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
-                <Trophy className="h-6 w-6 text-cyan-400 mb-2" />
-                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Rank</span>
-                <span className="text-4xl font-mono font-black text-white">#{sessionSummary.performanceRank}</span>
-              </div>
-               <div className="flex flex-col items-center justify-center p-6 bg-black/50 rounded-2xl border border-white/5">
-                <Activity className="h-6 w-6 text-cyan-400 mb-2" />
-                <span className="text-[10px] font-black tracking-widest text-gray-500 uppercase">Duração</span>
-                <span className="text-4xl font-mono font-black text-white">{sessionSummary.durationSeconds}<span className="text-2xl">s</span></span>
-              </div>
-            </div>
-
-            <div className="w-full pt-6 text-left space-y-3 bg-black/40 p-6 rounded-2xl border border-white/5 mt-4">
-              <h4 className="text-lg font-black text-white uppercase tracking-widest flex items-center"><Activity className="h-5 w-5 text-cyan-400 mr-2" /> Dicas de IA para Melhoria</h4>
-              {sessionSummary.improvementTips.length > 0 ? (
-                  <ul className="list-disc list-inside space-y-2 text-gray-300 font-medium">
-                      {sessionSummary.improvementTips.map((tip: string, idx: number) => (
-                          <li key={idx} className="text-sm">{tip}</li>
-                      ))}
-                  </ul>
-              ) : (
-                  <p className="text-gray-500 text-sm italic pt-1">Nenhuma dica gerada. Continue treinando!</p>
-              )}
-            </div>
-
-            <div className="pt-8">
-              <Button size="lg" onClick={handleClosePlayer} className="h-14 px-12 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(34,211,238,0.4)]">
-                Cantar Outra Música
-              </Button>
-            </div>
-          </div>
+           playMode === 'duelo' ? renderDuelSummary() : renderSoloSummary()
         ) : activeVideo ? (
           
-          /* --- SALA DE KARAOKÊ COM VÍDEO E MOTOR DE ÁUDIO --- */
+          /* --- SALA DE KARAOKÊ --- */
           <div className="animate-in zoom-in-95 duration-500 mb-12">
             
             <div className="mb-6 flex justify-center items-center gap-3">
@@ -218,7 +301,6 @@ const BasicLobbyContent = () => {
 
             <div className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full mb-8">
               
-              {/* COLUNA 1: CÂMERA */}
               <div className="w-full lg:w-1/4 flex flex-col gap-3 order-2 lg:order-1">
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Você</h3>
                 <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-black rounded-[2rem] border-[3px] border-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.2)] overflow-hidden shrink-0">
@@ -230,11 +312,9 @@ const BasicLobbyContent = () => {
                 </div>
               </div>
 
-              {/* COLUNA 2: YOUTUBE + GRÁFICO DO MOTOR */}
               <div className={`${playMode === 'duelo' ? 'lg:w-2/4' : 'lg:w-3/4'} w-full flex flex-col gap-3 transition-all duration-500 order-1 lg:order-2 flex-grow`}>
                 <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Vídeo da Música</h3>
                 
-                {/* YOUTUBE */}
                 <div className="w-full aspect-video lg:h-[300px] rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-900 relative">
                   <iframe 
                     width="100%" height="100%" 
@@ -244,7 +324,6 @@ const BasicLobbyContent = () => {
                   ></iframe>
                 </div>
 
-                {/* NOSSO GRÁFICO CIRÚRGICO NEON (Layout Blindado contra Ocultação) */}
                 <div className="w-full h-32 lg:h-40 bg-zinc-950/80 backdrop-blur-md rounded-[1.5rem] border border-cyan-500/20 p-3 shadow-inner flex flex-col justify-center">
                    <VocalEvolutionChart 
                     title="Ondas Vocais" 
@@ -254,7 +333,6 @@ const BasicLobbyContent = () => {
                   />
                 </div>
 
-                {/* CONTROLES DO MOTOR */}
                 <div className="flex justify-center items-center gap-4 mt-2">
                   {!isAnalyzing ? (
                     <Button onClick={handleStartEngine} className="h-12 px-8 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)]">
@@ -262,60 +340,79 @@ const BasicLobbyContent = () => {
                     </Button>
                   ) : (
                     <Button onClick={stopAnalysis} variant="destructive" className="h-12 px-8 rounded-full bg-red-500 hover:bg-red-400 text-white font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_15px_rgba(239,68,68,0.4)] animate-pulse">
-                      <StopCircle className="mr-2 h-4 w-4" /> Finalizar e Ver Nota
+                      <StopCircle className="mr-2 h-4 w-4" /> Finalizar Batalha
                     </Button>
                   )}
                 </div>
 
               </div>
 
-              {/* COLUNA 3: OPONENTE (Apenas em Duelo) */}
               {playMode === 'duelo' && (
                 <div className="w-full lg:w-1/4 flex flex-col gap-3 order-3 animate-in fade-in slide-in-from-right-10 duration-500">
                   <h3 className="text-center font-black text-white tracking-widest uppercase text-sm drop-shadow-md">Oponente</h3>
-                  <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950/90 backdrop-blur-xl rounded-[2rem] border-[3px] border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,0.05)] overflow-hidden flex flex-col items-center justify-start p-6 text-center shrink-0">
+                  <div className="relative w-full aspect-[3/4] lg:h-[450px] bg-zinc-950/90 backdrop-blur-xl rounded-[2rem] border-[3px] border-pink-500/50 shadow-[0_0_40px_rgba(236,72,153,0.1)] overflow-hidden flex flex-col items-center justify-start p-6 text-center shrink-0">
                     
-                    <div className="relative w-full mb-6 group shrink-0">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Search className="h-4 w-4 text-gray-500 group-focus-within:text-cyan-400 transition-colors" />
-                      </div>
-                      <input 
-                        type="text" 
-                        placeholder="Buscar cantor..." 
-                        className="w-full h-10 pl-10 pr-4 bg-zinc-900 border border-white/10 focus:border-cyan-400 focus:outline-none text-white text-xs rounded-full transition-all"
-                        value={userSearchTerm}
-                        onChange={(e) => setUserSearchTerm(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="flex-1 w-full space-y-3 overflow-y-auto pr-2 custom-scrollbar-cyan">
-                      {filteredUsers.length > 0 ? (
-                        filteredUsers.map((user) => (
-                          <div key={user.id} className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3 w-full animate-in fade-in">
-                            <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border border-white/10 shrink-0" />
-                            <div className="text-left flex-1 min-w-0">
-                              <p className="text-xs font-black text-white uppercase tracking-widest truncate">{user.name}</p>
-                              <div className="flex items-center gap-1.5 text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
-                                <Info size={10} className="text-cyan-500" /> Nível {user.level}
-                              </div>
-                            </div>
-                            <Button onClick={() => handleChallenge(user)} disabled={user.challengeSent || user.status !== 'Online'} className="h-8 px-4 rounded-full bg-cyan-400 hover:bg-white text-black font-black uppercase tracking-widest text-[8px] transition-all">
-                              {user.id === userChallengeSent ? 'Enviado' : 'Convidar'}
-                            </Button>
+                    {!opponentName ? (
+                      <>
+                        <div className="relative w-full mb-6 group shrink-0">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search className="h-4 w-4 text-gray-500 group-focus-within:text-pink-500 transition-colors" />
                           </div>
-                        ))
-                      ) : (
-                        <div className="text-center py-6">
-                          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nenhum cantor online.</p>
+                          <input 
+                            type="text" 
+                            placeholder="Buscar cantor..." 
+                            className="w-full h-10 pl-10 pr-4 bg-zinc-900 border border-white/10 focus:border-pink-500 focus:outline-none text-white text-xs rounded-full transition-all"
+                            value={userSearchTerm}
+                            onChange={(e) => setUserSearchTerm(e.target.value)}
+                          />
                         </div>
-                      )}
-                    </div>
+
+                        <div className="flex-1 w-full space-y-3 overflow-y-auto pr-2 custom-scrollbar-pink">
+                          {filteredUsers.length > 0 ? (
+                            filteredUsers.map((user) => (
+                              <div key={user.id} className="bg-zinc-900/80 border border-white/5 p-3 rounded-2xl flex items-center gap-3 w-full animate-in fade-in">
+                                <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border border-white/10 shrink-0" />
+                                <div className="text-left flex-1 min-w-0">
+                                  <p className="text-xs font-black text-white uppercase tracking-widest truncate">{user.name}</p>
+                                  <div className="flex items-center gap-1.5 text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
+                                    <Info size={10} className="text-pink-500" /> Nível {user.level}
+                                  </div>
+                                </div>
+                                <Button 
+                                  onClick={() => handleChallenge(user)} 
+                                  disabled={userChallengeSent !== null} 
+                                  className={`h-8 px-4 rounded-full font-black uppercase tracking-widest text-[8px] transition-all ${userChallengeSent === user.id ? 'bg-zinc-700 text-zinc-400' : 'bg-pink-500 hover:bg-white text-white hover:text-pink-600'}`}
+                                >
+                                  {userChallengeSent === user.id ? 'Aguarde...' : 'Convidar'}
+                                </Button>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-6">
+                              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nenhum cantor online.</p>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center animate-in zoom-in duration-500">
+                        <div className="w-32 h-32 rounded-full border-4 border-pink-500 p-1 mb-6 shadow-[0_0_30px_rgba(236,72,153,0.4)]">
+                          <img src={onlineUsers.find(u => u.name === opponentName)?.avatar || "https://i.pravatar.cc/150"} alt={opponentName} className="w-full h-full rounded-full object-cover" />
+                        </div>
+                        <h3 className="text-xl font-black text-white uppercase tracking-widest mb-2">{opponentName}</h3>
+                        <div className="bg-pink-500/20 text-pink-400 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest border border-pink-500/50 flex items-center gap-2 mb-6">
+                          <Swords size={14} /> Desafio Aceito!
+                        </div>
+                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                          Aguardando você iniciar a captação...
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
             </div>
             
-            {/* BOTÃO VOLTAR (Só aparece se o motor não estiver gravando) */}
             {!isAnalyzing && (
               <div className="flex justify-center mt-4">
                 <Button onClick={handleClosePlayer} variant="outline" className="h-14 px-8 rounded-full border-white/20 text-white font-bold hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-xs backdrop-blur-sm">
@@ -327,9 +424,8 @@ const BasicLobbyContent = () => {
 
         ) : (
           
-          /* --- SALA DE BUSCA (ESTADO INICIAL) --- */
+          /* --- SALA DE BUSCA INICIAL --- */
           <div className="animate-in slide-in-from-bottom-5">
-            {/* Form de Busca */}
             <form onSubmit={handleMusicSearch} className="relative mb-10 group max-w-3xl flex gap-2">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none z-10">
