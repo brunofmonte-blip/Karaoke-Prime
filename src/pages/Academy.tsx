@@ -18,7 +18,6 @@ const Level1Menu = () => {
   const [isFarinelliActive, setIsFarinelliActive] = useState(false);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
-  // 🚨 INVENTÁRIO DO NÍVEL 1 INJETADO
   const lessons1 = [
     { id: "1.1", title: "Respiração Diafragmática", desc: "Aprenda a respirar usando o diafragma para maior controle.", videoId: "Wl6xUHg9iAQ" },
     { id: "1.2", title: "Controle de Fluxo de Ar", desc: "Exercícios para manter a saída de ar constante e controlada.", videoId: "fQKI_SFrrOo" },
@@ -75,7 +74,6 @@ const Level1Menu = () => {
           ))}
         </div>
       </div>
-      {/* MODAL DE VÍDEO NÍVEL 1 */}
       {activeVideo && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 animate-in fade-in duration-300">
           <Button variant="ghost" onClick={() => setActiveVideo(null)} className="absolute top-8 right-8 text-white hover:bg-white/10 rounded-full"><X size={32} /></Button>
@@ -92,7 +90,6 @@ const Level2Menu = () => {
   const [isFarinelliActive, setIsFarinelliActive] = useState(false);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
-  // 🚨 INVENTÁRIO DO NÍVEL 2 INJETADO (Com títulos originais gerados para Afinação)
   const lessons2 = [
     { id: "2.1", title: "Percepção Auditiva", desc: "Treinando o ouvido para reconhecer notas e intervalos.", videoId: "TTVVJTnentM" },
     { id: "2.2", title: "Escalas Maiores", desc: "Subindo e descendo a escala com precisão matemática.", videoId: "uIgaE7Ekh1k" },
@@ -149,7 +146,6 @@ const Level2Menu = () => {
           ))}
         </div>
       </div>
-      {/* MODAL DE VÍDEO NÍVEL 2 */}
       {activeVideo && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 animate-in fade-in duration-300">
           <Button variant="ghost" onClick={() => setActiveVideo(null)} className="absolute top-8 right-8 text-white hover:bg-white/10 rounded-full"><X size={32} /></Button>
