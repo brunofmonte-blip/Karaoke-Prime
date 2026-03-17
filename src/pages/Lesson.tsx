@@ -158,7 +158,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Twang", practiceDesc: "Imitar 'Nyeah' anasalado/estridente.",
         feedbackTitle: "Corte Metálico", feedbackDesc: "Garante que sua voz fure a banda inteira.", frequency: "Quando necessário",
         phases: [{phase: 'INSPIRA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'TWANG', t: 10, instruction: 'Nyeah!', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 9, displayTitle: "Aula 9", title: "O Mix Perfeito", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 9, displayTitle: "Aula 9", title: "O Mix Perfeito", youtubeId: "ec5tuQ1bhb0", hasPractice: true, locked: true,
         exercise: "Costura", practiceDesc: "Lamento 'Gug-Gug' subindo e descendo.",
         feedbackTitle: "Domínio", feedbackDesc: "Mistura força de peito com brilho de cabeça.", frequency: "Avançado",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'LAMENTO', t: 12, instruction: 'Gug-Gug', color: 'orange', icon: Volume2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
