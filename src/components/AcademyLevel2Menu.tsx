@@ -1,137 +1,76 @@
-"use client";
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PlayCircle, Wind, CheckCircle2, Lock, X, Activity, Target } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Target, Music, EyeOff, PlayCircle, ChevronRight, Zap, Activity, Mic2, Headphones, BarChart3 } from 'lucide-react';
-import { useVocalSandbox, CalibrationSubModule } from '@/hooks/use-vocal-sandbox';
-import { publicDomainLibrary } from '@/data/public-domain-library';
+import { VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
+import FarinelliExercise from './FarinelliExercise';
 
-interface Exercise {
-  id: string;
-  title: string;
-  subModule: CalibrationSubModule;
-  icon: React.ElementType;
-}
-
-interface Module {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ElementType;
-  prescription: string;
-  exercises: Exercise[];
-}
-
-const modules: Module[] = [
+// DADOS DE CONFIGURAÇÃO DO MOTOR (Placeholders)
+export const level2Modules = [
   {
-    id: 'L2-A',
-    title: 'Módulo A: Ataque & Audiation',
-    description: 'Precisão instantânea e mentalização de frequência.',
-    icon: Target,
-    prescription: 'Foco em Intonação Pura',
+    id: "l2-afunacao-avancada",
+    title: "Nível 2: Afinação Precisa",
     exercises: [
-      { id: 'farinelli-int', title: '1. Farinelli (Intonation)', subModule: 'laser-attack', icon: Activity },
-      { id: 'audiation', title: '6. Audiation (Mentalization)', subModule: 'audiation', icon: Zap },
-      { id: 'bone-cond', title: '10. Condução Óssea', subModule: 'bone-conduction', icon: Headphones }
-    ]
-  },
-  {
-    id: 'L2-B',
-    title: 'Módulo B: Biofeedback & Tuning',
-    description: 'A ciência do Hertz e correção em tempo real.',
-    icon: BarChart3,
-    prescription: 'Precisão < 5 Cents',
-    exercises: [
-      { id: 'biofeedback', title: '2. Biofeedback (Hertz/Cents)', subModule: 'biofeedback', icon: BarChart3 },
-      { id: 'sovt-pitch', title: '5. SOVT (Straw/Lip Trills)', subModule: 'sovt-pitch', icon: Activity },
-      { id: 'autotune', title: '7. Auto-Tune Real-Time', subModule: 'autotune-realtime', icon: Mic2 }
-    ]
-  },
-  {
-    id: 'L2-C',
-    title: 'Módulo C: Ressonância & Teoria',
-    description: 'Modificação de vogais e solfejo clássico.',
-    icon: Music,
-    prescription: 'Pureza de Vogais',
-    exercises: [
-      { id: 'vowel-mod', title: '3. Vowel Modification', subModule: 'vowel-mod', icon: Mic2 },
-      { id: 'solfege', title: '9. Solfège (Do-Re-Mi)', subModule: 'solfege', icon: Music }
-    ]
-  },
-  {
-    id: 'L2-D',
-    title: 'Módulo D: Estúdio & Performance',
-    description: 'Estabilidade contra drone e análise de estúdio.',
-    icon: Activity,
-    prescription: 'Estabilidade Absoluta',
-    exercises: [
-      { id: 'drone-pedal', title: '4. Drone (Nota Pedal)', subModule: 'drone-sustain', icon: Music },
-      { id: 'melodyne', title: '8. Melodyne Analysis', subModule: 'melodyne-analysis', icon: BarChart3 }
+      {
+        id: "ex-farinelli-l2",
+        title: "Sustentação Estável de Ar",
+        inhale: 4, hold: 2, exhale: 12, rest: 4,
+        prepText: "Mantenha o sopro constante.", actionText: "SOPRAR", command: "EXPIRA AGORA", isLegato: true
+      }
     ]
   }
 ];
 
-const AcademyLevel2Menu: React.FC = () => {
-  const { startAnalysis, openOverlay } = useVocalSandbox();
-  const [expandedModule, setExpandedModule] = useState<string | null>(null);
+// LIÇÕES (Placeholders)
+const lessons = [
+  { id: "2.1", title: "Aula em Construção", desc: "Aguardando ementa e vídeo introdutório.", videoId: "" },
+  { id: "2.2", title: "Aula em Construção", desc: "Aguardando ementa e vídeo introdutório.", videoId: "" },
+  { id: "2.3", title: "Aula em Construção", desc: "Aguardando ementa e vídeo introdutório.", videoId: "" },
+  { id: "2.4", title: "Aula em Construção", desc: "Aguardando ementa e vídeo introdutório.", videoId: "" },
+  { id: "2.5", title: "Aula em Construção", desc: "Aguardando ementa e vídeo introdutório.", videoId: "" },
+  { id: "2.6", title: "Aula em Construção", desc: "Aguardando ementa e vídeo introdutório.", videoId: "" },
+  { id: "2.7", title: "Aula em Construção", desc: "Aguardando ementa e vídeo introdutório.", videoId: "" },
+  { id: "2.8", title: "Aula em Construção", desc: "Aguardando ementa e vídeo introdutório.", videoId: "" },
+];
 
-  const handleStartExercise = (exercise: Exercise) => {
-    const exerciseSong = publicDomainLibrary.find(s => s.id === 'pd-21') || publicDomainLibrary[0];
-    startAnalysis(exerciseSong, false, 'pitch-calibration', exercise.subModule);
-    openOverlay();
-  };
+const AcademyLevel2Menu = () => {
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [isFarinelliActive, setIsFarinelliActive] = useState(false);
+
+  if (isFarinelliActive) {
+    return (
+      <VocalSandboxProvider>
+        <div className="min-h-[80vh] bg-zinc-950 border border-cyan-500/30 rounded-[3rem] p-8 shadow-[0_0_50px_rgba(6,182,212,0.15)] relative animate-in zoom-in-95 duration-500 flex flex-col items-center justify-center">
+          <Button variant="ghost" onClick={() => setIsFarinelliActive(false)} className="absolute top-8 right-8 text-gray-400 hover:text-white rounded-full"><X size={24} /></Button>
+          <div className="mb-4 text-center"><h2 className="text-3xl font-black text-cyan-400 uppercase tracking-widest italic flex items-center justify-center gap-3"><Wind className="h-8 w-8" /> Laboratório de Respiração Lvl 2</h2><p className="text-gray-400 text-sm font-bold uppercase tracking-widest mt-2">Estabilidade do Sopro</p></div>
+          <FarinelliExercise moduleType="farinelli" />
+        </div>
+      </VocalSandboxProvider>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {modules.map((module) => (
-        <Card key={module.id} className={cn(
-          "glass-pillar border-2 transition-all duration-300 h-fit",
-          expandedModule === module.id ? "border-accent shadow-lg shadow-accent/20" : "border-primary/30 hover:border-primary/70"
-        )}>
-          <CardHeader className="pb-2 cursor-pointer" onClick={() => setExpandedModule(expandedModule === module.id ? null : module.id)}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-accent/10 border border-accent/30">
-                  <module.icon className="h-6 w-6 text-accent" />
-                </div>
-                <CardTitle className="text-xl font-bold text-foreground">{module.title}</CardTitle>
-              </div>
-              <ChevronRight className={cn("h-5 w-5 text-muted-foreground transition-transform", expandedModule === module.id && "rotate-90")} />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">{module.description}</p>
-            
-            {expandedModule === module.id && (
-              <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
-                <div className="p-3 rounded-xl bg-primary/10 border border-primary/30 mb-4">
-                  <p className="text-xs font-bold text-primary uppercase tracking-wider">Meta de Treino</p>
-                  <p className="text-sm text-foreground font-medium">{module.prescription}</p>
-                </div>
-                
-                <div className="grid grid-cols-1 gap-2">
-                  {module.exercises.map((ex) => (
-                    <Button 
-                      key={ex.id}
-                      onClick={() => handleStartExercise(ex)}
-                      variant="outline"
-                      className="justify-between bg-background/50 border-accent/20 hover:border-accent hover:bg-accent/10 rounded-xl h-12"
-                    >
-                      <div className="flex items-center gap-2">
-                        <ex.icon className="h-4 w-4 text-accent" />
-                        <span className="font-medium">{ex.title}</span>
-                      </div>
-                      <PlayCircle className="h-5 w-5 text-accent" />
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+    <div className="w-full max-w-6xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
+      <div className="bg-zinc-950 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
+        <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
+          <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 2</div>
+          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Afinação <span className="text-cyan-400">Precisa</span></h1>
+          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">Nível intermediário de afinação. Aguardando texto introdutório oficial.</p>
+          <Button onClick={() => setIsFarinelliActive(true)} className="w-full h-16 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-3"><Wind size={20} /> ABRIR TREINO INTERMEDIÁRIO</Button>
+        </div>
+        <div className="lg:w-1/2 bg-black relative min-h-[300px] flex items-center justify-center text-gray-600 font-bold uppercase tracking-widest text-xs">Aguardando Vídeo Introdutório do Nível 2</div>
+      </div>
+      <div>
+        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> Aulas do Módulo</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {lessons.map((lesson, idx) => (
+            <Card key={lesson.id} className="p-6 rounded-[2rem] bg-black/50 border-white/5 opacity-60 cursor-not-allowed flex items-start gap-4">
+              <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/5 text-gray-600"><Lock size={20} /></div>
+              <div><div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div><h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4><p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{lesson.desc}</p><p className="text-[10px] text-pink-500 font-bold uppercase tracking-widest mt-3">Em Breve (Aguardando Dados)</p></div>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
