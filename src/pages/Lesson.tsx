@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Mic, Lock, Copy, ListVideo } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Mic, Lock, Copy, ListVideo, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button'; // 🚨 A CORREÇÃO ESTÁ AQUI: IMPORTAÇÃO DO BOTÃO!
+import { Button } from '@/components/ui/button';
+
+// 🚨 IMPORTAÇÃO DOS MOTORES DE TREINO REAIS
+import { VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
+import FarinelliExercise from '@/components/FarinelliExercise';
+import PitchCalibrationExercise from '@/components/PitchCalibrationExercise';
 
 // ============================================================================
 // O GRANDE BANCO DE DADOS DE AULAS E VÍDEOS (NÍVEIS 1 A 4)
@@ -75,22 +80,24 @@ const academyData: Record<string, any> = {
 };
 
 export default function Lesson() {
-  const { id } = useParams<{ id: string }>(); // Pega a lição da URL (ex: '1.1')
+  const { id } = useParams<{ id: string }>(); 
   const navigate = useNavigate();
   
-  // Extrai o número do nível (ex: '1' a partir de '1.1')
   const levelId = id?.split('.')[0] || "1"; 
   const currentLevelData = academyData[levelId];
   
-  // Encontra qual é a aula ativa baseada na URL
   const [activeLessonId, setActiveLessonId] = useState<string>(id || `${levelId}.1`);
+  
+  // 🚨 ESTADO QUE CONTROLA SE O TREINO ESTÁ ABERTO
+  const [isTrainingActive, setIsTrainingActive] = useState(false);
 
-  // Efeito para atualizar caso a URL mude
   useEffect(() => {
-    if (id) setActiveLessonId(id);
+    if (id) {
+      setActiveLessonId(id);
+      setIsTrainingActive(false); // Fecha o treino automaticamente se o usuário trocar de aula na playlist
+    }
   }, [id]);
 
-  // Se não encontrar os dados do nível, mostra um fallback elegante
   if (!currentLevelData) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
@@ -100,11 +107,9 @@ export default function Lesson() {
     );
   }
 
-  // Descobre os detalhes da lição atualmente ativa
   const activeLessonData = currentLevelData.lessons.find((l: any) => l.id === activeLessonId);
   const videoToPlay = activeLessonData?.videoId || currentLevelData.introVideo;
   
-  // Nomes e descrições para a tela principal
   const displayTitle = activeLessonData ? activeLessonData.title : "Introdução";
   const displayLabel = activeLessonData ? `AULA ${activeLessonData.id.split('.')[1]}` : "AULA INTRODUTÓRIA";
 
@@ -132,40 +137,69 @@ export default function Lesson() {
 
         <div className="flex flex-col lg:flex-row gap-6">
           
-          {/* PLAYER DE VÍDEO E EXERCÍCIO (ÁREA ESQUERDA) */}
+          {/* PLAYER DE VÍDEO OU ARENA DE EXERCÍCIO (ÁREA ESQUERDA) */}
           <div className="lg:w-2/3 flex flex-col gap-6">
             
-            {/* O VÍDEO DO YOUTUBE */}
-            <div className="w-full aspect-video bg-zinc-900 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl relative group">
-              {videoToPlay ? (
-                <iframe 
-                  width="100%" height="100%" 
-                  src={`https://www.youtube.com/embed/${videoToPlay}?autoplay=1&rel=0&modestbranding=1`} 
-                  title="Aula Academy" frameBorder="0" allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                ></iframe>
-              ) : (
-                 <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-600 bg-black">
-                    <Lock className="h-12 w-12 mb-4 opacity-50" />
-                    <p className="font-bold uppercase tracking-widest text-xs">VÍDEO EM PRODUÇÃO</p>
-                 </div>
-              )}
-              
-              <button onClick={copyLink} className="absolute top-4 right-4 bg-black/60 hover:bg-cyan-500 hover:text-black text-white p-3 rounded-xl backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 flex flex-col items-center gap-1 border border-white/10">
-                <Copy size={18} />
-                <span className="text-[8px] font-black uppercase tracking-widest">Copiar Link</span>
-              </button>
-            </div>
+            {isTrainingActive ? (
+              // 🚨 AQUI ENTRA A MÁGICA: O MOTOR DE TREINO RENDERIZADO NO LUGAR DO VÍDEO
+              <VocalSandboxProvider>
+                <div className="w-full bg-zinc-950 rounded-[2rem] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] p-8 relative flex flex-col items-center justify-center min-h-[500px] animate-in zoom-in-95 duration-500">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => setIsTrainingActive(false)} 
+                    className="absolute top-6 right-6 text-gray-400 hover:text-white rounded-full bg-black/50 backdrop-blur-md"
+                  >
+                    <X size={24} className="mr-2" /> FECHAR TREINO
+                  </Button>
+                  
+                  {/* LÓGICA DE INTELIGÊNCIA ARTIFICIAL PARA SABER QUAL TREINO CARREGAR */}
+                  {levelId === "2" ? (
+                     <PitchCalibrationExercise /> // Afinação para o Nível 2
+                  ) : (
+                     <FarinelliExercise moduleType="farinelli" /> // Respiração para o Nível 1, 3 e 4
+                  )}
+                </div>
+              </VocalSandboxProvider>
 
-            {/* O CARD DE "INICIAR TREINO" OFICIAL */}
-            <div className="bg-zinc-950 border border-cyan-500/20 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center shadow-[0_0_30px_rgba(6,182,212,0.1)] mt-4">
-               <Mic className="h-12 w-12 text-cyan-400 mb-4 opacity-80" />
-               <h2 className="text-2xl font-black text-white italic uppercase tracking-widest mb-2">TREINO PRÁTICO</h2>
-               <p className="text-sm text-gray-400 font-medium mb-8">Execute a técnica aprendida no vídeo acima utilizando o Motor Julliard de Análise Vocal.</p>
-               <Button onClick={() => toast.success("Aguardando ativação do Sandbox...")} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest h-14 px-12 rounded-full shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-                 INICIAR TREINO DE 60S
-               </Button>
-            </div>
+            ) : (
+              // ESTADO NORMAL: VÍDEO E BOTÃO
+              <>
+                <div className="w-full aspect-video bg-zinc-900 rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl relative group animate-in fade-in duration-500">
+                  {videoToPlay ? (
+                    <iframe 
+                      width="100%" height="100%" 
+                      src={`https://www.youtube.com/embed/${videoToPlay}?autoplay=1&rel=0&modestbranding=1`} 
+                      title="Aula Academy" frameBorder="0" allowFullScreen
+                      className="absolute inset-0 w-full h-full"
+                    ></iframe>
+                  ) : (
+                     <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-600 bg-black">
+                        <Lock className="h-12 w-12 mb-4 opacity-50" />
+                        <p className="font-bold uppercase tracking-widest text-xs">VÍDEO EM PRODUÇÃO</p>
+                     </div>
+                  )}
+                  
+                  <button onClick={copyLink} className="absolute top-4 right-4 bg-black/60 hover:bg-cyan-500 hover:text-black text-white p-3 rounded-xl backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 flex flex-col items-center gap-1 border border-white/10">
+                    <Copy size={18} />
+                    <span className="text-[8px] font-black uppercase tracking-widest">Copiar Link</span>
+                  </button>
+                </div>
+
+                <div className="bg-zinc-950 border border-cyan-500/20 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center shadow-[0_0_30px_rgba(6,182,212,0.1)] mt-4 animate-in slide-in-from-bottom-5">
+                   <Mic className="h-12 w-12 text-cyan-400 mb-4 opacity-80" />
+                   <h2 className="text-2xl font-black text-white italic uppercase tracking-widest mb-2">TREINO PRÁTICO</h2>
+                   <p className="text-sm text-gray-400 font-medium mb-8">Execute a técnica aprendida no vídeo acima utilizando o Motor Julliard de Análise Vocal.</p>
+                   
+                   {/* 🚨 O BOTÃO AGORA ATIVA O TREINO */}
+                   <Button 
+                     onClick={() => setIsTrainingActive(true)} 
+                     className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest h-14 px-12 rounded-full shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-105"
+                   >
+                     INICIAR TREINO PRÁTICO
+                   </Button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* A PLAYLIST LATERAL (ÁREA DIREITA) */}
@@ -180,7 +214,7 @@ export default function Lesson() {
                 {/* Botão da Introdução */}
                 <div 
                   onClick={() => navigate(`/lesson/${levelId}.intro`)}
-                  className={`p-4 rounded-2xl flex items-center gap-4 cursor-pointer transition-all border ${activeLessonId.includes('intro') ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400' : 'bg-black border-white/5 text-gray-400 hover:bg-white/5 hover:border-white/20'}`}
+                  className={`p-4 rounded-2xl flex items-center gap-4 cursor-pointer transition-all border ${activeLessonId.includes('intro') ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]' : 'bg-black border-white/5 text-gray-400 hover:bg-white/5 hover:border-white/20'}`}
                 >
                    <PlayCircle size={20} className="shrink-0" />
                    <div>
@@ -194,7 +228,7 @@ export default function Lesson() {
                   <div 
                     key={lesson.id}
                     onClick={() => lesson.videoId ? navigate(`/lesson/${lesson.id}`) : toast.error("Aula ainda não liberada.")}
-                    className={`p-4 rounded-2xl flex items-center gap-4 cursor-pointer transition-all border ${activeLessonId === lesson.id ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400' : 'bg-black border-white/5 text-gray-400 hover:bg-white/5 hover:border-white/20'} ${!lesson.videoId ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                    className={`p-4 rounded-2xl flex items-center gap-4 cursor-pointer transition-all border ${activeLessonId === lesson.id ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]' : 'bg-black border-white/5 text-gray-400 hover:bg-white/5 hover:border-white/20'} ${!lesson.videoId ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                   >
                      {lesson.videoId ? <PlayCircle size={20} className="shrink-0" /> : <Lock size={20} className="shrink-0" />}
                      <div>
