@@ -162,7 +162,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Costura", practiceDesc: "Lamento 'Gug-Gug' subindo e descendo.",
         feedbackTitle: "Domínio", feedbackDesc: "Mistura força de peito com brilho de cabeça.", frequency: "Avançado",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'LAMENTO', t: 12, instruction: 'Gug-Gug', color: 'orange', icon: Volume2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 10, displayTitle: "Aula 10", title: "Desafio Final da Dicção", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 10, displayTitle: "Aula 10", title: "Desafio Final da Dicção", youtubeId: "kbNjMQwzJX8", hasPractice: true, locked: true,
         exercise: "Integração", practiceDesc: "Canta 'Bla-bla', depois Letra Real Exagerada.",
         feedbackTitle: "Pronto pro Show", feedbackDesc: "Sua dicção agora é de um profissional.", frequency: "Showcase",
         phases: [{phase: 'BASE', t: 2, instruction: '', color: 'cyan', icon: Music}, {phase: 'BLA-BLA', t: 8, instruction: '', color: 'orange', icon: Activity}, {phase: 'LETRA REAL', t: 8, instruction: 'Exagerado', color: 'blue', icon: Mic2}, {phase: 'DESCANSA', t: 2, instruction: '', color: 'gray', icon: Coffee}] }
