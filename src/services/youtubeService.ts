@@ -44,7 +44,7 @@ const BasicLobbyContent = () => {
     clearSessionSummary
   } = useVocalSandbox();
 
-  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R54";
+  const YOUTUBE_API_KEY = "AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548";
 
   const recentSearches = [
     { id: "R-vR6Zt2K78", title: "Não Quero Dinheiro", artist: "Tim Maia", youtubeId: "R-vR6Zt2K78" },
