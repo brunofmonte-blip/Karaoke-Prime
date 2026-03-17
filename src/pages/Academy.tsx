@@ -6,15 +6,17 @@ import { Card } from '@/components/ui/card';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
-// IMPORTANDO OS MENUS DOS NÍVEIS QUE JÁ CRIAMOS
+// 🚨 IMPORTANDO OS NOVOS MENUS PREMIUM PADRONIZADOS
+import AcademyLevel1Menu from '@/components/AcademyLevel1Menu';
+import AcademyLevel2Menu from '@/components/AcademyLevel2Menu';
 import AcademyLevel3Menu from '@/components/AcademyLevel3Menu';
+import AcademyLevel4Menu from '@/components/AcademyLevel4Menu';
 
 export default function Academy() {
   const navigate = useNavigate();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   
-  // 🚨 NOVO ESTADO: Controle de Navegação Interna
   const [activeLevel, setActiveLevel] = useState<number | null>(null);
 
   useEffect(() => {
@@ -29,13 +31,12 @@ export default function Academy() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // A CHAVE MESTRA VIP DO COMANDANTE
   const isPremiumUser = user?.email === 'bruno.fmonte@gmail.com';
 
   const modulos = [
-    { id: 1, titulo: 'RESPIRAÇÃO E APOIO', desc: 'Exercícios de diafragma, controle de fluxo de ar.', time: '10 min', locked: false },
-    { id: 2, titulo: 'AFINAÇÃO PRECISA', desc: 'Treinamento de ouvido e intervalos.', time: '12 min', locked: true },
-    { id: 3, titulo: 'RESSONÂNCIA E DICÇÃO', desc: 'Melhora da qualidade tonal e clareza.', time: '15 min', locked: true },
+    { id: 1, titulo: 'INTRODUÇÃO E AFINAÇÃO', desc: 'Fundamentos de ouvido e intervalos básicos.', time: '10 min', locked: false },
+    { id: 2, titulo: 'AFINAÇÃO PRECISA', desc: 'Treinamento intermediário e controle tonal.', time: '12 min', locked: true },
+    { id: 3, titulo: 'RESSONÂNCIA E DICÇÃO', desc: 'A cor da voz e a clareza das palavras.', time: '15 min', locked: true },
     { id: 4, titulo: 'INTERPRETAÇÃO VOCAL', desc: 'Expressão e emoção ao cantar.', time: '20 min', locked: true },
     { id: 5, titulo: 'FALSETES E MELISMAS', desc: 'Técnicas avançadas de R&B e POP.', time: '25 min', locked: true },
     { id: 6, titulo: 'VIBRATO MASTER', desc: 'Oscilação perfeita e controle.', time: '20 min', locked: true },
@@ -54,21 +55,33 @@ export default function Academy() {
     );
   }
 
-  // 🚨 FUNÇÃO DE ROTEAMENTO INTELIGENTE
+  // 🚨 FUNÇÃO DE ROTEAMENTO PREMIUM ATUALIZADA (Níveis 1, 2, 3 e 4)
   const handleLevelClick = (levelId: number) => {
-    // Se for o Nível 3, renderizamos nosso componente premium na mesma tela!
-    if (levelId === 3) {
-        setActiveLevel(3);
+    // Lista de níveis que já possuem a tela premium construída
+    const builtLevels = [1, 2, 3, 4];
+    
+    if (builtLevels.includes(levelId)) {
+        setActiveLevel(levelId);
     } else {
         // Fallback antigo para os níveis que ainda não construímos a tela premium
         navigate(`/lesson/${levelId}`);
     }
   };
 
+  // Renderizador dinâmico do conteúdo do nível
+  const renderActiveLevel = () => {
+    switch(activeLevel) {
+        case 1: return <AcademyLevel1Menu />;
+        case 2: return <AcademyLevel2Menu />;
+        case 3: return <AcademyLevel3Menu />;
+        case 4: return <AcademyLevel4Menu />;
+        default: return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black flex flex-col p-4 pt-24 pb-20 font-sans text-white relative overflow-x-hidden">
       
-      {/* BACKGROUND DA ACADEMY */}
       <div className="absolute inset-0 z-0 fixed">
         <img 
           src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
@@ -80,7 +93,6 @@ export default function Academy() {
 
       <div className="z-10 max-w-7xl mx-auto w-full relative">
         
-        {/* NAVEGAÇÃO DE VOLTA */}
         <button 
           onClick={() => activeLevel ? setActiveLevel(null) : navigate('/')} 
           className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors bg-black/50 px-4 py-2 rounded-full border border-white/10 w-fit backdrop-blur-md"
@@ -88,10 +100,9 @@ export default function Academy() {
           <ArrowLeft size={16} /> {activeLevel ? 'Voltar para os Níveis' : 'Voltar para o Palco'}
         </button>
 
-        {/* 🚨 RENDERIZAÇÃO DINÂMICA: Mostra o menu de níveis OU a tela do Nível 3 */}
-        {activeLevel === 3 ? (
+        {activeLevel ? (
             <div className="animate-in slide-in-from-right-10 duration-500">
-                <AcademyLevel3Menu />
+                {renderActiveLevel()}
             </div>
         ) : (
             <div className="animate-in fade-in duration-500">
