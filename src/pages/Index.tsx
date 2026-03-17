@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlayCircle, TrendingUp, Music, Globe2, Trophy, Clock, Star, Flame, Hash, User, ChevronRight } from 'lucide-react';
+// 🚨 CORREÇÃO: Mic2 e GraduationCap adicionados na importação abaixo!
+import { PlayCircle, TrendingUp, Music, Globe2, Trophy, Clock, Star, Flame, Hash, User, ChevronRight, Mic2, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
