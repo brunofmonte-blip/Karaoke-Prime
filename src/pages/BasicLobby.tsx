@@ -80,7 +80,7 @@ const BasicLobbyContent = () => {
   const handleMusicSearch = async (e: React.FormEvent) => {
     e.preventDefault(); 
     if (!musicSearchTerm.trim()) { setMusicSearchResults([]); return; }
-    if (YOUTUBE_API_KEY === "SUA_CHAVE_API_DO_YOUTUBE_AQUI") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha correspondente!"); return; }
+    if (YOUTUBE_API_KEY === "SAIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548") { alert("⚠️ Comandante, cole sua chave da API do YouTube na linha correspondente!"); return; }
     setIsSearchingMusic(true);
     try {
       const query = encodeURIComponent(`${musicSearchTerm} karaoke`);
