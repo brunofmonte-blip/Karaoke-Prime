@@ -74,6 +74,7 @@ const Level1Menu = () => {
           ))}
         </div>
       </div>
+      {/* MODAL DE VÍDEO NÍVEL 1 */}
       {activeVideo && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 animate-in fade-in duration-300">
           <Button variant="ghost" onClick={() => setActiveVideo(null)} className="absolute top-8 right-8 text-white hover:bg-white/10 rounded-full"><X size={32} /></Button>
@@ -329,6 +330,16 @@ export default function Academy() {
       </div>
     );
   }
+
+  // 🚨 FUNÇÃO DE ROTEAMENTO (O FIO QUE ESTAVA SOLTO!)
+  const handleLevelClick = (levelId: number) => {
+    const builtLevels = [1, 2, 3, 4];
+    if (builtLevels.includes(levelId)) {
+        setActiveLevel(levelId);
+    } else {
+        navigate(`/lesson/${levelId}`);
+    }
+  };
 
   // Renderizador Inteligente
   const renderActiveLevel = () => {
