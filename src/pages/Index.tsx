@@ -2,23 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Mic2, GraduationCap, Star, Lock, Music, LayoutDashboard, 
-  Sparkles, Trophy, Globe, Medal, Heart, MessageCircle, ArrowRight, User as LucideUser
+  Sparkles, Trophy, Globe, Medal, Heart, MessageCircle, ArrowRight, User as LucideUser, Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import VocalAnalyzer from '@/components/VocalAnalyzer';
+
+// 🚨 IMPORTAMOS O NOSSO GRÁFICO OFICIAL
+import VocalEvolutionChart from '@/components/VocalEvolutionChart';
 
 const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<FirebaseUser | null>(null);
 
+  // 🚨 ESTADOS DO BANCO DE DADOS LOCAL (MVP)
+  const [bestScore, setBestScore] = useState<number>(0);
+  const [academyLevel, setAcademyLevel] = useState<number>(1);
+  const [lastPerformanceData, setLastPerformanceData] = useState<any[]>([]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
+
+    // 🚨 CARREGANDO DADOS DO LOCALSTORAGE ASSIM QUE A TELA ABRE
+    const savedScore = localStorage.getItem('karaoke_best_score');
+    const savedLevel = localStorage.getItem('karaoke_level');
+    const savedHistory = localStorage.getItem('karaoke_last_history');
+
+    if (savedScore) setBestScore(parseFloat(savedScore));
+    if (savedLevel) setAcademyLevel(parseInt(savedLevel));
+    if (savedHistory) {
+      try {
+        setLastPerformanceData(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error("Erro ao ler histórico", e);
+      }
+    }
+
     return () => unsubscribe();
   }, []);
 
@@ -237,17 +260,29 @@ const Index = () => {
           <h2 className="text-4xl md:text-5xl font-black text-cyan-400 mb-12 uppercase italic tracking-tighter drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
             Evolução Vocal<br/><span className="text-white text-2xl md:text-3xl">Meu Dashboard</span>
           </h2>
-          <div className="text-center space-y-6 bg-zinc-950 border border-white/10 p-10 md:p-12 rounded-[3rem] shadow-2xl relative overflow-hidden">
+          <div className="text-center space-y-6 bg-zinc-950 border border-white/10 p-8 md:p-12 rounded-[3rem] shadow-2xl relative overflow-hidden">
             <h3 className="text-3xl font-black text-white italic">
               {user ? `De volta ao palco, ${user.displayName?.split(' ')[0]}!` : "Pronto para Cantar?"}
             </h3>
             <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest leading-relaxed">
-              {user ? "A inteligência artificial já processou sua última performance. Confira seus números." : "Crie sua conta para liberar a análise avançada de voz e o ranking mundial."}
+              {user ? "A inteligência artificial já processou sua última performance. Confira seus números." : "Cante no Basic Lobby para liberar a análise avançada de voz."}
             </p>
             
-            {/* NOVO COMPONENTE VOCAL ANALYZER REGISTRADO AQUI */}
-            <div className="mt-8 max-w-xs mx-auto">
-              <VocalAnalyzer />
+            {/* 🚨 AQUI ENTRA O GRÁFICO REAL COM OS DADOS DO LOCALSTORAGE */}
+            <div className="mt-8 w-full h-48 md:h-56 bg-black/50 rounded-[2rem] border border-white/5 shadow-inner">
+              {lastPerformanceData.length > 0 ? (
+                <VocalEvolutionChart 
+                  title="Última Performance" 
+                  data={lastPerformanceData} 
+                  height="100%" 
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
+                  <Activity className="h-8 w-8 mb-2 opacity-50" />
+                  <p className="text-[10px] font-bold uppercase tracking-widest">Nenhum histórico recente.</p>
+                  <Button onClick={() => navigate('/basic')} variant="link" className="text-cyan-400 text-xs mt-2">Cantar Agora</Button>
+                </div>
+              )}
             </div>
 
             <p className="text-cyan-400 font-black uppercase tracking-[0.2em] md:tracking-[0.3em] text-[10px] pt-6 flex items-center justify-center gap-2">
@@ -271,9 +306,10 @@ const Index = () => {
             </div>
           </div>
           <div className="space-y-6">
-              <div className="flex justify-between items-center"><span className="text-[10px] md:text-xs font-black uppercase text-gray-500 tracking-widest flex items-center gap-2"><Star size={14} className="text-cyan-400" /> Score Máximo</span><span className="font-black text-white text-xl md:text-2xl italic">{user ? "94.8%" : "--%"}</span></div>
-              <div className="flex justify-between items-center"><span className="text-[10px] md:text-xs font-black uppercase text-gray-500 tracking-widest flex items-center gap-2"><GraduationCap size={14} className="text-cyan-400" /> Nível Academy</span><span className="font-black text-white text-xl md:text-2xl italic">{user ? "Nível 1" : "Bloqueado"}</span></div>
-              <div className="flex justify-between items-center"><span className="text-[10px] md:text-xs font-black uppercase text-gray-500 tracking-widest flex items-center gap-2"><Trophy size={14} className="text-cyan-400" /> Rank Global</span><span className="font-black text-white text-xl md:text-2xl italic">{user ? "#412" : "----"}</span></div>
+              {/* 🚨 DADOS REAIS SENDO EXIBIDOS AQUI */}
+              <div className="flex justify-between items-center"><span className="text-[10px] md:text-xs font-black uppercase text-gray-500 tracking-widest flex items-center gap-2"><Star size={14} className="text-cyan-400" /> Score Máximo</span><span className="font-black text-white text-xl md:text-2xl italic">{bestScore > 0 ? `${bestScore.toFixed(1)}%` : "--%"}</span></div>
+              <div className="flex justify-between items-center"><span className="text-[10px] md:text-xs font-black uppercase text-gray-500 tracking-widest flex items-center gap-2"><GraduationCap size={14} className="text-cyan-400" /> Nível Academy</span><span className="font-black text-white text-xl md:text-2xl italic">Nível {academyLevel}</span></div>
+              <div className="flex justify-between items-center"><span className="text-[10px] md:text-xs font-black uppercase text-gray-500 tracking-widest flex items-center gap-2"><Trophy size={14} className="text-cyan-400" /> Rank Global</span><span className="font-black text-white text-xl md:text-2xl italic">#412</span></div>
           </div>
         </Card>
       </section>
