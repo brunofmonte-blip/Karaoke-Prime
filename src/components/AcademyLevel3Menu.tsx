@@ -1,254 +1,174 @@
-"use client";
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PlayCircle, Wind, CheckCircle2, Lock, X, Activity } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Timer, Music, Zap, PlayCircle, ChevronRight, Activity, BarChart3, Layers, Disc } from 'lucide-react';
-import { useVocalSandbox, CalibrationSubModule } from '@/hooks/use-vocal-sandbox';
-import { publicDomainLibrary } from '@/data/public-domain-library';
 
-export interface Exercise {
-  id: string;
-  title: string;
-  icon: React.ElementType;
-  prepText?: string;
-  actionText?: string;
-  exhale?: number;
-  inhale?: number;
-  hold?: number;
-  rest?: number;
-  command?: string;
-  isLegato?: boolean;
-}
+// Importando o nosso Cérebro e a Arena de Treino
+import { VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
+import FarinelliExercise from './FarinelliExercise';
 
-export interface Module {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ElementType;
-  prescription: string;
-  exercises: Exercise[];
-}
-
-export const level3Modules: Module[] = [
+// 🚨 EXPORTAÇÃO DOS DADOS PARA O MOTOR LER OS TEMPOS DE RESPIRAÇÃO
+export const level3Modules = [
   {
-    id: 'L3-A',
-    title: 'Módulo A: Pulso & Divisão',
-    description: 'Domine o metrônomo interno e a precisão matemática do tempo.',
-    icon: Timer,
-    prescription: 'Foco em Precisão de Click',
+    id: "l3-ressonancia",
+    title: "Nível 3: Ressonância e Dicção",
     exercises: [
-      { 
-        id: 'l3-a1', 
-        title: '1. Metrônomo Humano', 
-        icon: Activity,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'Sinta o pulso. Ouça o clique do metrônomo e marque o tempo forte emitindo um "Pá" exato em cada batida.', 
-        actionText: 'MARQUE O TEMPO (PÁ - PÁ - PÁ)', 
-        command: 'SIGA O PULSO', 
-        isLegato: false 
-      },
-      { 
-        id: 'l3-a2', 
-        title: '2. Divisão Binária', 
-        icon: Layers,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'Vamos dividir o tempo ao meio (colcheias). Para cada clique, você emitirá dois sons iguais (Pá-Pá).', 
-        actionText: 'DIVIDA: (1 e 2 e 3 e 4 e)', 
-        command: 'DIVIDA O TEMPO', 
-        isLegato: false 
-      },
-      { 
-        id: 'l3-a3', 
-        title: '3. Síncope Básica', 
-        icon: Zap,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'O contratempo é cantar no "silêncio". Imagine o tique-taque de um relógio: NÃO cante no "Tique", cante no espaço vazio entre as batidas. Espere o clique e emita o som "Pá!".', 
-        actionText: 'CANTE NO ESPAÇO: ( ...Pá! ...Pá! )', 
-        command: 'SÍNCOPE AGORA',
-        isLegato: false 
-      }
-    ]
-  },
-  {
-    id: 'L3-B',
-    title: 'Módulo B: Phrasing & Ataque',
-    description: 'A arte de cantar "atrás" ou "à frente" do tempo com intenção.',
-    icon: Music,
-    prescription: 'Foco em Intencionalidade',
-    exercises: [
-      { 
-        id: 'l3-b1', 
-        title: '4. Atraso Intencional', 
-        icon: Disc,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'O famoso Layback. Tente cantar a sílaba "Tá" uma fração de segundo DEPOIS do clique do metrônomo. O clique bate, você responde logo em seguida, criando uma sensação de relaxamento.', 
-        actionText: 'CANTE ATRASADO (Layback)', 
-        command: 'CANTE ATRÁS DO PULSO',
-        isLegato: true 
-      },
-      { 
-        id: 'l3-b2', 
-        title: '5. Antecipação', 
-        icon: Zap,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'Ataque agressivo (Push). Cante a sílaba "Tá" uma fração de segundo ANTES do clique. Você deve "puxar" a música, antecipando a batida do metrônomo.', 
-        actionText: 'CANTE ANTECIPADO (Push)', 
-        command: 'ANTECIPE O ATAQUE',
-        isLegato: false 
-      },
-      { 
-        id: 'l3-b3', 
-        title: '6. Legato Rítmico', 
-        icon: Activity,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'Conecte as notas sem perder o balanço. Cante "Du-Ba-Du-Ba" emendando as sílabas continuamente, mas cravando as mudanças exatamente no compasso.', 
-        actionText: 'CANTE CONECTADO (Du-Ba-Du-Ba)', 
-        command: 'FLUXO RÍTMICO',
-        isLegato: true 
-      }
-    ]
-  },
-  {
-    id: 'L3-C',
-    title: 'Módulo C: Groove & Swing',
-    description: 'Sinta o balanço e a estabilidade orgânica do BPM.',
-    icon: Disc,
-    prescription: 'Foco em Micro-timing',
-    exercises: [
-      { 
-        id: 'l3-c1', 
-        title: '7. Swing Feel', 
-        icon: Music,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'Sinta o balanço! O Swing não é reto. Imagine um "pulo" entre as notas. Cante "Doo-Bah" com o "Bah" levemente atrasado, criando o balanço clássico do Jazz.', 
-        actionText: 'CANTE COM SWING (Doo-Bah)', 
-        command: 'SWING AGORA',
-        isLegato: true 
-      },
-      { 
-        id: 'l3-c2', 
-        title: '8. Micro-timing', 
-        icon: BarChart3,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: 'Precisão milimétrica. Tente encaixar a sílaba "Ti" exatamente no centro do clique. O objetivo é reduzir o desvio rítmico para quase zero.', 
-        actionText: 'CANTE NO CENTRO (Ti-Ti-Ti)', 
-        command: 'PRECISÃO MÁXIMA',
-        isLegato: false 
-      },
-      { 
-        id: 'l3-c3', 
-        title: '9. Estabilidade de BPM', 
-        icon: Timer,
-        inhale: 4, hold: 0, exhale: 20, rest: 5, 
-        prepText: 'Teste de resistência rítmica. Mantenha o pulso constante por 20 segundos sem o auxílio do metrônomo visual. Confie no seu relógio interno.', 
-        actionText: 'MANTENHA O BPM SOZINHO', 
-        command: 'RESISTÊNCIA RÍTMICA',
-        isLegato: false 
-      }
-    ]
-  },
-  {
-    id: 'L3-D',
-    title: 'Módulo D: Performance Rítmica',
-    description: 'Sincronia avançada com banda e polirritmia vocal.',
-    icon: Layers,
-    prescription: 'Foco em Sincronia de Banda',
-    exercises: [
-      { 
-        id: 'l3-d1', 
-        title: '10. Sync com Banda', 
-        icon: Disc,
-        inhale: 4, hold: 0, exhale: 20, rest: 5, 
-        prepText: "Imagine a bateria e o baixo tocando. Você é o vocalista principal. Encaixe as sílabas 'Pá-Pá' exatas nos espaços da banda imaginária.", 
-        actionText: "CANTE COM A BANDA (Pá - Pá)", 
-        command: 'SINCRONIA DE PALCO',
-        isLegato: true 
-      },
-      { 
-        id: 'l3-d2', 
-        title: '11. Polirritmia Vocal', 
-        icon: Layers,
-        inhale: 4, hold: 0, exhale: 16, rest: 4, 
-        prepText: "Desafio cerebral! O metrônomo toca em 4 tempos, mas você vai cantar em grupos de 3 (Tercinas). Acentue a primeira sílaba: TA-ki-ta, TA-ki-ta.", 
-        actionText: "CANTE 3 CONTRA 4 (TA-ki-ta)", 
-        command: 'POLIRRITMIA VOCAL',
-        isLegato: false 
-      },
-      { 
-        id: 'l3-d3', 
-        title: '12. Teste de Click Final', 
-        icon: Timer,
-        inhale: 4, hold: 0, exhale: 20, rest: 5, 
-        prepText: "O Chefão do Nível 3! O clique vai mudar de velocidade, balançar e sumir. Use sua precisão, layback e estabilidade para não se perder.", 
-        actionText: "MANTENHA O RITMO MESTRE", 
-        command: 'PROVA DE MAESTRIA',
-        isLegato: false 
+      {
+        id: "ex-farinelli-master",
+        title: "Apoio Diafragmático",
+        inhale: 4, 
+        hold: 4, 
+        exhale: 16, // Nível 3 já exige 16 segundos de sustentação!
+        rest: 4,
+        prepText: "Mantenha a postura ereta. Coloque a mão no abdômen. Ele deve expandir na inspiração.",
+        actionText: "SOPRAR CONSTANTE",
+        command: "EXPIRA AGORA",
+        isLegato: true
       }
     ]
   }
 ];
 
-const AcademyLevel3Menu: React.FC = () => {
-  const { startAnalysis, openOverlay } = useVocalSandbox();
-  const [expandedModule, setExpandedModule] = useState<string | null>(null);
+const lessons = [
+  { id: "3.1", title: "O Poder do Humming", desc: "Encontrar e fortalecer a ressonância na máscara facial (Bocca Chiusa).", videoId: "vWuOiC1PqX0" },
+  { id: "3.2", title: "Ginástica Articulatória", desc: "Destravar a mandíbula, a língua e os lábios com trava-línguas rítmicos.", videoId: "ErZxD3GAP-o" },
+  { id: "3.3", title: "Sirenes e Conexão", desc: "Eliminar as 'quebras' na voz usando o Mix Voice do peito para a cabeça.", videoId: "6U2Xk0OzsfA" },
+  { id: "3.4", title: "Acordando o Peito", desc: "Dominar a voz de peito para criar tons graves, quentes e com autoridade.", videoId: "kp4Whqij-DE" },
+  { id: "3.5", title: "O Brilho da Cabeça", desc: "Diferenciar a voz de cabeça do falsete para notas agudas com leveza.", videoId: "GSR3YUQPHyM" },
+  { id: "3.6", title: "Modificação de Vogais", desc: "O segredo para arredondar as vogais nas notas altas sem soar estridente.", videoId: "K66Di3oSw7M" },
+  { id: "3.7", title: "O Groove da Dicção", desc: "Usar consoantes duras como ferramentas rítmicas para músicas rápidas.", videoId: "ZBL2BM-XqvI" },
+  { id: "3.8", title: "O Brilho do Twang", desc: "O estreitamento do epilaringe para cortar a banda sem precisar gritar.", videoId: "" }, // Sem vídeo ainda
+  { id: "3.9", title: "Costurando os Registros", desc: "Juntar peito e cabeça com exercícios de 'choro' e lamento.", videoId: "" },
+  { id: "3.10", title: "Prova de Fogo da Dicção", desc: "O teste prático final: aplicar ressonância e vogais puras na música real.", videoId: "" },
+];
 
-  const handleStartExercise = (exercise: Exercise) => {
-    const exerciseSong = publicDomainLibrary.find(s => s.id === 'pd-23') || publicDomainLibrary[0];
-    startAnalysis(exerciseSong, false, 'rhythm', 'none', exercise.title, exercise.id);
-    openOverlay();
-  };
+const AcademyLevel3Menu = () => {
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [isFarinelliActive, setIsFarinelliActive] = useState(false);
+
+  // Se a Arena Farinelli estiver ativa, renderizamos ela com o Provider em volta
+  if (isFarinelliActive) {
+    return (
+      <VocalSandboxProvider>
+        <div className="min-h-[80vh] bg-zinc-950 border border-cyan-500/30 rounded-[3rem] p-8 shadow-[0_0_50px_rgba(6,182,212,0.15)] relative animate-in zoom-in-95 duration-500 flex flex-col items-center">
+          <Button 
+            variant="ghost" 
+            onClick={() => setIsFarinelliActive(false)} 
+            className="absolute top-8 right-8 text-gray-400 hover:text-white rounded-full"
+          >
+            <X size={24} /> FECHAR TREINO
+          </Button>
+          
+          <div className="mb-4 text-center">
+            <h2 className="text-3xl font-black text-cyan-400 uppercase tracking-widest italic flex items-center justify-center gap-3">
+              <Wind className="h-8 w-8" /> Laboratório de Respiração
+            </h2>
+            <p className="text-gray-400 text-sm font-bold uppercase tracking-widest mt-2">
+              Prove que você tem pulmão nível Julliard
+            </p>
+          </div>
+
+          {/* O NOSSO COMPONENTE CIRÚRGICO */}
+          <FarinelliExercise moduleType="farinelli" />
+          
+        </div>
+      </VocalSandboxProvider>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {level3Modules.map((module) => (
-        <Card key={module.id} className={cn(
-          "glass-pillar border-2 transition-all duration-300 h-fit",
-          expandedModule === module.id ? "border-accent shadow-lg shadow-accent/20" : "border-primary/30 hover:border-primary/70"
-        )}>
-          <CardHeader className="pb-2 cursor-pointer" onClick={() => setExpandedModule(expandedModule === module.id ? null : module.id)}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-accent/10 border border-accent/30">
-                  <module.icon className="h-6 w-6 text-accent" />
-                </div>
-                <CardTitle className="text-xl font-bold text-foreground">{module.title}</CardTitle>
+    <div className="w-full max-w-6xl mx-auto space-y-12 animate-in fade-in duration-700 pb-20">
+      
+      {/* CABEÇALHO DO NÍVEL E VÍDEO INTRODUTÓRIO */}
+      <div className="bg-zinc-950 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
+        <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
+          <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit">
+            <Activity size={14} /> Level 3
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">
+            Ressonância e <span className="text-cyan-400">Dicção</span>
+          </h1>
+          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">
+            O momento em que você deixa de apenas "emitir som" e passa a dar cor, brilho e clareza à sua voz. Domine a transferência de ressonância do peito para a cabeça e articule as palavras como um profissional.
+          </p>
+          
+          {/* 🚨 BOTÃO MÁGICO DO FARINELLI */}
+          <Button 
+            onClick={() => setIsFarinelliActive(true)}
+            className="w-full h-16 rounded-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] flex items-center justify-center gap-3"
+          >
+            <Wind size={20} /> ABRIR TREINO FARINELLI
+          </Button>
+        </div>
+        
+        <div className="lg:w-1/2 bg-black relative min-h-[300px]">
+          <iframe 
+            width="100%" height="100%" 
+            src="https://www.youtube.com/embed/IzZCDVzsghA?rel=0&modestbranding=1" 
+            title="Introdução Nível 3" frameBorder="0" allowFullScreen
+            className="absolute inset-0 w-full h-full object-cover"
+          ></iframe>
+        </div>
+      </div>
+
+      {/* GRADE DE AULAS */}
+      <div>
+        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3">
+          <PlayCircle className="text-cyan-400" /> Aulas do Módulo
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {lessons.map((lesson, idx) => (
+            <Card 
+              key={lesson.id} 
+              onClick={() => lesson.videoId ? setActiveVideo(lesson.videoId) : null}
+              className={`p-6 rounded-[2rem] border transition-all flex items-start gap-4 ${lesson.videoId ? 'bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group' : 'bg-black/50 border-white/5 opacity-60 cursor-not-allowed'}`}
+            >
+              <div className={`h-12 w-12 rounded-full flex items-center justify-center shrink-0 border ${lesson.videoId ? 'bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all' : 'bg-zinc-900 border-white/5 text-gray-600'}`}>
+                {lesson.videoId ? <PlayCircle size={20} /> : <Lock size={20} />}
               </div>
-              <ChevronRight className={cn("h-5 w-5 text-muted-foreground transition-transform", expandedModule === module.id && "rotate-90")} />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">{module.description}</p>
-            
-            {expandedModule === module.id && (
-              <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
-                <div className="p-3 rounded-xl bg-primary/10 border border-primary/30 mb-4">
-                  <p className="text-xs font-bold text-primary uppercase tracking-wider">Meta de Treino</p>
-                  <p className="text-sm text-foreground font-medium">{module.prescription}</p>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">
+                    Lição {lesson.id}
+                  </span>
                 </div>
-                
-                <div className="grid grid-cols-1 gap-2">
-                  {module.exercises.map((ex) => (
-                    <Button 
-                      key={ex.id}
-                      onClick={() => handleStartExercise(ex)}
-                      variant="outline"
-                      className="justify-between bg-background/50 border-accent/20 hover:border-accent hover:bg-accent/10 rounded-xl h-12"
-                    >
-                      <div className="flex items-center gap-2">
-                        <ex.icon className="h-4 w-4 text-accent" />
-                        <span className="font-medium">{ex.title}</span>
-                      </div>
-                      <PlayCircle className="h-5 w-5 text-accent" />
-                    </Button>
-                  ))}
-                </div>
+                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">
+                  {lesson.title}
+                </h4>
+                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">
+                  {lesson.desc}
+                </p>
+                {!lesson.videoId && (
+                  <p className="text-[10px] text-pink-500 font-bold uppercase tracking-widest mt-3">Em Breve</p>
+                )}
               </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* MODAL DE VÍDEO DAS AULAS */}
+      {activeVideo && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 animate-in fade-in duration-300">
+          <Button 
+            variant="ghost" 
+            onClick={() => setActiveVideo(null)}
+            className="absolute top-8 right-8 text-white hover:bg-white/10 rounded-full"
+          >
+            <X size={32} />
+          </Button>
+          <div className="w-full max-w-5xl aspect-video bg-black rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <iframe 
+              width="100%" height="100%" 
+              src={`https://www.youtube.com/embed/${activeVideo}?autoplay=1&rel=0&modestbranding=1`} 
+              title="Aula Prática" frameBorder="0" allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
