@@ -154,7 +154,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Metrônomo", practiceDesc: "Canta 'Pa-Ta-Ka' no ritmo da batida.",
         feedbackTitle: "Swing Vocal", feedbackDesc: "Cantor é instrumento rítmico.", frequency: "Treino",
         phases: [{phase: 'OUVE RITMO', t: 2, instruction: '', color: 'cyan', icon: Music}, {phase: 'GROOVE', t: 10, instruction: 'No tempo', color: 'orange', icon: Activity}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 8, displayTitle: "Aula 8", title: "O Brilho do Twang", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 8, displayTitle: "Aula 8", title: "O Brilho do Twang", youtubeId: "R8KYAK62gtk", hasPractice: true, locked: true,
         exercise: "Twang", practiceDesc: "Imitar 'Nyeah' anasalado/estridente.",
         feedbackTitle: "Corte Metálico", feedbackDesc: "Garante que sua voz fure a banda inteira.", frequency: "Quando necessário",
         phases: [{phase: 'INSPIRA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'TWANG', t: 10, instruction: 'Nyeah!', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
