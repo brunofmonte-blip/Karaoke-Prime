@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mic2, GraduationCap, Globe2, LayoutGrid, Sparkles, Star, Trophy, Medal, PlayCircle, Lock, ArrowUpRight, Search, Hash } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button'; // 🚨 A CORREÇÃO: A FÁBRICA DE BOTÕES VOLTOU!
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
