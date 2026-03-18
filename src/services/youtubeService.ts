@@ -1,33 +1,35 @@
-// 📦 SERVIÇO DE CONEXÃO COM A API DO YOUTUBE
-// Este arquivo deve conter apenas lógica pura (TypeScript), sem elementos React/JSX.
+import axios from 'axios';
 
-const API_KEY = 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548'; 
+// 🚨 COLE SUA CHAVE EXATAMENTE AQUI, MANTENDO AS ASPAS SIMPLES:
+const YOUTUBE_API_KEY = 'COLE_SUA_CHAVE_AQUI_DENTRO';
 
-/**
- * Realiza a busca de vídeos de karaokê no YouTube.
- * @param query Termo de busca (artista ou música)
- */
-export const searchYouTube = async (query: string) => {
-  if (!query || query.trim() === '') return [];
+const youtubeApi = axios.create({
+  baseURL: 'https://www.googleapis.com/youtube/v3',
+  params: {
+    part: 'snippet',
+    maxResults: 15,
+    type: 'video',
+    videoEmbeddable: 'true',
+  },
+});
 
-  // Filtros para priorizar canais de karaokê e conteúdo instrumental
-  const channelFilters = "(karaoke OR instrumental OR 'Ponto do Karaokê' OR 'Murillo Shooow' OR 'Karaokê Brasil' OR 'Sing King')";
-  const finalQuery = `${query} ${channelFilters}`;
+export const searchKaraokeVideos = async (query: string) => {
+  // Verifica se a chave está vazia ou ainda com o texto de exemplo
+  if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'COLE_SUA_CHAVE_AQUI_DENTRO') {
+    throw new Error("A chave da API do YouTube não foi configurada corretamente no arquivo youtubeService.tsx");
+  }
 
   try {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(finalQuery)}&type=video&videoEmbeddable=true&key=${API_KEY}`;
-
-    const response = await fetch(url);
-    const data = await response.json();
+    const response = await youtubeApi.get('/search', {
+      params: {
+        q: `${query} karaoke acoustic instrumental`,
+        key: YOUTUBE_API_KEY,
+      },
+    });
     
-    if (!response.ok || data.error) {
-      console.error("🔴 ERRO NA API DO YOUTUBE:", data.error?.message || response.statusText);
-      return [];
-    }
-
-    return data.items || [];
+    return response.data.items;
   } catch (error) {
-    console.error("🔴 ERRO DE CONEXÃO COM O YOUTUBE:", error);
-    return [];
+    console.error('Erro detalhado da API do YouTube:', error);
+    throw new Error('Falha ao buscar vídeos. Verifique se a sua chave da API é válida e se tem cota disponível.');
   }
 };
