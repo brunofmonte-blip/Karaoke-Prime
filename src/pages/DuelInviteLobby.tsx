@@ -1,128 +1,279 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic2, Search, PlayCircle, Swords, RotateCcw, ListMusic } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { searchKaraokeVideos } from '@/services/youtubeService';
+"use client";
 
-export default function BasicLobby() {
+import React, { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Pause, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate, useParams } from "react-router-dom";
+
+export default function SongPlayer() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const { id } = useParams(); 
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [cameraEnabled, setCameraEnabled] = useState(true); // Câmera ativada por padrão
+  
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  const defaultSongs = [
-    { title: "NÃO QUERO DINHEIRO", artist: "TIM MAIA", videoId: "bO9pD_21Z6M" },
-    { title: "LET IT BE", artist: "THE BEATLES", videoId: "QDYfEBY9NM4" },
-    { title: "AMOR MAIOR", artist: "JOTA QUEST", videoId: "bA8yA4wVf4A" },
-    { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ", videoId: "ePjtnSPFWK8" },
-    { title: "SHALLOW", artist: "LADY GAGA", videoId: "bo_efYhYU2A" },
-    { title: "BOHEMIAN RHAPSODY", artist: "QUEEN", videoId: "fJ9rUzIMcZQ" },
-  ];
+  const [score, setScore] = useState(0);
+  const [combo, setCombo] = useState(0);
+  const [feedback, setFeedback] = useState("");
+  const micVolumeRef = useRef(0);
 
-  const handleSearch = async () => {
-    if (!query.trim()) {
-      toast.error("Digite o nome de uma música ou artista.");
-      return;
-    }
-    
-    setIsLoading(true);
-    setHasSearched(true);
-    
-    try {
-      const videos = await searchKaraokeVideos(query);
-      setResults(videos);
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao buscar músicas no YouTube.");
-    } finally {
-      setIsLoading(false);
+  const handlePause = () => {
+    setIsPaused(true);
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSearch();
+  const handleResume = () => {
+    setIsPaused(false);
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
+    }
   };
 
-  const displayList = hasSearched ? results : defaultSongs;
+  const handleRestart = () => {
+    setIsPaused(false);
+    setScore(0);
+    setCombo(0);
+    setFeedback("");
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
+    }
+  };
+
+  // 🚨 CORREÇÃO: Função Finalizar que joga para a nova tela de Avaliação
+  const handleFinishShow = () => {
+    setIsFinished(true);
+    // Pausa o vídeo do youtube
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
+    }
+    // Redireciona para a tela ScoreResult passando os dados
+    setTimeout(() => {
+        navigate('/score', { 
+            state: { 
+                title: "MÚSICA SELECIONADA", 
+                artist: "YOUTUBE", 
+                score: score, 
+                accuracy: score > 1000 ? 94.5 : 42.3, // Apenas para simular na homologação
+                duration: "180" 
+            } 
+        });
+    }, 500);
+  };
+
+  // 🚨 CORREÇÃO: Inicialização blindada da Câmera e Microfone
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    let audioCtx: AudioContext | null = null;
+    let animationId: number;
+
+    if (isPlaying && !isFinished && !isPaused) {
+      navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
+        .then((s) => {
+          stream = s;
+          
+          // Anexa o stream à tag de vídeo se a câmera estiver habilitada
+          if (cameraEnabled && videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+
+          // Analisador de Áudio para o Score
+          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+          audioCtx = new AudioContext();
+          const analyser = audioCtx.createAnalyser();
+          const source = audioCtx.createMediaStreamSource(s);
+          
+          // Opcional: Se quiser ouvir sua própria voz nas caixas (Retorno de Palco)
+          // Retire os comentários da linha abaixo. ATENÇÃO: Se não usar fones, isso causará eco infinito (microfonia).
+          // source.connect(audioCtx.destination); 
+
+          source.connect(analyser);
+          analyser.fftSize = 256;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          
+          const updateVolume = () => {
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            micVolumeRef.current = average;
+            animationId = requestAnimationFrame(updateVolume);
+          };
+          updateVolume();
+        })
+        .catch(err => {
+            console.error("Media access error:", err);
+            toast.error("Permissão de câmera/microfone negada.");
+        });
+    }
+
+    return () => {
+      if (animationId) cancelAnimationFrame(animationId);
+      if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
+      if (stream) stream.getTracks().forEach(track => track.stop());
+    };
+  }, [isPlaying, isFinished, isPaused, cameraEnabled]);
+
+  // Lógica de Pontuação (Mantida)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    let clearFeedback: NodeJS.Timeout;
+    if (isPlaying && !isFinished && !isPaused) {
+      interval = setInterval(() => {
+        if (micVolumeRef.current > 2) {
+          const points = Math.floor(micVolumeRef.current * 3) + Math.floor(Math.random() * 50);
+          setScore(prev => prev + points);
+          
+          const accuracy = Math.random();
+          if (accuracy > 0.7) {
+            setCombo(c => c + 1); setFeedback("PERFECT!");
+          } else if (accuracy > 0.4) {
+            setCombo(0); setFeedback("GOOD!");
+          } else {
+            setCombo(0); setFeedback("MISS");
+          }
+          clearTimeout(clearFeedback);
+          clearFeedback = setTimeout(() => setFeedback(""), 800);
+        } else { setFeedback(""); }
+      }, 1000);
+    }
+    return () => { clearInterval(interval); clearTimeout(clearFeedback); };
+  }, [isPlaying, isFinished, isPaused]);
 
   return (
-    <div className="min-h-screen bg-black font-sans text-white p-6 pt-24">
-      <div className="max-w-6xl mx-auto">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors w-fit bg-zinc-900/50 px-4 py-2 rounded-full border border-white/5">
-          <ArrowLeft size={16} /> Voltar para o Início
-        </button>
-
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 px-3 py-1 rounded-full text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-4">
-             <Mic2 size={14} /> PALCO PRINCIPAL
+    <div className="relative h-screen w-full bg-black overflow-hidden">
+      {!isFinished && (
+        <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+          <div className="flex flex-col gap-4 pointer-events-auto">
+            <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/basic")}>
+              <ArrowLeft className="mr-2 h-5 w-5" /> Voltar ao Lobby
+            </Button>
+            {isPlaying && !isPaused && (
+              <div className="flex gap-2">
+                <Button variant="outline" className="w-fit bg-black/60 hover:bg-black/80 text-white border-gray-600 backdrop-blur-md animate-in fade-in" onClick={handlePause}>
+                  <Pause className="mr-2 h-4 w-4" /> Pausar
+                </Button>
+                <Button variant="destructive" className="w-fit bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-in fade-in" onClick={handleFinishShow}>
+                  <BrainCircuit className="mr-2 h-4 w-4" /> Finalizar o Show!
+                </Button>
+              </div>
+            )}
           </div>
-          <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-tight drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-            BASIC <span className="text-cyan-400">LOBBY</span>
-          </h1>
+          {isPlaying && (
+            <div className="flex flex-col items-end gap-2 animate-in fade-in slide-in-from-top-5 pointer-events-none">
+              <div className="bg-black/80 border border-cyan-500/50 backdrop-blur-md px-6 py-3 rounded-2xl flex items-center gap-4 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                <Trophy className="w-8 h-8 text-yellow-400" />
+                <div className="flex flex-col items-end">
+                  <span className="text-xs font-bold text-gray-400 tracking-widest uppercase">Pontuação</span>
+                  <span className="text-3xl font-black text-white font-mono leading-none">{score.toLocaleString()}</span>
+                </div>
+              </div>
+              {combo > 1 && (
+                <div className="bg-gradient-to-r from-orange-600 to-red-600 px-4 py-1 rounded-full flex items-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.6)] animate-pulse">
+                  <Flame className="w-4 h-4 text-white" />
+                  <span className="text-sm font-bold text-white tracking-widest">{combo}x COMBO</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+      )}
 
-        <div className="flex flex-col md:flex-row gap-4 mb-16">
-          <div className="bg-zinc-950 border border-white/10 rounded-full flex items-center w-full p-2 px-6 shadow-inner focus-within:border-cyan-500/50 transition-colors">
-            <Search className="text-gray-500 h-6 w-6 mr-4" />
-            <input type="text" placeholder="Qual música você quer cantar hoje?" className="bg-transparent border-none text-white focus:outline-none w-full text-lg placeholder:text-gray-600 font-medium" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} />
+      {feedback && isPlaying && !isFinished && (
+        <div className="absolute top-36 right-10 z-50 pointer-events-none animate-in slide-in-from-right-5 fade-in duration-200">
+          <span className={`text-4xl md:text-5xl font-black italic uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]
+            ${feedback === "PERFECT!" ? "text-cyan-400" : feedback === "GOOD!" ? "text-yellow-400" : "text-red-500"}
+          `}>
+            {feedback}
+          </span>
+        </div>
+      )}
+
+      {/* TELA DE PREPARAÇÃO */}
+      {!isPlaying && !isFinished && (
+        <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-auto">
+          <div className="w-24 h-24 mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/50">
+            <Mic className="w-12 h-12 text-cyan-400" />
           </div>
-          <Button onClick={handleSearch} disabled={isLoading} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm rounded-full px-12 h-16 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all shrink-0">
-            {isLoading ? "Buscando..." : "Buscar"}
+          <h2 className="text-4xl font-bold text-yellow-500 mb-2">Pronto para o Show?</h2>
+          <p className="text-xl text-gray-300 mb-8">Aqueça a voz e prepare-se para brilhar.</p>
+          
+          <Button 
+            variant="outline" 
+            onClick={() => setCameraEnabled(!cameraEnabled)}
+            className={`mb-6 border-cyan-500 ${cameraEnabled ? 'bg-cyan-500/20 text-cyan-400' : 'bg-transparent text-gray-400'}`}
+          >
+            {cameraEnabled ? "📷 Câmera ATIVADA" : "📷 Câmera DESATIVADA"}
+          </Button>
+
+          <Button onClick={() => setIsPlaying(true)} className="text-2xl px-12 py-8 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full shadow-[0_0_40px_rgba(6,182,212,0.5)] transition-transform hover:scale-105">
+            <Play className="mr-2 fill-black w-8 h-8" /> ENTRAR NO PALCO
           </Button>
         </div>
+      )}
 
-        <div className="flex items-center gap-3 mb-8 border-b border-white/10 pb-4">
-          {hasSearched ? <ListMusic className="text-cyan-400 h-5 w-5" /> : <RotateCcw className="text-gray-400 h-5 w-5" />}
-          <h3 className="font-black italic text-2xl uppercase tracking-tighter text-white">
-            {hasSearched ? "RESULTADOS NO YOUTUBE" : "ÚLTIMAS BUSCAS"}
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayList.map((item, idx) => {
-            const isYouTube = hasSearched;
-            const title = isYouTube ? item.snippet.title : item.title;
-            const artistOrChannel = isYouTube ? item.snippet.channelTitle : item.artist;
-            const videoId = isYouTube ? (item.id.videoId || item.id) : item.videoId;
-
-            return (
-              <Card key={idx} className="bg-zinc-950 border border-white/5 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-cyan-500/30 hover:bg-zinc-900 transition-all group">
-                <div className="h-16 w-16 rounded-full bg-black flex items-center justify-center mb-6 border border-white/5 group-hover:border-cyan-500/50 group-hover:bg-cyan-500/10 transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-                  <Mic2 className="text-gray-500 group-hover:text-cyan-400 h-7 w-7 transition-colors" />
-                </div>
-                <h4 className="font-black italic text-xl uppercase text-white mb-2 line-clamp-2 min-h-[56px] flex items-center justify-center leading-tight" dangerouslySetInnerHTML={{ __html: title }}></h4>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-10">{artistOrChannel}</p>
-                <div className="w-full space-y-3 mt-auto">
-                  
-                  {/* BOTÃO 1: CANTAR SOLO */}
-                  <Button onClick={() => navigate(`/play/${videoId}`)} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-                    CANTAR SOLO <PlayCircle className="ml-2 h-4 w-4" />
-                  </Button>
-                  
-                  {/* BOTÃO 2: DUETO E BATALHA (CORRIGIDO E APONTANDO PARA DUEL-INVITE) */}
-                  <<Button onClick={() => navigate(`/duel-invite?id=${videoId}`)} variant="ghost" className="w-full text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-full h-10 transition-all border border-transparent hover:border-cyan-500/20">
-  DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
-</Button>
-                    DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
-                  </Button>
-
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-        
-        {hasSearched && displayList.length === 0 && !isLoading && (
-          <div className="text-center py-20 flex flex-col items-center justify-center">
-            <Search className="h-16 w-16 text-gray-700 mb-6" />
-            <h2 className="text-2xl font-black italic uppercase text-white mb-2">NADA ENCONTRADO</h2>
-            <p className="text-gray-500 font-medium max-w-md">Não conseguimos encontrar resultados para "{query}". Tente buscar por nome do artista seguido de "karaoke".</p>
+      {/* TELA DE PAUSE */}
+      {isPaused && !isFinished && (
+        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in-95 duration-200">
+          <h2 className="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
+          <p className="text-gray-400 mb-12">Recupere o fôlego. O palco aguarda.</p>
+          <div className="flex gap-6">
+            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+              <Play className="w-10 h-10 fill-black" />
+              <span className="text-xl tracking-wider">CONTINUAR</span>
+            </Button>
+            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+              <RotateCcw className="w-10 h-10 text-gray-300" />
+              <span className="text-xl tracking-wider text-gray-300">REINICIAR</span>
+            </Button>
           </div>
-        )}
+        </div>
+      )}
 
-      </div>
+      {/* IFRAME DO YOUTUBE */}
+      {!isFinished && (
+        <div className="absolute inset-0 z-10 pt-20 pb-20 bg-black flex items-center justify-center pointer-events-none">
+          <iframe 
+            ref={iframeRef}
+            width="100%" 
+            height="100%" 
+            src={`https://www.youtube.com/embed/${id}?autoplay=${isPlaying ? 1 : 0}&start=0&controls=0&modestbranding=1&rel=0&enablejsapi=1&origin=${window.location.origin}`} 
+            title="Karaoke Video"
+            frameBorder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            className="w-full max-w-6xl h-full object-contain"
+          ></iframe>
+        </div>
+      )}
+
+      {/* 🚨 CORREÇÃO: A BOLINHA DA CÂMERA */}
+      {isPlaying && !isFinished && cameraEnabled && (
+        <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.4)] z-50 bg-zinc-900 animate-in fade-in zoom-in flex items-center justify-center">
+          <video 
+            ref={videoRef} 
+            autoPlay 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover transform scale-x-[-1]" 
+          />
+        </div>
+      )}
+
+      {/* BARRA DE STATUS DO MIC */}
+      {!isFinished && (
+        <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
+          <div className="flex items-center gap-4 bg-gray-900/90 px-8 py-3 rounded-full border border-gray-700 backdrop-blur-md shadow-lg">
+            <Mic className={`w-5 h-5 ${isPlaying ? "text-cyan-400 animate-pulse" : "text-gray-500"}`} />
+            <span className="text-sm font-mono tracking-widest text-gray-300">
+              {isPlaying ? "IA JULLIARD ATIVA..." : "AGUARDANDO MICROFONE..."}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
