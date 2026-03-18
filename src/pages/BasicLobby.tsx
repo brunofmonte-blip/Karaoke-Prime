@@ -99,7 +99,9 @@ export default function BasicLobby() {
                   <Button onClick={() => navigate(`/play/${videoId}`)} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
                     CANTAR SOLO <PlayCircle className="ml-2 h-4 w-4" />
                   </Button>
-                  <Button onClick={() => toast.success("Dueto e Batalha ativados em breve!")} variant="ghost" className="w-full text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-full h-10 transition-all border border-transparent hover:border-cyan-500/20">
+                  <Button onClick={() => navigate('/duel-invite')} variant="ghost" className="w-full text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-full h-10 transition-all border border-transparent hover:border-cyan-500/20">
+   DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
+</Button>
                     DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
                   </Button>
                 </div>
