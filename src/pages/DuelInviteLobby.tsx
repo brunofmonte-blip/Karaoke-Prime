@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Pause, RotateCcw } from "lucide-react";
+import { ArrowLeft, Mic, Play, Trophy, Flame, Activity, BrainCircuit, Music, ChevronRight, Pause, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+import { searchYouTube } from "@/services/youtubeService";
 
 export default function SongPlayer() {
   const navigate = useNavigate();
@@ -11,10 +13,14 @@ export default function SongPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [cameraEnabled, setCameraEnabled] = useState(true); // Câmera ativada por padrão
+  const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [isLoadingRecs, setIsLoadingRecs] = useState(false);
+  
+  // 🚨 NOVO ESTADO: Garante que o React segure a imagem da câmera
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -46,28 +52,46 @@ export default function SongPlayer() {
     }
   };
 
-  // 🚨 CORREÇÃO: Função Finalizar que joga para a nova tela de Avaliação
-  const handleFinishShow = () => {
-    setIsFinished(true);
-    // Pausa o vídeo do youtube
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
-    }
-    // Redireciona para a tela ScoreResult passando os dados
-    setTimeout(() => {
-        navigate('/score', { 
-            state: { 
-                title: "MÚSICA SELECIONADA", 
-                artist: "YOUTUBE", 
-                score: score, 
-                accuracy: score > 1000 ? 94.5 : 42.3, // Apenas para simular na homologação
-                duration: "180" 
-            } 
-        });
-    }, 500);
+  const getDiagnosis = (finalScore: number) => {
+    if (finalScore > 2000) return {
+      title: "Performance de Elite!",
+      text: "Sua estabilidade de afinação foi impecável. O controle de respiração sustentou muito bem as notas longas.",
+      action: "Testar Duelo Online",
+      route: "/basic" // Ajustado para não dar tela preta
+    };
+    if (finalScore > 500) return {
+      title: "Bom Potencial, Mas Pode Melhorar",
+      text: "Você segurou bem o tom na maior parte do tempo, mas detectamos instabilidade (scooping) nos ataques das notas do refrão.",
+      action: "Treinar Módulo A: Ataque Laser",
+      route: "/academy"
+    };
+    return {
+      title: "Diagnóstico: Instabilidade Vocal",
+      text: "O motor neural detectou oscilações graves na afinação e perda de fôlego no fim das frases. É normal no início!",
+      action: "Treinar Nível 1: Respiração",
+      route: "/academy"
+    };
   };
 
-  // 🚨 CORREÇÃO: Inicialização blindada da Câmera e Microfone
+  useEffect(() => {
+    if (isFinished) {
+      const fetchRecs = async () => {
+        setIsLoadingRecs(true);
+        try {
+          const items = await searchYouTube('karaoke hits');
+          if (items) {
+            setRecommendations(items.slice(0, 3));
+          }
+        } catch (error) {
+          console.error("Failed to fetch recommendations:", error);
+        } finally {
+          setIsLoadingRecs(false);
+        }
+      };
+      fetchRecs();
+    }
+  }, [isFinished]);
+
   useEffect(() => {
     let stream: MediaStream | null = null;
     let audioCtx: AudioContext | null = null;
@@ -77,22 +101,17 @@ export default function SongPlayer() {
       navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
         .then((s) => {
           stream = s;
-          
-          // Anexa o stream à tag de vídeo se a câmera estiver habilitada
-          if (cameraEnabled && videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
+          setMediaStream(s); // 🚨 Salva o stream para a bolinha ler com segurança
 
-          // Analisador de Áudio para o Score
           const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
           audioCtx = new AudioContext();
+          
+          if (audioCtx.state === 'suspended') {
+              audioCtx.resume();
+          }
+
           const analyser = audioCtx.createAnalyser();
           const source = audioCtx.createMediaStreamSource(s);
-          
-          // Opcional: Se quiser ouvir sua própria voz nas caixas (Retorno de Palco)
-          // Retire os comentários da linha abaixo. ATENÇÃO: Se não usar fones, isso causará eco infinito (microfonia).
-          // source.connect(audioCtx.destination); 
-
           source.connect(analyser);
           analyser.fftSize = 256;
           const dataArray = new Uint8Array(analyser.frequencyBinCount);
@@ -118,13 +137,13 @@ export default function SongPlayer() {
     };
   }, [isPlaying, isFinished, isPaused, cameraEnabled]);
 
-  // Lógica de Pontuação (Mantida)
   useEffect(() => {
     let interval: NodeJS.Timeout;
     let clearFeedback: NodeJS.Timeout;
     if (isPlaying && !isFinished && !isPaused) {
       interval = setInterval(() => {
-        if (micVolumeRef.current > 2) {
+        // 🚨 Sensibilidade do microfone aumentada (de > 2 para > 1)
+        if (micVolumeRef.current > 1) {
           const points = Math.floor(micVolumeRef.current * 3) + Math.floor(Math.random() * 50);
           setScore(prev => prev + points);
           
@@ -144,20 +163,22 @@ export default function SongPlayer() {
     return () => { clearInterval(interval); clearTimeout(clearFeedback); };
   }, [isPlaying, isFinished, isPaused]);
 
+  const diagnosis = getDiagnosis(score);
+
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
       {!isFinished && (
         <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
           <div className="flex flex-col gap-4 pointer-events-auto">
             <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/basic")}>
-              <ArrowLeft className="mr-2 h-5 w-5" /> Voltar ao Lobby
+              <ArrowLeft className="mr-2 h-5 w-5" /> Voltar
             </Button>
             {isPlaying && !isPaused && (
               <div className="flex gap-2">
                 <Button variant="outline" className="w-fit bg-black/60 hover:bg-black/80 text-white border-gray-600 backdrop-blur-md animate-in fade-in" onClick={handlePause}>
                   <Pause className="mr-2 h-4 w-4" /> Pausar
                 </Button>
-                <Button variant="destructive" className="w-fit bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-in fade-in" onClick={handleFinishShow}>
+                <Button variant="destructive" className="w-fit bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-in fade-in" onClick={() => setIsFinished(true)}>
                   <BrainCircuit className="mr-2 h-4 w-4" /> Finalizar o Show!
                 </Button>
               </div>
@@ -193,7 +214,6 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* TELA DE PREPARAÇÃO */}
       {!isPlaying && !isFinished && (
         <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-auto">
           <div className="w-24 h-24 mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/50">
@@ -216,7 +236,6 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* TELA DE PAUSE */}
       {isPaused && !isFinished && (
         <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in-95 duration-200">
           <h2 className="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
@@ -234,7 +253,6 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* IFRAME DO YOUTUBE */}
       {!isFinished && (
         <div className="absolute inset-0 z-10 pt-20 pb-20 bg-black flex items-center justify-center pointer-events-none">
           <iframe 
@@ -250,11 +268,11 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* 🚨 CORREÇÃO: A BOLINHA DA CÂMERA */}
+      {/* 🚨 CORREÇÃO: A bolinha agora puxa o vídeo diretamente do Stream do React */}
       {isPlaying && !isFinished && cameraEnabled && (
-        <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.4)] z-50 bg-zinc-900 animate-in fade-in zoom-in flex items-center justify-center">
+        <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-2 border-cyan-400 overflow-hidden shadow-lg z-50 bg-black animate-in fade-in zoom-in">
           <video 
-            ref={videoRef} 
+            ref={(node) => { if (node && mediaStream) node.srcObject = mediaStream; }} 
             autoPlay 
             muted 
             playsInline 
@@ -263,14 +281,85 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* BARRA DE STATUS DO MIC */}
       {!isFinished && (
         <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
           <div className="flex items-center gap-4 bg-gray-900/90 px-8 py-3 rounded-full border border-gray-700 backdrop-blur-md shadow-lg">
-            <Mic className={`w-5 h-5 ${isPlaying ? "text-cyan-400 animate-pulse" : "text-gray-500"}`} />
+            <Mic className={`w-5 h-5 ${isPlaying ? "text-green-500 animate-pulse" : "text-gray-500"}`} />
             <span className="text-sm font-mono tracking-widest text-gray-300">
-              {isPlaying ? "IA JULLIARD ATIVA..." : "AGUARDANDO MICROFONE..."}
+              {isPlaying ? "ANÁLISE NEURAL DE VOZ ATIVA..." : "AGUARDANDO MICROFONE..."}
             </span>
+          </div>
+        </div>
+      )}
+
+      {isFinished && (
+        <div className="absolute inset-0 z-50 bg-gray-950 overflow-y-auto pointer-events-auto flex flex-col items-center py-12 px-4 animate-in fade-in duration-500">
+          <div className="max-w-5xl w-full space-y-8">
+            <div className="bg-black/60 border border-gray-800 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden flex flex-col md:flex-row gap-10 items-center">
+              <div className="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
+              <div className="flex flex-col items-center justify-center w-full md:w-1/3 z-10">
+                <div className="w-32 h-32 rounded-full border-4 border-cyan-500 overflow-hidden mb-6 shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+                  <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=1000&auto=format&fit=crop" className="w-full h-full object-cover" alt="Instrutor" />
+                </div>
+                <h3 className="text-gray-400 tracking-widest text-sm mb-2 uppercase font-bold">Pontuação Final</h3>
+                <p className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{score}</p>
+              </div>
+              <div className="w-full md:w-2/3 flex flex-col justify-center z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <BrainCircuit className="w-8 h-8 text-cyan-500" />
+                  <h2 className="text-3xl font-bold text-white">Relatório do Instrutor IA</h2>
+                </div>
+                <div className="bg-gray-900/80 p-6 rounded-2xl border border-gray-700 mb-6 shadow-inner">
+                  <h4 className="text-xl font-bold text-cyan-400 mb-2">{diagnosis.title}</h4>
+                  <p className="text-gray-300 leading-relaxed text-lg">{diagnosis.text}</p>
+                </div>
+                <Button 
+                  className="w-full h-14 text-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-[1.02]" 
+                  onClick={() => navigate(diagnosis.route)}
+                >
+                  {diagnosis.action} <ChevronRight className="ml-2 w-6 h-6" />
+                </Button>
+              </div>
+            </div>
+            <div className="mt-12">
+              <div className="flex items-center gap-3 mb-6">
+                <Music className="w-6 h-6 text-yellow-500" />
+                <h3 className="text-2xl font-bold text-white">Recomendações para você</h3>
+              </div>
+              {isLoadingRecs ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {recommendations.map((video, idx) => (
+                    <div 
+                      key={idx} 
+                      className="group bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden hover:border-yellow-500/50 transition-all cursor-pointer shadow-lg hover:shadow-yellow-500/10"
+                      onClick={() => navigate(`/play/${video.id.videoId}`)}
+                    >
+                      <div className="h-40 w-full overflow-hidden">
+                        <img src={video.snippet.thumbnails.high.url} alt={video.snippet.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-70 group-hover:opacity-100" />
+                      </div>
+                      <div className="p-5 flex justify-between items-center">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-lg text-white group-hover:text-yellow-400 transition-colors truncate">{video.snippet.title}</h4>
+                          <p className="text-sm text-gray-400 truncate">{video.snippet.channelTitle}</p>
+                        </div>
+                        <Button size="icon" variant="ghost" className="rounded-full bg-white/5 group-hover:bg-yellow-500 group-hover:text-black ml-2 flex-shrink-0">
+                          <Play className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex justify-center pt-8 pb-12">
+              <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white" onClick={() => navigate("/basic")}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> Voltar ao Acervo de Músicas
+              </Button>
+            </div>
           </div>
         </div>
       )}
