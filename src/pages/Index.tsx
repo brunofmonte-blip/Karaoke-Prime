@@ -82,11 +82,12 @@ export default function Index() {
       <div className="relative pt-32 pb-20 px-4 flex flex-col items-center justify-center text-center">
         
         {/* BACKGROUND COM ESTÚDIO VISÍVEL E 15% MAIS CLARO */}
-        <div className="absolute inset-0 z-0">
+       <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
             alt="Studio Background" 
-            className="w-full h-full object-cover opacity-70" 
+            // Adicionei o object-top aqui 👇
+            className="w-full h-full object-cover object-top opacity-70" 
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
         </div>
