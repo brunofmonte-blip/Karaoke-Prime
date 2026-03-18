@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 🚨 TODOS OS ÍCONES IMPORTADOS CORRETAMENTE
+// 🚨 AGORA SIM, TODOS OS ÍCONES IMPORTADOS! (ArrowRight e ArrowUpRight)
 import { 
   Mic2, GraduationCap, Globe2, LayoutGrid, Sparkles, 
-  Star, Trophy, Medal, PlayCircle, Lock, ArrowRight, 
+  Star, Trophy, Medal, PlayCircle, Lock, ArrowRight, ArrowUpRight,
   Search, Hash, Flame, Clock, Activity, User, ChevronRight 
 } from 'lucide-react';
 
@@ -81,14 +81,13 @@ export default function Index() {
       {/* 1. HERO SECTION & MAIN CARDS */}
       <div className="relative pt-32 pb-20 px-4 flex flex-col items-center justify-center text-center">
         
-        {/* 🚨 CORREÇÃO 1: BACKGROUND COM ESTÚDIO VISÍVEL E 15% MAIS CLARO */}
+        {/* BACKGROUND COM ESTÚDIO VISÍVEL E 15% MAIS CLARO */}
         <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
             alt="Studio Background" 
             className="w-full h-full object-cover opacity-40" 
           />
-          {/* Gradiente que desce de transparente para preto para fundir com a página */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
         </div>
 
@@ -168,7 +167,7 @@ export default function Index() {
            </div>
         </div>
 
-        {/* 🚨 CORREÇÃO 3: MURAL DE CONQUISTAS (Borda Cyan e Ícones Certos) */}
+        {/* 3. MURAL DE CONQUISTAS */}
         <section className="text-center">
           <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-10">MURAL DE <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]">CONQUISTAS</span></h2>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8">
@@ -190,7 +189,7 @@ export default function Index() {
           </div>
         </section>
 
-        {/* 🚨 CORREÇÃO 2: MÚSICAS MAIS CANTADAS COM BANDEIRAS REAIS EM HD */}
+        {/* 4. MÚSICAS MAIS CANTADAS (BANDEIRAS HD) */}
         <section className="text-center">
           <h2 className="text-xl font-black italic uppercase tracking-tighter flex items-center justify-center gap-2 mb-8">
             <Globe2 className="text-cyan-400 h-5 w-5" /> MÚSICAS MAIS CANTADAS
@@ -382,4 +381,4 @@ export default function Index() {
       </div>
     </div>
   );
-} 
+}
