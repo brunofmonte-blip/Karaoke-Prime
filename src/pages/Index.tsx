@@ -86,7 +86,7 @@ export default function Index() {
           <img 
             src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
             alt="Studio Background" 
-            className="w-full h-full object-cover opacity-50" 
+            className="w-full h-full object-cover opacity-70" 
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
         </div>
