@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// AUDITORIA FEITA: Todos os 18 ícones usados na página estão importados aqui.
+// 🚨 TODOS OS ÍCONES IMPORTADOS CORRETAMENTE
 import { 
   Mic2, GraduationCap, Globe2, LayoutGrid, Sparkles, 
-  Star, Trophy, Medal, PlayCircle, Lock, ArrowUpRight, 
+  Star, Trophy, Medal, PlayCircle, Lock, ArrowRight, 
   Search, Hash, Flame, Clock, Activity, User, ChevronRight 
 } from 'lucide-react';
 
@@ -26,7 +26,7 @@ export default function Index() {
   }, []);
 
   // ============================================================================
-  // DADOS SEMENTE (FAKE DATA PARA DAR VIDA AO MVP)
+  // DADOS SEMENTE (FAKE DATA)
   // ============================================================================
   const regionalHits = {
     BR: [
@@ -81,21 +81,18 @@ export default function Index() {
       {/* 1. HERO SECTION & MAIN CARDS */}
       <div className="relative pt-32 pb-20 px-4 flex flex-col items-center justify-center text-center">
         
-        {/* 🚨 CORREÇÃO VISUAL: Restaurando o Background do Palco (Anexo 2) */}
+        {/* 🚨 CORREÇÃO 1: BACKGROUND COM ESTÚDIO VISÍVEL E 15% MAIS CLARO */}
         <div className="absolute inset-0 z-0">
-          {/* Gradiente de fundo suave para profundidade */}
-          <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/20 via-black to-black z-0" />
-          {/* Imagem do Palco com opacidade aumentada em 15% (de 20 para 35) para clarear */}
           <img 
-            src="https://images.unsplash.com/photo-1516280440502-6c2438eabe2b?auto=format&fit=crop&q=80" 
-            alt="Stage" 
-            className="w-full h-full object-cover opacity-35 relative z-10" 
+            src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
+            alt="Studio Background" 
+            className="w-full h-full object-cover opacity-40" 
           />
-           {/* Vinheta preta nas bordas para focar no conteúdo, mantendo o centro claro */}
-          <div className="absolute inset-0 bg-black/30 z-20" />
+          {/* Gradiente que desce de transparente para preto para fundir com a página */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
         </div>
 
-        <div className="relative z-30 w-full max-w-6xl mx-auto">
+        <div className="relative z-10 w-full max-w-6xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
             KARAOKE <span className="text-cyan-400 drop-shadow-[0_0_20px_rgba(6,182,212,0.6)]">PRIME</span>
           </h1>
@@ -155,7 +152,7 @@ export default function Index() {
 
       <div className="max-w-6xl mx-auto px-4 space-y-24 relative z-10 mt-12">
         
-        {/* 2. BARRA DE BUSCA (Apenas Visual) */}
+        {/* 2. BARRA DE BUSCA */}
         <div className="flex justify-center mb-20">
            <div className="bg-zinc-900 border border-white/10 rounded-full flex items-center w-full max-w-3xl p-1 pr-2">
               <Search className="text-gray-500 h-5 w-5 ml-4 mr-2" />
@@ -171,7 +168,7 @@ export default function Index() {
            </div>
         </div>
 
-        {/* 3. MURAL DE CONQUISTAS */}
+        {/* 🚨 CORREÇÃO 3: MURAL DE CONQUISTAS (Borda Cyan e Ícones Certos) */}
         <section className="text-center">
           <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-10">MURAL DE <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]">CONQUISTAS</span></h2>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8">
@@ -182,8 +179,8 @@ export default function Index() {
               { icon: Medal, title: "PERFECT PITCH", status: "DESBLOQUEADO" },
               { icon: Globe2, title: "POLYGLOT", status: "DESBLOQUEADO" }
             ].map((badge, idx) => (
-              <Card key={idx} className="bg-zinc-950/80 border-white/5 w-32 h-32 md:w-40 md:h-40 rounded-[2rem] flex flex-col items-center justify-center hover:border-cyan-500/30 transition-all cursor-default">
-                <div className="h-12 w-12 rounded-full border border-cyan-400/50 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              <Card key={idx} className="bg-[#0a0a0a] border-transparent w-32 h-32 md:w-40 md:h-40 rounded-[2rem] flex flex-col items-center justify-center cursor-default">
+                <div className="h-12 w-12 rounded-full border-2 border-cyan-400 flex items-center justify-center mb-4">
                   <badge.icon className="text-cyan-400 h-6 w-6" />
                 </div>
                 <h4 className="font-black italic uppercase text-[10px] md:text-xs text-white text-center leading-tight mb-1">{badge.title}</h4>
@@ -193,24 +190,24 @@ export default function Index() {
           </div>
         </section>
 
-        {/* 4. MÚSICAS MAIS CANTADAS */}
+        {/* 🚨 CORREÇÃO 2: MÚSICAS MAIS CANTADAS COM BANDEIRAS REAIS EM HD */}
         <section className="text-center">
           <h2 className="text-xl font-black italic uppercase tracking-tighter flex items-center justify-center gap-2 mb-8">
             <Globe2 className="text-cyan-400 h-5 w-5" /> MÚSICAS MAIS CANTADAS
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { flag: "🇧🇷", country: "BR", desc: "BRASIL" },
-              { flag: "🇺🇸", country: "US", desc: "EUA" },
-              { flag: "🇯🇵", country: "JP", desc: "JAPÃO" },
-              { flag: "🇬🇧", country: "GB", desc: "REINO UNIDO" }
+              { flagUrl: "https://flagcdn.com/w80/br.png", country: "BR", desc: "BRASIL" },
+              { flagUrl: "https://flagcdn.com/w80/us.png", country: "US", desc: "EUA" },
+              { flagUrl: "https://flagcdn.com/w80/jp.png", country: "JP", desc: "JAPÃO" },
+              { flagUrl: "https://flagcdn.com/w80/gb.png", country: "GB", desc: "REINO UNIDO" }
             ].map((region, idx) => (
-              <Card key={idx} onClick={() => navigate('/basic')} className="bg-zinc-950 border-white/5 p-6 rounded-[2rem] flex flex-col items-center hover:border-white/20 cursor-pointer transition-all">
-                <div className="text-4xl mb-2">{region.flag}</div>
-                <h3 className="font-black italic text-2xl uppercase">{region.country}</h3>
+              <Card key={idx} onClick={() => navigate('/basic')} className="bg-[#0a0a0a] border-transparent p-6 rounded-[2rem] flex flex-col items-center hover:border-white/10 cursor-pointer transition-all">
+                <img src={region.flagUrl} alt={region.country} className="w-12 h-8 rounded-sm object-cover mb-4 shadow-sm" />
+                <h3 className="font-black italic text-2xl uppercase text-white">{region.country}</h3>
                 <p className="text-[8px] text-gray-500 uppercase font-black tracking-widest mb-6">{region.desc}</p>
-                <div className="border border-white/10 rounded-full px-4 py-1 text-[10px] font-black uppercase text-white flex items-center gap-1 hover:bg-white/5">
-                  EXPLORAR <ArrowUpRight size={10} />
+                <div className="border border-white/10 rounded-full px-4 py-1 text-[10px] font-black uppercase text-white flex items-center gap-2 hover:bg-white/5">
+                  EXPLORAR <ArrowRight size={12} />
                 </div>
               </Card>
             ))}
