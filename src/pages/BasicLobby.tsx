@@ -95,7 +95,8 @@ export default function BasicLobby() {
                 <h4 className="font-black italic text-xl uppercase text-white mb-2 line-clamp-2 min-h-[56px] flex items-center justify-center leading-tight" dangerouslySetInnerHTML={{ __html: title }}></h4>
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-10">{artistOrChannel}</p>
                 <div className="w-full space-y-3 mt-auto">
-                  <Button onClick={() => navigate(`/player/${videoId}`)} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+                  {/* 🚨 CORREÇÃO FEITA AQUI: A ROTA AGORA É /play/ */}
+                  <Button onClick={() => navigate(`/play/${videoId}`)} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
                     CANTAR SOLO <PlayCircle className="ml-2 h-4 w-4" />
                   </Button>
                   <Button onClick={() => toast.success("Dueto e Batalha ativados em breve!")} variant="ghost" className="w-full text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-full h-10 transition-all border border-transparent hover:border-cyan-500/20">
