@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // 🚨 COLE SUA CHAVE EXATAMENTE AQUI, MANTENDO AS ASPAS SIMPLES:
-const YOUTUBE_API_KEY = 'COLE_SUA_CHAVE_AQUI_DENTRO';
+const YOUTUBE_API_KEY = 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548';
 
 const youtubeApi = axios.create({
   baseURL: 'https://www.googleapis.com/youtube/v3',
@@ -15,7 +15,7 @@ const youtubeApi = axios.create({
 
 // Função 1: Usada para buscar os Karaokês
 export const searchKaraokeVideos = async (query: string) => {
-  if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'COLE_SUA_CHAVE_AQUI_DENTRO') {
+  if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548') {
     throw new Error("A chave da API do YouTube não foi configurada corretamente.");
   }
 
@@ -36,7 +36,7 @@ export const searchKaraokeVideos = async (query: string) => {
 
 // 🚨 A CORREÇÃO: Função 2 devolvida para o SongPlayer não quebrar!
 export const searchYouTube = async (query: string) => {
-  if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'COLE_SUA_CHAVE_AQUI_DENTRO') {
+  if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548') {
     throw new Error("A chave da API do YouTube não foi configurada corretamente.");
   }
 
