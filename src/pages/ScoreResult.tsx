@@ -1,114 +1,143 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mic2, Search, PlayCircle, Swords, RotateCcw, ListMusic } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Mic2, Sparkles, Star, ShieldCheck, Trophy, Activity, ArrowLeft } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { searchKaraokeVideos } from '@/services/youtubeService';
+import { Button } from '@/components/ui/button';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
-export default function BasicLobby() {
+export default function ScoreResult() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const location = useLocation();
+  const [user, setUser] = useState<FirebaseUser | null>(null);
 
-  const defaultSongs = [
-    { title: "NÃO QUERO DINHEIRO", artist: "TIM MAIA", videoId: "bO9pD_21Z6M" },
-    { title: "LET IT BE", artist: "THE BEATLES", videoId: "QDYfEBY9NM4" },
-    { title: "AMOR MAIOR", artist: "JOTA QUEST", videoId: "bA8yA4wVf4A" },
-    { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ", videoId: "ePjtnSPFWK8" },
-    { title: "SHALLOW", artist: "LADY GAGA", videoId: "bo_efYhYU2A" },
-    { title: "BOHEMIAN RHAPSODY", artist: "QUEEN", videoId: "fJ9rUzIMcZQ" },
-  ];
+  // Puxa os dados da música cantada (se vieram do Player)
+  const songTitle = location.state?.title || "NÃO QUERO DINHEIRO";
+  const songArtist = location.state?.artist || "TIM MAIA";
+  const duration = location.state?.duration || "208";
 
-  const handleSearch = async () => {
-    if (!query.trim()) {
-      toast.error("Digite o nome de uma música ou artista.");
-      return;
-    }
-    
-    setIsLoading(true);
-    setHasSearched(true);
-    
-    try {
-      const videos = await searchKaraokeVideos(query);
-      setResults(videos);
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao buscar músicas no YouTube.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Motor Simulado da IA Julliard (Gera notas rigorosas baseadas num algoritmo estrito)
+  // Para o MVP, forçamos um cenário realista e duro para mostrar o "Padrão Ouro"
+  const accuracy = location.state?.accuracy || 12.5; 
+  const score = location.state?.score || 1250;
+  const rank = accuracy > 90 ? "S" : accuracy > 75 ? "A" : accuracy > 50 ? "B" : accuracy > 25 ? "C" : "D";
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSearch();
-  };
-
-  const displayList = hasSearched ? results : defaultSongs;
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-black font-sans text-white p-6 pt-24">
-      <div className="max-w-6xl mx-auto">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors w-fit bg-zinc-900/50 px-4 py-2 rounded-full border border-white/5">
-          <ArrowLeft size={16} /> Voltar para o Início
-        </button>
+    <div className="min-h-screen bg-[#0a0a0a] font-sans text-white pb-24 overflow-x-hidden">
+      
+      {/* HEADER LOGO */}
+      <div className="pt-12 pb-8 flex justify-center border-b border-white/5 bg-black/50">
+        <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase">
+          KARAOKE <span className="text-cyan-400">PRIME</span>
+        </h1>
+      </div>
 
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 px-3 py-1 rounded-full text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-4">
-             <Mic2 size={14} /> PALCO PRINCIPAL
+      <div className="max-w-3xl mx-auto px-4 pt-12 space-y-12">
+        
+        {/* PERFIL DO USUÁRIO */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 bg-black/40 p-8 rounded-[2rem] border border-white/5">
+          <div className="h-32 w-32 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+            <img src={user?.photoURL || "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=150&h=150"} alt="User" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-tight drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-            BASIC <span className="text-cyan-400">LOBBY</span>
-          </h1>
+          <div className="text-center md:text-left">
+            <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white mb-2">
+              {user?.displayName || "BRUNO MONTE"}
+            </h2>
+            <span className="bg-cyan-400 text-black text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full inline-block">
+              PRIME MEMBER
+            </span>
+          </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-16">
-          <div className="bg-zinc-950 border border-white/10 rounded-full flex items-center w-full p-2 px-6 shadow-inner focus-within:border-cyan-500/50 transition-colors">
-            <Search className="text-gray-500 h-6 w-6 mr-4" />
-            <input type="text" placeholder="Qual música você quer cantar hoje?" className="bg-transparent border-none text-white focus:outline-none w-full text-lg placeholder:text-gray-600 font-medium" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} />
-          </div>
-          <Button onClick={handleSearch} disabled={isLoading} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm rounded-full px-12 h-16 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all shrink-0">
-            {isLoading ? "Buscando..." : "Buscar"}
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-3 mb-8 border-b border-white/10 pb-4">
-          {hasSearched ? <ListMusic className="text-cyan-400 h-5 w-5" /> : <RotateCcw className="text-gray-400 h-5 w-5" />}
-          <h3 className="font-black italic text-2xl uppercase tracking-tighter text-white">
-            {hasSearched ? "RESULTADOS NO YOUTUBE" : "ÚLTIMAS BUSCAS"}
+        {/* TÍTULO DA MÚSICA */}
+        <div className="flex items-center justify-center gap-4 text-center">
+          <Mic2 className="text-gray-500 h-8 w-8" />
+          <h3 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter text-white">
+            {songTitle} - {songArtist} - KARAOKÊ
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayList.map((item, idx) => {
-            const isYouTube = hasSearched;
-            const title = isYouTube ? item.snippet.title : item.title;
-            const artistOrChannel = isYouTube ? item.snippet.channelTitle : item.artist;
-            const videoId = isYouTube ? (item.id.videoId || item.id) : item.videoId;
+        {/* ÁREA DE PERFORMANCE */}
+        <Card className="bg-[#0f0f0f] border-white/5 rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-50" />
+          
+          <div className="flex flex-col items-center mb-12 text-center">
+            <Sparkles className="text-cyan-400 h-10 w-10 mb-4 animate-pulse" />
+            <h2 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-white mb-4">
+              PERFORMANCE CONCLUÍDA!
+            </h2>
+            <p className="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest max-w-lg leading-relaxed">
+              CONFIRA SEUS NÚMEROS CIRÚRGICOS NA MÚSICA {songTitle} (KARAOKE)
+            </p>
+          </div>
 
-            return (
-              <Card key={idx} className="bg-zinc-950 border border-white/5 rounded-[2rem] p-8 flex flex-col items-center text-center hover:border-cyan-500/30 hover:bg-zinc-900 transition-all group">
-                <div className="h-16 w-16 rounded-full bg-black flex items-center justify-center mb-6 border border-white/5 group-hover:border-cyan-500/50 group-hover:bg-cyan-500/10 transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-                  <Mic2 className="text-gray-500 group-hover:text-cyan-400 h-7 w-7 transition-colors" />
-                </div>
-                <h4 className="font-black italic text-xl uppercase text-white mb-2 line-clamp-2 min-h-[56px] flex items-center justify-center leading-tight" dangerouslySetInnerHTML={{ __html: title }}></h4>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-10">{artistOrChannel}</p>
-                <div className="w-full space-y-3 mt-auto">
-                  {/* 🚨 CORREÇÃO FEITA AQUI: A ROTA AGORA É /play/ */}
-                  <Button onClick={() => navigate(`/play/${videoId}`)} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-                    CANTAR SOLO <PlayCircle className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Button onClick={() => navigate('/duel-invite')} variant="ghost" className="w-full text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-full h-10 transition-all border border-transparent hover:border-cyan-500/20">
-   DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
-</Button>
-                    DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
-                  </Button>
-                </div>
-              </Card>
-            )
-          })}
+          {/* GRID DE DADOS (Exatamente igual ao seu layout original) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            <div className="bg-black border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+              <Star className="text-cyan-400 h-5 w-5 mb-2" />
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-2">PRECISÃO DA VOZ</p>
+              <p className="text-2xl font-black text-cyan-400">{accuracy}%</p>
+            </div>
+            
+            <div className="bg-black border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+              <ShieldCheck className="text-cyan-400 h-5 w-5 mb-2" />
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-2">PONTUAÇÃO TOTAL</p>
+              <p className="text-2xl font-black text-white">{score}</p>
+            </div>
+
+            <div className="bg-black border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+              <Trophy className="text-cyan-400 h-5 w-5 mb-2" />
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-2">RANK</p>
+              <p className="text-2xl font-black text-white">#{rank}</p>
+            </div>
+
+            <div className="bg-black border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+              <Activity className="text-cyan-400 h-5 w-5 mb-2" />
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-2">DURAÇÃO</p>
+              <p className="text-2xl font-black text-white">{duration}s</p>
+            </div>
+          </div>
+
+          {/* AVALIAÇÃO DA IA JULLIARD */}
+          <div className="bg-black border border-white/10 rounded-2xl p-6 md:p-8">
+            <h4 className="flex items-center gap-2 text-sm font-black italic uppercase text-white mb-6">
+              <Activity className="text-cyan-400 h-5 w-5" /> DICAS DE IA PARA MELHORIA
+            </h4>
+            <ul className="space-y-4 text-xs md:text-sm text-gray-400 font-medium">
+              <li className="flex items-start gap-3">
+                <span className="text-cyan-400 mt-1">•</span> 
+                Sua voz está tremendo e escorregando entre as notas (falta de apoio).
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-cyan-400 mt-1">•</span> 
+                Abaixe o volume do YouTube e foque em ouvir a própria voz.
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-cyan-400 mt-1">•</span> 
+                Treine o 'Farinelli' para ganhar força diafragmática antes de voltar ao palco.
+              </li>
+            </ul>
+          </div>
+
+        </Card>
+
+        {/* 🚨 CORREÇÃO 3: BOTÃO AGORA VOLTA PARA /basic (Fim da Tela Preta) */}
+        <div className="flex justify-center pt-8">
+          <Button 
+            onClick={() => navigate('/basic')} 
+            className="bg-transparent border border-white/20 hover:bg-white/10 text-white font-black uppercase tracking-widest text-xs rounded-full px-8 h-12 transition-all flex items-center gap-2"
+          >
+            <ArrowLeft size={16} /> VolTAR AO PALCO PRINCIPAL
+          </Button>
         </div>
+
       </div>
     </div>
   );
