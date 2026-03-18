@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 🚨 AUDITORIA FEITA: Todos os 18 ícones usados na página estão importados aqui.
+// AUDITORIA FEITA: Todos os 18 ícones usados na página estão importados aqui.
 import { 
   Mic2, GraduationCap, Globe2, LayoutGrid, Sparkles, 
   Star, Trophy, Medal, PlayCircle, Lock, ArrowUpRight, 
@@ -80,13 +80,22 @@ export default function Index() {
       
       {/* 1. HERO SECTION & MAIN CARDS */}
       <div className="relative pt-32 pb-20 px-4 flex flex-col items-center justify-center text-center">
-        {/* Background Effects */}
+        
+        {/* 🚨 CORREÇÃO VISUAL: Restaurando o Background do Palco (Anexo 2) */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/40 via-black to-black z-10" />
-          <img src="https://images.unsplash.com/photo-1516280440502-6c2438eabe2b?auto=format&fit=crop&q=80" alt="Stage" className="w-full h-full object-cover opacity-20" />
+          {/* Gradiente de fundo suave para profundidade */}
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/20 via-black to-black z-0" />
+          {/* Imagem do Palco com opacidade aumentada em 15% (de 20 para 35) para clarear */}
+          <img 
+            src="https://images.unsplash.com/photo-1516280440502-6c2438eabe2b?auto=format&fit=crop&q=80" 
+            alt="Stage" 
+            className="w-full h-full object-cover opacity-35 relative z-10" 
+          />
+           {/* Vinheta preta nas bordas para focar no conteúdo, mantendo o centro claro */}
+          <div className="absolute inset-0 bg-black/30 z-20" />
         </div>
 
-        <div className="relative z-10 w-full max-w-6xl mx-auto">
+        <div className="relative z-30 w-full max-w-6xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
             KARAOKE <span className="text-cyan-400 drop-shadow-[0_0_20px_rgba(6,182,212,0.6)]">PRIME</span>
           </h1>
