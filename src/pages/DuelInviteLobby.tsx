@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search, UserPlus, Sword, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,10 +18,14 @@ const DuelInviteLobby = () => {
   const [mockUsers, setMockUsers] = useState<any[]>([]);
   const [invitedUser, setInvitedUser] = useState<string | null>(null);
 
-  if (!videoId) {
-    navigate('/basic'); // Ajustado para voltar ao Lobby se falhar
-    return null;
-  }
+  // 🚨 A CORREÇÃO DA TELA PRETA: Navegação protegida pelo useEffect
+  useEffect(() => {
+    if (!videoId) {
+      navigate('/basic');
+    }
+  }, [videoId, navigate]);
+
+  if (!videoId) return null;
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
