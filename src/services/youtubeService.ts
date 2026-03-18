@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // 🚨 COLE SUA CHAVE EXATAMENTE AQUI, MANTENDO AS ASPAS SIMPLES:
-const YOUTUBE_API_KEY = 'COLE_SUA_CHAVE_AQUI_DENTRO';
+const YOUTUBE_API_KEY = 'AIzaSyBaCJPLU9kL_Ufu4S2yJX2v5up6vp5R548';
 
 const youtubeApi = axios.create({
   baseURL: 'https://www.googleapis.com/youtube/v3',
