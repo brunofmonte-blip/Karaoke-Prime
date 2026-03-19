@@ -19,7 +19,7 @@ export default function BasicLobby() {
     { title: "AMOR MAIOR", artist: "JOTA QUEST", videoId: "yYSr8k7Bm0A" },
     { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ", videoId: "tfhwXKd1W_o" },
     { title: "SHALLOW", artist: "LADY GAGA", videoId: "_nHT_k9Rswc" },
-    { title: "BOHEMIAN RHAPSODY", artist: "QUEEN", videoId: "fJ9rUzIMcZQ" },
+    { title: "BOHEMIAN RHAPSODY", artist: "QUEEN", videoId: "9Lxm0iSnKNc" },
   ];
 
   const handleSearch = async () => {
