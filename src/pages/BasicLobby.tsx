@@ -17,7 +17,7 @@ export default function BasicLobby() {
     { title: "NÃO QUERO DINHEIRO", artist: "TIM MAIA", videoId: "5eJwf_k68r8" },
     { title: "LET IT BE", artist: "THE BEATLES", videoId: "OCdB7yFeg00" },
     { title: "AMOR MAIOR", artist: "JOTA QUEST", videoId: "yYSr8k7Bm0A" },
-    { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ", videoId: "ePjtnSPFWK8" },
+    { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ", videoId: "tfhwXKd1W_o" },
     { title: "SHALLOW", artist: "LADY GAGA", videoId: "bo_efYhYU2A" },
     { title: "BOHEMIAN RHAPSODY", artist: "QUEEN", videoId: "fJ9rUzIMcZQ" },
   ];
