@@ -1,227 +1,128 @@
-"use client";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Mic2, Sparkles, Star, ShieldCheck, Trophy, Activity, ArrowLeft, Share2, AlertTriangle } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
-import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Mic, Play, Trophy, Flame, BrainCircuit, Pause, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
-
-export default function SongPlayer() {
+export default function ScoreResult() {
   const navigate = useNavigate();
-  const { id } = useParams(); 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [cameraEnabled, setCameraEnabled] = useState(true);
+  const location = useLocation();
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+
+  const songTitle = location.state?.title || "MÚSICA SELECIONADA";
+  const accuracy = location.state?.accuracy || 0; 
+  const score = location.state?.score || 0;
   
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const [score, setScore] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const micVolumeRef = useRef(0);
-
-  const handlePause = () => {
-    setIsPaused(true);
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
-    }
-  };
-
-  const handleResume = () => {
-    setIsPaused(false);
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
-    }
-  };
-
-  const handleRestart = () => {
-    setIsPaused(false);
-    setScore(0);
-    setCombo(0);
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
-    }
-  };
-
-  const handleFinishShow = () => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
-    }
-    // Envia pontuação real para a tela de Score
-    navigate('/score', { 
-      state: { 
-        title: "MÚSICA SELECIONADA", 
-        artist: "YOUTUBE", 
-        score: score, 
-        accuracy: score > 0 ? Math.min(99.9, (score / 150) + 40).toFixed(1) : 0, 
-        duration: "180" 
-      } 
-    });
-  };
+  // Detecção do Item 3: Se o score for ZERO, é Rank D.
+  const rank = score === 0 ? "D" : accuracy > 90 ? "S" : accuracy > 75 ? "A" : accuracy > 50 ? "B" : accuracy > 25 ? "C" : "D";
 
   useEffect(() => {
-    let stream: MediaStream | null = null;
-    let audioCtx: AudioContext | null = null;
-    let animationId: number;
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
+    return () => unsubscribe();
+  }, []);
 
-    if (isPlaying && !isPaused) {
-      navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
-        .then((s) => {
-          stream = s;
-          if (cameraEnabled && videoRef.current) {
-            videoRef.current.srcObject = s;
-          }
-          
-          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-          audioCtx = new AudioContext();
-          if (audioCtx.state === 'suspended') {
-              audioCtx.resume();
-          }
-
-          const analyser = audioCtx.createAnalyser();
-          const source = audioCtx.createMediaStreamSource(s);
-          source.connect(analyser);
-          analyser.fftSize = 256;
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
-          
-          const updateVolume = () => {
-            analyser.getByteFrequencyData(dataArray);
-            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-            micVolumeRef.current = average; // Captura o volume em tempo real
-            animationId = requestAnimationFrame(updateVolume);
-          };
-          updateVolume();
-        })
-        .catch(err => {
-            console.error("Media access error:", err);
-            toast.error("Permissão de câmera/microfone negada.");
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Meu Resultado no Karaoke Prime!',
+          text: `Cantei ${songTitle} no Karaoke Prime!`,
+          url: window.location.href,
         });
+      } catch (err) {}
+    } else {
+      toast.success("Link copiado para a área de transferência!");
     }
-
-    return () => {
-      if (animationId) cancelAnimationFrame(animationId);
-      if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
-      if (stream) stream.getTracks().forEach(track => track.stop());
-    };
-  }, [isPlaying, isPaused, cameraEnabled]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying && !isPaused) {
-      interval = setInterval(() => {
-        // 🚨 CORREÇÃO DO ITEM 3: Sensibilidade aumentada para filtrar ruído de fundo (cooler, cliques).
-        // Aumentei a trava de > 2 para > 10. Se não cantar de verdade, o score continuará em ZERO.
-        if (micVolumeRef.current > 10) {
-          const points = Math.floor(micVolumeRef.current);
-          setScore(prev => prev + points);
-        }
-      }, 500);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, isPaused]);
+  };
 
   return (
-    <div className="relative h-screen w-full bg-black overflow-hidden">
+    // 🚨 CORREÇÃO DO ITEM 1: Centralização vertical perfeita (items-center justify-center)
+    <div className="min-h-screen bg-[#0a0a0a] font-sans text-white flex flex-col items-center justify-center py-12 px-4 overflow-y-auto">
       
-      {/* HEADER DE COMANDOS */}
-      <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
-        <div className="flex flex-col gap-4 pointer-events-auto">
-          <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/basic")}>
-            <ArrowLeft className="mr-2 h-5 w-5" /> Voltar ao Lobby
-          </Button>
-          {isPlaying && !isPaused && (
-            <div className="flex gap-2">
-              <Button variant="outline" className="w-fit bg-black/60 hover:bg-black/80 text-white border-gray-600 backdrop-blur-md animate-in fade-in" onClick={handlePause}>
-                <Pause className="mr-2 h-4 w-4" /> Pausar
-              </Button>
-              <Button variant="destructive" className="w-fit bg-red-600 hover:bg-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)] animate-in fade-in" onClick={handleFinishShow}>
-                <BrainCircuit className="mr-2 h-4 w-4" /> Finalizar o Show!
-              </Button>
-            </div>
-          )}
-        </div>
+      {/* CARD FORMATO PÔSTER (9:16 ratio) */}
+      <Card className="w-full max-w-[400px] aspect-[9/16] bg-gradient-to-b from-[#111] to-black border border-white/10 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(6,182,212,0.15)] flex flex-col relative overflow-hidden">
         
-        {/* Mostra apenas a pontuação subindo discretamente se houver score */}
-        {isPlaying && score > 0 && (
-          <div className="pointer-events-none bg-black/50 border border-white/10 px-6 py-2 rounded-full backdrop-blur-md">
-            <span className="text-cyan-400 font-mono font-black text-xl">{score.toLocaleString()} pts</span>
-          </div>
-        )}
-      </div>
+        {/* Luz de Fundo */}
+        <div className="absolute -top-32 -left-32 w-64 h-64 bg-cyan-500/20 blur-[100px] rounded-full pointer-events-none" />
 
-      {!isPlaying && (
-        <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-auto">
-          <div className="w-24 h-24 mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/50">
-            <Mic className="w-12 h-12 text-cyan-400" />
+        {/* Topo do Pôster */}
+        <div className="text-center mb-6 relative z-10">
+          <h1 className="text-2xl font-black italic tracking-tighter uppercase mb-6">
+            KARAOKE <span className="text-cyan-400">PRIME</span>
+          </h1>
+          <div className="mx-auto h-20 w-20 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.4)] mb-3">
+            <img src={user?.photoURL || "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80"} alt="User" className="w-full h-full object-cover" />
           </div>
-          <h2 className="text-4xl font-bold text-yellow-500 mb-2">Pronto para o Show?</h2>
-          <p className="text-xl text-gray-300 mb-8">Aqueça a voz e prepare-se para brilhar.</p>
+          <h2 className="text-xl font-black italic uppercase text-white leading-tight">
+            {user?.displayName || "CANTOR PRIME"}
+          </h2>
+        </div>
+
+        {/* Dados da Performance */}
+        <div className="flex-1 flex flex-col justify-center space-y-5 relative z-10">
+          <div className="text-center">
+            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1 flex items-center justify-center gap-1">
+              <Mic2 size={12} /> Faixa Analisada
+            </p>
+            <h3 className="text-lg font-black italic uppercase text-white px-2 line-clamp-2">
+              {songTitle}
+            </h3>
+          </div>
+
+          <div className="bg-black/50 border border-white/5 rounded-3xl p-5">
+             <div className="flex justify-between items-center border-b border-white/5 pb-3 mb-3">
+               <div>
+                 <p className="text-[8px] text-gray-500 font-black uppercase tracking-widest">Score Final</p>
+                 <p className="text-3xl font-black text-white">{score.toLocaleString()}</p>
+               </div>
+               <div className="text-right">
+                 <p className="text-[8px] text-gray-500 font-black uppercase tracking-widest">Rank</p>
+                 <p className="text-3xl font-black text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">{rank}</p>
+               </div>
+             </div>
+             <div>
+                <p className="text-[8px] text-gray-500 font-black uppercase tracking-widest mb-2 flex items-center gap-1">
+                  <Activity size={12} className="text-cyan-400" /> Precisão da Voz
+                </p>
+                <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-cyan-400 h-1.5 rounded-full" style={{ width: `${accuracy}%` }}></div>
+                </div>
+                <p className="text-right text-[10px] font-bold text-cyan-400 mt-1">{accuracy}%</p>
+             </div>
+          </div>
+        </div>
+
+        {/* Dica da IA e Botão Compartilhar Embutido */}
+        <div className="mt-6 relative z-10 text-center">
           
-          <Button 
-            variant="outline" 
-            onClick={() => setCameraEnabled(!cameraEnabled)}
-            className={`mb-6 border-cyan-500 ${cameraEnabled ? 'bg-cyan-500/20 text-cyan-400' : 'bg-transparent text-gray-400'}`}
-          >
-            {cameraEnabled ? "📷 Câmera ATIVADA" : "📷 Câmera DESATIVADA"}
-          </Button>
+           {/* 🚨 CORREÇÃO DO ITEM 3 & 2: Feedback de erro de mic e Frase de Promoção */}
+           {score === 0 ? (
+             <div className="flex items-start gap-2 bg-red-950/50 border border-red-500/50 p-3 rounded-2xl mb-6 text-left">
+               <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+               <p className="text-xs font-bold text-gray-300 leading-tight">
+                 Feedback: Ajuste seu microfone, verifique se está ligado, não conseguíamos captar sua voz.
+               </p>
+             </div>
+           ) : (
+             <p className="text-xs font-bold text-gray-300 italic mb-6 leading-relaxed">
+               "Vem batalhar ou cantar comigo no Karaoke Prime!"
+             </p>
+           )}
 
-          <Button onClick={() => setIsPlaying(true)} className="text-2xl px-12 py-8 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full shadow-[0_0_40px_rgba(6,182,212,0.5)] transition-transform hover:scale-105">
-            <Play className="mr-2 fill-black w-8 h-8" /> ENTRAR NO PALCO
-          </Button>
+           <Button onClick={handleShare} className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-xs rounded-full h-14 shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 transition-all hover:scale-105">
+             COMPARTILHAR MEU PÔSTER <Share2 size={16} />
+           </Button>
         </div>
-      )}
+      </Card>
 
-      {isPaused && (
-        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in-95 duration-200">
-          <h2 className="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
-          <p className="text-gray-400 mb-12">Recupere o fôlego. O palco aguarda.</p>
-          <div className="flex gap-6">
-            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
-              <Play className="w-10 h-10 fill-black" />
-              <span className="text-xl tracking-wider">CONTINUAR</span>
-            </Button>
-            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
-              <RotateCcw className="w-10 h-10 text-gray-300" />
-              <span className="text-xl tracking-wider text-gray-300">REINICIAR</span>
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Botão de Voltar para a Home */}
+      <Button variant="ghost" onClick={() => navigate('/basic')} className="mt-8 text-gray-500 hover:text-white font-black uppercase tracking-widest text-[10px] flex items-center gap-2">
+        <ArrowLeft size={14} /> VOLTAR AO PALCO PRINCIPAL
+      </Button>
 
-      <div className="absolute inset-0 z-10 pt-20 pb-20 bg-black flex items-center justify-center pointer-events-none">
-        <iframe 
-          ref={iframeRef}
-          width="100%" 
-          height="100%" 
-          src={`https://www.youtube.com/embed/${id}?autoplay=${isPlaying ? 1 : 0}&start=0&controls=0&modestbranding=1&rel=0&enablejsapi=1&origin=${window.location.origin}`} 
-          title="Karaoke Video"
-          frameBorder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          className="w-full max-w-6xl h-full object-contain"
-        ></iframe>
-      </div>
-
-      {isPlaying && cameraEnabled && videoRef && (
-        <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.4)] z-50 bg-zinc-900 animate-in fade-in zoom-in">
-          <video 
-            ref={videoRef} 
-            autoPlay 
-            playsInline 
-            muted 
-            className="w-full h-full object-cover transform scale-x-[-1]" 
-          />
-        </div>
-      )}
-
-      <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
-        <div className="flex items-center gap-4 bg-gray-900/90 px-8 py-3 rounded-full border border-gray-700 backdrop-blur-md shadow-lg">
-          <Mic className={`w-5 h-5 ${isPlaying ? "text-cyan-400 animate-pulse" : "text-gray-500"}`} />
-          <span className="text-sm font-mono tracking-widest text-gray-300">
-            {isPlaying ? "IA JULLIARD ATIVA..." : "AGUARDANDO MICROFONE..."}
-          </span>
-        </div>
-      </div>
     </div>
   );
 }
