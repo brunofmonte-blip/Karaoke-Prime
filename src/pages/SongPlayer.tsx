@@ -16,6 +16,10 @@ export default function SongPlayer() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // O Score agora é REAL e começa em 0
+  const [score, setScore] = useState(0);
+  const micVolumeRef = useRef(0);
+
   const handlePause = () => {
     setIsPaused(true);
     if (iframeRef.current && iframeRef.current.contentWindow) {
@@ -32,12 +36,14 @@ export default function SongPlayer() {
 
   const handleRestart = () => {
     setIsPaused(false);
+    setScore(0);
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
     }
   };
 
+  // Envia a pontuação REAL conquistada para a tela de Score
   const handleFinishShow = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
@@ -46,8 +52,8 @@ export default function SongPlayer() {
       state: { 
         title: "MÚSICA SELECIONADA", 
         artist: "YOUTUBE", 
-        score: 14250, // Pontuação fixa apenas para visualização no MVP
-        accuracy: 94.5,
+        score: score, 
+        accuracy: score > 0 ? Math.min(99.9, (score / 150) + 40).toFixed(1) : 0, 
         duration: "180" 
       } 
     });
@@ -56,6 +62,7 @@ export default function SongPlayer() {
   useEffect(() => {
     let stream: MediaStream | null = null;
     let audioCtx: AudioContext | null = null;
+    let animationId: number;
 
     if (isPlaying && !isPaused) {
       navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
@@ -64,11 +71,26 @@ export default function SongPlayer() {
           if (cameraEnabled && videoRef.current) {
             videoRef.current.srcObject = s;
           }
+          
           const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
           audioCtx = new AudioContext();
           if (audioCtx.state === 'suspended') {
               audioCtx.resume();
           }
+
+          const analyser = audioCtx.createAnalyser();
+          const source = audioCtx.createMediaStreamSource(s);
+          source.connect(analyser);
+          analyser.fftSize = 256;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          
+          const updateVolume = () => {
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            micVolumeRef.current = average; // Captura o volume em tempo real
+            animationId = requestAnimationFrame(updateVolume);
+          };
+          updateVolume();
         })
         .catch(err => {
             console.error("Media access error:", err);
@@ -77,15 +99,29 @@ export default function SongPlayer() {
     }
 
     return () => {
+      if (animationId) cancelAnimationFrame(animationId);
       if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
       if (stream) stream.getTracks().forEach(track => track.stop());
     };
   }, [isPlaying, isPaused, cameraEnabled]);
 
+  // LOOP DE PONTUAÇÃO REAL (Sem textos na tela)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying && !isPaused) {
+      interval = setInterval(() => {
+        // Só pontua se o volume do mic passar de 10 (ignora ruído de fundo)
+        if (micVolumeRef.current > 10) {
+          const points = Math.floor(micVolumeRef.current);
+          setScore(prev => prev + points);
+        }
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, isPaused]);
+
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
-      
-      {/* HEADER DE COMANDOS (Livre de pontuações fakes) */}
       <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
         <div className="flex flex-col gap-4 pointer-events-auto">
           <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/basic")}>
@@ -102,9 +138,15 @@ export default function SongPlayer() {
             </div>
           )}
         </div>
+        
+        {/* Mostra apenas a pontuação subindo discretamente */}
+        {isPlaying && (
+          <div className="pointer-events-none bg-black/50 border border-white/10 px-6 py-2 rounded-full backdrop-blur-md">
+            <span className="text-cyan-400 font-mono font-black text-xl">{score.toLocaleString()} pts</span>
+          </div>
+        )}
       </div>
 
-      {/* TELA INICIAL */}
       {!isPlaying && (
         <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-auto">
           <div className="w-24 h-24 mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/50">
@@ -127,17 +169,16 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* TELA DE PAUSE */}
       {isPaused && (
         <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-auto animate-in zoom-in-95 duration-200">
           <h2 className="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
           <p className="text-gray-400 mb-12">Recupere o fôlego. O palco aguarda.</p>
           <div className="flex gap-6">
-            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] flex flex-col items-center gap-4 h-auto">
               <Play className="w-10 h-10 fill-black" />
               <span className="text-xl tracking-wider">CONTINUAR</span>
             </Button>
-            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl flex flex-col items-center gap-4 h-auto">
               <RotateCcw className="w-10 h-10 text-gray-300" />
               <span className="text-xl tracking-wider text-gray-300">REINICIAR</span>
             </Button>
@@ -145,7 +186,6 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* VÍDEO DO YOUTUBE */}
       <div className="absolute inset-0 z-10 pt-20 pb-20 bg-black flex items-center justify-center pointer-events-none">
         <iframe 
           ref={iframeRef}
@@ -159,7 +199,6 @@ export default function SongPlayer() {
         ></iframe>
       </div>
 
-      {/* BOLINHA DA CÂMERA */}
       {isPlaying && cameraEnabled && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.4)] z-50 bg-zinc-900 animate-in fade-in zoom-in">
           <video 
@@ -172,7 +211,6 @@ export default function SongPlayer() {
         </div>
       )}
 
-      {/* BARRA DO MICROFONE */}
       <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
         <div className="flex items-center gap-4 bg-gray-900/90 px-8 py-3 rounded-full border border-gray-700 backdrop-blur-md shadow-lg">
           <Mic className={`w-5 h-5 ${isPlaying ? "text-cyan-400 animate-pulse" : "text-gray-500"}`} />
