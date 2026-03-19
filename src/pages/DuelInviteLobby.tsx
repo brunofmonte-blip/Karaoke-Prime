@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-// 🚨 CORREÇÃO DO ITEM 4: Adicionei o ícone 'Mic' que estava faltando nas importações e quebrou a tela
 import { ArrowLeft, Search, UserPlus, Sword, User, Trophy, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +15,6 @@ export default function DuelInviteLobby() {
   
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Lista Fictícia de Usuários (Mantida)
   const mockUsers = [
     { id: 1, name: 'MARIA CLARA', handle: '@mariaclara_oficial', level: 12, status: 'Online', wins: 45, battles: 52, image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150' },
     { id: 2, name: 'JOÃO PEDRO', handle: '@jpcantor', level: 8, status: 'Ocupado', wins: 12, battles: 30, image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80&w=150' },
@@ -40,6 +38,7 @@ export default function DuelInviteLobby() {
     
     setTimeout(() => {
       toast.success(`${selectedOpponent.name} aceitou! Entrando na Arena...`);
+      // 🚨 Manda você para a Nova Arena que vamos colar abaixo
       navigate(`/duel-room/${videoId}`);
     }, 3000);
   };
@@ -47,7 +46,6 @@ export default function DuelInviteLobby() {
   return (
     <div className="min-h-screen bg-black p-4 md:p-8 relative overflow-hidden flex flex-col">
       
-      {/* Header Fixo */}
       <div className="flex justify-between items-center mb-10 relative z-10 shrink-0">
         <Button variant="ghost" onClick={() => navigate('/basic')} className="text-gray-400 hover:text-orange-500 font-black uppercase text-[10px] tracking-widest border border-white/5 hover:border-orange-500 rounded-full px-4 py-2">
           <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para o Palco Principal
@@ -68,7 +66,6 @@ export default function DuelInviteLobby() {
           </p>
         </div>
 
-        {/* LAYOUT DE 3 COLUNAS UNIFICADO (Como no Rascunho) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full flex-1">
           
           {/* COLUNA 1: MÚSICA SELECIONADA */}
@@ -85,7 +82,10 @@ export default function DuelInviteLobby() {
                     </div>
                  </div>
               </div>
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-widest text-center leading-relaxed px-4">A arena Julliard será baseada nesta faixa do Youtube.</p>
+              {/* 🚨 CORREÇÃO DO TEXTO: Fim do Risco Jurídico */}
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-widest text-center leading-relaxed px-4">
+                O Karaoke Prime apresenta a faixa oficial desta batalha.
+              </p>
             </CardContent>
           </Card>
 
@@ -144,7 +144,7 @@ export default function DuelInviteLobby() {
                 
                 <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Análise de Oponente</p>
                 <h2 className="text-2xl font-black italic text-white uppercase mb-1 text-center leading-tight tracking-tight">{selectedOpponent.name}</h2>
-                <p className="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-6">Nível Julliard {selectedOpponent.level}</p>
+                <p className="text-orange-500 text-[10px] font-black uppercase tracking-widest mb-6">Nível Prime {selectedOpponent.level}</p>
 
                 <div className="grid grid-cols-2 gap-3 w-full mb-6">
                    <div className="bg-black/50 border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center">
