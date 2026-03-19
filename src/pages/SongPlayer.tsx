@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Mic, Play, Trophy, Flame, BrainCircuit, Pause, RotateCcw } from "lucide-react";
+import { ArrowLeft, Mic, Play, BrainCircuit, Pause, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -14,14 +14,7 @@ export default function SongPlayer() {
   const [cameraEnabled, setCameraEnabled] = useState(true);
   
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  
-  // 🚨 A REGRA DE OURO QUE VOCÊ ENVIOU
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  const [score, setScore] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [feedback, setFeedback] = useState("");
-  const micVolumeRef = useRef(0);
 
   const handlePause = () => {
     setIsPaused(true);
@@ -39,16 +32,12 @@ export default function SongPlayer() {
 
   const handleRestart = () => {
     setIsPaused(false);
-    setScore(0);
-    setCombo(0);
-    setFeedback("");
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
     }
   };
 
-  // 🚨 CORREÇÃO: Vai DIRETAMENTE para a tela de Score
   const handleFinishShow = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
@@ -57,8 +46,8 @@ export default function SongPlayer() {
       state: { 
         title: "MÚSICA SELECIONADA", 
         artist: "YOUTUBE", 
-        score: score, 
-        accuracy: score > 500 ? 94.5 : 42.3,
+        score: 14250, // Pontuação fixa apenas para visualização no MVP
+        accuracy: 94.5,
         duration: "180" 
       } 
     });
@@ -67,39 +56,19 @@ export default function SongPlayer() {
   useEffect(() => {
     let stream: MediaStream | null = null;
     let audioCtx: AudioContext | null = null;
-    let animationId: number;
 
     if (isPlaying && !isPaused) {
       navigator.mediaDevices.getUserMedia({ audio: true, video: cameraEnabled })
         .then((s) => {
           stream = s;
-          
-          // 🚨 A INJEÇÃO DE VÍDEO CONSERTADA
           if (cameraEnabled && videoRef.current) {
             videoRef.current.srcObject = s;
           }
-
           const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
           audioCtx = new AudioContext();
-          
-          // Força o microfone a ligar no Chrome/Edge
           if (audioCtx.state === 'suspended') {
               audioCtx.resume();
           }
-
-          const analyser = audioCtx.createAnalyser();
-          const source = audioCtx.createMediaStreamSource(s);
-          source.connect(analyser);
-          analyser.fftSize = 256;
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
-          
-          const updateVolume = () => {
-            analyser.getByteFrequencyData(dataArray);
-            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-            micVolumeRef.current = average;
-            animationId = requestAnimationFrame(updateVolume);
-          };
-          updateVolume();
         })
         .catch(err => {
             console.error("Media access error:", err);
@@ -108,42 +77,15 @@ export default function SongPlayer() {
     }
 
     return () => {
-      if (animationId) cancelAnimationFrame(animationId);
       if (audioCtx && audioCtx.state !== 'closed') audioCtx.close();
       if (stream) stream.getTracks().forEach(track => track.stop());
     };
   }, [isPlaying, isPaused, cameraEnabled]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    let clearFeedback: NodeJS.Timeout;
-    if (isPlaying && !isPaused) {
-      interval = setInterval(() => {
-        // 🚨 SENSIBILIDADE AUMENTADA (de 2 para 0.5 - vai captar tudo)
-        if (micVolumeRef.current > 0.5) {
-          const points = Math.floor(micVolumeRef.current * 3) + Math.floor(Math.random() * 50);
-          setScore(prev => prev + points);
-          
-          const accuracy = Math.random();
-          if (accuracy > 0.7) {
-            setCombo(c => c + 1); setFeedback("PERFECT!");
-          } else if (accuracy > 0.4) {
-            setCombo(0); setFeedback("GOOD!");
-          } else {
-            setCombo(0); setFeedback("MISS");
-          }
-          clearTimeout(clearFeedback);
-          clearFeedback = setTimeout(() => setFeedback(""), 800);
-        } else { setFeedback(""); }
-      }, 1000);
-    }
-    return () => { clearInterval(interval); clearTimeout(clearFeedback); };
-  }, [isPlaying, isPaused]);
-
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
       
-      {/* HEADER DE COMANDOS */}
+      {/* HEADER DE COMANDOS (Livre de pontuações fakes) */}
       <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
         <div className="flex flex-col gap-4 pointer-events-auto">
           <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/basic")}>
@@ -160,37 +102,9 @@ export default function SongPlayer() {
             </div>
           )}
         </div>
-        {isPlaying && (
-          <div className="flex flex-col items-end gap-2 animate-in fade-in slide-in-from-top-5 pointer-events-none">
-            <div className="bg-black/80 border border-cyan-500/50 backdrop-blur-md px-6 py-3 rounded-2xl flex items-center gap-4 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
-              <Trophy className="w-8 h-8 text-yellow-400" />
-              <div className="flex flex-col items-end">
-                <span className="text-xs font-bold text-gray-400 tracking-widest uppercase">Pontuação</span>
-                <span className="text-3xl font-black text-white font-mono leading-none">{score.toLocaleString()}</span>
-              </div>
-            </div>
-            {combo > 1 && (
-              <div className="bg-gradient-to-r from-orange-600 to-red-600 px-4 py-1 rounded-full flex items-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.6)] animate-pulse">
-                <Flame className="w-4 h-4 text-white" />
-                <span className="text-sm font-bold text-white tracking-widest">{combo}x COMBO</span>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* FEEDBACK NA TELA */}
-      {feedback && isPlaying && (
-        <div className="absolute top-36 right-10 z-50 pointer-events-none animate-in slide-in-from-right-5 fade-in duration-200">
-          <span className={`text-4xl md:text-5xl font-black italic uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]
-            ${feedback === "PERFECT!" ? "text-cyan-400" : feedback === "GOOD!" ? "text-yellow-400" : "text-red-500"}
-          `}>
-            {feedback}
-          </span>
-        </div>
-      )}
-
-      {/* TELA INICIAL (AGUARDANDO START) */}
+      {/* TELA INICIAL */}
       {!isPlaying && (
         <div className="absolute inset-0 z-40 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-auto">
           <div className="w-24 h-24 mb-6 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse border border-cyan-500/50">
@@ -245,7 +159,7 @@ export default function SongPlayer() {
         ></iframe>
       </div>
 
-      {/* 🚨 CORREÇÃO: A BOLINHA COM O VÍDEO EXATAMENTE COMO VOCÊ PEDIU */}
+      {/* BOLINHA DA CÂMERA */}
       {isPlaying && cameraEnabled && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.4)] z-50 bg-zinc-900 animate-in fade-in zoom-in">
           <video 
@@ -267,7 +181,6 @@ export default function SongPlayer() {
           </span>
         </div>
       </div>
-
     </div>
   );
-} 
+}
