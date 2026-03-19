@@ -14,7 +14,7 @@ export default function BasicLobby() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const defaultSongs = [
-    { title: "NÃO QUERO DINHEIRO", artist: "TIM MAIA", videoId: "bO9pD_21Z6M" },
+    { title: "NÃO QUERO DINHEIRO", artist: "TIM MAIA", videoId: "5eJwf_k68r8" },
     { title: "LET IT BE", artist: "THE BEATLES", videoId: "QDYfEBY9NM4" },
     { title: "AMOR MAIOR", artist: "JOTA QUEST", videoId: "bA8yA4wVf4A" },
     { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ", videoId: "ePjtnSPFWK8" },
