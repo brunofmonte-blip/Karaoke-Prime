@@ -150,4 +150,4 @@ const DuelInviteLobby = () => {
   );
 };
 
-export default DuelInviteLobby;
+export default DuelInviteLobby; 
