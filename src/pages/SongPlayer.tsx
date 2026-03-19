@@ -48,8 +48,9 @@ export default function SongPlayer() {
     } catch (e) {}
   };
 
-  // 🚨 CORREÇÃO: Redirecionamento imediato e forçado (sem delays que causam tela preta ou redirecionamento falso)
+  // 🚨 NAVEGAÇÃO BLINDADA COM CONSOLE.LOG
   const handleFinishShow = () => {
+    console.log("🛑 BOTÃO FINALIZAR CLICADO!");
     try {
       if (iframeRef.current && iframeRef.current.contentWindow) {
         iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
@@ -58,8 +59,9 @@ export default function SongPlayer() {
     
     const finalAccuracy = score > 0 ? Number(Math.min(99.9, (score / 150) + 40).toFixed(1)) : 0;
     
+    console.log("🚀 NAVEGANDO PARA /score AGORA...");
     navigate('/score', { 
-      replace: true, // Força a sobreposição da rota (não deixa o React se perder)
+      replace: true, 
       state: { 
         title: "MÚSICA SELECIONADA", 
         artist: "YOUTUBE", 
@@ -131,7 +133,6 @@ export default function SongPlayer() {
 
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
-      
       <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
         <div className="flex flex-col gap-4 pointer-events-auto">
           <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/basic")}>
@@ -148,7 +149,6 @@ export default function SongPlayer() {
             </div>
           )}
         </div>
-        
         {isPlaying && score > 0 && (
           <div className="pointer-events-none bg-black/50 border border-white/10 px-6 py-2 rounded-full backdrop-blur-md">
             <span className="text-cyan-400 font-mono font-black text-xl">{score.toLocaleString()} pts</span>
@@ -163,15 +163,9 @@ export default function SongPlayer() {
           </div>
           <h2 className="text-4xl font-bold text-yellow-500 mb-2">Pronto para o Show?</h2>
           <p className="text-xl text-gray-300 mb-8">Aqueça a voz e prepare-se para brilhar.</p>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => setCameraEnabled(!cameraEnabled)}
-            className={`mb-6 border-cyan-500 ${cameraEnabled ? 'bg-cyan-500/20 text-cyan-400' : 'bg-transparent text-gray-400'}`}
-          >
+          <Button variant="outline" onClick={() => setCameraEnabled(!cameraEnabled)} className={`mb-6 border-cyan-500 ${cameraEnabled ? 'bg-cyan-500/20 text-cyan-400' : 'bg-transparent text-gray-400'}`}>
             {cameraEnabled ? "📷 Câmera ATIVADA" : "📷 Câmera DESATIVADA"}
           </Button>
-
           <Button onClick={() => setIsPlaying(true)} className="text-2xl px-12 py-8 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full shadow-[0_0_40px_rgba(6,182,212,0.5)] transition-transform hover:scale-105">
             <Play className="mr-2 fill-black w-8 h-8" /> ENTRAR NO PALCO
           </Button>
@@ -196,27 +190,12 @@ export default function SongPlayer() {
       )}
 
       <div className="absolute inset-0 z-10 pt-20 pb-20 bg-black flex items-center justify-center pointer-events-none">
-        <iframe 
-          ref={iframeRef}
-          width="100%" 
-          height="100%" 
-          src={`https://www.youtube.com/embed/${id}?autoplay=${isPlaying ? 1 : 0}&start=0&controls=0&modestbranding=1&rel=0&enablejsapi=1&origin=${window.location.origin}`} 
-          title="Karaoke Video"
-          frameBorder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-          className="w-full max-w-6xl h-full object-contain"
-        ></iframe>
+        <iframe ref={iframeRef} width="100%" height="100%" src={`https://www.youtube.com/embed/${id}?autoplay=${isPlaying ? 1 : 0}&start=0&controls=0&modestbranding=1&rel=0&enablejsapi=1&origin=${window.location.origin}`} title="Karaoke Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full max-w-6xl h-full object-contain"></iframe>
       </div>
 
       {isPlaying && cameraEnabled && videoRef && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.4)] z-50 bg-zinc-900 animate-in fade-in zoom-in">
-          <video 
-            ref={videoRef} 
-            autoPlay 
-            playsInline 
-            muted 
-            className="w-full h-full object-cover transform scale-x-[-1]" 
-          />
+          <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform scale-x-[-1]" />
         </div>
       )}
 
