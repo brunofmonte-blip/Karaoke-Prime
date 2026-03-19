@@ -18,7 +18,7 @@ export default function BasicLobby() {
     { title: "LET IT BE", artist: "THE BEATLES", videoId: "OCdB7yFeg00" },
     { title: "AMOR MAIOR", artist: "JOTA QUEST", videoId: "yYSr8k7Bm0A" },
     { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ", videoId: "tfhwXKd1W_o" },
-    { title: "SHALLOW", artist: "LADY GAGA", videoId: "bo_efYhYU2A" },
+    { title: "SHALLOW", artist: "LADY GAGA", videoId: "_nHT_k9Rswc" },
     { title: "BOHEMIAN RHAPSODY", artist: "QUEEN", videoId: "fJ9rUzIMcZQ" },
   ];
 
