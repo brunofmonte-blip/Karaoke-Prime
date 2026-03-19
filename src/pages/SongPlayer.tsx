@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Mic, Play, BrainCircuit, Pause, RotateCcw } from "lucide-react";
+import { ArrowLeft, Mic, Play, Trophy, Flame, BrainCircuit, Pause, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -16,8 +16,8 @@ export default function SongPlayer() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // O Score agora é REAL e começa em 0
   const [score, setScore] = useState(0);
+  const [combo, setCombo] = useState(0);
   const micVolumeRef = useRef(0);
 
   const handlePause = () => {
@@ -37,17 +37,18 @@ export default function SongPlayer() {
   const handleRestart = () => {
     setIsPaused(false);
     setScore(0);
+    setCombo(0);
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
     }
   };
 
-  // Envia a pontuação REAL conquistada para a tela de Score
   const handleFinishShow = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
     }
+    // Envia pontuação real para a tela de Score
     navigate('/score', { 
       state: { 
         title: "MÚSICA SELECIONADA", 
@@ -105,12 +106,12 @@ export default function SongPlayer() {
     };
   }, [isPlaying, isPaused, cameraEnabled]);
 
-  // LOOP DE PONTUAÇÃO REAL (Sem textos na tela)
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && !isPaused) {
       interval = setInterval(() => {
-        // Só pontua se o volume do mic passar de 10 (ignora ruído de fundo)
+        // 🚨 CORREÇÃO DO ITEM 3: Sensibilidade aumentada para filtrar ruído de fundo (cooler, cliques).
+        // Aumentei a trava de > 2 para > 10. Se não cantar de verdade, o score continuará em ZERO.
         if (micVolumeRef.current > 10) {
           const points = Math.floor(micVolumeRef.current);
           setScore(prev => prev + points);
@@ -122,6 +123,8 @@ export default function SongPlayer() {
 
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
+      
+      {/* HEADER DE COMANDOS */}
       <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
         <div className="flex flex-col gap-4 pointer-events-auto">
           <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/basic")}>
@@ -139,8 +142,8 @@ export default function SongPlayer() {
           )}
         </div>
         
-        {/* Mostra apenas a pontuação subindo discretamente */}
-        {isPlaying && (
+        {/* Mostra apenas a pontuação subindo discretamente se houver score */}
+        {isPlaying && score > 0 && (
           <div className="pointer-events-none bg-black/50 border border-white/10 px-6 py-2 rounded-full backdrop-blur-md">
             <span className="text-cyan-400 font-mono font-black text-xl">{score.toLocaleString()} pts</span>
           </div>
@@ -174,11 +177,11 @@ export default function SongPlayer() {
           <h2 className="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
           <p className="text-gray-400 mb-12">Recupere o fôlego. O palco aguarda.</p>
           <div className="flex gap-6">
-            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] flex flex-col items-center gap-4 h-auto">
+            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
               <Play className="w-10 h-10 fill-black" />
               <span className="text-xl tracking-wider">CONTINUAR</span>
             </Button>
-            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl flex flex-col items-center gap-4 h-auto">
+            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
               <RotateCcw className="w-10 h-10 text-gray-300" />
               <span className="text-xl tracking-wider text-gray-300">REINICIAR</span>
             </Button>
@@ -199,7 +202,7 @@ export default function SongPlayer() {
         ></iframe>
       </div>
 
-      {isPlaying && cameraEnabled && (
+      {isPlaying && cameraEnabled && videoRef && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-12 w-40 h-40 md:w-48 md:h-48 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.4)] z-50 bg-zinc-900 animate-in fade-in zoom-in">
           <video 
             ref={videoRef} 
