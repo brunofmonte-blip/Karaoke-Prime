@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Mic, Play, Trophy, Sword, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+// 🚨 AQUI ESTÁ A CORREÇÃO: A importação do Card que estava faltando!
+import { Card } from "@/components/ui/card";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { auth } from '@/lib/firebase';
@@ -31,7 +33,7 @@ export default function DuelRoom() {
   }, []);
 
   const handleFinishShow = () => {
-    setIsFinished(true); // 🚨 Agora abre o Pôster de Duelo na mesma tela!
+    setIsFinished(true);
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
     }
@@ -114,7 +116,7 @@ export default function DuelRoom() {
           setScore(prev => prev + points);
         }
 
-        // Nota do Oponente simulada pela IA (Gera uma disputa apertada)
+        // Nota do Oponente simulada pela IA
         if (Math.random() > 0.3) {
             setOpponentScore(prev => prev + Math.floor(Math.random() * 25) + 10);
         }
