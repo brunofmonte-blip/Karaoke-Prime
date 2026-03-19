@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Mic, Play, Trophy, Flame, BrainCircuit, Pause, RotateCcw } from "lucide-react";
+import { ArrowLeft, Mic, Play, BrainCircuit, Pause, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -17,7 +17,6 @@ export default function SongPlayer() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [score, setScore] = useState(0);
-  const [combo, setCombo] = useState(0);
   const micVolumeRef = useRef(0);
 
   const handlePause = () => {
@@ -37,27 +36,33 @@ export default function SongPlayer() {
   const handleRestart = () => {
     setIsPaused(false);
     setScore(0);
-    setCombo(0);
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
     }
   };
 
+  // 🚨 CORREÇÃO ITEM 3: Navegação blindada para o ScoreResult
   const handleFinishShow = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
     }
-    // Envia pontuação real para a tela de Score
-    navigate('/score', { 
-      state: { 
-        title: "MÚSICA SELECIONADA", 
-        artist: "YOUTUBE", 
-        score: score, 
-        accuracy: score > 0 ? Math.min(99.9, (score / 150) + 40).toFixed(1) : 0, 
-        duration: "180" 
-      } 
-    });
+    
+    // Tratamento rigoroso do número para evitar quebra da página de Score
+    const finalAccuracy = score > 0 ? Number(Math.min(99.9, (score / 150) + 40).toFixed(1)) : 0;
+    
+    // Micro-delay de segurança para garantir a rota
+    setTimeout(() => {
+      navigate('/score', { 
+        state: { 
+          title: "MÚSICA SELECIONADA", 
+          artist: "YOUTUBE", 
+          score: score, 
+          accuracy: finalAccuracy, 
+          duration: "180" 
+        } 
+      });
+    }, 150);
   };
 
   useEffect(() => {
@@ -88,7 +93,7 @@ export default function SongPlayer() {
           const updateVolume = () => {
             analyser.getByteFrequencyData(dataArray);
             const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-            micVolumeRef.current = average; // Captura o volume em tempo real
+            micVolumeRef.current = average;
             animationId = requestAnimationFrame(updateVolume);
           };
           updateVolume();
@@ -106,14 +111,14 @@ export default function SongPlayer() {
     };
   }, [isPlaying, isPaused, cameraEnabled]);
 
+  // 🚨 CORREÇÃO ITEM 1: Sensibilidade de captação blindada contra ruídos!
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && !isPaused) {
       interval = setInterval(() => {
-        // 🚨 CORREÇÃO DO ITEM 3: Sensibilidade aumentada para filtrar ruído de fundo (cooler, cliques).
-        // Aumentei a trava de > 2 para > 10. Se não cantar de verdade, o score continuará em ZERO.
-        if (micVolumeRef.current > 10) {
-          const points = Math.floor(micVolumeRef.current);
+        // A trava subiu de > 10 para > 25. O microfone só pontua com voz real.
+        if (micVolumeRef.current > 25) {
+          const points = Math.floor(micVolumeRef.current / 2); // Crescimento mais suave
           setScore(prev => prev + points);
         }
       }, 500);
@@ -124,7 +129,6 @@ export default function SongPlayer() {
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden">
       
-      {/* HEADER DE COMANDOS */}
       <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
         <div className="flex flex-col gap-4 pointer-events-auto">
           <Button variant="ghost" className="text-white hover:bg-white/20 w-fit" onClick={() => navigate("/basic")}>
@@ -142,7 +146,6 @@ export default function SongPlayer() {
           )}
         </div>
         
-        {/* Mostra apenas a pontuação subindo discretamente se houver score */}
         {isPlaying && score > 0 && (
           <div className="pointer-events-none bg-black/50 border border-white/10 px-6 py-2 rounded-full backdrop-blur-md">
             <span className="text-cyan-400 font-mono font-black text-xl">{score.toLocaleString()} pts</span>
@@ -177,11 +180,11 @@ export default function SongPlayer() {
           <h2 className="text-5xl font-black text-white mb-2 tracking-widest drop-shadow-lg">SHOW PAUSADO</h2>
           <p className="text-gray-400 mb-12">Recupere o fôlego. O palco aguarda.</p>
           <div className="flex gap-6">
-            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+            <Button onClick={handleResume} className="px-10 py-12 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-3xl shadow-[0_0_30px_rgba(6,182,212,0.4)] flex flex-col items-center gap-4 h-auto">
               <Play className="w-10 h-10 fill-black" />
               <span className="text-xl tracking-wider">CONTINUAR</span>
             </Button>
-            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl transition-transform hover:scale-105 flex flex-col items-center gap-4 h-auto">
+            <Button onClick={handleRestart} className="px-10 py-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-3xl border border-gray-700 shadow-xl flex flex-col items-center gap-4 h-auto">
               <RotateCcw className="w-10 h-10 text-gray-300" />
               <span className="text-xl tracking-wider text-gray-300">REINICIAR</span>
             </Button>
@@ -217,8 +220,9 @@ export default function SongPlayer() {
       <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
         <div className="flex items-center gap-4 bg-gray-900/90 px-8 py-3 rounded-full border border-gray-700 backdrop-blur-md shadow-lg">
           <Mic className={`w-5 h-5 ${isPlaying ? "text-cyan-400 animate-pulse" : "text-gray-500"}`} />
+          {/* 🚨 CORREÇÃO ITEM 2: Adeus, Julliard! */}
           <span className="text-sm font-mono tracking-widest text-gray-300">
-            {isPlaying ? "IA JULLIARD ATIVA..." : "AGUARDANDO MICROFONE..."}
+            {isPlaying ? "IA KARAOKE PRIME ATIVA..." : "AGUARDANDO MICROFONE..."}
           </span>
         </div>
       </div>
