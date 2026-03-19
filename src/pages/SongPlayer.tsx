@@ -21,48 +21,53 @@ export default function SongPlayer() {
 
   const handlePause = () => {
     setIsPaused(true);
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
-    }
+    try {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
+      }
+    } catch (e) {}
   };
 
   const handleResume = () => {
     setIsPaused(false);
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
-    }
+    try {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
+      }
+    } catch (e) {}
   };
 
   const handleRestart = () => {
     setIsPaused(false);
     setScore(0);
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
-    }
+    try {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }), '*');
+        iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'playVideo' }), '*');
+      }
+    } catch (e) {}
   };
 
-  // 🚨 CORREÇÃO ITEM 3: Navegação blindada para o ScoreResult
+  // 🚨 CORREÇÃO: Redirecionamento imediato e forçado (sem delays que causam tela preta ou redirecionamento falso)
   const handleFinishShow = () => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
-    }
+    try {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
+      }
+    } catch (e) {}
     
-    // Tratamento rigoroso do número para evitar quebra da página de Score
     const finalAccuracy = score > 0 ? Number(Math.min(99.9, (score / 150) + 40).toFixed(1)) : 0;
     
-    // Micro-delay de segurança para garantir a rota
-    setTimeout(() => {
-      navigate('/score', { 
-        state: { 
-          title: "MÚSICA SELECIONADA", 
-          artist: "YOUTUBE", 
-          score: score, 
-          accuracy: finalAccuracy, 
-          duration: "180" 
-        } 
-      });
-    }, 150);
+    navigate('/score', { 
+      replace: true, // Força a sobreposição da rota (não deixa o React se perder)
+      state: { 
+        title: "MÚSICA SELECIONADA", 
+        artist: "YOUTUBE", 
+        score: score, 
+        accuracy: finalAccuracy, 
+        duration: "180" 
+      } 
+    });
   };
 
   useEffect(() => {
@@ -111,14 +116,12 @@ export default function SongPlayer() {
     };
   }, [isPlaying, isPaused, cameraEnabled]);
 
-  // 🚨 CORREÇÃO ITEM 1: Sensibilidade de captação blindada contra ruídos!
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && !isPaused) {
       interval = setInterval(() => {
-        // A trava subiu de > 10 para > 25. O microfone só pontua com voz real.
         if (micVolumeRef.current > 25) {
-          const points = Math.floor(micVolumeRef.current / 2); // Crescimento mais suave
+          const points = Math.floor(micVolumeRef.current / 2);
           setScore(prev => prev + points);
         }
       }, 500);
@@ -220,7 +223,6 @@ export default function SongPlayer() {
       <div className="absolute bottom-0 left-0 w-full p-6 z-50 bg-gradient-to-t from-black via-black/80 to-transparent flex justify-center pointer-events-none">
         <div className="flex items-center gap-4 bg-gray-900/90 px-8 py-3 rounded-full border border-gray-700 backdrop-blur-md shadow-lg">
           <Mic className={`w-5 h-5 ${isPlaying ? "text-cyan-400 animate-pulse" : "text-gray-500"}`} />
-          {/* 🚨 CORREÇÃO ITEM 2: Adeus, Julliard! */}
           <span className="text-sm font-mono tracking-widest text-gray-300">
             {isPlaying ? "IA KARAOKE PRIME ATIVA..." : "AGUARDANDO MICROFONE..."}
           </span>
