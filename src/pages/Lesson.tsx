@@ -199,7 +199,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Deslize Épico", practiceDesc: "Deslize 'Eeee' ou 'Ohhh' cruzando 2 oitavas.",
         feedbackTitle: "Extensão", feedbackDesc: "Passeia por toda a sua extensão vocal.", frequency: "Avançado",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'DESLIZE', t: 12, instruction: 'Muito longo', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 8, displayTitle: "Aula 8", title: "Exercício da Sirene", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 8, displayTitle: "Aula 8", title: "Exercício da Sirene", youtubeId: "AqS0WV6-Mnk", hasPractice: true, locked: true,
         exercise: "Oooo Longo", practiceDesc: "Sirene cobrindo tons intermediários lentos.",
         feedbackTitle: "Mix Suave", feedbackDesc: "Ajuste fino da transição de registros.", frequency: "Sempre",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'SIRENE', t: 12, instruction: 'Oooo', color: 'orange', icon: Volume2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
