@@ -32,14 +32,16 @@ export default function Login() {
       if (isLogin) {
         // Lógica de Login
         await signInWithEmailAndPassword(auth, email, password);
-        navigate('/academy'); // Vai direto pra Academy após logar
+        // 🚨 CORREÇÃO: Agora vai para o Basic após logar
+        navigate('/basic'); 
       } else {
         // Lógica de Cadastro
         if (!name.trim()) throw new Error('Por favor, insira seu nome completo.');
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         // Atualiza o perfil com o nome do usuário
         await updateProfile(userCredential.user, { displayName: name });
-        navigate('/academy'); // Vai direto pra Academy após cadastrar
+        // 🚨 CORREÇÃO: Agora vai para o Basic após cadastrar
+        navigate('/basic'); 
       }
     } catch (err: any) {
       console.error(err);
@@ -56,7 +58,8 @@ export default function Login() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      navigate('/academy');
+      // 🚨 CORREÇÃO: Agora vai para o Basic após logar com Google
+      navigate('/basic');
     } catch (err: any) {
       console.error(err);
       setError('Erro ao fazer login com o Google.');
