@@ -191,7 +191,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Escala em R", practiceDesc: "Rola os 'Rs' subindo a escala.",
         feedbackTitle: "Sem Tensão", feedbackDesc: "Solta a base da língua totalmente.", frequency: "Diário",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'RRRR', t: 10, instruction: 'Subindo', color: 'orange', icon: Volume2}, {phase: 'DESCANSA', t: 2, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 6, displayTitle: "Aula 6", title: "Afrouxar a Mandíbula", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 6, displayTitle: "Aula 6", title: "Afrouxar a Mandíbula", youtubeId: "C7qjWI6OyAM", hasPractice: true, locked: true,
         exercise: "Bocejo Falso", practiceDesc: "Massagem/Bocejo e Canta relaxando o maxilar.",
         feedbackTitle: "Boca Aberta", feedbackDesc: "Maxilar travado engole o som.", frequency: "Sempre",
         phases: [{phase: 'MASSAGEM', t: 5, instruction: 'Solte o maxilar', color: 'cyan', icon: Activity}, {phase: 'CANTA', t: 10, instruction: 'Bem solto', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
