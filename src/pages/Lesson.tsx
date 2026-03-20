@@ -179,7 +179,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Escala Fechada", practiceDesc: "Sobe/Desce cantando 'Hmmm' relaxado.",
         feedbackTitle: "Ressonância Calma", feedbackDesc: "Aquece cordas e ossos da face suavemente.", frequency: "Aquecimento",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'HMMM', t: 12, instruction: 'Sobe e Desce', color: 'orange', icon: Volume2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 3, displayTitle: "Aula 3", title: "Fonação com Canudo", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 3, displayTitle: "Aula 3", title: "Fonação com Canudo", youtubeId: "lIq4vd2K-rE", hasPractice: true, locked: true,
         exercise: "SOVT", practiceDesc: "Canta a música favorita soprando o canudo.",
         feedbackTitle: "Controle de Pressão", feedbackDesc: "Alinha a pressão acima e abaixo das pregas.", frequency: "Diário",
         phases: [{phase: 'INSPIRA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'CANUDO', t: 15, instruction: 'Sopre cantando', color: 'orange', icon: Activity}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
