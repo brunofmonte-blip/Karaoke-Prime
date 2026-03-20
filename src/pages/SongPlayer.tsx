@@ -49,7 +49,6 @@ export default function SongPlayer() {
   };
 
   const handleFinishShow = () => {
-    console.log("🛑 BOTÃO FINALIZAR CLICADO!");
     try {
       if (iframeRef.current && iframeRef.current.contentWindow) {
         iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
@@ -58,7 +57,6 @@ export default function SongPlayer() {
     
     const finalAccuracy = score > 0 ? Number(Math.min(99.9, (score / 150) + 40).toFixed(1)) : 0;
     
-    console.log("🚀 NAVEGANDO PARA /score AGORA...");
     navigate('/score', { 
       replace: true, 
       state: { 
@@ -121,7 +119,8 @@ export default function SongPlayer() {
     let interval: NodeJS.Timeout;
     if (isPlaying && !isPaused) {
       interval = setInterval(() => {
-        if (micVolumeRef.current > 25) {
+        // 🚨 TRAVA DE RUÍDO ELEVADA PARA > 50 (Fim dos pontos em silêncio)
+        if (micVolumeRef.current > 50) {
           const points = Math.floor(micVolumeRef.current / 2);
           setScore(prev => prev + points);
         }
