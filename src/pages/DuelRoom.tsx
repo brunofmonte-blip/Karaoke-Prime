@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Mic, Play, Trophy, Sword, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// 🚨 AQUI ESTÁ A CORREÇÃO: A importação do Card que estava faltando!
 import { Card } from "@/components/ui/card";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -26,6 +25,7 @@ export default function DuelRoom() {
   const [score, setScore] = useState(0);
   const [opponentScore, setOpponentScore] = useState(0);
   const micVolumeRef = useRef(0);
+  const ticksRef = useRef(0); // Relógio interno para segurar a IA no início
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
@@ -34,9 +34,11 @@ export default function DuelRoom() {
 
   const handleFinishShow = () => {
     setIsFinished(true);
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
-    }
+    try {
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo' }), '*');
+      }
+    } catch (e) {}
   };
 
   const handleShare = async () => {
@@ -110,15 +112,18 @@ export default function DuelRoom() {
     let interval: NodeJS.Timeout;
     if (isPlaying && !isFinished) {
       interval = setInterval(() => {
-        // Sua nota (Captura real com sensibilidade ajustada para > 10)
-        if (micVolumeRef.current > 10) {
-          const points = Math.floor(micVolumeRef.current);
+        ticksRef.current += 1; // Conta o tempo passando (cada tick = 0.5s)
+
+        // 🚨 SUA NOTA: Trava de ruído elevada para > 50 igual ao Solo
+        if (micVolumeRef.current > 50) {
+          const points = Math.floor(micVolumeRef.current / 2);
           setScore(prev => prev + points);
         }
 
-        // Nota do Oponente simulada pela IA
-        if (Math.random() > 0.3) {
-            setOpponentScore(prev => prev + Math.floor(Math.random() * 25) + 10);
+        // 🚨 NOTA DA IA: A Maria Clara só começa a pontuar depois de 4 segundos (8 ticks)
+        // Isso evita que ela dispare no placar durante a introdução musical
+        if (ticksRef.current > 8 && Math.random() > 0.3) {
+            setOpponentScore(prev => prev + Math.floor(Math.random() * 20) + 10);
         }
 
       }, 500);
@@ -126,16 +131,13 @@ export default function DuelRoom() {
     return () => clearInterval(interval);
   }, [isPlaying, isFinished]);
 
-  // Define quem está ganhando no momento
   const isWinning = score >= opponentScore;
 
   return (
     <div className="relative h-screen w-full bg-black overflow-hidden flex flex-col">
       
-      {/* 1. HEADER DA BATALHA */}
       {!isFinished && (
         <div className="absolute top-0 left-0 w-full p-6 z-50 flex justify-between items-center bg-gradient-to-b from-black/90 to-transparent pointer-events-none">
-          {/* Você (Esquerda) */}
           <div className="flex items-center gap-4 bg-zinc-950/80 border border-white/10 rounded-full pr-6 p-2 backdrop-blur-md pointer-events-auto">
              <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-cyan-400 shrink-0">
                  <img src={user?.photoURL || "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80"} alt="Você" className="w-full h-full object-cover" />
@@ -146,7 +148,6 @@ export default function DuelRoom() {
              </div>
           </div>
 
-          {/* Botão de Encerrar */}
           <div className="pointer-events-auto flex flex-col items-center gap-2">
               <div className="bg-red-500/20 px-4 py-1 rounded-full border border-red-500/30 flex items-center gap-2">
                   <Sword className="h-4 w-4 text-red-500" />
@@ -157,7 +158,6 @@ export default function DuelRoom() {
               </Button>
           </div>
 
-          {/* Oponente (Direita) */}
           <div className="flex items-center gap-4 bg-zinc-950/80 border border-white/10 rounded-full pl-6 p-2 backdrop-blur-md pointer-events-auto">
              <div className="text-right">
                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Maria Clara</p>
@@ -170,18 +170,13 @@ export default function DuelRoom() {
         </div>
       )}
 
-      {/* 2. TELA DE START */}
       {!isPlaying && !isFinished && (
         <div className="absolute inset-0 z-40 bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-auto">
           <Sword className="w-20 h-20 text-orange-500 mb-6 drop-shadow-[0_0_20px_rgba(249,115,22,0.5)]" />
           <h2 className="text-5xl font-black text-white mb-2 uppercase italic tracking-tighter">Arena Pronta</h2>
           <p className="text-xl text-gray-400 mb-10 text-center max-w-md">Oponente conectada. Aqueça a voz, o combate vai começar.</p>
           
-          <Button 
-            variant="outline" 
-            onClick={() => setCameraEnabled(!cameraEnabled)}
-            className={`mb-6 border-cyan-500 ${cameraEnabled ? 'bg-cyan-500/20 text-cyan-400' : 'bg-transparent text-gray-400'}`}
-          >
+          <Button variant="outline" onClick={() => setCameraEnabled(!cameraEnabled)} className={`mb-6 border-cyan-500 ${cameraEnabled ? 'bg-cyan-500/20 text-cyan-400' : 'bg-transparent text-gray-400'}`}>
             {cameraEnabled ? "📷 Câmera ATIVADA" : "📷 Câmera DESATIVADA"}
           </Button>
 
@@ -191,20 +186,10 @@ export default function DuelRoom() {
         </div>
       )}
 
-      {/* 3. VÍDEOS (YOUTUBE + CÂMERAS) */}
       {!isFinished && (
         <>
           <div className="absolute inset-0 z-10 pt-24 pb-20 bg-[#050505] flex items-center justify-center pointer-events-none">
-            <iframe 
-              ref={iframeRef}
-              width="100%" 
-              height="100%" 
-              src={`https://www.youtube.com/embed/${id}?autoplay=${isPlaying ? 1 : 0}&start=0&controls=0&modestbranding=1&rel=0&enablejsapi=1&origin=${window.location.origin}`} 
-              title="Karaoke Video"
-              frameBorder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              className="w-full max-w-5xl h-full object-contain"
-            ></iframe>
+            <iframe ref={iframeRef} width="100%" height="100%" src={`https://www.youtube.com/embed/${id}?autoplay=${isPlaying ? 1 : 0}&start=0&controls=0&modestbranding=1&rel=0&enablejsapi=1&origin=${window.location.origin}`} title="Karaoke Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full max-w-5xl h-full object-contain"></iframe>
           </div>
 
           {isPlaying && cameraEnabled && (
@@ -227,15 +212,10 @@ export default function DuelRoom() {
         </>
       )}
 
-      {/* 4. TELA DE SCORE DA BATALHA (PÔSTER 9:16 INJETADO) */}
       {isFinished && (
         <div className="absolute inset-0 z-50 bg-[#0a0a0a] font-sans text-white flex flex-col items-center justify-center py-12 px-4 overflow-y-auto pointer-events-auto">
-          
           <Card className="w-full max-w-[400px] aspect-[9/16] bg-gradient-to-b from-[#111] to-black border border-white/10 rounded-[2.5rem] p-8 shadow-[0_0_50px_rgba(249,115,22,0.15)] flex flex-col relative overflow-hidden">
-            {/* Luz de Fundo */}
             <div className={`absolute -top-32 -left-32 w-64 h-64 blur-[100px] rounded-full pointer-events-none ${isWinning ? 'bg-cyan-500/20' : 'bg-red-500/20'}`} />
-
-            {/* Cabeçalho */}
             <div className="text-center mb-6 relative z-10">
               <h1 className="text-2xl font-black italic tracking-tighter uppercase mb-2">
                 KARAOKE <span className="text-orange-500">ARENA</span>
@@ -244,11 +224,7 @@ export default function DuelRoom() {
                 {isWinning ? "VITÓRIA!" : "DERROTA"}
               </h2>
             </div>
-
-            {/* Scores (Você VS Oponente) */}
             <div className="flex-1 flex flex-col justify-center space-y-4 relative z-10">
-               
-               {/* Seu Card */}
                <div className={`flex items-center justify-between p-4 rounded-2xl border ${isWinning ? 'bg-cyan-500/10 border-cyan-500/50' : 'bg-zinc-900 border-white/5'}`}>
                    <div className="flex items-center gap-3">
                        <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-white/10">
@@ -261,14 +237,10 @@ export default function DuelRoom() {
                    </div>
                    <p className={`text-3xl font-black ${isWinning ? 'text-cyan-400' : 'text-white'}`}>{score.toLocaleString()}</p>
                </div>
-
-               {/* Separador VS */}
                <div className="text-center relative">
                    <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/10 -z-10"></div>
                    <span className="bg-orange-500 text-black text-sm font-black italic px-4 py-1 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.4)]">VS</span>
                </div>
-
-               {/* Card Oponente */}
                <div className={`flex items-center justify-between p-4 rounded-2xl border ${!isWinning ? 'bg-orange-500/10 border-orange-500/50' : 'bg-zinc-900 border-white/5'}`}>
                    <div className="flex items-center gap-3">
                        <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-white/10">
@@ -282,8 +254,6 @@ export default function DuelRoom() {
                    <p className={`text-3xl font-black ${!isWinning ? 'text-orange-500' : 'text-white'}`}>{opponentScore.toLocaleString()}</p>
                </div>
             </div>
-
-            {/* Dica e Botão */}
             <div className="mt-8 relative z-10 text-center">
                <p className="text-xs font-bold text-gray-300 italic mb-6 leading-relaxed">
                  {isWinning 
@@ -295,14 +265,11 @@ export default function DuelRoom() {
                </Button>
             </div>
           </Card>
-
           <Button variant="ghost" onClick={() => navigate('/basic')} className="mt-8 text-gray-500 hover:text-white font-black uppercase tracking-widest text-[10px] flex items-center gap-2">
             <ArrowLeft size={14} /> VOLTAR AO LOBBY
           </Button>
-
         </div>
       )}
-
     </div>
   );
 }
