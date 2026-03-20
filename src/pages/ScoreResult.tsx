@@ -1,16 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mic2, Activity, ArrowLeft, Share2, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 export default function ScoreResult() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [user, setUser] = useState<FirebaseUser | null>(null);
 
+  // 🚨 O SEU PERFIL REAL ESTÁ DE VOLTA
   useEffect(() => {
-    console.log("✅ TELA DE SCORE CARREGADA COM SUCESSO!");
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
+    return () => unsubscribe();
   }, []);
 
   const songTitle = location.state?.title || "MÚSICA SELECIONADA";
@@ -44,10 +49,10 @@ export default function ScoreResult() {
             KARAOKE <span className="text-cyan-400">PRIME</span>
           </h1>
           <div className="mx-auto h-20 w-20 rounded-full border-[3px] border-cyan-400 overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.4)] mb-3">
-            <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80" alt="User" className="w-full h-full object-cover" />
+            <img src={user?.photoURL || "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80"} alt="User" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-xl font-black italic uppercase text-white leading-tight">
-            CANTOR PRIME
+            {user?.displayName || "CANTOR PRIME"}
           </h2>
         </div>
 
