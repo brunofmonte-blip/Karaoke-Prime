@@ -108,5 +108,5 @@ export default function ScoreResult() {
         <ArrowLeft size={14} /> VOLTAR AO PALCO PRINCIPAL
       </Button>
     </div>
-  );
+  ); 
 }
