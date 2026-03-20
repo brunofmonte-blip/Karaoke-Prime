@@ -207,7 +207,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Saltos", practiceDesc: "Pula direto para a próxima nota sem cantar o meio.",
         feedbackTitle: "Exatidão", feedbackDesc: "Você acerta o alvo de primeira.", frequency: "Diário",
         phases: [{phase: 'INSPIRA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'PULA', t: 10, instruction: 'Cravando', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 10, displayTitle: "Aula 10", title: "Canto Diafragmático Expresso", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 10, displayTitle: "Aula 10", title: "Canto Diafragmático Expresso", youtubeId: "l2P7OWAps4Y", hasPractice: true, locked: true,
         exercise: "Apoio 100%", practiceDesc: "Canta frase focando 100% no apoio diafragmático.",
         feedbackTitle: "Finalização", feedbackDesc: "A união de relaxamento e técnica pura.", frequency: "Showcase",
         phases: [{phase: 'POSTURA', t: 3, instruction: 'Abdômen firme', color: 'cyan', icon: Wind}, {phase: 'CANTA', t: 12, instruction: 'Com alma e apoio', color: 'orange', icon: Mic2}, {phase: 'AVALIAÇÃO', t: 5, instruction: '', color: 'blue', icon: Activity}] }
