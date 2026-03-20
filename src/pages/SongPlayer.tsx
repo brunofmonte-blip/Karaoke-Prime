@@ -48,7 +48,6 @@ export default function SongPlayer() {
     } catch (e) {}
   };
 
-  // 🚨 NAVEGAÇÃO BLINDADA COM CONSOLE.LOG
   const handleFinishShow = () => {
     console.log("🛑 BOTÃO FINALIZAR CLICADO!");
     try {
