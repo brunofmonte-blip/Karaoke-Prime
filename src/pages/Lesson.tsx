@@ -175,7 +175,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Relaxamento", practiceDesc: "Inspira bocejando (4s), Expira suspirando (6s).",
         feedbackTitle: "Espaço Interno", feedbackDesc: "Remove a tensão da laringe.", frequency: "Diário",
         phases: [{phase: 'BOCEJA', t: 4, instruction: 'Boca fechada', color: 'cyan', icon: Wind}, {phase: 'SUSPIRA', t: 6, instruction: 'Pelo nariz', color: 'orange', icon: Wind}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 2, displayTitle: "Aula 2", title: "Boca Chiusa Oitavada", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 2, displayTitle: "Aula 2", title: "Boca Chiusa Oitavada", youtubeId: "eZdxnM36wSQ", hasPractice: true, locked: true,
         exercise: "Escala Fechada", practiceDesc: "Sobe/Desce cantando 'Hmmm' relaxado.",
         feedbackTitle: "Ressonância Calma", feedbackDesc: "Aquece cordas e ossos da face suavemente.", frequency: "Aquecimento",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'HMMM', t: 12, instruction: 'Sobe e Desce', color: 'orange', icon: Volume2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
