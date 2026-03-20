@@ -195,7 +195,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "Bocejo Falso", practiceDesc: "Massagem/Bocejo e Canta relaxando o maxilar.",
         feedbackTitle: "Boca Aberta", feedbackDesc: "Maxilar travado engole o som.", frequency: "Sempre",
         phases: [{phase: 'MASSAGEM', t: 5, instruction: 'Solte o maxilar', color: 'cyan', icon: Activity}, {phase: 'CANTA', t: 10, instruction: 'Bem solto', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 7, displayTitle: "Aula 7", title: "Portamento Duas Oitavas", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 7, displayTitle: "Aula 7", title: "Portamento Duas Oitavas", youtubeId: "34GKG65MIK4", hasPractice: true, locked: true,
         exercise: "Deslize Épico", practiceDesc: "Deslize 'Eeee' ou 'Ohhh' cruzando 2 oitavas.",
         feedbackTitle: "Extensão", feedbackDesc: "Passeia por toda a sua extensão vocal.", frequency: "Avançado",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'DESLIZE', t: 12, instruction: 'Muito longo', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
