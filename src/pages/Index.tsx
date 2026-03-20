@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 🚨 AGORA SIM, TODOS OS ÍCONES IMPORTADOS! (ArrowRight e ArrowUpRight)
+// 🚨 TODOS OS ÍCONES MANTIDOS!
 import { 
   Mic2, GraduationCap, Globe2, LayoutGrid, Sparkles, 
   Star, Trophy, Medal, PlayCircle, Lock, ArrowRight, ArrowUpRight,
@@ -17,6 +17,9 @@ export default function Index() {
   const navigate = useNavigate();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [activeRegion, setActiveRegion] = useState<'BR' | 'US' | 'UK' | 'JP'>('BR');
+  
+  // 🚨 ADICIONADO: Estado para guardar o que o usuário digita na Home
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -81,12 +84,10 @@ export default function Index() {
       {/* 1. HERO SECTION & MAIN CARDS */}
       <div className="relative pt-32 pb-20 px-4 flex flex-col items-center justify-center text-center">
         
-        {/* BACKGROUND COM ESTÚDIO VISÍVEL E 15% MAIS CLARO */}
-       <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" 
             alt="Studio Background" 
-            // Adicionei o object-top aqui 👇
             className="w-full h-full object-cover object-[center_40%] opacity-70" 
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" />
@@ -152,17 +153,31 @@ export default function Index() {
 
       <div className="max-w-6xl mx-auto px-4 space-y-24 relative z-10 mt-12">
         
-        {/* 2. BARRA DE BUSCA */}
+        {/* 2. BARRA DE BUSCA (AGORA 100% FUNCIONAL E SEGURA) */}
         <div className="flex justify-center mb-20">
            <div className="bg-zinc-900 border border-white/10 rounded-full flex items-center w-full max-w-3xl p-1 pr-2">
               <Search className="text-gray-500 h-5 w-5 ml-4 mr-2" />
-              <input type="text" placeholder="Artista, Música ou Gênero..." className="bg-transparent border-none text-white focus:outline-none w-full text-sm placeholder:text-gray-600" disabled />
+              <input 
+                type="text" 
+                placeholder="Artista, Música ou Gênero..." 
+                className="bg-transparent border-none text-white focus:outline-none w-full text-sm placeholder:text-gray-600" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    navigate('/basic', { state: { q: searchQuery } });
+                  }
+                }}
+              />
               <div className="hidden md:flex gap-4 px-4 text-[10px] font-black uppercase text-gray-500">
                 <span className="text-cyan-400 cursor-pointer">TUDO</span>
                 <span className="hover:text-white cursor-pointer">NACIONAL</span>
                 <span className="hover:text-white cursor-pointer">INTER</span>
               </div>
-              <Button onClick={() => navigate('/basic')} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase text-xs rounded-full px-8 h-10 ml-2">
+              <Button 
+                onClick={() => navigate('/basic', { state: { q: searchQuery } })} 
+                className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase text-xs rounded-full px-8 h-10 ml-2"
+              >
                 BUSCAR
               </Button>
            </div>
