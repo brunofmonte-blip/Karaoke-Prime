@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Mic2, Search, PlayCircle, Swords, RotateCcw, ListMusic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,7 +8,10 @@ import { searchKaraokeVideos } from '@/services/youtubeService';
 
 export default function BasicLobby() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const location = useLocation(); // 🚨 ADICIONADO: Para ler o pacote de texto da Home
+  
+  // 🚨 O input de busca agora puxa automaticamente o que veio da Home
+  const [query, setQuery] = useState(location.state?.q || '');
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -22,15 +25,16 @@ export default function BasicLobby() {
     { title: "BOHEMIAN RHAPSODY", artist: "QUEEN", videoId: "9Lxm0iSnKNc" },
   ];
 
-  const handleSearch = async () => {
-    if (!query.trim()) {
+  // 🚨 A busca foi levemente blindada para aceitar o texto automático
+  const handleSearch = async (searchTerm = query) => {
+    if (!searchTerm.trim()) {
       toast.error("Digite o nome de uma música ou artista.");
       return;
     }
     setIsLoading(true);
     setHasSearched(true);
     try {
-      const videos = await searchKaraokeVideos(query);
+      const videos = await searchKaraokeVideos(searchTerm);
       setResults(videos);
     } catch (error: any) {
       toast.error(error.message || "Erro ao buscar músicas no YouTube.");
@@ -38,6 +42,13 @@ export default function BasicLobby() {
       setIsLoading(false);
     }
   };
+
+  // 🚨 Se o usuário veio da Home com um termo preenchido, dispara a busca sozinho
+  useEffect(() => {
+    if (location.state?.q) {
+      handleSearch(location.state.q);
+    }
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSearch();
@@ -66,7 +77,7 @@ export default function BasicLobby() {
             <Search className="text-gray-500 h-6 w-6 mr-4" />
             <input type="text" placeholder="Qual música você quer cantar hoje?" className="bg-transparent border-none text-white focus:outline-none w-full text-lg placeholder:text-gray-600 font-medium" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} />
           </div>
-          <Button onClick={handleSearch} disabled={isLoading} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm rounded-full px-12 h-16 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all shrink-0">
+          <Button onClick={() => handleSearch()} disabled={isLoading} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm rounded-full px-12 h-16 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all shrink-0">
             {isLoading ? "Buscando..." : "Buscar"}
           </Button>
         </div>
@@ -98,7 +109,6 @@ export default function BasicLobby() {
                     CANTAR SOLO <PlayCircle className="ml-2 h-4 w-4" />
                   </Button>
                   
-                  {/* 🚨 CORREÇÃO FEITA AQUI: ID embutido na URL da Batalha */}
                   <Button onClick={() => navigate(`/duel-invite?id=${videoId}`)} variant="ghost" className="w-full text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-full h-10 transition-all border border-transparent hover:border-cyan-500/20">
                     DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
                   </Button>
@@ -111,4 +121,4 @@ export default function BasicLobby() {
       </div>
     </div>
   );
-} 
+}
