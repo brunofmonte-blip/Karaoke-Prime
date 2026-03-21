@@ -171,7 +171,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
   "4": {
     level: "Nível 4", moduleName: "Ritual de Alta Performance", introVideo: "J44oTaBi0WE",
     lessons: [
-      { id: 1, displayTitle: "Aula 1", title: "Técnica Bocejo-Suspiro", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: false,
+      { id: 1, displayTitle: "Aula 1", title: "Técnica Bocejo-Suspiro", youtubeId: "1NQ08Y6Vrnc", hasPractice: true, locked: false,
         exercise: "Relaxamento", practiceDesc: "Inspira bocejando (4s), Expira suspirando (6s).",
         feedbackTitle: "Espaço Interno", feedbackDesc: "Remove a tensão da laringe.", frequency: "Diário",
         phases: [{phase: 'BOCEJA', t: 4, instruction: 'Boca fechada', color: 'cyan', icon: Wind}, {phase: 'SUSPIRA', t: 6, instruction: 'Pelo nariz', color: 'orange', icon: Wind}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
