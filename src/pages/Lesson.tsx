@@ -169,7 +169,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
     ]
   },
   "4": {
-    level: "Nível 4", moduleName: "Ritual de Alta Performance", introVideo: "ADD LINK YOUTUBE",
+    level: "Nível 4", moduleName: "Ritual de Alta Performance", introVideo: "J44oTaBi0WE",
     lessons: [
       { id: 1, displayTitle: "Aula 1", title: "Técnica Bocejo-Suspiro", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: false,
         exercise: "Relaxamento", practiceDesc: "Inspira bocejando (4s), Expira suspirando (6s).",
