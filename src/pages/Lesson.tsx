@@ -214,7 +214,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
     ]
   },
   "5": {
-    level: "Nível 5", moduleName: "Falsetes e Melismas", introVideo: "ADD LINK YOUTUBE",
+    level: "Nível 5", moduleName: "Falsetes e Melismas", introVideo: "j0hPSVKs4BY",
     lessons: [
       { id: 1, displayTitle: "Aula 1", title: "Falsete vs Cabeça", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: false, exercise: "Transição", practiceDesc: "Alterna Soprado e Firme (10s).", feedbackTitle: "Agilidade", feedbackDesc: "Crie a textura perfeita.", frequency: "Diário", phases: [{phase: 'INSPIRA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'ALTERNA', t: 10, instruction: 'Soprado e Firme', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
       { id: 2, displayTitle: "Aula 2", title: "Iodelei (Quebra Controlada)", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true, exercise: "Quebra", practiceDesc: "Quebra Peito/Falsete propositalmente (10s).", feedbackTitle: "Estilo", feedbackDesc: "A quebra intencional é uma arte.", frequency: "Treino", phases: [{phase: 'INSPIRA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'QUEBRA', t: 10, instruction: 'Peito para Falsete', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
