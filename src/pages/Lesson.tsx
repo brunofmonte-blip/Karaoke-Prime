@@ -229,7 +229,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
     ]
   },
   "6": {
-    level: "Nível 6", moduleName: "Vibrato Master", introVideo: "ADD LINK YOUTUBE",
+    level: "Nível 6", moduleName: "Vibrato Master", introVideo: "VbjkaTQtP7Q",
     lessons: [
       { id: 1, displayTitle: "Aula 1", title: "O Fantasma (Pulso Natural)", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: false, exercise: "Sirene Tremente", practiceDesc: "Sirene 'Uuuh' deixando o final tremer solto (12s).", feedbackTitle: "Natural", feedbackDesc: "O vibrato não se força, ele acontece.", frequency: "Diário", phases: [{phase: 'PREPARA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'SIRENE', t: 12, instruction: 'Tremer o final', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
       { id: 2, displayTitle: "Aula 2", title: "Trinado de Semitom", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true, exercise: "Lento", practiceDesc: "Alterna duas notas vizinhas lentamente (10s).", feedbackTitle: "Controle", feedbackDesc: "Você entende a origem da oscilação.", frequency: "Treino", phases: [{phase: 'PREPARA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'TRINADO', t: 10, instruction: 'Lento', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
