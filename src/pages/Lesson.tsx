@@ -244,7 +244,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
     ]
   },
   "7": {
-    level: "Nível 7", moduleName: "Drives e Rasps", introVideo: "ADD LINK YOUTUBE",
+    level: "Nível 7", moduleName: "Drives e Rasps", introVideo: "Y_USM45aK74",
     lessons: [
       { id: 1, displayTitle: "Aula 1", title: "O Rugido Leve (Fry)", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: false, exercise: "Vocal Fry", practiceDesc: "Produz o som de 'porta velha rangendo' no grave (10s).", feedbackTitle: "A Base Suja", feedbackDesc: "Não machuca a garganta.", frequency: "Diário", phases: [{phase: 'PREPARA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'FRY', t: 10, instruction: 'Som de porta velha', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
       { id: 2, displayTitle: "Aula 2", title: "Limpo para Sujo", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true, exercise: "Sustenta e Suja", practiceDesc: "Sustenta nota limpa e adiciona o Fry no final (12s).", feedbackTitle: "Transição", feedbackDesc: "A entrada suave da distorção.", frequency: "Treino", phases: [{phase: 'PREPARA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'SUSTENTA', t: 12, instruction: 'Limpo -> Sujo', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
