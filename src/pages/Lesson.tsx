@@ -259,7 +259,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
     ]
   },
   "8": {
-    level: "Nível 8", moduleName: "Agudos Extremos e Belting", introVideo: "ADD LINK YOUTUBE",
+    level: "Nível 8", moduleName: "Agudos Extremos e Belting", introVideo: "RtVoIUd22gM",
     lessons: [
       { id: 1, displayTitle: "Aula 1", title: "O Choro do Bebê", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: false, exercise: "Pharyngeal", practiceDesc: "Som anasalado/choroso para afinar as pregas (10s).", feedbackTitle: "O Segredo do Agudo", feedbackDesc: "Encontra a ressonância exata.", frequency: "Diário", phases: [{phase: 'PREPARA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'CHORO', t: 10, instruction: 'Anasalado', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
       { id: 2, displayTitle: "Aula 2", title: "Ancoragem de Corpo", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true, exercise: "Suporte", practiceDesc: "Contrai grandes músculos (dorso/abdômen) antes do agudo (10s).", feedbackTitle: "A Base da Força", feedbackDesc: "O corpo segura, a garganta relaxa.", frequency: "Sempre", phases: [{phase: 'CONTRAI', t: 3, instruction: 'Corpo firme', color: 'cyan', icon: Wind}, {phase: 'AGUDO', t: 7, instruction: 'Mantenha a força', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
