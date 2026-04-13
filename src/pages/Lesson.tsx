@@ -274,7 +274,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
     ]
   },
   "9": {
-    level: "Nível 9", moduleName: "Micro-Dinâmica e Textura", introVideo: "ADD LINK YOUTUBE",
+    level: "Nível 9", moduleName: "Micro-Dinâmica e Textura", introVideo: "D-D2e_YoGyM",
     lessons: [
       { id: 1, displayTitle: "Aula 1", title: "Messa di Voce", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: false, exercise: "Pêndulo", practiceDesc: "Sussurro -> Volume Máximo -> Sussurro na mesma nota (15s).", feedbackTitle: "Domínio Absoluto", feedbackDesc: "A técnica clássica definitiva.", frequency: "Diário", phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'PÊNDULO', t: 15, instruction: 'Sussurro -> Forte -> Sussurro', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
       { id: 2, displayTitle: "Aula 2", title: "O Sussurro Projetado", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true, exercise: "Airy Voice", practiceDesc: "Canta com muito ar, mantendo afinado (12s).", feedbackTitle: "Ar e Tom", feedbackDesc: "Voz soprosa exige mais ar.", frequency: "Treino", phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'SUSSURRO', t: 12, instruction: 'Com Ar', color: 'orange', icon: Volume2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
