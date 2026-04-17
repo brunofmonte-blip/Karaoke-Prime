@@ -289,7 +289,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
     ]
   },
   "10": {
-    level: "Nível 10", moduleName: "O Estúdio de Alta Performance", introVideo: "ADD LINK YOUTUBE",
+    level: "Nível 10", moduleName: "O Estúdio de Alta Performance", introVideo: "PCFwayzs4h8",
     lessons: [
       { id: 1, displayTitle: "Aula 1", title: "O Aquecimento do Atleta", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: false, exercise: "Rotina Expressa", practiceDesc: "Sirene (5s) + Lip Trill (5s) + Terças (5s).", feedbackTitle: "Pronto Pro Jogo", feedbackDesc: "O Aquecimento rápido e efetivo.", frequency: "Antes de shows", phases: [{phase: 'SIRENE', t: 5, instruction: '', color: 'cyan', icon: Wind}, {phase: 'LIP TRILL', t: 5, instruction: '', color: 'orange', icon: Mic2}, {phase: 'TERÇAS', t: 5, instruction: '', color: 'blue', icon: Activity}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
       { id: 2, displayTitle: "Aula 2", title: "Tiro ao Alvo Tonal", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true, exercise: "Pitch + Belt", practiceDesc: "Acha o tom cego (3s) e crava em Belting (7s).", feedbackTitle: "Tiro Certeiro", feedbackDesc: "Ataque agressivo e afinado.", frequency: "Avançado", phases: [{phase: 'TOM CEGO', t: 3, instruction: 'Pense a nota', color: 'cyan', icon: Music}, {phase: 'BELTING', t: 7, instruction: 'Crava Forte', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
