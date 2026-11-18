@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mic2, LogOut, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { auth } from '@/lib/auth';
+import { onAuthStateChanged, signOut, User } from '@/lib/auth';
 
 const Header = () => {
 const navigate = useNavigate();
