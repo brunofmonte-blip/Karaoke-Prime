@@ -8,6 +8,12 @@ import { adminClient, json } from './_lib/server.js';
 const TOLERANCE_SECONDS = 300;
 const ACTIVE_STATUSES = new Set(['active', 'trialing']);
 
+/** Garante que a gravação no banco funcionou; se não, o Stripe tenta de novo */
+function check(result: { error: { message: string } | null; count: number | null }, what: string) {
+  if (result.error) throw new Error(`${what}: ${result.error.message}`);
+  if (result.count === 0) throw new Error(`${what}: nenhum perfil encontrado`);
+}
+
 function verifySignature(payload: string, header: string | null, secret: string): boolean {
   if (!header) return false;
   const parts = Object.fromEntries(
@@ -50,15 +56,19 @@ export async function POST(request: Request): Promise<Response> {
         const s = event.data.object;
         const userId = s.client_reference_id || s.metadata?.user_id;
         if (userId && s.mode === 'subscription') {
-          await db
+          const result = await db
             .from('profiles')
-            .update({
-              is_prime: true,
-              stripe_customer_id: s.customer,
-              stripe_subscription_id: s.subscription,
-              subscription_status: 'active',
-            })
+            .update(
+              {
+                is_prime: true,
+                stripe_customer_id: s.customer,
+                stripe_subscription_id: s.subscription,
+                subscription_status: 'active',
+              },
+              { count: 'exact' },
+            )
             .eq('id', userId);
+          check(result, 'checkout.session.completed');
         }
         break;
       }
@@ -73,11 +83,10 @@ export async function POST(request: Request): Promise<Response> {
           current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
         };
         const userId = sub.metadata?.user_id;
-        if (userId) {
-          await db.from('profiles').update(update).eq('id', userId);
-        } else {
-          await db.from('profiles').update(update).eq('stripe_subscription_id', sub.id);
-        }
+        const result = userId
+          ? await db.from('profiles').update(update, { count: 'exact' }).eq('id', userId)
+          : await db.from('profiles').update(update, { count: 'exact' }).eq('stripe_subscription_id', sub.id);
+        check(result, event.type);
         break;
       }
       default:
@@ -85,7 +94,8 @@ export async function POST(request: Request): Promise<Response> {
     }
     return json({ received: true });
   } catch (err) {
-    console.error('stripe-webhook failed', event?.type, err);
+    const keyKind = (process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICEROLE_KEY ?? '').slice(0, 8);
+    console.error('stripe-webhook failed', event?.type, String(err), 'key prefix:', keyKind);
     return json({ error: 'processing failed' }, 500); // Stripe tenta de novo
   }
 }
