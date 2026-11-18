@@ -100,7 +100,7 @@ export default function Index() {
             KARAOKE <span className="text-cyan-400 drop-shadow-[0_0_20px_rgba(6,182,212,0.6)]">PRIME</span>
           </h1>
           <p className="text-gray-400 text-sm md:text-base font-medium mb-16 max-w-2xl mx-auto">
-            A plataforma definitiva para evolução vocal e performance global.
+            {tr('A plataforma definitiva para evolução vocal e performance global.', 'The ultimate platform for vocal growth and global performance.')}
           </p>
 
           {/* AS 5 CAIXAS PRINCIPAIS */}
@@ -180,7 +180,7 @@ export default function Index() {
                 onClick={() => navigate('/basic', { state: { q: searchQuery } })} 
                 className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase text-xs rounded-full px-8 h-10 ml-2"
               >
-                BUSCAR
+                {tr('BUSCAR', 'SEARCH')}
               </Button>
            </div>
         </div>
@@ -214,17 +214,17 @@ export default function Index() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { flagUrl: "https://flagcdn.com/w80/br.png", country: "BR", desc: "BRASIL" },
-              { flagUrl: "https://flagcdn.com/w80/us.png", country: "US", desc: "EUA" },
-              { flagUrl: "https://flagcdn.com/w80/jp.png", country: "JP", desc: "JAPÃO" },
-              { flagUrl: "https://flagcdn.com/w80/gb.png", country: "GB", desc: "REINO UNIDO" }
+              { flagUrl: "https://flagcdn.com/w80/br.png", country: "BR", desc: tr('BRASIL', 'BRAZIL') },
+              { flagUrl: "https://flagcdn.com/w80/us.png", country: "US", desc: tr('EUA', 'USA') },
+              { flagUrl: "https://flagcdn.com/w80/jp.png", country: "JP", desc: tr('JAPÃO', 'JAPAN') },
+              { flagUrl: "https://flagcdn.com/w80/gb.png", country: "GB", desc: tr('REINO UNIDO', 'UNITED KINGDOM') }
             ].map((region, idx) => (
               <Card key={idx} onClick={() => navigate('/basic')} className="bg-[#0a0a0a] border-transparent p-6 rounded-[2rem] flex flex-col items-center hover:border-white/10 cursor-pointer transition-all">
                 <img src={region.flagUrl} alt={region.country} className="w-12 h-8 rounded-sm object-cover mb-4 shadow-sm" />
                 <h3 className="font-black italic text-2xl uppercase text-white">{region.country}</h3>
                 <p className="text-[8px] text-gray-500 uppercase font-black tracking-widest mb-6">{region.desc}</p>
                 <div className="border border-white/10 rounded-full px-4 py-1 text-[10px] font-black uppercase text-white flex items-center gap-2 hover:bg-white/5">
-                  EXPLORAR <ArrowRight size={12} />
+                  {tr('EXPLORAR', 'EXPLORE')} <ArrowRight size={12} />
                 </div>
               </Card>
             ))}
@@ -313,7 +313,7 @@ export default function Index() {
                       <p className="text-[10px] text-gray-300 line-clamp-1 mb-1">{tr('Cantou', 'Sang')} <strong className="text-white">{activity.song}</strong></p>
                       <div className="flex items-center gap-1">
                         <Star size={10} className="text-orange-500" />
-                        <span className="text-[10px] text-orange-500 font-black">{activity.score} Precisão</span>
+                        <span className="text-[10px] text-orange-500 font-black">{activity.score} {tr('Precisão', 'Accuracy')}</span>
                       </div>
                     </div>
                   </div>
@@ -343,7 +343,7 @@ export default function Index() {
               </div>
               
               <Button variant="ghost" className="w-full mt-4 text-[10px] uppercase font-black tracking-widest text-gray-400 hover:text-cyan-400">
-                Ver Ranking Completo <ChevronRight size={12} className="ml-1" />
+                {tr("Ver Ranking Completo", "View Full Ranking")} <ChevronRight size={12} className="ml-1" />
               </Button>
             </Card>
           </div>
@@ -360,7 +360,7 @@ export default function Index() {
              <Card className="bg-zinc-950 border border-white/10 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center hover:border-cyan-500/30 transition-all">
                 <h4 className="text-3xl font-black italic text-white mb-4">{tr('De volta ao palco', 'Back on stage')}, {user?.displayName?.split(' ')[0] || tr('Cantor', 'Singer')}!</h4>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed mb-8 max-w-xs">
-                  A INTELIGÊNCIA ARTIFICIAL JÁ PROCESSOU SUA ÚLTIMA PERFORMANCE. CONFIRA SEUS NÚMEROS.
+                  {tr('A INTELIGÊNCIA ARTIFICIAL JÁ PROCESSOU SUA ÚLTIMA PERFORMANCE. CONFIRA SEUS NÚMEROS.', 'OUR AI HAS ANALYZED YOUR LAST PERFORMANCE. CHECK YOUR NUMBERS.')}
                 </p>
                 <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-4 py-2 rounded-full">
                   <Sparkles size={12} /> {tr('IA ATIVA NO MODO PRIME', 'AI ACTIVE IN PRIME MODE')}
