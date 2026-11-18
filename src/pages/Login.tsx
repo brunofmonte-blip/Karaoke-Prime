@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Mic2, Mail, Lock, User, ArrowRight, Sparkles, Trophy, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/auth';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup
-} from 'firebase/auth';
+} from '@/lib/auth';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,9 +37,12 @@ export default function Login() {
       } else {
         // Lógica de Cadastro
         if (!name.trim()) throw new Error('Por favor, insira seu nome completo.');
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        // Atualiza o perfil com o nome do usuário
-        await updateProfile(userCredential.user, { displayName: name });
+        const result = await createUserWithEmailAndPassword(auth, email, password, name);
+        if (result.needsConfirmation) {
+          setError('Conta criada! Confirme pelo link que enviamos ao seu e-mail e depois entre.');
+          setIsLogin(true);
+          return;
+        }
         // 🚨 CORREÇÃO: Agora vai para o Basic após cadastrar
         navigate('/basic'); 
       }
@@ -48,6 +51,7 @@ export default function Login() {
       if (err.code === 'auth/email-already-in-use') setError('Este e-mail já está cadastrado.');
       else if (err.code === 'auth/weak-password') setError('A senha deve ter pelo menos 6 caracteres.');
       else if (err.code === 'auth/invalid-credential') setError('E-mail ou senha incorretos.');
+      else if (err.code === 'auth/email-not-confirmed') setError(err.message);
       else setError(err.message || 'Ocorreu um erro ao processar sua solicitação.');
     } finally {
       setLoading(false);

@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/auth';
+import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
 
 export default function DuelRoom() {
   const navigate = useNavigate();
