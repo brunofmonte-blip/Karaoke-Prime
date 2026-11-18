@@ -6,9 +6,11 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { searchKaraokeVideos } from '@/services/youtubeService';
 
+import { useI18n } from '@/i18n';
 export default function BasicLobby() {
   const navigate = useNavigate();
   const location = useLocation(); // 🚨 ADICIONADO: Para ler o pacote de texto da Home
+  const { tr } = useI18n();
   
   // 🚨 O input de busca agora puxa automaticamente o que veio da Home
   const [query, setQuery] = useState(location.state?.q || '');
@@ -28,7 +30,7 @@ export default function BasicLobby() {
   // 🚨 A busca foi levemente blindada para aceitar o texto automático
   const handleSearch = async (searchTerm = query) => {
     if (!searchTerm.trim()) {
-      toast.error("Digite o nome de uma música ou artista.");
+      toast.error(tr('Digite o nome de uma música ou artista.', 'Type a song or artist name.'));
       return;
     }
     setIsLoading(true);
@@ -37,7 +39,7 @@ export default function BasicLobby() {
       const videos = await searchKaraokeVideos(searchTerm);
       setResults(videos);
     } catch (error: any) {
-      toast.error(error.message || "Erro ao buscar músicas no YouTube.");
+      toast.error(error.message || tr('Erro ao buscar músicas no YouTube.', 'Could not search YouTube.'));
     } finally {
       setIsLoading(false);
     }
@@ -60,12 +62,12 @@ export default function BasicLobby() {
     <div className="min-h-screen bg-black font-sans text-white p-6 pt-24">
       <div className="max-w-6xl mx-auto">
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors w-fit bg-zinc-900/50 px-4 py-2 rounded-full border border-white/5">
-          <ArrowLeft size={16} /> Voltar para o Início
+          <ArrowLeft size={16} /> {tr('Voltar para o Início', 'Back to Home')}
         </button>
 
         <div className="mb-12">
           <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 px-3 py-1 rounded-full text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-4">
-             <Mic2 size={14} /> PALCO PRINCIPAL
+             <Mic2 size={14} /> {tr('PALCO PRINCIPAL', 'MAIN STAGE')}
           </div>
           <h1 className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-tight drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
             BASIC <span className="text-cyan-400">LOBBY</span>
@@ -75,17 +77,17 @@ export default function BasicLobby() {
         <div className="flex flex-col md:flex-row gap-4 mb-16">
           <div className="bg-zinc-950 border border-white/10 rounded-full flex items-center w-full p-2 px-6 shadow-inner focus-within:border-cyan-500/50 transition-colors">
             <Search className="text-gray-500 h-6 w-6 mr-4" />
-            <input type="text" placeholder="Qual música você quer cantar hoje?" className="bg-transparent border-none text-white focus:outline-none w-full text-lg placeholder:text-gray-600 font-medium" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} />
+            <input type="text" placeholder={tr('Qual música você quer cantar hoje?', 'What do you want to sing today?')} className="bg-transparent border-none text-white focus:outline-none w-full text-lg placeholder:text-gray-600 font-medium" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} />
           </div>
           <Button onClick={() => handleSearch()} disabled={isLoading} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-sm rounded-full px-12 h-16 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all shrink-0">
-            {isLoading ? "Buscando..." : "Buscar"}
+            {isLoading ? tr('Buscando...', 'Searching...') : tr('Buscar', 'Search')}
           </Button>
         </div>
 
         <div className="flex items-center gap-3 mb-8 border-b border-white/10 pb-4">
           {hasSearched ? <ListMusic className="text-cyan-400 h-5 w-5" /> : <RotateCcw className="text-gray-400 h-5 w-5" />}
           <h3 className="font-black italic text-2xl uppercase tracking-tighter text-white">
-            {hasSearched ? "RESULTADOS NO YOUTUBE" : "ÚLTIMAS BUSCAS"}
+            {hasSearched ? tr('RESULTADOS NO YOUTUBE', 'YOUTUBE RESULTS') : tr('ÚLTIMAS BUSCAS', 'RECENT SEARCHES')}
           </h3>
         </div>
 
@@ -106,11 +108,11 @@ export default function BasicLobby() {
                 <div className="w-full space-y-3 mt-auto">
                   
                   <Button onClick={() => navigate(`/play/${videoId}`)} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-                    CANTAR SOLO <PlayCircle className="ml-2 h-4 w-4" />
+                    {tr('CANTAR SOLO', 'SING SOLO')} <PlayCircle className="ml-2 h-4 w-4" />
                   </Button>
                   
                   <Button onClick={() => navigate(`/duel-invite?id=${videoId}`)} variant="ghost" className="w-full text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-full h-10 transition-all border border-transparent hover:border-cyan-500/20">
-                    DUETO / BATALHA <Swords className="ml-2 h-3 w-3" />
+                    {tr('DUETO / BATALHA', 'DUET / BATTLE')} <Swords className="ml-2 h-3 w-3" />
                   </Button>
 
                 </div>

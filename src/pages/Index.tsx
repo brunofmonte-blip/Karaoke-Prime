@@ -13,7 +13,9 @@ import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/auth';
 import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
 
+import { useI18n } from '@/i18n';
 export default function Index() {
+  const { tr } = useI18n();
   const navigate = useNavigate();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [activeRegion, setActiveRegion] = useState<'BR' | 'US' | 'UK' | 'JP'>('BR');
@@ -55,25 +57,25 @@ export default function Index() {
   };
 
   const fakeTrendActivity = [
-    { user: "@VocalStar_BR", song: "Como Nossos Pais - Elis Regina", time: "Agora mesmo", score: "98%" },
-    { user: "@John_Belt", song: "Listen - Beyoncé", time: "Há 2 min", score: "92%" },
-    { user: "@Yumi_Tokyo", song: "First Love - Utada Hikaru", time: "Há 5 min", score: "99%" },
-    { user: "@MariaClara_V", song: "Chandelier - Beyoncé", time: "Há 12 min", score: "95%" }
+    { user: "@VocalStar_BR", song: "Como Nossos Pais - Elis Regina", time: tr('Agora mesmo', 'Just now'), score: "98%" },
+    { user: "@John_Belt", song: "Listen - Beyoncé", time: tr('Há 2 min', '2 min ago'), score: "92%" },
+    { user: "@Yumi_Tokyo", song: "First Love - Utada Hikaru", time: tr('Há 5 min', '5 min ago'), score: "99%" },
+    { user: "@MariaClara_V", song: "Chandelier - Beyoncé", time: tr('Há 12 min', '12 min ago'), score: "95%" }
   ];
 
   const recentlyAdded = [
-    { title: "Flowers (Acoustic)", artist: "Miley Cyrus", badge: "NOVO" },
-    { title: "Vampire", artist: "Olivia Rodrigo", badge: "ALTA QUALIDADE" },
+    { title: "Flowers (Acoustic)", artist: "Miley Cyrus", badge: tr('NOVO', 'NEW') },
+    { title: "Vampire", artist: "Olivia Rodrigo", badge: tr('ALTA QUALIDADE', 'HIGH QUALITY') },
     { title: "Kill Bill", artist: "SZA", badge: "POPULAR" },
-    { title: "Erro Gostoso", artist: "Simone Mendes", badge: "NOVO" }
+    { title: "Erro Gostoso", artist: "Simone Mendes", badge: tr('NOVO', 'NEW') }
   ];
 
   const fakeRanking = [
-    { rank: 1, name: "Yumi_Tokyo", score: "15.420", tier: "Diamante" },
-    { rank: 2, name: "MariaClara_V", score: "14.890", tier: "Platina" },
-    { rank: 3, name: "John_Belt", score: "13.200", tier: "Platina" },
-    { rank: 4, name: "VocalStar_BR", score: "12.500", tier: "Ouro" },
-    { rank: 412, name: user?.displayName?.split(' ')[0] || "Você", score: "1.250", tier: "Iniciante", isMe: true }
+    { rank: 1, name: "Yumi_Tokyo", score: "15.420", tier: tr('Diamante', 'Diamond') },
+    { rank: 2, name: "MariaClara_V", score: "14.890", tier: tr('Platina', 'Platinum') },
+    { rank: 3, name: "John_Belt", score: "13.200", tier: tr('Platina', 'Platinum') },
+    { rank: 4, name: "VocalStar_BR", score: "12.500", tier: tr('Ouro', 'Gold') },
+    { rank: 412, name: user?.displayName?.split(' ')[0] || tr('Você', 'You'), score: "1.250", tier: tr('Iniciante', 'Beginner'), isMe: true }
   ];
 
   const trendTags = ["#BeltChallenge", "#SertanejoPrime", "#SopranoVibes", "#RockDrive", "#Acustico"];
@@ -109,7 +111,7 @@ export default function Index() {
                 <Mic2 className="text-cyan-400 h-5 w-5" />
               </div>
               <h3 className="font-black italic text-lg uppercase text-white mb-2">BASIC</h3>
-              <p className="text-[9px] text-gray-500 uppercase font-bold leading-relaxed">KARAOKÊ TRADICIONAL,<br/>BATALHAS E DUETOS.</p>
+              <p className="text-[9px] text-gray-500 uppercase font-bold leading-relaxed">{tr('KARAOKÊ TRADICIONAL,', 'CLASSIC KARAOKE,')}<br/>{tr('BATALHAS E DUETOS.', 'BATTLES AND DUETS.')}</p>
             </Card>
 
             <Card onClick={() => navigate('/academy')} className="bg-black/80 backdrop-blur-md border border-cyan-500/30 p-6 rounded-3xl cursor-pointer hover:border-cyan-400 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)] transition-all group">
@@ -117,7 +119,7 @@ export default function Index() {
                 <GraduationCap className="text-cyan-400 h-5 w-5" />
               </div>
               <h3 className="font-black italic text-lg uppercase text-white mb-2">ACADEMY</h3>
-              <p className="text-[9px] text-gray-500 uppercase font-bold leading-relaxed">TREINAMENTO PROFISSIONAL<br/>COMPLETO.</p>
+              <p className="text-[9px] text-gray-500 uppercase font-bold leading-relaxed">{tr('TREINAMENTO PROFISSIONAL', 'COMPLETE PROFESSIONAL')}<br/>{tr('COMPLETO.', 'VOCAL TRAINING.')}</p>
             </Card>
 
             <Card className="bg-black/50 backdrop-blur-md border border-white/5 p-6 rounded-3xl opacity-60 cursor-not-allowed">
@@ -126,7 +128,7 @@ export default function Index() {
                 <Lock size={10} className="absolute -top-1 -right-1 text-gray-500" />
               </div>
               <h3 className="font-black italic text-lg uppercase text-gray-400 mb-2">NEXT TALENT</h3>
-              <p className="text-[9px] text-gray-600 uppercase font-bold leading-relaxed">AUDIÇÕES GLOBAIS</p>
+              <p className="text-[9px] text-gray-600 uppercase font-bold leading-relaxed">{tr('AUDIÇÕES GLOBAIS', 'GLOBAL AUDITIONS')}</p>
             </Card>
 
             <Card className="bg-black/50 backdrop-blur-md border border-white/5 p-6 rounded-3xl opacity-60 cursor-not-allowed">
@@ -144,7 +146,7 @@ export default function Index() {
                 <Lock size={10} className="absolute -top-1 -right-1 text-gray-500" />
               </div>
               <h3 className="font-black italic text-lg uppercase text-gray-400 mb-2">NEXT SUCCESS</h3>
-              <p className="text-[9px] text-gray-600 uppercase font-bold leading-relaxed">MÚSICAS IA</p>
+              <p className="text-[9px] text-gray-600 uppercase font-bold leading-relaxed">{tr('MÚSICAS IA', 'AI SONGS')}</p>
             </Card>
 
           </div>
@@ -159,7 +161,7 @@ export default function Index() {
               <Search className="text-gray-500 h-5 w-5 ml-4 mr-2" />
               <input 
                 type="text" 
-                placeholder="Artista, Música ou Gênero..." 
+                placeholder={tr('Artista, Música ou Gênero...', 'Artist, Song or Genre...')} 
                 className="bg-transparent border-none text-white focus:outline-none w-full text-sm placeholder:text-gray-600" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -170,9 +172,9 @@ export default function Index() {
                 }}
               />
               <div className="hidden md:flex gap-4 px-4 text-[10px] font-black uppercase text-gray-500">
-                <span className="text-cyan-400 cursor-pointer">TUDO</span>
-                <span className="hover:text-white cursor-pointer">NACIONAL</span>
-                <span className="hover:text-white cursor-pointer">INTER</span>
+                <span className="text-cyan-400 cursor-pointer">{tr('TUDO', 'ALL')}</span>
+                <span className="hover:text-white cursor-pointer">{tr('NACIONAL', 'LOCAL')}</span>
+                <span className="hover:text-white cursor-pointer">{tr('INTER', 'INTL')}</span>
               </div>
               <Button 
                 onClick={() => navigate('/basic', { state: { q: searchQuery } })} 
@@ -185,14 +187,14 @@ export default function Index() {
 
         {/* 3. MURAL DE CONQUISTAS */}
         <section className="text-center">
-          <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-10">MURAL DE <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]">CONQUISTAS</span></h2>
+          <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-10">{tr('MURAL DE', 'ACHIEVEMENT')} <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]">{tr('CONQUISTAS', 'WALL')}</span></h2>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8">
             {[
-              { icon: Star, title: "EARLY BIRD", status: "DESBLOQUEADO" },
-              { icon: Mic2, title: "ROCK STAR", status: "DESBLOQUEADO" },
-              { icon: Trophy, title: "DUEL MASTER", status: "DESBLOQUEADO" },
-              { icon: Medal, title: "PERFECT PITCH", status: "DESBLOQUEADO" },
-              { icon: Globe2, title: "POLYGLOT", status: "DESBLOQUEADO" }
+              { icon: Star, title: "EARLY BIRD", status: tr('DESBLOQUEADO', 'UNLOCKED') },
+              { icon: Mic2, title: "ROCK STAR", status: tr('DESBLOQUEADO', 'UNLOCKED') },
+              { icon: Trophy, title: "DUEL MASTER", status: tr('DESBLOQUEADO', 'UNLOCKED') },
+              { icon: Medal, title: "PERFECT PITCH", status: tr('DESBLOQUEADO', 'UNLOCKED') },
+              { icon: Globe2, title: "POLYGLOT", status: tr('DESBLOQUEADO', 'UNLOCKED') }
             ].map((badge, idx) => (
               <Card key={idx} className="bg-[#0a0a0a] border-transparent w-32 h-32 md:w-40 md:h-40 rounded-[2rem] flex flex-col items-center justify-center cursor-default">
                 <div className="h-12 w-12 rounded-full border-2 border-cyan-400 flex items-center justify-center mb-4">
@@ -208,7 +210,7 @@ export default function Index() {
         {/* 4. MÚSICAS MAIS CANTADAS (BANDEIRAS HD) */}
         <section className="text-center">
           <h2 className="text-xl font-black italic uppercase tracking-tighter flex items-center justify-center gap-2 mb-8">
-            <Globe2 className="text-cyan-400 h-5 w-5" /> MÚSICAS MAIS CANTADAS
+            <Globe2 className="text-cyan-400 h-5 w-5" /> {tr('MÚSICAS MAIS CANTADAS', 'MOST SUNG SONGS')}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
@@ -295,7 +297,7 @@ export default function Index() {
             <Card className="bg-zinc-950 border-white/10 rounded-[2rem] p-6">
               <div className="flex items-center gap-2 mb-6">
                 <Activity className="text-cyan-400 h-5 w-5" />
-                <h3 className="font-black italic uppercase tracking-tighter text-lg text-white">Cantando Agora</h3>
+                <h3 className="font-black italic uppercase tracking-tighter text-lg text-white">{tr('Cantando Agora', 'Singing Now')}</h3>
               </div>
               <div className="space-y-4">
                 {fakeTrendActivity.map((activity, idx) => (
@@ -308,7 +310,7 @@ export default function Index() {
                         <span className="text-xs font-bold text-cyan-400">{activity.user}</span>
                         <span className="text-[8px] text-gray-600 uppercase font-black">{activity.time}</span>
                       </div>
-                      <p className="text-[10px] text-gray-300 line-clamp-1 mb-1">Cantou <strong className="text-white">{activity.song}</strong></p>
+                      <p className="text-[10px] text-gray-300 line-clamp-1 mb-1">{tr('Cantou', 'Sang')} <strong className="text-white">{activity.song}</strong></p>
                       <div className="flex items-center gap-1">
                         <Star size={10} className="text-orange-500" />
                         <span className="text-[10px] text-orange-500 font-black">{activity.score} Precisão</span>
@@ -350,18 +352,18 @@ export default function Index() {
         {/* 8. EVOLUÇÃO VOCAL / MEU DASHBOARD */}
         <section className="pb-12 pt-12">
            <div className="mb-8">
-             <h2 className="text-4xl font-black italic uppercase tracking-tighter text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)] leading-tight">EVOLUÇÃO VOCAL</h2>
-             <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white">MEU DASHBOARD</h3>
+             <h2 className="text-4xl font-black italic uppercase tracking-tighter text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)] leading-tight">{tr('EVOLUÇÃO VOCAL', 'VOCAL PROGRESS')}</h2>
+             <h3 className="text-2xl font-black italic uppercase tracking-tighter text-white">{tr('MEU DASHBOARD', 'MY DASHBOARD')}</h3>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <Card className="bg-zinc-950 border border-white/10 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center hover:border-cyan-500/30 transition-all">
-                <h4 className="text-3xl font-black italic text-white mb-4">De volta ao palco, {user?.displayName?.split(' ')[0] || "Cantor"}!</h4>
+                <h4 className="text-3xl font-black italic text-white mb-4">{tr('De volta ao palco', 'Back on stage')}, {user?.displayName?.split(' ')[0] || tr('Cantor', 'Singer')}!</h4>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed mb-8 max-w-xs">
                   A INTELIGÊNCIA ARTIFICIAL JÁ PROCESSOU SUA ÚLTIMA PERFORMANCE. CONFIRA SEUS NÚMEROS.
                 </p>
                 <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-4 py-2 rounded-full">
-                  <Sparkles size={12} /> IA ATIVA NO MODO PRIME
+                  <Sparkles size={12} /> {tr('IA ATIVA NO MODO PRIME', 'AI ACTIVE IN PRIME MODE')}
                 </div>
              </Card>
 
@@ -378,12 +380,12 @@ export default function Index() {
 
                 <div className="space-y-6">
                   <div className="flex justify-between items-center text-sm font-black uppercase tracking-widest text-gray-400">
-                    <span className="flex items-center gap-2"><Star size={16} className="text-cyan-400" /> SCORE MÁXIMO</span>
+                    <span className="flex items-center gap-2"><Star size={16} className="text-cyan-400" /> {tr('SCORE MÁXIMO', 'TOP SCORE')}</span>
                     <span className="text-white text-lg italic">94.8%</span>
                   </div>
                   <div className="flex justify-between items-center text-sm font-black uppercase tracking-widest text-gray-400">
-                    <span className="flex items-center gap-2"><GraduationCap size={16} className="text-cyan-400" /> NÍVEL ACADEMY</span>
-                    <span className="text-white text-lg italic">Nível 1</span>
+                    <span className="flex items-center gap-2"><GraduationCap size={16} className="text-cyan-400" /> {tr('NÍVEL ACADEMY', 'ACADEMY LEVEL')}</span>
+                    <span className="text-white text-lg italic">{tr('Nível 1', 'Level 1')}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm font-black uppercase tracking-widest text-gray-400">
                     <span className="flex items-center gap-2"><Trophy size={16} className="text-cyan-400" /> RANK GLOBAL</span>
