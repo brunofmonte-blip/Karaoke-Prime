@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 import { createPitchDetector, frequencyToNote } from '@/utils/pitch-detection';
+import { useI18n } from '@/i18n';
 
 interface AudioAnalyzerResult {
   isAnalyzing: boolean;
@@ -35,6 +36,7 @@ const frequencyToVisualizationScale = (frequency: number): number => {
 };
 
 export const useAudioAnalyzer = (): AudioAnalyzerResult => {
+  const { tr } = useI18n();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [pitchDataHz, setPitchDataHz] = useState(0);
   const [pitchDataVisualization, setPitchDataVisualization] = useState(0);
@@ -122,12 +124,12 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
       sourceRef.current = source;
 
       setIsAnalyzing(true);
-      toast.success('Microfone conectado. Pode começar a cantar!', { duration: 2000 });
+      toast.success(tr('Microfone conectado. Pode começar a cantar!', 'Mic connected. Start singing!'), { duration: 2000 });
 
       animationFrameRef.current = requestAnimationFrame(analyze);
     } catch (error) {
       console.error('[use-audio-analyzer] Error accessing microphone:', error);
-      toast.error('Acesso ao microfone negado. Verifique as permissões.', { duration: 5000 });
+      toast.error(tr('Não conseguimos usar seu microfone. Libere o acesso no navegador e tente de novo.', "We couldn't use your microphone. Allow access in your browser and try again."), { duration: 6000 });
       setIsAnalyzing(false);
     }
   };
