@@ -1,27 +1,77 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Check, Star, ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Check, Star, ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { getAccessToken } from '@/lib/auth';
+import { useIsPremium } from '@/hooks/use-is-premium';
+
+type Plan = 'monthly' | 'annual';
+
+// As músicas (modo Basic) são sempre gratuitas.
+// A assinatura libera a Academy completa e os recursos do Karaoke Prime.
+const MONTHLY_FEATURES = [
+  'Academy completa: os 10 níveis',
+  'Ranking Global ativo',
+  'Histórico da sua evolução vocal',
+  'Sem anúncios',
+];
+const ANNUAL_FEATURES = [
+  'Tudo do plano Mensal',
+  'Economia de 2 meses no ano',
+  'Prioridade nos novos recursos',
+];
 
 export default function Premium() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null);
+  const { isPremium } = useIsPremium();
 
-  // Links blindados
-  const linkMensal = "https://" + "buy.stripe.com/test_9B600i10C9fGg6Cb8g5sA00";
-  const linkAnual = "https://" + "buy.stripe.com/test_cNi00iaBc4ZqaMi9085sA01";
+  const subscribe = async (plan: Plan) => {
+    setLoadingPlan(plan);
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        toast.info('Entre na sua conta para assinar.');
+        navigate('/login');
+        return;
+      }
+      const res = await fetch('/api/stripe-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Erro ao iniciar pagamento');
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast.error(err.message || 'Não foi possível iniciar o pagamento.');
+      setLoadingPlan(null);
+    }
+  };
+
+  const buttonContent = (plan: Plan, label: string) =>
+    loadingPlan === plan ? <Loader2 className="h-5 w-5 animate-spin" /> : label;
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 pt-24 pb-20 font-sans text-white relative">
       <div className="absolute inset-0 bg-gradient-to-b from-cyan-400/5 via-black to-black z-0 pointer-events-none" />
-      
+
       <div className="z-10 text-center mb-12">
         <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter uppercase mb-4">
           ESCOLHA SEU <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">PLANO</span>
         </h1>
         <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
-          Desbloqueie o poder total da Arena Karaoke Prime
+          Cantar é sempre grátis. A assinatura libera a sua evolução.
         </p>
+        {params.get('assinatura') === 'cancelada' && (
+          <p className="mt-4 text-sm text-gray-400">Pagamento cancelado. Nada foi cobrado.</p>
+        )}
+        {isPremium && (
+          <p className="mt-4 text-sm font-bold text-cyan-400">Você já é assinante Prime. Obrigado!</p>
+        )}
       </div>
 
       <div className="z-10 grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
@@ -33,19 +83,19 @@ export default function Premium() {
             <span className="text-gray-500 font-bold text-sm">/mês</span>
           </div>
           <ul className="space-y-4 mb-10 flex-1">
-            {['Acesso ilimitado ao Basic', 'Treinamento Academy AI', 'Ranking Global Ativo', 'Sem Anúncios'].map((item, i) => (
-              <li key={i} className="flex items-center gap-3 text-sm font-bold text-gray-300">
+            {MONTHLY_FEATURES.map((item) => (
+              <li key={item} className="flex items-center gap-3 text-sm font-bold text-gray-300">
                 <Check className="text-cyan-400 h-5 w-5" /> {item}
               </li>
             ))}
           </ul>
-          <a 
-            href={linkMensal}
-            target="_top"
-            className="w-full h-14 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase tracking-widest flex items-center justify-center transition-all cursor-pointer"
+          <button
+            onClick={() => subscribe('monthly')}
+            disabled={loadingPlan !== null || isPremium}
+            className="w-full h-14 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 text-white font-black uppercase tracking-widest flex items-center justify-center transition-all"
           >
-            Assinar Mensal
-          </a>
+            {buttonContent('monthly', 'Assinar Mensal')}
+          </button>
         </Card>
 
         {/* PLANO ANUAL */}
@@ -59,23 +109,28 @@ export default function Premium() {
             <span className="text-gray-500 font-bold text-sm">/ano</span>
           </div>
           <ul className="space-y-4 mb-10 flex-1">
-            {['Tudo do plano Mensal', 'Músicas Originais IA (Next Success)', 'Acesso ao Backstage Profissional', 'Dois meses grátis'].map((item, i) => (
-              <li key={i} className="flex items-center gap-3 text-sm font-bold text-white">
+            {ANNUAL_FEATURES.map((item) => (
+              <li key={item} className="flex items-center gap-3 text-sm font-bold text-white">
                 <Check className="text-cyan-400 h-5 w-5" /> {item}
               </li>
             ))}
           </ul>
-          <a 
-            href={linkAnual}
-            target="_top"
-            className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase tracking-widest flex items-center justify-center transition-all cursor-pointer"
+          <button
+            onClick={() => subscribe('annual')}
+            disabled={loadingPlan !== null || isPremium}
+            className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 text-black font-black uppercase tracking-widest flex items-center justify-center transition-all"
           >
-            Assinar Anual
-          </a>
+            {buttonContent('annual', 'Assinar Anual')}
+          </button>
         </Card>
       </div>
 
-      <Button onClick={() => navigate('/')} variant="ghost" className="z-10 mt-12 text-gray-500 hover:text-white flex items-center gap-2 uppercase text-[10px] font-black tracking-[0.2em]">
+      <p className="z-10 mt-8 text-xs text-gray-500 max-w-xl text-center">
+        Next Success, Next Talent e Backstage serão vendidos à parte quando forem lançados.
+        Cancele quando quiser.
+      </p>
+
+      <Button onClick={() => navigate('/')} variant="ghost" className="z-10 mt-8 text-gray-500 hover:text-white flex items-center gap-2 uppercase text-[10px] font-black tracking-[0.2em]">
         <ArrowLeft size={16} /> Voltar
       </Button>
     </div>

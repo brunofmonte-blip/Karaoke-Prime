@@ -4,8 +4,9 @@ import { ArrowLeft, PlayCircle, Mic2, ListVideo, CheckCircle2, Lock, Wind, Coffe
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/auth';
+import { useIsPremium } from '@/hooks/use-is-premium';
+import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
 
 // O Motor de Treino
 import { VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
@@ -327,7 +328,7 @@ export default function Lesson() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const isPremiumUser = user?.email === 'bruno.fmonte@gmail.com';
+  const { isPremium: isPremiumUser } = useIsPremium();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));

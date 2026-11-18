@@ -7,8 +7,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/auth';
+import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
 
 // 🚨 IMPORTAMOS O NOSSO GRÁFICO OFICIAL
 import VocalEvolutionChart from '@/components/VocalEvolutionChart';

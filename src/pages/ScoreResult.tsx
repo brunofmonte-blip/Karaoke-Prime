@@ -4,8 +4,8 @@ import { Mic2, Activity, ArrowLeft, Share2, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/auth';
+import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
 
 export default function ScoreResult() {
   const navigate = useNavigate();

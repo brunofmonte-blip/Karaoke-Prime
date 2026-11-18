@@ -17,7 +17,7 @@ export interface UserProfile {
 const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, username, avatar_url, academy_level, best_note, ranking_position, is_prime, xp, badges')
     .eq('id', userId)
     .single();
 

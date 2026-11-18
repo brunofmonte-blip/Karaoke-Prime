@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Lock, PlayCircle, ArrowLeft, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/auth';
+import { useIsPremium } from '@/hooks/use-is-premium';
+import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
 
 // ============================================================================
 // COMPONENTES DOS NÍVEIS
@@ -222,7 +223,7 @@ export default function Academy() {
     return () => unsubscribe();
   }, [navigate]);
 
-  const isPremiumUser = user?.email === 'bruno.fmonte@gmail.com';
+  const { isPremium: isPremiumUser } = useIsPremium();
 
   const modulos = [
     { id: 1, titulo: 'INTRODUÇÃO E AFINAÇÃO', desc: 'Fundamentos de ouvido e intervalos básicos.', time: '10 min', locked: false },
