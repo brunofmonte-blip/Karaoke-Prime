@@ -32,10 +32,7 @@ console.error("Erro ao sair:", error);
 const navLinks = [
 { name: 'Basic', path: '/basic' },
 { name: 'Academy', path: '/academy' },
-{ name: 'Next Talent', path: '/talent' },
-{ name: 'Backstage', path: '/backstage' },
-{ name: 'Next Success', path: '/next-success' },
-{ name: tr('Planos', 'Plans'), path: '/premium', highlight: true }
+{ name: tr('Planos', 'Plans'), path: '/premium', highlight: true, hideOnPhone: true }
 ];
 
 return (
@@ -51,7 +48,7 @@ return (
     </div>
 
     {/* MENU CENTRAL (Visível em Desktop) */}
-    <nav className="hidden lg:flex items-center gap-6">
+    <nav className="flex items-center gap-3 sm:gap-6">
       {navLinks.map((link) => {
         const isActive = location.pathname === link.path;
         return (
@@ -62,7 +59,7 @@ return (
               isActive 
                 ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]' 
                 : 'text-gray-400 hover:text-white'
-            } ${(link as any).highlight ? 'border border-cyan-400/30 px-3 py-1.5 rounded-full hover:bg-cyan-400/10' : ''}`}
+            } ${(link as any).hideOnPhone ? 'hidden sm:block' : ''} ${(link as any).highlight ? 'border border-cyan-400/30 px-3 py-1.5 rounded-full hover:bg-cyan-400/10' : ''}`}
           >
             {link.name}
           </button>
@@ -71,7 +68,7 @@ return (
     </nav>
 
     {/* ÁREA DO USUÁRIO / LOGIN */}
-    <div className="flex items-center gap-4 shrink-0">
+    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
       <LanguageToggle />
       {user ? (
         <div className="flex items-center gap-3 bg-zinc-900 border border-white/10 p-1 rounded-full pl-4 pr-1">
