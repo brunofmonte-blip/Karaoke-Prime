@@ -17,7 +17,11 @@ const STORAGE_KEY = 'kp_lang';
 function detectInitialLang(): Lang {
   try {
     const fromUrl = new URLSearchParams(window.location.search).get('lang');
-    if (fromUrl === 'pt' || fromUrl === 'en') return fromUrl;
+    if (fromUrl === 'pt' || fromUrl === 'en') {
+      // Link com ?lang= (ex.: anúncios nos EUA) vale para o resto da navegação
+      window.localStorage.setItem(STORAGE_KEY, fromUrl);
+      return fromUrl;
+    }
     const saved = window.localStorage.getItem(STORAGE_KEY);
     if (saved === 'pt' || saved === 'en') return saved;
   } catch {
