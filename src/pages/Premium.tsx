@@ -15,7 +15,6 @@ const MONTHLY_FEATURES = [
   'Academy completa: os 10 níveis',
   'Ranking Global ativo',
   'Histórico da sua evolução vocal',
-  'Sem anúncios',
 ];
 const ANNUAL_FEATURES = [
   'Tudo do plano Mensal',
