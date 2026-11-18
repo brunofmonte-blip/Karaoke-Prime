@@ -24,6 +24,7 @@ import SongPlayer from "./pages/SongPlayer";
 import Talent from "./pages/Talent";
 import NotFound from "./pages/NotFound";
 
+import { LanguageProvider } from './i18n';
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -31,6 +32,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <LanguageProvider>
       <BrowserRouter>
         <Header />
         <Routes>
@@ -60,6 +62,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

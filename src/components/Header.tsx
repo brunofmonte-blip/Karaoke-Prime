@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/auth';
 import { onAuthStateChanged, signOut, User } from '@/lib/auth';
 
+import { useI18n, LanguageToggle } from '@/i18n';
 const Header = () => {
 const navigate = useNavigate();
 const location = useLocation();
+const { tr } = useI18n();
 const [user, setUser] = useState<User | null>(null);
 
 useEffect(() => {
@@ -33,7 +35,7 @@ const navLinks = [
 { name: 'Next Talent', path: '/talent' },
 { name: 'Backstage', path: '/backstage' },
 { name: 'Next Success', path: '/next-success' },
-{ name: 'Planos', path: '/premium' } // Mapeado para a tela de Planos/Premium
+{ name: tr('Planos', 'Plans'), path: '/premium', highlight: true }
 ];
 
 return (
@@ -60,7 +62,7 @@ return (
               isActive 
                 ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]' 
                 : 'text-gray-400 hover:text-white'
-            } ${link.name === 'Planos' ? 'border border-cyan-400/30 px-3 py-1.5 rounded-full hover:bg-cyan-400/10' : ''}`}
+            } ${(link as any).highlight ? 'border border-cyan-400/30 px-3 py-1.5 rounded-full hover:bg-cyan-400/10' : ''}`}
           >
             {link.name}
           </button>
@@ -70,6 +72,7 @@ return (
 
     {/* ÁREA DO USUÁRIO / LOGIN */}
     <div className="flex items-center gap-4 shrink-0">
+      <LanguageToggle />
       {user ? (
         <div className="flex items-center gap-3 bg-zinc-900 border border-white/10 p-1 rounded-full pl-4 pr-1">
           <span className="text-xs font-black text-white uppercase tracking-widest hidden md:block">
@@ -89,7 +92,7 @@ return (
             variant="ghost" 
             size="icon" 
             className="h-8 w-8 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 transition-colors ml-2"
-            title="Sair da conta"
+            title={tr('Sair da conta', 'Sign out')}
           >
             <LogOut size={14} />
           </Button>
@@ -99,7 +102,7 @@ return (
           onClick={() => navigate('/login')} 
           className="bg-cyan-400/10 border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black font-black text-[10px] uppercase tracking-widest px-6 h-9 rounded-full transition-all"
         >
-          Sign In
+          {tr('Entrar', 'Sign In')}
         </Button>
       )}
     </div>

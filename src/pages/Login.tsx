@@ -4,6 +4,7 @@ import { Mic2, Mail, Lock, User, ArrowRight, Sparkles, Trophy, PlayCircle } from
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { auth } from '@/lib/auth';
+import { useI18n } from '@/i18n';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -22,6 +23,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { tr } = useI18n();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +38,10 @@ export default function Login() {
         navigate('/basic'); 
       } else {
         // Lógica de Cadastro
-        if (!name.trim()) throw new Error('Por favor, insira seu nome completo.');
+        if (!name.trim()) throw new Error(tr('Por favor, insira seu nome completo.', 'Please enter your full name.'));
         const result = await createUserWithEmailAndPassword(auth, email, password, name);
         if (result.needsConfirmation) {
-          setError('Conta criada! Confirme pelo link que enviamos ao seu e-mail e depois entre.');
+          setError(tr('Conta criada! Confirme pelo link que enviamos ao seu e-mail e depois entre.', 'Account created! Confirm via the link we emailed you, then sign in.'));
           setIsLogin(true);
           return;
         }
@@ -48,11 +50,11 @@ export default function Login() {
       }
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/email-already-in-use') setError('Este e-mail já está cadastrado.');
-      else if (err.code === 'auth/weak-password') setError('A senha deve ter pelo menos 6 caracteres.');
-      else if (err.code === 'auth/invalid-credential') setError('E-mail ou senha incorretos.');
+      if (err.code === 'auth/email-already-in-use') setError(tr('Este e-mail já está cadastrado.', 'This email is already registered.'));
+      else if (err.code === 'auth/weak-password') setError(tr('A senha deve ter pelo menos 6 caracteres.', 'Password must be at least 6 characters.'));
+      else if (err.code === 'auth/invalid-credential') setError(tr('E-mail ou senha incorretos.', 'Incorrect email or password.'));
       else if (err.code === 'auth/email-not-confirmed') setError(err.message);
-      else setError(err.message || 'Ocorreu um erro ao processar sua solicitação.');
+      else setError(err.message || tr('Ocorreu um erro ao processar sua solicitação.', 'Something went wrong. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,7 @@ export default function Login() {
       navigate('/basic');
     } catch (err: any) {
       console.error(err);
-      setError('Erro ao fazer login com o Google.');
+      setError(tr('Erro ao fazer login com o Google.', 'Google sign-in failed.'));
     }
   };
 
@@ -105,8 +107,8 @@ export default function Login() {
                 <Sparkles size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-black uppercase italic tracking-widest">Avaliação Vocal por IA</h3>
-                <p className="text-sm text-gray-500 font-medium">Cante e receba gráficos em tempo real de afinação, sustentação e precisão.</p>
+                <h3 className="text-lg font-black uppercase italic tracking-widest">{tr('Avaliação Vocal por IA', 'AI Vocal Analysis')}</h3>
+                <p className="text-sm text-gray-500 font-medium">{tr('Cante e receba gráficos em tempo real de afinação, sustentação e precisão.', 'Sing and get real-time charts of your pitch, sustain and accuracy.')}</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -114,8 +116,8 @@ export default function Login() {
                 <PlayCircle size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-black uppercase italic tracking-widest">Treinamento Masterclass</h3>
-                <p className="text-sm text-gray-500 font-medium">Acesso imediato à Academy com exercícios práticos usados pelos maiores vocalistas.</p>
+                <h3 className="text-lg font-black uppercase italic tracking-widest">{tr('Treinamento Masterclass', 'Masterclass Training')}</h3>
+                <p className="text-sm text-gray-500 font-medium">{tr('Acesso imediato à Academy com exercícios práticos usados pelos maiores vocalistas.', 'Instant access to the Academy with hands-on exercises used by top vocalists.')}</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -123,8 +125,8 @@ export default function Login() {
                 <Trophy size={20} />
               </div>
               <div>
-                <h3 className="text-lg font-black uppercase italic tracking-widest">Ranking Global</h3>
-                <p className="text-sm text-gray-500 font-medium">Batalhe por pontuações, suba de nível e construa sua legião de fãs.</p>
+                <h3 className="text-lg font-black uppercase italic tracking-widest">{tr('Ranking Global', 'Global Ranking')}</h3>
+                <p className="text-sm text-gray-500 font-medium">{tr('Batalhe por pontuações, suba de nível e construa sua legião de fãs.', 'Battle for scores, level up and build your fan base.')}</p>
               </div>
             </div>
           </div>
@@ -145,10 +147,10 @@ export default function Login() {
           <div className="w-full max-w-md relative z-10">
             <div className="text-center mb-10">
               <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2">
-                {isLogin ? 'Bem-vindo de volta' : 'Crie sua conta VIP'}
+                {isLogin ? tr('Bem-vindo de volta', 'Welcome back') : tr('Crie sua conta VIP', 'Create your VIP account')}
               </h2>
               <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
-                {isLogin ? 'Faça login para continuar sua jornada.' : 'O palco está pronto para você.'}
+                {isLogin ? tr('Faça login para continuar sua jornada.', 'Sign in to continue your journey.') : tr('O palco está pronto para você.', 'The stage is ready for you.')}
               </p>
             </div>
 
@@ -166,12 +168,12 @@ export default function Login() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
-                Continuar com Google
+                {tr('Continuar com Google', 'Continue with Google')}
               </Button>
 
               <div className="flex items-center gap-4 mb-6">
                 <div className="h-px bg-white/10 flex-1" />
-                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">OU USE SEU E-MAIL</span>
+                <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{tr('OU USE SEU E-MAIL', 'OR USE YOUR EMAIL')}</span>
                 <div className="h-px bg-white/10 flex-1" />
               </div>
 
@@ -190,7 +192,7 @@ export default function Login() {
                     <Input 
                       required
                       type="text" 
-                      placeholder="Nome Completo" 
+                      placeholder={tr('Nome Completo', 'Full Name')} 
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="h-14 bg-black border-white/10 pl-12 text-white focus-visible:ring-cyan-400 focus-visible:border-cyan-400 rounded-xl"
@@ -202,7 +204,7 @@ export default function Login() {
                   <Input 
                     required
                     type="email" 
-                    placeholder="Seu melhor e-mail" 
+                    placeholder={tr('Seu melhor e-mail', 'Your email')} 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-14 bg-black border-white/10 pl-12 text-white focus-visible:ring-cyan-400 focus-visible:border-cyan-400 rounded-xl"
@@ -213,7 +215,7 @@ export default function Login() {
                   <Input 
                     required
                     type="password" 
-                    placeholder="Sua senha secreta" 
+                    placeholder={tr('Sua senha secreta', 'Your password')} 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="h-14 bg-black border-white/10 pl-12 text-white focus-visible:ring-cyan-400 focus-visible:border-cyan-400 rounded-xl"
@@ -225,19 +227,19 @@ export default function Login() {
                   disabled={loading}
                   className="w-full h-14 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase text-sm tracking-widest mt-2 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.2)]"
                 >
-                  {loading ? 'Processando...' : isLogin ? 'Acessar Arena' : 'Garantir Meu Acesso'} 
+                  {loading ? tr('Processando...', 'Processing...') : isLogin ? tr('Acessar Arena', 'Enter the Arena') : tr('Garantir Meu Acesso', 'Get My Access')} 
                   {!loading && <ArrowRight size={18} />}
                 </Button>
               </form>
 
               <div className="mt-8 text-center">
                 <p className="text-xs text-gray-500 font-medium">
-                  {isLogin ? "Ainda não tem conta? " : "Já faz parte da Arena? "}
+                  {isLogin ? tr('Ainda não tem conta? ', "Don't have an account? ") : tr('Já faz parte da Arena? ', 'Already in the Arena? ')}
                   <button 
                     onClick={() => { setIsLogin(!isLogin); setError(''); }} 
                     className="text-cyan-400 font-black uppercase tracking-widest hover:underline"
                   >
-                    {isLogin ? "Cadastre-se" : "Faça Login"}
+                    {isLogin ? tr('Cadastre-se', 'Sign up') : tr('Faça Login', 'Sign in')}
                   </button>
                 </p>
               </div>
@@ -245,7 +247,7 @@ export default function Login() {
             </div>
             
             <button onClick={() => navigate('/')} className="w-full mt-6 text-gray-600 hover:text-white text-[10px] font-black uppercase tracking-[0.2em] transition-colors">
-              Voltar para a Home
+              {tr('Voltar para a Home', 'Back to Home')}
             </button>
           </div>
         </div>
