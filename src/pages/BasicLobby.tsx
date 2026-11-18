@@ -29,12 +29,12 @@ export default function BasicLobby() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const defaultSongs = [
-    { title: "NÃO QUERO DINHEIRO", artist: "TIM MAIA", videoId: "5eJwf_k68r8" },
-    { title: "LET IT BE", artist: "THE BEATLES", videoId: "OCdB7yFeg00" },
-    { title: "AMOR MAIOR", artist: "JOTA QUEST", videoId: "yYSr8k7Bm0A" },
-    { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ", videoId: "tfhwXKd1W_o" },
-    { title: "SHALLOW", artist: "LADY GAGA", videoId: "_nHT_k9Rswc" },
-    { title: "BOHEMIAN RHAPSODY", artist: "QUEEN", videoId: "9Lxm0iSnKNc" },
+    { title: "NÃO QUERO DINHEIRO", artist: "TIM MAIA" },
+    { title: "LET IT BE", artist: "THE BEATLES" },
+    { title: "AMOR MAIOR", artist: "JOTA QUEST" },
+    { title: "EVIDÊNCIAS", artist: "CHITÃOZINHO E XORORÓ" },
+    { title: "SHALLOW", artist: "LADY GAGA" },
+    { title: "BOHEMIAN RHAPSODY", artist: "QUEEN" },
   ];
 
   // 🚨 A busca foi levemente blindada para aceitar o texto automático
@@ -129,14 +129,19 @@ export default function BasicLobby() {
                 <h4 className="font-black italic text-xl uppercase text-white mb-2 line-clamp-2 min-h-[56px] flex items-center justify-center leading-tight">{title}</h4>
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-10">{artistOrChannel}</p>
                 <div className="w-full space-y-3 mt-auto">
-                  
-                  <Button onClick={() => navigate(`/play/${videoId}`)} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
+                  {!isYouTube ? (
+                    <Button onClick={() => { const q = `${item.title} ${item.artist}`; setQuery(q); handleSearch(q); }} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all">
+                      {tr('VER VERSÕES KARAOKÊ', 'FIND KARAOKE VERSIONS')} <Search className="ml-2 h-4 w-4" />
+                    </Button>
+                  ) : (<>
+                  <Button onClick={() => navigate(`/play/${videoId}`, { state: { title, artist: artistOrChannel } })} className="w-full bg-white hover:bg-cyan-400 text-black font-black uppercase tracking-widest text-[10px] rounded-full h-12 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]">
                     {tr('CANTAR SOLO', 'SING SOLO')} <PlayCircle className="ml-2 h-4 w-4" />
                   </Button>
                   
                   <Button onClick={() => navigate(`/duel-invite?id=${videoId}`)} variant="ghost" className="w-full text-gray-500 hover:text-cyan-400 hover:bg-cyan-500/10 font-black uppercase tracking-widest text-[9px] rounded-full h-10 transition-all border border-transparent hover:border-cyan-500/20">
                     {tr('DUETO / BATALHA', 'DUET / BATTLE')} <Swords className="ml-2 h-3 w-3" />
                   </Button>
+                  </>)}
 
                 </div>
               </Card>
