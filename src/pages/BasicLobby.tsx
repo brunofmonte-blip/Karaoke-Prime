@@ -87,7 +87,7 @@ export default function BasicLobby() {
         <div className="flex items-center gap-3 mb-8 border-b border-white/10 pb-4">
           {hasSearched ? <ListMusic className="text-cyan-400 h-5 w-5" /> : <RotateCcw className="text-gray-400 h-5 w-5" />}
           <h3 className="font-black italic text-2xl uppercase tracking-tighter text-white">
-            {hasSearched ? tr('RESULTADOS NO YOUTUBE', 'YOUTUBE RESULTS') : tr('ÚLTIMAS BUSCAS', 'RECENT SEARCHES')}
+            {hasSearched ? tr('RESULTADOS NO YOUTUBE', 'YOUTUBE RESULTS') : tr('SUGESTÕES PARA CANTAR', 'SUGGESTED SONGS')}
           </h3>
         </div>
 
