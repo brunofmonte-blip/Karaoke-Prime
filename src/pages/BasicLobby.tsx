@@ -7,6 +7,16 @@ import { toast } from 'sonner';
 import { searchKaraokeVideos } from '@/services/youtubeService';
 
 import { useI18n } from '@/i18n';
+
+// Os títulos do YouTube vêm com entidades HTML (&#39;, &amp;). Decodifica como
+// texto puro — nunca injeta HTML na página.
+function decodeHtml(text: string): string {
+  try {
+    return new DOMParser().parseFromString(text, 'text/html').documentElement.textContent || text;
+  } catch {
+    return text;
+  }
+}
 export default function BasicLobby() {
   const navigate = useNavigate();
   const location = useLocation(); // 🚨 ADICIONADO: Para ler o pacote de texto da Home
@@ -91,11 +101,24 @@ export default function BasicLobby() {
           </h3>
         </div>
 
+        {isLoading && (
+          <p className="text-center text-gray-400 py-16 animate-pulse">{tr('Buscando músicas...', 'Finding songs...')}</p>
+        )}
+        {!isLoading && hasSearched && results.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-white font-bold mb-2">{tr('Não encontramos essa música agora.', "We couldn't find that song right now.")}</p>
+            <p className="text-sm text-gray-500 mb-6">{tr('Tente outro nome ou escolha uma das sugestões.', 'Try another name or pick one of our suggestions.')}</p>
+            <Button onClick={() => { setHasSearched(false); setQuery(''); }} className="bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase text-xs rounded-full px-6 h-11">
+              {tr('Ver sugestões', 'See suggestions')}
+            </Button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayList.map((item, idx) => {
+          {(isLoading ? [] : displayList).map((item, idx) => {
             const isYouTube = hasSearched;
-            const title = isYouTube ? item.snippet.title : item.title;
-            const artistOrChannel = isYouTube ? item.snippet.channelTitle : item.artist;
+            const title = isYouTube ? decodeHtml(item.snippet.title) : item.title;
+            const artistOrChannel = isYouTube ? decodeHtml(item.snippet.channelTitle) : item.artist;
             const videoId = isYouTube ? (item.id.videoId || item.id) : item.videoId;
 
             return (
@@ -103,7 +126,7 @@ export default function BasicLobby() {
                 <div className="h-16 w-16 rounded-full bg-black flex items-center justify-center mb-6 border border-white/5 group-hover:border-cyan-500/50 group-hover:bg-cyan-500/10 transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)]">
                   <Mic2 className="text-gray-500 group-hover:text-cyan-400 h-7 w-7 transition-colors" />
                 </div>
-                <h4 className="font-black italic text-xl uppercase text-white mb-2 line-clamp-2 min-h-[56px] flex items-center justify-center leading-tight" dangerouslySetInnerHTML={{ __html: title }}></h4>
+                <h4 className="font-black italic text-xl uppercase text-white mb-2 line-clamp-2 min-h-[56px] flex items-center justify-center leading-tight">{title}</h4>
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-10">{artistOrChannel}</p>
                 <div className="w-full space-y-3 mt-auto">
                   
