@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mic2, Mail, Lock, User, ArrowRight, Sparkles, Trophy, PlayCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -231,6 +231,15 @@ export default function Login() {
                   {!loading && <ArrowRight size={18} />}
                 </Button>
               </form>
+
+              <p className="mt-4 text-[11px] text-gray-500 text-center leading-relaxed">
+                {tr('Ao continuar, você concorda com os ', 'By continuing, you agree to our ')}
+                <Link to="/terms" className="text-cyan-400 hover:underline">{tr('Termos de Uso', 'Terms of Use')}</Link>
+                {tr(', a ', ', ')}
+                <Link to="/privacy" className="text-cyan-400 hover:underline">{tr('Política de Privacidade', 'Privacy Policy')}</Link>
+                {tr(' e os ', ' and the ')}
+                <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">{tr('Termos do YouTube', 'YouTube Terms of Service')}</a>.
+              </p>
 
               <div className="mt-8 text-center">
                 <p className="text-xs text-gray-500 font-medium">
