@@ -35,12 +35,14 @@ export default function SongPlayer() {
   const songTitle: string = location.state?.title || '';
   const songArtist: string = location.state?.artist || '';
 
-  const { isAnalyzing, startAnalysis, stopAnalysis, pitchNote, pitchCents, pitchDataHz } = useAudioAnalyzer();
+  const { isAnalyzing, startAnalysis, stopAnalysis, pitchNote, pitchCents, pitchDataHz, micLevel } = useAudioAnalyzer();
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [points, setPoints] = useState(0);
+  const [noSignal, setNoSignal] = useState(false);
+  const peakLevelRef = useRef(0);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -49,6 +51,19 @@ export default function SongPlayer() {
   const liveRef = useRef({ hz: 0, cents: 0 });
 
   liveRef.current = { hz: pitchDataHz, cents: pitchCents };
+  if (micLevel > peakLevelRef.current) peakLevelRef.current = micLevel;
+
+  // Se em 6 s o microfone não captar nada, avisa (microfone errado ou bloqueado)
+  useEffect(() => {
+    if (!isPlaying || isPaused) return;
+    peakLevelRef.current = 0;
+    setNoSignal(false);
+    const check = setInterval(() => {
+      setNoSignal(peakLevelRef.current < 0.15);
+      peakLevelRef.current = 0;
+    }, 6000);
+    return () => clearInterval(check);
+  }, [isPlaying, isPaused]);
 
   const sendToPlayer = (func: string, args: unknown[] = []) => {
     try {
@@ -255,6 +270,21 @@ export default function SongPlayer() {
                 </div>
               </div>
             </div>
+
+            {/* Medidor de sinal do microfone */}
+            <div className="mt-5 flex items-center gap-3">
+              <Mic className={`w-4 h-4 shrink-0 ${micLevel > 0.15 ? 'text-cyan-400' : 'text-gray-600'}`} />
+              <div className="flex-1 h-1.5 rounded-full bg-zinc-800 overflow-hidden" aria-label={tr('Volume do microfone', 'Mic level')}>
+                <div className="h-full bg-cyan-400 transition-[width] duration-75" style={{ width: `${Math.round(micLevel * 100)}%` }} />
+              </div>
+            </div>
+            {(!isAnalyzing || noSignal) && (
+              <div className="mt-4 bg-amber-950/40 border border-amber-500/40 rounded-2xl p-3 text-xs text-gray-200 leading-relaxed">
+                {!isAnalyzing
+                  ? tr('O microfone não foi liberado. Clique no ícone de cadeado ao lado do endereço do site, permita o microfone e recarregue a página.', "The microphone wasn't allowed. Click the lock icon next to the site address, allow the microphone and reload the page.")
+                  : tr('Não estamos ouvindo seu microfone. Clique no ícone de cadeado ao lado do endereço do site e confira se o microfone escolhido é o do seu fone. Depois recarregue a página.', "We can't hear your microphone. Click the lock icon next to the site address and check that the selected mic is your headset's. Then reload the page.")}
+              </div>
+            )}
 
             <p className="text-center text-[11px] text-gray-500 mt-4">
               {tr('Se o vídeo não começar sozinho, toque no play dentro dele.', "If the video doesn't start on its own, tap play inside it.")}
