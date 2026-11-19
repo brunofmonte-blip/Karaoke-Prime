@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import { auth } from '@/lib/auth';
 import { useIsPremium } from '@/hooks/use-is-premium';
 import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
+import { useI18n } from '@/i18n';
+import { useAcademyText } from '@/i18n/academy-en';
 
 // O Motor de Treino
 import { VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
@@ -31,7 +33,7 @@ type LessonType = {
 };
 
 // ============================================================================
-// O GRANDE BANCO DE DADOS DEFINITIVO KARAOKE PRIME (JULLIARD STANDARD)
+// O GRANDE BANCO DE DADOS DEFINITIVO KARAOKE PRIME 
 // ============================================================================
 const academyData: Record<string, { level: string, moduleName: string, introVideo: string, lessons: LessonType[] }> = {
   "1": {
@@ -76,7 +78,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
       { id: 10, displayTitle: "Aula 10", title: "Prática Geral", youtubeId: "qpQuTYKLC-U", hasPractice: true, locked: true,
         exercise: "Estabilidade", practiceDesc: "Canta Frase Curta e avalia estabilidade.",
         feedbackTitle: "Consolidação Muscular", feedbackDesc: "A repetição correta cria memória muscular.", frequency: "Treino diário",
-        phases: [{phase: 'OUVE', t: 5, instruction: 'Sinta a batida', color: 'cyan', icon: Music}, {phase: 'CANTA', t: 10, instruction: 'Execute a frase', color: 'orange', icon: Mic2}, {phase: 'AVALIAÇÃO', t: 5, instruction: 'IA Processando', color: 'blue', icon: Activity}] }
+        phases: [{phase: 'OUVE', t: 5, instruction: 'Sinta a batida', color: 'cyan', icon: Music}, {phase: 'CANTA', t: 10, instruction: 'Execute a frase', color: 'orange', icon: Mic2}, {phase: 'AVALIAÇÃO', t: 5, instruction: 'Como foi?', color: 'blue', icon: Activity}] }
     ]
   },
   "2": {
@@ -301,7 +303,7 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
       { id: 7, displayTitle: "Aula 7", title: "Sustentação Mestra", youtubeId: "FqLxW_IKPFU", hasPractice: true, locked: true, exercise: "Endurance", practiceDesc: "Reta por 8s + Vibrato nos 4s finais (12s).", feedbackTitle: "Fôlego Premium", feedbackDesc: "Controle espetacular do ar.", frequency: "Sempre", phases: [{phase: 'PREPARA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'RETA + VIBRA', t: 12, instruction: 'Vibra no fim', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
       { id: 8, displayTitle: "Aula 8", title: "Double Tracking", youtubeId: "4m2lHXt6O4E", hasPractice: true, locked: true, exercise: "Harmonia", practiceDesc: "Ouve guia e canta Terça cravada por cima (12s).", feedbackTitle: "Estúdio", feedbackDesc: "Essencial para gravações profissionais.", frequency: "Avançado", phases: [{phase: 'OUVE GUIA', t: 3, instruction: '', color: 'cyan', icon: Music}, {phase: 'TERÇA', t: 12, instruction: 'Cravado em cima', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
       { id: 9, displayTitle: "Aula 9", title: "O Take Único", youtubeId: "EuWm3yOjYzo", hasPractice: true, locked: true, exercise: "Perfeição", practiceDesc: "Canta à capella com Dinâmica, Vibrato e Dicção sem errar (15s).", feedbackTitle: "Sem Edições", feedbackDesc: "Sua voz crua e perfeita.", frequency: "Showcase", phases: [{phase: 'PREPARA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'A CAPELLA', t: 15, instruction: 'Aplique tudo', color: 'orange', icon: Activity}, {phase: 'AVALIAÇÃO', t: 5, instruction: '', color: 'blue', icon: Activity}] },
-      { id: 10, displayTitle: "Aula 10", title: "O Show do Estádio", youtubeId: "l0E1vBmH-D0", hasPractice: true, locked: true, exercise: "A Masterclass Final", practiceDesc: "O aluno executa a perfomance completa (20s).", feedbackTitle: "Formatura", feedbackDesc: "Você está pronto para o Mainstream.", frequency: "Sempre", phases: [{phase: 'PREPARA', t: 3, instruction: 'Sinta a emoção', color: 'cyan', icon: Music}, {phase: 'PERFORMANCE', t: 20, instruction: 'Dê o seu melhor', color: 'orange', icon: Mic2}, {phase: 'RESULTADO FINAL', t: 5, instruction: 'Análise Julliard', color: 'blue', icon: Activity}] }
+      { id: 10, displayTitle: "Aula 10", title: "O Show do Estádio", youtubeId: "l0E1vBmH-D0", hasPractice: true, locked: true, exercise: "A Masterclass Final", practiceDesc: "O aluno executa a perfomance completa (20s).", feedbackTitle: "Formatura", feedbackDesc: "Você está pronto para o Mainstream.", frequency: "Sempre", phases: [{phase: 'PREPARA', t: 3, instruction: 'Sinta a emoção', color: 'cyan', icon: Music}, {phase: 'PERFORMANCE', t: 20, instruction: 'Dê o seu melhor', color: 'orange', icon: Mic2}, {phase: 'RESULTADO FINAL', t: 5, instruction: 'Avalie sua performance', color: 'blue', icon: Activity}] }
     ]
   }
 };
@@ -309,6 +311,8 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
 export default function Lesson() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>(); 
+  const { tr } = useI18n();
+  const tx = useAcademyText();
   
   const levelId = id?.split('.')[0] || "1"; 
   const lessonIdFromUrl = id?.split('.')[1]; 
@@ -367,7 +371,7 @@ export default function Lesson() {
   // MOTOR DINÂMICO DE CICLOS (Lê o campo "phases" do BD)
   const getCycleState = () => {
     if (!currentLesson || !currentLesson.phases || currentLesson.phases.length === 0) {
-      return { phase: 'CANTA', instruction: 'Treino livre', color: 'cyan', icon: Mic2 };
+      return { phase: 'CANTA', instruction: tr('Treino livre', 'Free practice'), color: 'cyan', icon: Mic2 };
     }
     
     const elapsed = 60 - timeLeft;
@@ -403,8 +407,8 @@ export default function Lesson() {
   const strokeDashoffset = circumference - (timeLeft / 60) * circumference;
 
   const videoToPlay = isIntroActive ? currentModule.introVideo : currentLesson?.youtubeId;
-  const displayLabel = isIntroActive ? "AULA INTRODUTÓRIA" : `AULA ${currentLesson?.id}`;
-  const displayTitle = isIntroActive ? currentModule.moduleName : currentLesson?.title;
+  const displayLabel = isIntroActive ? tr('AULA INTRODUTÓRIA', 'INTRO LESSON') : `${tr('AULA', 'LESSON')} ${currentLesson?.id}`;
+  const displayTitle = tx(isIntroActive ? currentModule.moduleName : currentLesson?.title);
 
   return (
     <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans text-white">
@@ -413,12 +417,12 @@ export default function Lesson() {
       
       <div className="max-w-7xl mx-auto relative z-10 animate-in fade-in duration-700">
         <button onClick={() => navigate('/academy')} className="text-gray-400 hover:text-white mb-6 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors w-fit">
-          <ArrowLeft size={16} /> Voltar para Academy
+          <ArrowLeft size={16} /> {tr('Voltar para Academy', 'Back to Academy')}
         </button>
 
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 px-3 py-1 rounded-full text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-3">
-             <PlayCircle size={14} /> MASTERCLASS - {currentModule.level.toUpperCase()}
+             <PlayCircle size={14} /> MASTERCLASS - {tx(currentModule.level).toUpperCase()}
           </div>
           <h1 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter leading-tight flex flex-col">
             {displayLabel}: <span className={isIntroActive ? "text-orange-500" : "text-cyan-400"}>{displayTitle}</span>
@@ -433,13 +437,13 @@ export default function Lesson() {
                   {videoToPlay && videoToPlay !== "ADD LINK YOUTUBE" ? (
                     <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${videoToPlay}?rel=0&modestbranding=1`} title={displayTitle} frameBorder="0" allowFullScreen className="absolute inset-0 w-full h-full"></iframe>
                   ) : (
-                    <div className="flex flex-col items-center justify-center w-full h-full bg-black text-gray-500"><Lock className="h-12 w-12 mb-4 opacity-50"/><p className="font-bold uppercase tracking-widest text-xs">VÍDEO EM PRODUÇÃO</p><p className="text-[10px] mt-2">Aguardando inserção do Link do YouTube</p></div>
+                    <div className="flex flex-col items-center justify-center w-full h-full bg-black text-gray-500"><Lock className="h-12 w-12 mb-4 opacity-50"/><p className="font-bold uppercase tracking-widest text-xs">{tr('Vídeo em breve', 'Video coming soon')}</p><p className="text-[10px] mt-2">{tr('Você já pode fazer o exercício desta aula.', 'You can already do this lesson\'s exercise.')}</p></div>
                   )}
                 </div>
                 <div className="flex justify-end">
                   {!isIntroActive && currentLesson?.hasPractice && (
                     <Button onClick={() => setStep('practice')} className="h-16 px-12 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black text-xl italic uppercase tracking-tighter transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105">
-                      INICIAR TREINAMENTO <ArrowLeft size={20} className="ml-3 rotate-180" />
+                      {tr('INICIAR TREINAMENTO', 'START PRACTICE')} <ArrowLeft size={20} className="ml-3 rotate-180" />
                     </Button>
                   )}
                 </div>
@@ -449,9 +453,9 @@ export default function Lesson() {
                 {trainingStatus === 'idle' ? (
                   <div className="flex flex-col items-center text-center">
                     <Mic2 className="h-16 w-16 text-cyan-400 mb-6" />
-                    <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-4">{currentLesson?.exercise}</h2>
-                    <p className="text-gray-400 mb-10 max-w-lg">{currentLesson?.practiceDesc}</p>
-                    <Button onClick={() => setTrainingStatus('countdown')} className="h-16 px-12 rounded-full bg-cyan-400 text-black font-black uppercase shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105 transition-all">COMEÇAR CRONÔMETRO (60s)</Button>
+                    <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-4">{tx(currentLesson?.exercise)}</h2>
+                    <p className="text-gray-400 mb-10 max-w-lg">{tx(currentLesson?.practiceDesc)}</p>
+                    <Button onClick={() => setTrainingStatus('countdown')} className="h-16 px-12 rounded-full bg-cyan-400 text-black font-black uppercase shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105 transition-all">{tr('COMEÇAR CRONÔMETRO (60s)', 'START TIMER (60s)')}</Button>
                   </div>
                 ) : trainingStatus === 'countdown' ? (
                   <h1 className="text-9xl font-black italic text-cyan-400 animate-pulse">{countdown}</h1>
@@ -467,20 +471,20 @@ export default function Lesson() {
                         <p className="font-black text-3xl italic">{timeLeft}s</p>
                       </div>
                     </div>
-                    <h3 className="text-3xl font-black italic uppercase mb-2 text-white">{cycleState.phase}</h3>
-                    <p className="text-xl font-bold text-cyan-400 uppercase tracking-widest">{cycleState.instruction}</p>
+                    <h3 className="text-3xl font-black italic uppercase mb-2 text-white">{tx(cycleState.phase)}</h3>
+                    <p className="text-xl font-bold text-cyan-400 uppercase tracking-widest">{tx(cycleState.instruction)}</p>
                   </div>
                 ) : (
                   <div className="text-center w-full max-w-2xl">
                     <CheckCircle2 size={64} className="text-cyan-400 mx-auto mb-6" />
-                    <h2 className="text-3xl font-black italic mb-8 uppercase text-white">Treino Concluído!</h2>
+                    <h2 className="text-3xl font-black italic mb-8 uppercase text-white">{tr('Treino Concluído!', 'Practice Complete!')}</h2>
                     <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 mb-10 text-left">
-                      <div className="flex items-center gap-3 mb-4"><Info size={20} className="text-cyan-400" /><h4 className="text-cyan-400 font-black uppercase tracking-widest text-sm">{currentLesson?.feedbackTitle}</h4></div>
-                      <p className="text-gray-300 text-sm font-medium leading-relaxed mb-6">{currentLesson?.feedbackDesc}</p>
-                      <div className="bg-black/50 rounded-xl p-4 border border-white/5 flex items-start gap-3"><Activity size={16} className="text-orange-500 shrink-0 mt-0.5" /><div><p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Frequência Recomendada</p><p className="text-sm font-bold text-white">{currentLesson?.frequency}</p></div></div>
+                      <div className="flex items-center gap-3 mb-4"><Info size={20} className="text-cyan-400" /><h4 className="text-cyan-400 font-black uppercase tracking-widest text-sm">{tx(currentLesson?.feedbackTitle)}</h4></div>
+                      <p className="text-gray-300 text-sm font-medium leading-relaxed mb-6">{tx(currentLesson?.feedbackDesc)}</p>
+                      <div className="bg-black/50 rounded-xl p-4 border border-white/5 flex items-start gap-3"><Activity size={16} className="text-orange-500 shrink-0 mt-0.5" /><div><p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">{tr('Frequência Recomendada', 'Recommended Frequency')}</p><p className="text-sm font-bold text-white">{tx(currentLesson?.frequency)}</p></div></div>
                     </div>
                     <div className="flex gap-4 justify-center">
-                      <Button onClick={() => { setStep('video'); setTrainingStatus('idle'); setTimeLeft(60); }} className="bg-white text-black font-black uppercase rounded-full px-8 h-12 hover:scale-105 transition-all">VOLTAR PARA AULA</Button>
+                      <Button onClick={() => { setStep('video'); setTrainingStatus('idle'); setTimeLeft(60); }} className="bg-white text-black font-black uppercase rounded-full px-8 h-12 hover:scale-105 transition-all">{tr('VOLTAR PARA AULA', 'BACK TO LESSON')}</Button>
                     </div>
                   </div>
                 )}
@@ -491,15 +495,15 @@ export default function Lesson() {
           <div className="lg:col-span-1 space-y-4">
              <div className="flex items-center gap-3 mb-6">
                 <ListVideo className="text-cyan-400 h-5 w-5" />
-                <h3 className="font-black text-white uppercase tracking-widest text-sm">PLAYLIST {currentModule.level.toUpperCase()}</h3>
+                <h3 className="font-black text-white uppercase tracking-widest text-sm">PLAYLIST {tx(currentModule.level).toUpperCase()}</h3>
              </div>
              
              <div className="flex-1 bg-zinc-950 border border-white/5 rounded-[2rem] p-4 overflow-y-auto max-h-[800px] space-y-3 custom-scrollbar">
                 <Card onClick={() => changeLesson(0)} className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-3 ${activeLessonIndex === 0 ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]' : 'bg-zinc-950 border-white/10 hover:border-white/30'}`}>
                    <PlayCircle size={20} className="shrink-0" />
                    <div>
-                     <p className="text-[8px] font-black uppercase tracking-widest mb-1 opacity-70">Introdução</p>
-                     <p className="text-sm font-black italic uppercase line-clamp-1">{currentModule.moduleName}</p>
+                     <p className="text-[8px] font-black uppercase tracking-widest mb-1 opacity-70">{tr('Introdução', 'Introduction')}</p>
+                     <p className="text-sm font-black italic uppercase line-clamp-1">{tx(currentModule.moduleName)}</p>
                    </div>
                 </Card>
 
@@ -509,8 +513,8 @@ export default function Lesson() {
                     <Card key={lesson.id} onClick={() => changeLesson(lesson.id)} className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-3 ${activeLessonIndex === lesson.id ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.1)]' : 'bg-zinc-950 border-white/10 hover:border-white/30'} ${isLockedForUser ? 'opacity-50 grayscale' : 'opacity-100'}`}>
                        {isLockedForUser ? <Lock size={20} className="shrink-0" /> : <PlayCircle size={20} className="shrink-0" />}
                        <div>
-                         <p className="text-[8px] font-black uppercase tracking-widest mb-1 opacity-70">Aula {lesson.id}</p>
-                         <p className="text-sm font-black italic uppercase line-clamp-1">{lesson.title}</p>
+                         <p className="text-[8px] font-black uppercase tracking-widest mb-1 opacity-70">{tr('Aula', 'Lesson')} {lesson.id}</p>
+                         <p className="text-sm font-black italic uppercase line-clamp-1">{tx(lesson.title)}</p>
                        </div>
                     </Card>
                   );
