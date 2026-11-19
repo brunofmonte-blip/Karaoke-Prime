@@ -28,8 +28,13 @@ const MAX_FREQ = 1000;
 const MIN_CLARITY = 0.75;
 const DEFAULT_SENSITIVITY_THRESHOLD = 100; // slider 0–200: maior = ignora sons mais baixos
 
-// Sensibilidade padrão (100) ≈ RMS 0.006: capta voz normal em microfones de fone de ouvido
-const sensitivityToMinRms = (sensitivity: number) => 0.001 + (sensitivity / 200) * 0.01;
+// O detector aceita sons bem baixos; quem decide o que é voz é o "portão"
+// adaptativo abaixo, calibrado pelo ruído de fundo de CADA microfone
+// (fones Bluetooth chegam ~10x mais baixos que o microfone do notebook).
+const DETECTOR_MIN_RMS = 0.0003;
+const MIN_NOISE_FLOOR = 0.0001;
+// Sensibilidade 0–200 (padrão 100): voz precisa ficar 2x–6x acima do ruído (padrão 4x)
+const sensitivityToGateFactor = (sensitivity: number) => 2 + (sensitivity / 200) * 4;
 
 const frequencyToVisualizationScale = (frequency: number): number => {
   if (frequency < MIN_FREQ) return 0;
@@ -55,19 +60,9 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
   const bufferRef = useRef<Float32Array<ArrayBuffer> | null>(null);
   const detectorRef = useRef<ReturnType<typeof createPitchDetector> | null>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
-
-  // Recria o detector quando a sensibilidade muda
-  useEffect(() => {
-    const ctx = audioContextRef.current;
-    if (ctx) {
-      detectorRef.current = createPitchDetector({
-        sampleRate: ctx.sampleRate,
-        minFrequency: MIN_FREQ,
-        maxFrequency: MAX_FREQ,
-        minRms: sensitivityToMinRms(sensitivity),
-      });
-    }
-  }, [sensitivity]);
+  const noiseFloorRef = useRef(0.001);
+  const sensitivityRef = useRef(DEFAULT_SENSITIVITY_THRESHOLD);
+  sensitivityRef.current = sensitivity;
 
   const analyze = useCallback(() => {
     const analyser = analyserRef.current;
@@ -78,7 +73,16 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     analyser.getFloatTimeDomainData(buffer);
     const result = detect(buffer);
 
-    const frequency = result.clarity >= MIN_CLARITY ? result.frequency : 0;
+    // Ruído de fundo: desce rápido quando o ambiente fica quieto, sobe devagar
+    const floor = noiseFloorRef.current;
+    const rms = result.rms;
+    noiseFloorRef.current = Math.max(
+      MIN_NOISE_FLOOR,
+      rms < floor ? floor * 0.7 + rms * 0.3 : floor * 1.002,
+    );
+    const gate = noiseFloorRef.current * sensitivityToGateFactor(sensitivityRef.current);
+    const isVoice = rms >= gate && result.clarity >= MIN_CLARITY;
+    const frequency = isVoice ? result.frequency : 0;
     const note = frequencyToNote(frequency);
 
     setPitchDataHz(frequency);
@@ -86,8 +90,8 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     setPitchNote(note?.name ?? '');
     setPitchCents(note?.cents ?? 0);
     setClarity(result.clarity);
-    // RMS de voz fica em ~0.005–0.2; escala logarítmica para o medidor
-    setMicLevel(result.rms > 0 ? Math.max(0, Math.min(1, (Math.log10(result.rms) + 3) / 2.5)) : 0);
+    // Medidor relativo ao ruído de fundo: 0 = silêncio, 1 = ~30x acima do ruído
+    setMicLevel(rms > 0 ? Math.max(0, Math.min(1, Math.log10(rms / noiseFloorRef.current) / 1.5)) : 0);
 
     animationFrameRef.current = requestAnimationFrame(analyze);
   }, []);
@@ -121,13 +125,14 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
       analyser.fftSize = BUFFER_SIZE;
       analyserRef.current = analyser;
       bufferRef.current = new Float32Array(analyser.fftSize);
+      noiseFloorRef.current = 0.001; // recalibra para o microfone atual
 
       // Usa a taxa de amostragem REAL do aparelho (44.1k ou 48k), não um valor fixo
       detectorRef.current = createPitchDetector({
         sampleRate: context.sampleRate,
         minFrequency: MIN_FREQ,
         maxFrequency: MAX_FREQ,
-        minRms: sensitivityToMinRms(sensitivity),
+        minRms: DETECTOR_MIN_RMS,
       });
 
       const source = context.createMediaStreamSource(stream);
