@@ -35,7 +35,7 @@ export default function SongPlayer() {
   const songTitle: string = location.state?.title || '';
   const songArtist: string = location.state?.artist || '';
 
-  const { isAnalyzing, startAnalysis, stopAnalysis, pitchNote, pitchCents, pitchDataHz, micLevel } = useAudioAnalyzer();
+  const { isAnalyzing, startAnalysis, stopAnalysis, pitchNote, pitchCents, pitchDataHz, micLevel, micDevices, currentMicId, selectMic } = useAudioAnalyzer();
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -278,11 +278,27 @@ export default function SongPlayer() {
                 <div className="h-full bg-cyan-400 transition-[width] duration-75" style={{ width: `${Math.round(micLevel * 100)}%` }} />
               </div>
             </div>
+            {micDevices.length > 1 && (
+              <label className="mt-3 flex items-center gap-2 text-[11px] text-gray-500">
+                <span className="shrink-0">{tr('Microfone', 'Microphone')}:</span>
+                <select
+                  value={currentMicId}
+                  onChange={(e) => selectMic(e.target.value)}
+                  className="flex-1 min-w-0 bg-zinc-900 border border-white/10 rounded-lg px-2 py-1.5 text-gray-200 text-xs focus:outline-none focus:border-cyan-500/50"
+                >
+                  {micDevices.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             {(!isAnalyzing || noSignal) && (
               <div className="mt-4 bg-amber-950/40 border border-amber-500/40 rounded-2xl p-3 text-xs text-gray-200 leading-relaxed">
                 {!isAnalyzing
                   ? tr('O microfone não foi liberado. Clique no ícone de cadeado ao lado do endereço do site, permita o microfone e recarregue a página.', "The microphone wasn't allowed. Click the lock icon next to the site address, allow the microphone and reload the page.")
-                  : tr('Não estamos ouvindo seu microfone. Clique no ícone de cadeado ao lado do endereço do site e confira se o microfone escolhido é o do seu fone. Depois recarregue a página.', "We can't hear your microphone. Click the lock icon next to the site address and check that the selected mic is your headset's. Then reload the page.")}
+                  : tr('Não estamos ouvindo esse microfone. Escolha outro na lista acima (o do seu fone ou do computador) e fale para ver a barrinha se mexer.', "We can't hear this microphone. Pick another one in the list above (your headset or computer mic) and talk to see the bar move.")}
               </div>
             )}
 
