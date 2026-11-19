@@ -19,7 +19,8 @@ const MONTHLY_FEATURES: [string, string][] = [
 ];
 const ANNUAL_FEATURES: [string, string][] = [
   ['Tudo do plano Mensal', 'Everything in Monthly'],
-  ['Economia de 2 meses no ano', '2 months free every year'],
+  ['7 dias grátis para experimentar', '7-day free trial'],
+  ['Economize 50% em relação ao mensal', 'Save 50% vs. monthly'],
   ['Prioridade nos novos recursos', 'Early access to new features'],
 ];
 
@@ -28,7 +29,12 @@ export default function Premium() {
   const [params] = useSearchParams();
   const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null);
   const { isPremium } = useIsPremium();
-  const { tr } = useI18n();
+  const { tr, lang } = useI18n();
+  // Quem usa o site em inglês vê e paga em dólar; em português, em reais
+  const currency = lang === 'en' ? 'usd' : 'brl';
+  const price = currency === 'usd'
+    ? { monthly: 'US$ 9.99', annual: 'US$ 59.99', perMonth: 'US$ 5' }
+    : { monthly: 'R$ 19,90', annual: 'R$ 119,90', perMonth: 'R$ 9,99' };
 
   const subscribe = async (plan: Plan) => {
     setLoadingPlan(plan);
@@ -42,7 +48,7 @@ export default function Premium() {
       const res = await fetch('/api/stripe-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ plan }),
+        body: JSON.stringify({ plan, currency }),
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error || tr('Erro ao iniciar pagamento', 'Could not start checkout'));
@@ -80,7 +86,7 @@ export default function Premium() {
         <Card className="bg-zinc-950 border-white/10 p-10 rounded-[3rem] flex flex-col relative">
           <h3 className="text-2xl font-black text-white italic uppercase mb-2">{tr('Mensal', 'Monthly')}</h3>
           <div className="flex items-baseline gap-2 mb-8">
-            <span className="text-5xl font-black text-white">R$ 19,90</span>
+            <span className="text-5xl font-black text-white">{price.monthly}</span>
             <span className="text-gray-500 font-bold text-sm">{tr('/mês', '/month')}</span>
           </div>
           <ul className="space-y-4 mb-10 flex-1">
@@ -106,9 +112,10 @@ export default function Premium() {
           </div>
           <h3 className="text-2xl font-black text-cyan-400 italic uppercase mb-2">{tr('Anual', 'Annual')}</h3>
           <div className="flex items-baseline gap-2 mb-8">
-            <span className="text-5xl font-black text-white">R$ 119,90</span>
+            <span className="text-5xl font-black text-white">{price.annual}</span>
             <span className="text-gray-500 font-bold text-sm">{tr('/ano', '/year')}</span>
           </div>
+          <p className="-mt-6 mb-8 text-xs font-bold text-cyan-400">{tr('Equivale a', 'Just')} {price.perMonth}{tr('/mês', '/month')}</p>
           <ul className="space-y-4 mb-10 flex-1">
             {ANNUAL_FEATURES.map(([pt, en]) => (
               <li key={pt} className="flex items-center gap-3 text-sm font-bold text-white">
@@ -121,8 +128,11 @@ export default function Premium() {
             disabled={loadingPlan !== null || isPremium}
             className="w-full h-14 rounded-full bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 text-black font-black uppercase tracking-widest flex items-center justify-center transition-all"
           >
-            {buttonContent('annual', tr('Assinar Anual', 'Subscribe Annual'))}
+            {buttonContent('annual', tr('Começar 7 dias grátis', 'Start 7-day free trial'))}
           </button>
+          <p className="mt-3 text-[11px] text-gray-500 text-center">
+            {tr(`Depois, ${price.annual}/ano. Cancele quando quiser antes do fim do teste e nada é cobrado.`, `Then ${price.annual}/year. Cancel anytime before the trial ends and you won't be charged.`)}
+          </p>
         </Card>
       </div>
 

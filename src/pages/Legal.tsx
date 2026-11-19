@@ -42,7 +42,7 @@ function termsSections(lang: 'pt' | 'en'): Section[] {
         title: '4. Prime subscription',
         body: [
           'The Prime plan unlocks the full Academy (all levels and exercises) and related features. Prices are shown on the Plans page before you pay.',
-          'Payments are processed by Stripe. Subscriptions renew automatically at the end of each monthly or annual period until you cancel. You can cancel at any time; you keep access until the end of the period you already paid for. Refunds follow applicable law.',
+          'The annual plan may include a free trial for first-time subscribers; it converts to a paid subscription when the trial ends unless you cancel before then. Payments are processed by Stripe. Subscriptions renew automatically at the end of each monthly or annual period until you cancel. You can cancel at any time; you keep access until the end of the period you already paid for. Refunds follow applicable law.',
         ],
       },
       { title: '5. Acceptable use', body: ['Do not download, record, re-upload or redistribute YouTube videos through our service; do not try to block or hide YouTube ads or branding; do not attack, overload or reverse-engineer the service; and do not use it for illegal purposes. We may suspend accounts that break these rules.'] },
@@ -68,7 +68,7 @@ function termsSections(lang: 'pt' | 'en'): Section[] {
       title: '4. Assinatura Prime',
       body: [
         'O plano Prime libera o Academy completo (todos os níveis e exercícios) e recursos relacionados. Os preços aparecem na página de Planos antes do pagamento.',
-        'Os pagamentos são processados pela Stripe. A assinatura renova automaticamente ao fim de cada período mensal ou anual até você cancelar. Você pode cancelar quando quiser e mantém o acesso até o fim do período já pago. Reembolsos seguem a lei aplicável.',
+        'O plano anual pode incluir um teste grátis para quem assina pela primeira vez; ao fim do teste ele vira assinatura paga, a menos que você cancele antes. Os pagamentos são processados pela Stripe. A assinatura renova automaticamente ao fim de cada período mensal ou anual até você cancelar. Você pode cancelar quando quiser e mantém o acesso até o fim do período já pago. Reembolsos seguem a lei aplicável.',
       ],
     },
     { title: '5. Uso permitido', body: ['Não baixe, grave, republique ou redistribua vídeos do YouTube pelo nosso serviço; não tente bloquear ou esconder anúncios ou a marca do YouTube; não ataque, sobrecarregue ou faça engenharia reversa do serviço; e não o use para fins ilegais. Podemos suspender contas que descumprirem essas regras.'] },
