@@ -13,7 +13,7 @@ export default defineConfig({
     },
     hmr: { overlay: false },
   },
-  base: "./",
+  base: "/",
   plugins: [react()],
   resolve: {
     alias: {
