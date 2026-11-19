@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
 import { useIsPremium } from '@/hooks/use-is-premium';
 import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
+import { useI18n } from '@/i18n';
+import { useAcademyText } from '@/i18n/academy-en';
 
 // ============================================================================
 // COMPONENTES DOS NÍVEIS
@@ -13,6 +15,8 @@ import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
 
 const Level1Menu = () => {
   const navigate = useNavigate();
+  const { tr } = useI18n();
+  const tx = useAcademyText();
   const lessons1 = [
     { id: "1.1", title: "Respiração Diafragmática", desc: "Aprenda a respirar usando o diafragma para maior controle." },
     { id: "1.2", title: "Controle de Fluxo de Ar", desc: "Exercícios para manter a saída de ar constante e controlada." },
@@ -31,10 +35,10 @@ const Level1Menu = () => {
       <div className="bg-zinc-950 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
         <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
           <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 1</div>
-          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Fundamentos e <span className="text-cyan-400">Respiração</span></h1>
-          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">A fundação de todo grande cantor. Domine o seu fluxo de ar e prepare suas cordas vocais para a evolução.</p>
+          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">{tr('Fundamentos e', 'Fundamentals and')} <span className="text-cyan-400">{tr('Respiração', 'Breathing')}</span></h1>
+          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">{tr('A fundação de todo grande cantor. Domine o seu fluxo de ar e prepare suas cordas vocais para a evolução.', 'The foundation of every great singer. Master your airflow and get your voice ready to grow.')}</p>
           <div className="w-full h-16 rounded-full bg-cyan-500 text-black font-black uppercase tracking-widest text-sm flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-            BEM VINDO AO NÍVEL INTRODUÇÃO E AFINAÇÃO
+            {tr('BEM-VINDO AO NÍVEL 1', 'WELCOME TO LEVEL 1')}
           </div>
         </div>
         <div className="lg:w-1/2 bg-black relative min-h-[300px]">
@@ -42,15 +46,15 @@ const Level1Menu = () => {
         </div>
       </div>
       <div>
-        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> Aulas e Exercícios</h3>
+        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> {tr('Aulas e Exercícios', 'Lessons and Exercises')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lessons1.map((lesson) => (
             <Card key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)} className="p-6 rounded-[2rem] border transition-all flex items-start gap-4 bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group">
               <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all"><PlayCircle size={20} /></div>
               <div>
-                <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div>
-                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4>
-                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{lesson.desc}</p>
+                <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">{tr('Lição', 'Lesson')} {lesson.id}</span></div>
+                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{tx(lesson.title)}</h4>
+                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{tx(lesson.desc)}</p>
               </div>
             </Card>
           ))}
@@ -62,6 +66,8 @@ const Level1Menu = () => {
 
 const Level2Menu = () => {
   const navigate = useNavigate();
+  const { tr } = useI18n();
+  const tx = useAcademyText();
   const lessons2 = [
     { id: "2.1", title: "Percepção Auditiva", desc: "Treinando o ouvido para reconhecer notas e intervalos." },
     { id: "2.2", title: "Escalas Maiores", desc: "Subindo e descendo a escala com precisão matemática." },
@@ -80,10 +86,10 @@ const Level2Menu = () => {
       <div className="bg-zinc-950 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
         <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
           <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 2</div>
-          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Afinação <span className="text-cyan-400">Precisa</span></h1>
-          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">Treine o seu ouvido e a sua musculatura para acertar o centro exato de cada nota musical sem hesitar.</p>
+          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">{tr('Afinação', 'Precise')} <span className="text-cyan-400">{tr('Precisa', 'Pitch')}</span></h1>
+          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">{tr('Treine o seu ouvido e a sua musculatura para acertar o centro exato de cada nota musical sem hesitar.', 'Train your ear and muscles to hit the exact center of every note without hesitation.')}</p>
           <div className="w-full h-16 rounded-full bg-cyan-500 text-black font-black uppercase tracking-widest text-sm flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-            BEM VINDO AO NÍVEL AFINAÇÃO PRECISA
+            {tr('BEM-VINDO AO NÍVEL 2', 'WELCOME TO LEVEL 2')}
           </div>
         </div>
         <div className="lg:w-1/2 bg-black relative min-h-[300px]">
@@ -91,15 +97,15 @@ const Level2Menu = () => {
         </div>
       </div>
       <div>
-        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> Aulas e Exercícios</h3>
+        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> {tr('Aulas e Exercícios', 'Lessons and Exercises')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lessons2.map((lesson) => (
             <Card key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)} className="p-6 rounded-[2rem] border transition-all flex items-start gap-4 bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group">
               <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all"><PlayCircle size={20} /></div>
               <div>
-                <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div>
-                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4>
-                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{lesson.desc}</p>
+                <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">{tr('Lição', 'Lesson')} {lesson.id}</span></div>
+                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{tx(lesson.title)}</h4>
+                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{tx(lesson.desc)}</p>
               </div>
             </Card>
           ))}
@@ -111,6 +117,8 @@ const Level2Menu = () => {
 
 const Level3Menu = () => {
   const navigate = useNavigate();
+  const { tr } = useI18n();
+  const tx = useAcademyText();
   const lessons3 = [
     { id: "3.1", title: "O Poder do Humming", desc: "Encontrar e fortalecer a ressonância na máscara facial." },
     { id: "3.2", title: "Ginástica Articulatória", desc: "Destravar a mandíbula, a língua e os lábios com trava-línguas." },
@@ -129,10 +137,10 @@ const Level3Menu = () => {
       <div className="bg-zinc-950 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
         <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
           <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 3</div>
-          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Ressonância e <span className="text-cyan-400">Dicção</span></h1>
-          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">Deixe de apenas "emitir som" e passe a dar cor, brilho e clareza à sua voz.</p>
+          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">{tr('Ressonância e', 'Resonance and')} <span className="text-cyan-400">{tr('Dicção', 'Diction')}</span></h1>
+          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">{tr('Deixe de apenas "emitir som" e passe a dar cor, brilho e clareza à sua voz.', 'Stop just "making sound" and start giving your voice color, brightness and clarity.')}</p>
           <div className="w-full h-16 rounded-full bg-cyan-500 text-black font-black uppercase tracking-widest text-sm flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-            BEM VINDO AO NÍVEL RESSONÂNCIA E DICÇÃO
+            {tr('BEM-VINDO AO NÍVEL 3', 'WELCOME TO LEVEL 3')}
           </div>
         </div>
         <div className="lg:w-1/2 bg-black relative min-h-[300px]">
@@ -140,15 +148,15 @@ const Level3Menu = () => {
         </div>
       </div>
       <div>
-        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> Aulas e Exercícios</h3>
+        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> {tr('Aulas e Exercícios', 'Lessons and Exercises')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lessons3.map((lesson) => (
             <Card key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)} className="p-6 rounded-[2rem] border transition-all flex items-start gap-4 bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group">
               <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all"><PlayCircle size={20} /></div>
               <div>
-                <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div>
-                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4>
-                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{lesson.desc}</p>
+                <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">{tr('Lição', 'Lesson')} {lesson.id}</span></div>
+                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{tx(lesson.title)}</h4>
+                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{tx(lesson.desc)}</p>
               </div>
             </Card>
           ))}
@@ -160,6 +168,8 @@ const Level3Menu = () => {
 
 const Level4Menu = () => {
   const navigate = useNavigate();
+  const { tr } = useI18n();
+  const tx = useAcademyText();
   const lessons4 = [
     { id: "4.1", title: "Bocejo-Suspiro", desc: "Técnica para relaxar a voz e melhorar o alcance vocal." },
     { id: "4.2", title: "Boca Chiusa (scale)", desc: "Aquecimento sem sobrecarga com 'hmmm' na escala maior." },
@@ -178,24 +188,26 @@ const Level4Menu = () => {
       <div className="bg-zinc-950 border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row">
         <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
           <div className="inline-flex items-center gap-2 text-cyan-400 font-black uppercase tracking-widest text-xs mb-4 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-400/20 w-fit"><Target size={14} /> Level 4</div>
-          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">Interpretação <span className="text-cyan-400">Vocal</span></h1>
-          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">Nível focado em expressão e emoção ao cantar. Aguardando texto introdutório oficial.</p>
+          <h1 className="text-4xl md:text-5xl font-black text-white italic tracking-tighter uppercase mb-6 leading-tight">{tr('Ritual de', 'High-Performance')} <span className="text-cyan-400">{tr('Alta Performance', 'Ritual')}</span></h1>
+          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium mb-8">{tr('O ritual de aquecimento e cuidado vocal dos profissionais: relaxar, aquecer e ampliar sua extensão com segurança.', 'The warm-up and vocal care ritual of professionals: relax, warm up and expand your range safely.')}</p>
           <div className="w-full h-16 rounded-full bg-cyan-500 text-black font-black uppercase tracking-widest text-sm flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-            BEM VINDO AO NÍVEL INTERPRETAÇÃO VOCAL
+            {tr('BEM-VINDO AO NÍVEL 4', 'WELCOME TO LEVEL 4')}
           </div>
         </div>
-        <div className="lg:w-1/2 bg-black relative min-h-[300px] flex items-center justify-center text-gray-600 font-bold uppercase tracking-widest text-xs">Aguardando Vídeo Introdutório do Nível 4</div>
+        <div className="lg:w-1/2 bg-black relative min-h-[300px]">
+          <iframe width="100%" height="100%" src="https://www.youtube.com/embed/J44oTaBi0WE?rel=0" title="Level 4" frameBorder="0" allowFullScreen className="absolute inset-0 w-full h-full object-cover"></iframe>
+        </div>
       </div>
       <div>
-        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> Aulas e Exercícios</h3>
+        <h3 className="text-2xl font-black text-white uppercase tracking-widest italic mb-8 flex items-center gap-3"><PlayCircle className="text-cyan-400" /> {tr('Aulas e Exercícios', 'Lessons and Exercises')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {lessons4.map((lesson) => (
             <Card key={lesson.id} onClick={() => navigate(`/lesson/${lesson.id}`)} className="p-6 rounded-[2rem] border transition-all flex items-start gap-4 bg-zinc-950 border-white/10 hover:border-cyan-500/50 cursor-pointer hover:bg-white/5 group">
               <div className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 border bg-zinc-900 border-white/10 group-hover:bg-cyan-500/20 group-hover:border-cyan-500/50 group-hover:text-cyan-400 text-white transition-all"><PlayCircle size={20} /></div>
               <div>
-                <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">Lição {lesson.id}</span></div>
-                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{lesson.title}</h4>
-                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{lesson.desc}</p>
+                <div className="flex items-center gap-2 mb-1"><span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2 py-0.5 rounded-md">{tr('Lição', 'Lesson')} {lesson.id}</span></div>
+                <h4 className="text-lg font-black text-white italic uppercase tracking-tight mb-2 line-clamp-1">{tx(lesson.title)}</h4>
+                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed">{tx(lesson.desc)}</p>
               </div>
             </Card>
           ))}
@@ -211,6 +223,8 @@ const Level4Menu = () => {
 
 export default function Academy() {
   const navigate = useNavigate();
+  const { tr } = useI18n();
+  const tx = useAcademyText();
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [activeLevel, setActiveLevel] = useState<number | null>(null);
@@ -229,7 +243,7 @@ export default function Academy() {
     { id: 1, titulo: 'INTRODUÇÃO E AFINAÇÃO', desc: 'Fundamentos de ouvido e intervalos básicos.', time: '10 min', locked: false },
     { id: 2, titulo: 'AFINAÇÃO PRECISA', desc: 'Treinamento intermediário e controle tonal.', time: '12 min', locked: true },
     { id: 3, titulo: 'RESSONÂNCIA E DICÇÃO', desc: 'A cor da voz e a clareza das palavras.', time: '15 min', locked: true },
-    { id: 4, titulo: 'INTERPRETAÇÃO VOCAL', desc: 'Expressão e emoção ao cantar.', time: '20 min', locked: true },
+    { id: 4, titulo: 'RITUAL DE ALTA PERFORMANCE', desc: 'Aquecimento e cuidado vocal dos profissionais.', time: '20 min', locked: true },
     { id: 5, titulo: 'FALSETES E MELISMAS', desc: 'Técnicas avançadas de R&B e POP.', time: '25 min', locked: true },
     { id: 6, titulo: 'VIBRATO MASTER', desc: 'Oscilação perfeita e controle.', time: '20 min', locked: true },
     { id: 7, titulo: 'DRIVES E RASPS', desc: 'Distorção vocal com segurança.', time: '25 min', locked: true },
@@ -238,7 +252,7 @@ export default function Academy() {
     { id: 10, titulo: 'SHOW COMPLETO', desc: 'A prova final. Rotina de 40 minutos.', time: '40 min', locked: true },
   ];
 
-  if (loadingAuth) return <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans text-white"><div className="h-16 w-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" /><p className="text-cyan-400 font-black uppercase tracking-widest text-xs">Autenticando VIP...</p></div>;
+  if (loadingAuth) return <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans text-white"><div className="h-16 w-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" /><p className="text-cyan-400 font-black uppercase tracking-widest text-xs">{tr('Carregando...', 'Loading...')}</p></div>;
 
   const handleLevelClick = (levelId: number) => {
     const builtLevels = [1, 2, 3, 4];
@@ -257,7 +271,7 @@ export default function Academy() {
       <div className="absolute inset-0 z-0 fixed"><img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&q=80" alt="Studio" className="w-full h-full object-cover opacity-40" /><div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black" /></div>
       <div className="z-10 max-w-7xl mx-auto w-full relative">
         <button onClick={() => activeLevel ? setActiveLevel(null) : navigate('/')} className="text-gray-400 hover:text-white mb-8 flex items-center gap-2 uppercase text-[10px] font-black tracking-widest transition-colors bg-black/50 px-4 py-2 rounded-full border border-white/10 w-fit backdrop-blur-md">
-          <ArrowLeft size={16} /> {activeLevel ? 'Voltar para os Níveis' : 'Voltar para o Palco'}
+          <ArrowLeft size={16} /> {activeLevel ? tr('Voltar para os Níveis', 'Back to Levels') : tr('Voltar para o Início', 'Back to Home')}
         </button>
 
         {activeLevel ? (
@@ -265,9 +279,9 @@ export default function Academy() {
         ) : (
             <div className="animate-in fade-in duration-500">
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 px-4 py-1 rounded-full text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-4 shadow-[0_0_15px_rgba(34,211,238,0.2)]"><GraduationCap size={14} /> Centro de Treinamento</div>
+                    <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-400/20 px-4 py-1 rounded-full text-cyan-400 text-[10px] font-black uppercase tracking-widest mb-4 shadow-[0_0_15px_rgba(34,211,238,0.2)]"><GraduationCap size={14} /> {tr('Centro de Treinamento', 'Training Center')}</div>
                     <h1 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">ACADEMY <span className="text-cyan-400 neon-blue-glow">PRIME</span></h1>
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">Aprenda as técnicas dos maiores vocalistas do mundo, {user?.displayName?.split(' ')[0] || 'Cantor'}.</p>
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-2">{tr('Treine sua voz passo a passo', 'Train your voice step by step')}, {user?.displayName?.split(' ')[0] || tr('Cantor', 'Singer')}.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {modulos.map((mod) => {
@@ -277,19 +291,19 @@ export default function Academy() {
                                 <div className={`h-12 w-12 rounded-2xl flex items-center justify-center mb-6 border transition-colors ${isLockedForUser ? 'bg-white/5 border-white/5' : 'bg-cyan-500/10 border-cyan-500/30'}`}>
                                     {isLockedForUser ? <Lock size={20} className="text-gray-600" /> : <PlayCircle size={24} className="text-cyan-400" />}
                                 </div>
-                                <h3 className="font-black text-white text-sm uppercase italic tracking-widest mb-2">{mod.titulo}</h3>
-                                <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed mb-6 flex-1 italic">{mod.desc}</p>
+                                <h3 className="font-black text-white text-sm uppercase italic tracking-widest mb-2">{mod.id === 4 ? tr('RITUAL DE ALTA PERFORMANCE', 'HIGH-PERFORMANCE RITUAL') : tx(mod.titulo)}</h3>
+                                <p className="text-[10px] text-gray-500 font-bold uppercase leading-relaxed mb-6 flex-1 italic">{mod.id === 4 ? tr('Aquecimento e cuidado vocal dos profissionais.', 'Pro warm-up and vocal care.') : tx(mod.desc)}</p>
                                 <div className="flex gap-4 mb-8">
-                                    <div className="text-center"><p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Dificuldade</p><p className="text-xs font-black text-white italic">Lvl {mod.id}</p></div>
-                                    <div className="text-center"><p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Duração</p><p className="text-xs font-black text-white italic">{mod.time}</p></div>
+                                    <div className="text-center"><p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">{tr('Dificuldade', 'Difficulty')}</p><p className="text-xs font-black text-white italic">Lvl {mod.id}</p></div>
+                                    <div className="text-center"><p className="text-[8px] text-gray-500 font-black uppercase tracking-tighter">{tr('Duração', 'Duration')}</p><p className="text-xs font-black text-white italic">{mod.time}</p></div>
                                 </div>
                                 {!isLockedForUser ? (
                                     <Button onClick={() => handleLevelClick(mod.id)} className="w-full rounded-full bg-white text-black font-black uppercase tracking-tighter text-[10px] h-10 hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)]">
-                                        Iniciar Módulo
+                                        {tr('Iniciar Módulo', 'Start Level')}
                                     </Button>
                                 ) : (
                                     <Button onClick={() => navigate('/premium')} className="w-full rounded-full bg-white/5 text-gray-600 font-black uppercase tracking-tighter text-[10px] h-10 border border-white/5 hover:border-white/20">
-                                        Assinar para Desbloquear
+                                        {tr('Assinar para Desbloquear', 'Subscribe to Unlock')}
                                     </Button>
                                 )}
                             </Card>
