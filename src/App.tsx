@@ -25,6 +25,8 @@ import Talent from "./pages/Talent";
 import NotFound from "./pages/NotFound";
 
 import { LanguageProvider } from './i18n';
+import Legal from './pages/Legal';
+import SiteFooter from './components/SiteFooter';
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -49,6 +51,8 @@ const App = () => (
           <Route path="/library" element={<Library />} />
           <Route path="/premium" element={<Premium />} />
           <Route path="/score" element={<ScoreResult />} />
+          <Route path="/terms" element={<Legal page="terms" />} />
+          <Route path="/privacy" element={<Legal page="privacy" />} />
           
           {/* Rotas Dinâmicas (Precisam de um ID para funcionar) */}
           <Route path="/play/:id" element={<SongPlayer />} />
@@ -61,6 +65,7 @@ const App = () => (
           {/* Rota de Segurança 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <SiteFooter />
       </BrowserRouter>
       </LanguageProvider>
     </TooltipProvider>
