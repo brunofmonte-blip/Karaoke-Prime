@@ -64,7 +64,7 @@ const AcademyLevel3Menu = () => {
               <Wind className="h-8 w-8" /> Laboratório de Respiração
             </h2>
             <p className="text-gray-400 text-sm font-bold uppercase tracking-widest mt-2">
-              Prove que você tem pulmão nível Julliard
+              Prove que você tem fôlego de profissional
             </p>
           </div>
 
