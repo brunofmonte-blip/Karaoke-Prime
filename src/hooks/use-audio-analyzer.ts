@@ -16,6 +16,8 @@ interface AudioAnalyzerResult {
   pitchCents: number;
   /** 0–1: estabilidade/clareza do som */
   clarity: number;
+  /** 0–1: volume do microfone (para o medidor de sinal) */
+  micLevel: number;
   sensitivity: number;
   setSensitivity: (value: number) => void;
 }
@@ -23,10 +25,11 @@ interface AudioAnalyzerResult {
 const BUFFER_SIZE = 2048;
 const MIN_FREQ = 80;
 const MAX_FREQ = 1000;
-const MIN_CLARITY = 0.8;
+const MIN_CLARITY = 0.75;
 const DEFAULT_SENSITIVITY_THRESHOLD = 100; // slider 0–200: maior = ignora sons mais baixos
 
-const sensitivityToMinRms = (sensitivity: number) => 0.002 + (sensitivity / 200) * 0.05;
+// Sensibilidade padrão (100) ≈ RMS 0.006: capta voz normal em microfones de fone de ouvido
+const sensitivityToMinRms = (sensitivity: number) => 0.001 + (sensitivity / 200) * 0.01;
 
 const frequencyToVisualizationScale = (frequency: number): number => {
   if (frequency < MIN_FREQ) return 0;
@@ -43,6 +46,7 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
   const [pitchNote, setPitchNote] = useState('');
   const [pitchCents, setPitchCents] = useState(0);
   const [clarity, setClarity] = useState(0);
+  const [micLevel, setMicLevel] = useState(0);
   const [sensitivity, setSensitivity] = useState(DEFAULT_SENSITIVITY_THRESHOLD);
 
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -82,6 +86,8 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     setPitchNote(note?.name ?? '');
     setPitchCents(note?.cents ?? 0);
     setClarity(result.clarity);
+    // RMS de voz fica em ~0.005–0.2; escala logarítmica para o medidor
+    setMicLevel(result.rms > 0 ? Math.max(0, Math.min(1, (Math.log10(result.rms) + 3) / 2.5)) : 0);
 
     animationFrameRef.current = requestAnimationFrame(analyze);
   }, []);
@@ -89,18 +95,23 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
   const startAnalysis = async () => {
     if (isAnalyzing) return;
 
+    // O AudioContext precisa nascer DENTRO do clique; se for criado depois de
+    // esperar a permissão do microfone, o Chrome pode deixá-lo pausado (silêncio).
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    const context: AudioContext = new AudioContextClass();
+    context.resume().catch(() => undefined);
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           // Processamentos do navegador distorcem a afinação; desligados para medir a voz real
           echoCancellation: false,
           noiseSuppression: false,
-          autoGainControl: false,
+          // Ganho automático só mexe no volume, não na afinação; ajuda microfones fracos
+          autoGainControl: true,
         },
       });
 
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      const context: AudioContext = new AudioContextClass();
       if (context.state === 'suspended') {
         await context.resume();
       }
@@ -130,6 +141,7 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     } catch (error) {
       console.error('[use-audio-analyzer] Error accessing microphone:', error);
       toast.error(tr('Não conseguimos usar seu microfone. Libere o acesso no navegador e tente de novo.', "We couldn't use your microphone. Allow access in your browser and try again."), { duration: 6000 });
+      context.close().catch(() => undefined);
       setIsAnalyzing(false);
     }
   };
@@ -153,6 +165,7 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     setPitchNote('');
     setPitchCents(0);
     setClarity(0);
+    setMicLevel(0);
   };
 
   useEffect(() => {
@@ -171,6 +184,7 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     pitchNote,
     pitchCents,
     clarity,
+    micLevel,
     sensitivity,
     setSensitivity,
   };
