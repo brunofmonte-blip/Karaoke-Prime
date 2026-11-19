@@ -3,6 +3,47 @@ import { toast } from 'sonner';
 import { createPitchDetector, frequencyToNote } from '@/utils/pitch-detection';
 import { useI18n } from '@/i18n';
 
+export interface MicDevice {
+  id: string;
+  label: string;
+}
+
+const MIC_STORAGE_KEY = 'kp_mic';
+// Entradas virtuais (Voicemeeter, cabos de áudio, mixagem estéreo) costumam
+// mandar silêncio ou o som do próprio computador — nunca a voz.
+const VIRTUAL_MIC = /voicemeeter|vb-audio|virtual|cable|stereo mix|mixagem est|wave link|obs|blackhole|soundflower|loopback/i;
+
+const AUDIO_CONSTRAINTS = {
+  // Processamentos do navegador distorcem a afinação; desligados para medir a voz real
+  echoCancellation: false,
+  noiseSuppression: false,
+  // Ganho automático só mexe no volume, não na afinação; ajuda microfones fracos
+  autoGainControl: true,
+};
+
+function readSavedMic(): string | null {
+  try {
+    return window.localStorage.getItem(MIC_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function saveMic(id: string) {
+  try {
+    window.localStorage.setItem(MIC_STORAGE_KEY, id);
+  } catch {
+    // sem persistência
+  }
+}
+
+async function openMic(deviceId?: string): Promise<MediaStream> {
+  const audio: MediaTrackConstraints = { ...AUDIO_CONSTRAINTS };
+  if (deviceId) audio.deviceId = { exact: deviceId };
+  else audio.deviceId = { ideal: 'default' }; // microfone padrão do sistema
+  return navigator.mediaDevices.getUserMedia({ audio });
+}
+
 interface AudioAnalyzerResult {
   isAnalyzing: boolean;
   startAnalysis: () => void;
@@ -18,6 +59,12 @@ interface AudioAnalyzerResult {
   clarity: number;
   /** 0–1: volume do microfone (para o medidor de sinal) */
   micLevel: number;
+  /** Microfones disponíveis (aparecem depois da permissão) */
+  micDevices: MicDevice[];
+  /** deviceId do microfone em uso */
+  currentMicId: string;
+  /** Troca o microfone (e lembra a escolha) */
+  selectMic: (deviceId: string) => Promise<void>;
   sensitivity: number;
   setSensitivity: (value: number) => void;
 }
@@ -52,6 +99,8 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
   const [pitchCents, setPitchCents] = useState(0);
   const [clarity, setClarity] = useState(0);
   const [micLevel, setMicLevel] = useState(0);
+  const [micDevices, setMicDevices] = useState<MicDevice[]>([]);
+  const [currentMicId, setCurrentMicId] = useState('');
   const [sensitivity, setSensitivity] = useState(DEFAULT_SENSITIVITY_THRESHOLD);
 
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -106,15 +155,35 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     context.resume().catch(() => undefined);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          // Processamentos do navegador distorcem a afinação; desligados para medir a voz real
-          echoCancellation: false,
-          noiseSuppression: false,
-          // Ganho automático só mexe no volume, não na afinação; ajuda microfones fracos
-          autoGainControl: true,
-        },
-      });
+      // 1) microfone salvo; 2) padrão do sistema
+      const saved = readSavedMic();
+      let stream: MediaStream;
+      try {
+        stream = await openMic(saved || undefined);
+      } catch {
+        stream = await openMic();
+      }
+
+      // Se o navegador entregou uma entrada virtual (ex.: Voicemeeter), troca
+      // por um microfone de verdade — a menos que a pessoa tenha escolhido essa.
+      const devices = await listMics();
+      const inUse = stream.getAudioTracks()[0]?.getSettings().deviceId ?? '';
+      const inUseLabel = devices.find((d) => d.id === inUse)?.label ?? stream.getAudioTracks()[0]?.label ?? '';
+      if (!saved && VIRTUAL_MIC.test(inUseLabel)) {
+        const real =
+          devices.find((d) => d.id === 'default' && !VIRTUAL_MIC.test(d.label)) ??
+          devices.find((d) => d.id !== 'default' && d.id !== 'communications' && !VIRTUAL_MIC.test(d.label));
+        if (real) {
+          try {
+            const better = await openMic(real.id);
+            stream.getTracks().forEach((track) => track.stop());
+            stream = better;
+          } catch {
+            // fica com o que temos
+          }
+        }
+      }
+      setCurrentMicId(stream.getAudioTracks()[0]?.getSettings().deviceId ?? '');
 
       if (context.state === 'suspended') {
         await context.resume();
@@ -148,6 +217,43 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
       toast.error(tr('Não conseguimos usar seu microfone. Libere o acesso no navegador e tente de novo.', "We couldn't use your microphone. Allow access in your browser and try again."), { duration: 6000 });
       context.close().catch(() => undefined);
       setIsAnalyzing(false);
+    }
+  };
+
+  async function listMics(): Promise<MicDevice[]> {
+    try {
+      const all = await navigator.mediaDevices.enumerateDevices();
+      const mics = all
+        .filter((d) => d.kind === 'audioinput')
+        .map((d, i) => ({ id: d.deviceId, label: d.label || `Microfone ${i + 1}` }));
+      setMicDevices(mics);
+      return mics;
+    } catch {
+      return [];
+    }
+  }
+
+  const selectMic = async (deviceId: string) => {
+    const context = audioContextRef.current;
+    const analyser = analyserRef.current;
+    if (!context || !analyser) {
+      saveMic(deviceId);
+      return;
+    }
+    try {
+      const stream = await openMic(deviceId);
+      if (sourceRef.current) {
+        sourceRef.current.mediaStream.getTracks().forEach((track) => track.stop());
+        sourceRef.current.disconnect();
+      }
+      const source = context.createMediaStreamSource(stream);
+      source.connect(analyser);
+      sourceRef.current = source;
+      noiseFloorRef.current = 0.001;
+      saveMic(deviceId);
+      setCurrentMicId(stream.getAudioTracks()[0]?.getSettings().deviceId ?? deviceId);
+    } catch {
+      toast.error(tr('Não foi possível usar esse microfone.', "Couldn't use that microphone."));
     }
   };
 
@@ -190,6 +296,9 @@ export const useAudioAnalyzer = (): AudioAnalyzerResult => {
     pitchCents,
     clarity,
     micLevel,
+    micDevices,
+    currentMicId,
+    selectMic,
     sensitivity,
     setSensitivity,
   };
