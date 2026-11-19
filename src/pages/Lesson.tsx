@@ -332,7 +332,7 @@ export default function Lesson() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const { isPremium: isPremiumUser } = useIsPremium();
+  const { isPremium: isPremiumUser, isLoading: premiumLoading } = useIsPremium();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
@@ -349,6 +349,8 @@ export default function Lesson() {
 
   const currentLesson = activeLessonIndex === 0 ? null : currentModule.lessons.find(l => l.id === activeLessonIndex);
   const isIntroActive = activeLessonIndex === 0;
+  // Aula paga aberta pelo endereço direto: só assinantes veem vídeo e exercício
+  const lessonLocked = Boolean(currentLesson?.locked) && !isPremiumUser;
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -431,7 +433,20 @@ export default function Lesson() {
 
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="lg:w-2/3 flex flex-col gap-6">
-            {step === 'video' ? (
+            {lessonLocked ? (
+              <div className="w-full aspect-video rounded-[2rem] border border-white/10 bg-zinc-950 flex flex-col items-center justify-center text-center p-8">
+                {premiumLoading ? (
+                  <div className="h-10 w-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Lock className="h-12 w-12 text-cyan-400 mb-4" />
+                    <p className="text-xl font-black italic uppercase mb-2">{tr('Aula do plano Prime', 'Prime lesson')}</p>
+                    <p className="text-sm text-gray-400 mb-6 max-w-sm">{tr('Assine para liberar todas as aulas e exercícios dos 10 níveis.', 'Subscribe to unlock every lesson and exercise in all 10 levels.')}</p>
+                    <Button onClick={() => navigate('/premium')} className="h-12 px-8 rounded-full bg-cyan-400 hover:bg-cyan-300 text-black font-black uppercase">{tr('Ver planos', 'See plans')}</Button>
+                  </>
+                )}
+              </div>
+            ) : step === 'video' ? (
               <div className="animate-in slide-in-from-bottom-10 duration-500">
                 <div className="w-full aspect-video rounded-[2rem] overflow-hidden border border-white/10 bg-zinc-900 mb-8 relative">
                   {videoToPlay && videoToPlay !== "ADD LINK YOUTUBE" ? (
