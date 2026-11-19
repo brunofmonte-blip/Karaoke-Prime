@@ -9,6 +9,7 @@ import { useIsPremium } from '@/hooks/use-is-premium';
 import { onAuthStateChanged, User as FirebaseUser } from '@/lib/auth';
 import { useI18n } from '@/i18n';
 import { useAcademyText } from '@/i18n/academy-en';
+import { PracticeBacking } from '@/utils/practice-backing';
 
 // O Motor de Treino
 import { VocalSandboxProvider } from '@/hooks/use-vocal-sandbox';
@@ -186,11 +187,11 @@ const academyData: Record<string, { level: string, moduleName: string, introVide
         exercise: "SOVT", practiceDesc: "Canta a música favorita soprando o canudo.",
         feedbackTitle: "Controle de Pressão", feedbackDesc: "Alinha a pressão acima e abaixo das pregas.", frequency: "Diário",
         phases: [{phase: 'INSPIRA', t: 2, instruction: '', color: 'cyan', icon: Wind}, {phase: 'CANUDO', t: 15, instruction: 'Sopre cantando', color: 'orange', icon: Activity}, {phase: 'DESCANSA', t: 3, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 4, displayTitle: "Aula 4", title: "Vibração Labial Portamento", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 4, displayTitle: "Aula 4", title: "Vibração Labial Portamento", youtubeId: "3nL733b7rgQ", hasPractice: true, locked: true,
         exercise: "Brrr Contínuo", practiceDesc: "'Brrr' escorregando notas do grave ao agudo.",
         feedbackTitle: "Massagem", feedbackDesc: "Solta a voz para atingir notas altas fáceis.", frequency: "Aquecimento",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'BRRR', t: 12, instruction: 'Escorregando', color: 'orange', icon: Mic2}, {phase: 'DESCANSA', t: 5, instruction: '', color: 'gray', icon: Coffee}] },
-      { id: 5, displayTitle: "Aula 5", title: "Vibração de Língua", youtubeId: "ADD LINK YOUTUBE", hasPractice: true, locked: true,
+      { id: 5, displayTitle: "Aula 5", title: "Vibração de Língua", youtubeId: "vImzV9TdLdo", hasPractice: true, locked: true,
         exercise: "Escala em R", practiceDesc: "Rola os 'Rs' subindo a escala.",
         feedbackTitle: "Sem Tensão", feedbackDesc: "Solta a base da língua totalmente.", frequency: "Diário",
         phases: [{phase: 'INSPIRA', t: 3, instruction: '', color: 'cyan', icon: Wind}, {phase: 'RRRR', t: 10, instruction: 'Subindo', color: 'orange', icon: Volume2}, {phase: 'DESCANSA', t: 2, instruction: '', color: 'gray', icon: Coffee}] },
@@ -330,7 +331,10 @@ export default function Lesson() {
   const [countdown, setCountdown] = useState(3);
   const [timeLeft, setTimeLeft] = useState(60); 
   const [user, setUser] = useState<FirebaseUser | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Trilha de fundo própria (sintetizada no navegador, sem arquivo de terceiros)
+  const audioRef = useRef<PracticeBacking | null>(null);
+  if (!audioRef.current) audioRef.current = new PracticeBacking();
+  useEffect(() => () => audioRef.current?.close(), []);
 
   const { isPremium: isPremiumUser, isLoading: premiumLoading } = useIsPremium();
 
@@ -414,7 +418,6 @@ export default function Lesson() {
 
   return (
     <div className="min-h-screen bg-black relative pb-20 pt-28 px-4 font-sans text-white">
-      <audio ref={audioRef} src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3" loop />
       <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-black z-0" />
       
       <div className="max-w-7xl mx-auto relative z-10 animate-in fade-in duration-700">
