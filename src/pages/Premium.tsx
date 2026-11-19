@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Check, Star, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,6 +24,10 @@ const ANNUAL_FEATURES: [string, string][] = [
   ['Prioridade nos novos recursos', 'Early access to new features'],
 ];
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([promise, new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))]);
+}
+
 export default function Premium() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -36,25 +40,40 @@ export default function Premium() {
     ? { monthly: 'US$ 9.99', annual: 'US$ 59.99', perMonth: 'US$ 5' }
     : { monthly: 'R$ 19,90', annual: 'R$ 119,90', perMonth: 'R$ 9,99' };
 
+  // Ao voltar da página da Stripe pelo botão Voltar, o navegador restaura a
+  // página "congelada" com o botão girando; destrava quando ela reaparece.
+  useEffect(() => {
+    const reset = () => setLoadingPlan(null);
+    window.addEventListener('pageshow', reset);
+    return () => window.removeEventListener('pageshow', reset);
+  }, []);
+
   const subscribe = async (plan: Plan) => {
     setLoadingPlan(plan);
     try {
-      const token = await getAccessToken();
+      const token = await withTimeout(getAccessToken(), 8000);
       if (!token) {
         toast.info(tr('Entre na sua conta para assinar.', 'Sign in to subscribe.'));
         navigate('/login');
         return;
       }
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 25000);
       const res = await fetch('/api/stripe-checkout', {
         method: 'POST',
+        signal: controller.signal,
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ plan, currency }),
       });
+      clearTimeout(timer);
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error || tr('Erro ao iniciar pagamento', 'Could not start checkout'));
-      window.location.href = data.url;
+      window.location.assign(data.url);
     } catch (err: any) {
-      toast.error(err.message || tr('Não foi possível iniciar o pagamento.', 'Could not start checkout.'));
+      const timedOut = err?.name === 'AbortError' || err?.message === 'timeout';
+      toast.error(timedOut
+        ? tr('A conexão demorou demais. Recarregue a página e tente de novo.', 'The connection took too long. Reload the page and try again.')
+        : err.message || tr('Não foi possível iniciar o pagamento.', 'Could not start checkout.'));
       setLoadingPlan(null);
     }
   };
